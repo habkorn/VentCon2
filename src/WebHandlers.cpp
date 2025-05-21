@@ -2,7 +2,6 @@
 #include <ArduinoJson.h>
 #include <DNSServer.h> 
 #include "WebContent.h"
-#include <PID_v1.h>
 
 // External declarations from main.cpp
 extern WebServer server;
@@ -16,7 +15,6 @@ extern struct Settings {
 } settings;
 
 extern double Input, Output;
-extern PID pid;
 extern void saveSettings();
 extern void updatePWM();
 extern bool ads_found;
@@ -75,11 +73,9 @@ void handleSet() {
   if (server.hasArg("res")) {
     settings.pwm_res = server.arg("res").toInt();
     updatePWM();
-    pid.SetOutputLimits(0, (1 << settings.pwm_res) - 1);
   }
 
   // Update PID and save settings
-  pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
   saveSettings();
   server.send(200, "text/plain", "OK");
 }

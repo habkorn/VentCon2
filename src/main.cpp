@@ -3,7 +3,6 @@
 #include <DNSServer.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
-#include <PID_v1.h>
 #include <Adafruit_ADS1X15.h>
 #include "WebContent.h"
 
@@ -52,8 +51,12 @@ Settings settings = {
 
 // ====== PID and Sensor Variables ======
 double Input, Output; // PID input (pressure) and output (PWM)
-PID pid(&Input, &Output, &settings.setpoint, settings.Kp, settings.Ki, settings.Kd, DIRECT);
 float filtered_pressure = 0;
+
+// --- Custom PID variables ---
+double pid_integral = 0;
+double pid_last_error = 0;
+unsigned long pid_last_time = 0;
 
 // ====== Sensor Configuration ======
 const int ADC_CHANNEL = 0;
@@ -114,21 +117,18 @@ void parseSerialCommand(String cmd)
   if (cmd.startsWith("KP="))
   {
     settings.Kp = cmd.substring(3).toFloat();
-    pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
     Serial.printf("Proportional gain set to: %.2f\n", settings.Kp);
     saveSettings();
   }
   else if (cmd.startsWith("KI="))
   {
     settings.Ki = cmd.substring(3).toFloat();
-    pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
     Serial.printf("Integral gain set to: %.2f\n", settings.Ki);
     saveSettings();
   }
   else if (cmd.startsWith("KD="))
   {
     settings.Kd = cmd.substring(3).toFloat();
-    pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
     Serial.printf("Derivative gain set to: %.2f\n", settings.Kd);
     saveSettings();
   }
@@ -259,13 +259,6 @@ void setup()
   WiFi.softAP(ap_ssid, ap_password);
   dnsServer.start(53, "*", ap_ip);
   
-  // Initialize PID only if ADS is found
-  if (ads_found)
-  {
-    pid.SetMode(AUTOMATIC);
-    pid.SetOutputLimits(0, (1 << settings.pwm_res) - 1);
-  }
-  
   // Register web server routes
   server.on("/", handleRoot);
   server.on("/set", handleSet);
@@ -292,7 +285,7 @@ void loop()
     return;
   }
 
-  // ====== Sensor Reading and PID Update ======
+  // ====== Sensor Reading ======
   int adc_value;
   if (ads_found)
   {
@@ -308,14 +301,30 @@ void loop()
   }
   float raw_pressure = SENSOR_MIN_BAR + (adc_value - ADC_MIN) * 
                       (SENSOR_MAX_BAR - SENSOR_MIN_BAR) / (ADC_MAX - ADC_MIN);
-  
+
   // Exponential filter for pressure reading
   filtered_pressure = settings.filter_strength * raw_pressure + 
                      (1 - settings.filter_strength) * filtered_pressure;
   Input = filtered_pressure;
-  
-  // PID calculation and PWM output
-  pid.Compute();
+
+  // ====== Custom PID Calculation ======
+  double error = settings.setpoint - Input;
+  unsigned long now = millis();
+  double dt = (pid_last_time > 0) ? (now - pid_last_time) / 1000.0 : 0.01;
+  pid_last_time = now;
+
+  pid_integral += error * dt;
+  double derivative = (dt > 0) ? (error - pid_last_error) / dt : 0;
+  pid_last_error = error;
+
+  double out = settings.Kp * error + settings.Ki * pid_integral + settings.Kd * derivative;
+
+  // Clamp output to PWM range
+  int max_pwm = (1 << settings.pwm_res) - 1;
+  if (out < 0) out = 0;
+  if (out > max_pwm) out = max_pwm;
+  Output = out;
+
   ledcWrite(PWM_CHANNEL, (uint32_t)Output);
 
   // ====== Emergency Shutdown ======
