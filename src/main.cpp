@@ -157,7 +157,6 @@ void parseSerialCommand(String cmd)
   {
     int new_res = cmd.substring(4).toInt();
     settings.pwm_res = constrain(new_res, 1, 16);
-    pid.SetOutputLimits(0, (1 << settings.pwm_res) - 1);
     updatePWM();
     Serial.printf("PWM resolution updated to: %d bits\n", settings.pwm_res);
     saveSettings();
