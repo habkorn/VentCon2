@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>www.ventcon.at - Pressure Control</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f0f0f0;
+    }
+    #chartContainer {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .control-group {
+      background: white;
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 10px 0;
+    }
+    input[type="range"] {
+      flex-grow: 1;
+    }
+    input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+    .ap-notice {
+      background: #ffeeba;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="ap-notice">
+    <h3>Connected to VENTCON_AP</h3>
+    <p>IP: 192.168.4.1 | No internet access</p>
+  </div>
+
+  <h1>Pressure Control System</h1>
+  
+  <div id="chartContainer">
+    <canvas id="liveChart"></canvas>
+  </div>
+
+  <div class="control-group">
+    <h2>Control Parameters</h2>
+    
+    <div class="control-row">
+      <label>Setpoint (bar):</label>
+      <input type="range" id="sp_slider" min="0" max="10" step="0.1" value="%SP%">
+      <input type="number" id="sp_text" value="%SP%" step="0.1">
+    </div>
+
+    <div class="control-row">
+      <label>Proportional (Kp):</label>
+      <input type="range" id="kp_slider" min="0" max="5" step="0.1" value="%KP%">
+      <input type="number" id="kp_text" value="%KP%" step="0.1">
+    </div>
+
+    <div class="control-row">
+      <label>Integral (Ki):</label>
+      <input type="range" id="ki_slider" min="0" max="2" step="0.01" value="%KI%">
+      <input type="number" id="ki_text" value="%KI%" step="0.01">
+    </div>
+
+    <div class="control-row">
+      <label>Derivative (Kd):</label>
+      <input type="range" id="kd_slider" min="0" max="1" step="0.01" value="%KD%">
+      <input type="number" id="kd_text" value="%KD%" step="0.01">
+    </div>
+
+    <div class="control-row">
+      <label>Filter (0-1):</label>
+      <input type="range" id="flt_slider" min="0" max="1" step="0.01" value="%FLT%">
+      <input type="number" id="flt_text" value="%FLT%" step="0.01">
+    </div>
+
+    <div class="control-row">
+      <label>PWM Freq (Hz):</label>
+      <input type="range" id="freq_slider" min="100" max="10000" step="100" value="%FREQ%">
+      <input type="number" id="freq_text" value="%FREQ%" step="100">
+    </div>
+
+    <div class="control-row">
+      <label>PWM Res (bits):</label>
+      <input type="range" id="res_slider" min="1" max="16" step="1" value="%RES%">
+      <input type="number" id="res_text" value="%RES%" step="1">
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('liveChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Setpoint (bar)',
+          data: [],
+          borderColor: '#ff6384',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.3
+        }, {
+          label: 'Pressure (bar)',
+          data: [],
+          borderColor: '#36a2eb',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          tension: 0.3
+        }, {
+          label: 'PWM (%)',
+          data: [],
+          borderColor: '#4bc0c0',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Value'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Time (samples)'
+            }
+          }
+        }
+      }
+    });
+
+    let sampleCount = 0;
+    let updateTimeout;
+
+    async function updateChart() {
+      try {
+        const response = await fetch('/values');
+        const data = await response.json();
+        
+        // Update chart data
+        chart.data.labels.push(sampleCount++);
+        chart.data.datasets[0].data.push(data.sp);
+        chart.data.datasets[1].data.push(data.pressure);
+        chart.data.datasets[2].data.push(data.pwm);
+
+        // Keep last 60 samples
+        if(chart.data.labels.length > 60) {
+          chart.data.labels.shift();
+          chart.data.datasets.forEach(d => d.data.shift());
+        }
+
+        chart.update('none');
+      } catch(error) {
+        console.error('Chart update error:', error);
+      }
+      updateTimeout = setTimeout(updateChart, 200);
+    }
+
+    // Control synchronization
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', function(e) {
+        const param = e.target.id.split('_')[0];
+        const value = e.target.value;
+        
+        // Update paired control
+        const paired = document.getElementById(
+          e.target.id.includes('slider') ? 
+          `${param}_text` : `${param}_slider`
+        );
+        paired.value = value;
+
+        // Debounce server updates
+        clearTimeout(this.debounce);
+        this.debounce = setTimeout(() => {
+          fetch(`/set?${param}=${value}`)
+            .catch(err => console.error('Update failed:', err));
+        }, param === 'freq' || param === 'res' ? 500 : 100);
+      });
+    });
+
+    // Initialize
+    updateChart();
+  </script>
+</body>
+</html>
