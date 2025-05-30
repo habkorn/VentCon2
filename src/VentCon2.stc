@@ -1,0 +1,166 @@
+Port = COM18
+BaudRate = 9600
+DataBits = 8
+Parity = N
+StopBits = 1
+FlowControlCTS = false
+FlowControlDTR = false
+FlowControlXON = false
+UseSoftwareSupportedFlowControl = true
+BlockKeystrokesWhileFlowHalted = true
+DTRDefaultState = true
+RTSDefaultState = true
+ViewerMode = Chart
+WrapPlainText = true
+TerminalMode = Raw
+SaveTXHistory = true
+EnterKeyEmulation = CRLF
+EnterKeyEmulationCustomSequence = 00 1B
+NumPadEnterKeyEmulation = CRLF
+NumPadEnterKeyEmulationCustomSequence = 03
+EmulateSpecialKeys = false
+EnableBell = false
+FormatTABtext = false
+FormatTABtextColumnWidth = 8
+ReplaceSpacesWithTAB = false
+ReplaceSpacesWithTABthreshold = 2
+EnableFormFeed = false
+EnableEOT = false
+EnableETX = false
+IgnoreLineFeed = false
+CombineCR = false
+UseRealCR = false
+HandleEscClear = false
+HandleEscHome = false
+HandleEscEnd = false
+HandleANSIFormatting = false
+ConvertESCD = false
+FilterASCIIescapeSequences = false
+PlainTextEncoding = SystemDefault
+LocalEcho = false
+ReplaceTAB = false
+TABSpaces = 4
+ConvertNonPrint = true
+RemoveHighBit = false
+EnableBackspace = false
+LoopbackRXData = false
+IgnoreFramingErrors = true
+IgnoreBreakCondition = true
+RXBufferSize = 10000
+DirectRXtoTextDisplay = false
+RXDataTimeStamp = false
+RXDataTimeStampFormat = DateTime
+RXDataTimeStampWaitForEOL = false
+PlayRXsound = false
+ForwardTerminals = 
+OpenForwardPorts = false
+CaptureFormat = Raw
+CaptureFormatHexData = true
+CaptureTimeStamp = false
+CaptureTimeStampFormat = DateTime
+CaptureWaitForTerminationString = false
+CaptureTerminationString = 0D 0A
+CaptureRetainTerminationString = false
+CaptureLocalEcho = false
+CaptureLabelRXTX = false
+CaptureFileStaysOpen = true
+CaptureAutostart = false
+CaptureAutoAppend = false
+CaptureAutoFilename = 
+CapturePath = C:\Users\thomas.haberkorn\OneDrive - VENTREX\Desktop\CoolTermWin64Bit\CoolTermWin64Bit\
+CaptureAskForFilename = false
+TerminateSendString = false
+TerminationString = 0D 0A
+TXCharDelayEnabled = false
+TXCharDelay = 3000
+TXLineDelayEnabled = false
+TXLineDelay = 3000
+TXLineDelayChars = 0A
+TXLineDelayMatchAllChars = false
+TXPacketDelayEnabled = false
+TXPacketDelay = 3000
+TXPacketSize = 256
+WaitForRemoteEcho = false
+RemoteEchoTimeout = 1000000
+XmitWaitEnable = false
+SendTextSoundEnable = false
+AutoRunMacro = 
+AutoPrefixMacro = 
+AutoPostfixMacro = 
+TextFont = Courier
+TextFontSize = 0
+InputFontSize = 0
+TextFontColor = &h00000000
+ColorizeLocalEcho = false
+LocalEchoColor = &h00AA3333
+CondenseLines = false
+TextBackgroundColor = &h00FFFFFF
+HexFont = Courier
+HexFontSize = 0
+ShowToolbar = true
+ShowToolbarButtonLabels = true
+ToolbarConfig = New,Open,Save,Separator,Connect,Disconnect,Separator,Options,Separator,Clear,ViewMenu,Separator,Help
+AutoConnect = false
+SkipPortCheck = false
+AutoDisconnect = false
+AutoReconnect = true
+AutoReconnectDelay = 100
+UseConnectionErrorNotifications = false
+ErrorsLogToWindow = false
+ErrorsLogToCaptureFile = false
+RefreshInterval = 100
+ShowConnectionTimer = true
+ShowRxTxByteCounts = true
+ResetStatisticsWhenPortOpens = true
+ShowCaptureFileName = false
+UnpauseOnSend = false
+ChartShowLegend = true
+ChartXAxisDataSource = None
+ChartTitle = 
+ChartXAxisLabel = 
+ChartYAxisLabel = 
+ChartXAutoLimits = true
+ChartYAutoLimits = false
+ChartXLimitMin = 0
+ChartXLimitMax = 10
+ChartYLimitMin = 0
+ChartYLimitMax = 10
+ChartXDataColumn = 1
+ChartTimeReference = ElapsedTime
+ChartXAxisScaleRatio = 1
+ChartTimeStampSeparator = 2D 2D 3E
+ChartRestrictNoOfDatapoints = false
+ChartNoOfDatapoints = 1
+ChartTraceProperties = 0:Label=voltage	Color=&h000000FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 1:Label=press	Color=&h0000CC00	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 2:Label=setPress	Color=&h00FF0000	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 3:Label=PWM	Color=&h0000CCCC	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 4:Label=Trace 5	Color=&h00FF00FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 5:Label=Trace 6	Color=&h00DDDD00	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 6:Label=Trace 7	Color=&h00942192	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 7:Label=dc	Color=&h00FFB600	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 8:Label=Trace 9	Color=&h00AA7942	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 9:Label=Trace 10	Color=&h000000FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 10:Label=Trace 11	Color=&h0000CC00	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 11:Label=Trace 12	Color=&h00FF0000	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 12:Label=Trace 13	Color=&h0000CCCC	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 13:Label=Trace 14	Color=&h00FF00FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 14:Label=Trace 15	Color=&h00DDDD00	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 15:Label=Trace 16	Color=&h00942192	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 16:Label=Trace 17	Color=&h00FFB600	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 17:Label=Trace 18	Color=&h00AA7942	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 18:Label=Trace 19	Color=&h000000FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 19:Label=Trace 20	Color=&h0000CC00	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 20:Label=Trace 21	Color=&h00FF0000	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 21:Label=Trace 22	Color=&h0000CCCC	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 22:Label=Trace 23	Color=&h00FF00FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 23:Label=Trace 24	Color=&h00DDDD00	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 24:Label=Trace 25	Color=&h00942192	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 25:Label=Trace 26	Color=&h00FFB600	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 26:Label=Trace 27	Color=&h00AA7942	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 27:Label=Trace 28	Color=&h000000FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 28:Label=Trace 29	Color=&h0000CC00	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+ChartTraceProperties = 29:Label=Trace 30	Color=&h00FF0000	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
+KeepOnTop = false
+PreventWindowClosure = false
+WindowPosition = 11,596,1536,806

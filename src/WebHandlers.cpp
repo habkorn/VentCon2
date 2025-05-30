@@ -15,26 +15,38 @@ extern struct Settings {
   int pwm_res;
 } settings;
 
-extern double Input, Output;
+extern double pressureInput, pwmOutput;
 extern PID pid;
 extern void saveSettings();
 extern void updatePWM();
 extern bool ads_found;
 
-void handleRoot() {
-  if (!ads_found) {
-    // Serve a simple error page if ADS1015 is missing
-    server.send(200, "text/html",
-      "<!DOCTYPE html><html><head><title>ADS1015 Error</title></head>"
-      "<body style='font-family:sans-serif;background:#fee;padding:2em;'>"
-      "<h1 style='color:#b00;'>ERROR: ADS1015 Not Found</h1>"
-      "<p>The pressure sensor ADC (ADS1015) was not detected.<br>"
-      "The control algorithm is disabled.<br>"
-      "Please check wiring and power, then reset the device.</p>"
-      "</body></html>"
-    );
-    return;
-  }
+// 1. Data Flow from Web to Arduino:
+
+// When a user adjusts values on the web interface, the browser sends an HTTP request to the /set endpoint with parameters (e.g., /set?sp=3.0&kp=1.5)
+// The handleSet function processes these parameters using server.hasArg() and server.arg() methods
+// The Arduino settings are updated accordingly, and the changes are saved to SPIFFS
+// The PID controller is reconfigured when relevant parameters change
+
+// 2. Data Flow from Arduino to Web:
+
+// The web interface periodically requests current values using the /values endpoint
+// The handleValues function creates a JSON response with all current values and status information
+// This data is sent back to the browser where JavaScript updates the UI elements
+
+// 3. Main Web Interface:
+
+// The handleRoot function serves the HTML content defined in WebContent.h
+// This content includes the user interface with sliders, inputs, and status displays
+
+// This two-way communication allows for real-time monitoring and control of the 
+// pressure control system through a web browser, which is particularly useful for tuning the 
+// PID controller and monitoring system performance.
+
+
+void handleRoot() 
+{
+
 
   String page = FPSTR(HTML_CONTENT);
   
@@ -50,7 +62,8 @@ void handleRoot() {
   server.send(200, "text/html", page);
 }
 
-void handleSet() {
+void handleSet() 
+{
   // Process parameter updates
   if (server.hasArg("sp")) 
     settings.setpoint = server.arg("sp").toFloat();
@@ -67,12 +80,14 @@ void handleSet() {
   if (server.hasArg("flt")) 
     settings.filter_strength = server.arg("flt").toFloat();
   
-  if (server.hasArg("freq")) {
+  if (server.hasArg("freq")) 
+  {
     settings.pwm_freq = server.arg("freq").toInt();
     updatePWM();
   }
   
-  if (server.hasArg("res")) {
+  if (server.hasArg("res")) 
+  {
     settings.pwm_res = server.arg("res").toInt();
     updatePWM();
     pid.SetOutputLimits(0, (1 << settings.pwm_res) - 1);
@@ -84,18 +99,27 @@ void handleSet() {
   server.send(200, "text/plain", "OK");
 }
 
-void handleValues() {
+void handleValues() 
+{
   const int max_pwm = (1 << settings.pwm_res) - 1;
-  const float pwm_percent = max_pwm > 0 ? (Output / max_pwm) * 100.0 : 0;
+  const float pwm_percent = max_pwm > 0 ? (pwmOutput / max_pwm) * 100.0 : 0;
+  const char* adc_status = ads_found ? "100" : "000";
   
-  char json[128];
+  char json[256];
   snprintf(json, sizeof(json),
-    "{\"sp\":%.2f,\"pressure\":%.2f,\"pwm\":%.2f,\"freq\":%d,\"res\":%d}",
+    "{\"sp\":%.2f,\"kp\":%.2f,\"ki\":%.2f,\"kd\":%.2f,\"flt\":%.2f,"
+    "\"freq\":%d,\"res\":%d,"
+    "\"pressure\":%.2f,\"pwm\":%.2f,\"adc_status\":\"%s\"}",
     settings.setpoint,
-    Input,
-    pwm_percent,
+    settings.Kp,
+    settings.Ki,
+    settings.Kd,
+    settings.filter_strength,
     settings.pwm_freq,
-    settings.pwm_res
+    settings.pwm_res,
+    pressureInput,
+    pwm_percent,
+    adc_status
   );
   
   server.send(200, "application/json", json);
