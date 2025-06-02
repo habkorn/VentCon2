@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>VentCon Pressure Control</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Add Chart.js and required adapters from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #60a5fa;
+      --primary-dark: #1d4ed8;
+      --secondary: #475569;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --background: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --shadow: rgba(0, 0, 0, 0.05);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background-color: var(--background);
+      line-height: 1.4;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0.5rem;
+    }
+    
+    header {
+      margin-bottom: 1rem;
+    }
+    
+    h1, h2, h3, h4 {
+      font-weight: 600;
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+      color: var(--primary-dark);
+    }
+    
+    h2 {
+      font-size: 1.25rem;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    h3 {
+      font-size: 1rem;
+      color: var(--secondary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .alert {
+      background-color: #fef9c3;
+      border-left: 4px solid var(--accent);
+      color: #854d0e;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.375rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .alert h3 {
+      margin-bottom: 0;
+      color: #854d0e;
+      font-size: 0.9rem;
+    }
+    
+    .alert p {
+      font-size: 0.8rem;
+      margin: 0;
+    }
+    
+    .card {
+      background-color: var(--card);
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 4px var(--shadow);
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+    
+    .section-title span {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .section-title div {
+      flex-grow: 1;
+      height: 1px;
+      background: var(--border);
+      margin-left: 0.5rem;
+    }
+    
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 640px) {
+      .control-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+    
+    .control-row label {
+      min-width: 8rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    
+    .control-slider {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    input[type="range"] {
+      flex: 1;
+      height: 0.375rem;
+      appearance: none;
+      background-color: var(--border);
+      border-radius: 0.25rem;
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background-color: var(--primary);
+      cursor: pointer;
+    }
+    
+    input[type="number"] {
+      width: 4rem;
+      padding: 0.25rem;
+      border: 1px solid var(--border);
+      border-radius: 0.25rem;
+      font-size: 0.8rem;
+      text-align: right;
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 0.75rem;
+    }
+    
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-width: 150px;
+      font-size: 0.875rem;
+    }
+    
+    .status-value {
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      background-color: var(--background);
+      border-radius: 0.25rem;
+      min-width: 3.5rem;
+      text-align: right;
+      font-size: 0.875rem;
+    }
+    
+    progress {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 0.375rem;
+      border-radius: 0.25rem;
+    }
+    
+    .chart-container {
+      height: 180px;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+    
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.5rem 0 0;
+    }
+    
+    .chart-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    
+    .toggle-label {
+      font-size: 0.75rem;
+      color: var(--secondary);
+    }
+    
+    input[type="checkbox"] {
+      height: 0.875rem;
+      width: 0.875rem;
+      cursor: pointer;
+    }
+    
+    .hardware-info {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 0.625rem;
+      height: 0.625rem;
+      border-radius: 50%;
+    }
+    
+    .status-text {
+      font-size: 0.8rem;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--secondary);
+      padding-bottom: 0.5rem;
+    }
+    
+    span {
+      font-size: 0.875rem;
+    }
+    
+    .gauge-container {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .gauge {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(240,240,240,0.8) 100%);
+      border-radius: 10px;
+      padding: 0.6rem;
+      margin: 0 0.3rem;
+      position: relative;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .gauge-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .gauge-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin: 0.1rem 0;
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+    }
+    
+    .gauge-value small {
+      font-size: 0.75rem;
+      color: var(--secondary);
+      margin-left: 0.2rem;
+    }
+    
+    .gauge-bar {
+      width: 100%;
+      height: 0.5rem;
+      background-color: #e2e8f0;
+      border-radius: 0.25rem;
+      margin-top: 0.3rem;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .gauge-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-light) 0%, var(--primary) 100%);
+      border-radius: 0.25rem;
+      transition: width 0.3s ease-out;
+      width: 0%;
+    }
+    
+    .gauge-target {
+      position: absolute;
+      height: 100%;
+      width: 2px;
+      background-color: var(--accent);
+      top: 0;
+      transition: left 0.3s ease-out;
+    }
+    
+    .trend-indicator {
+      margin-left: 0.3rem;
+      font-size: 1rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .trend-up {
+      color: var(--danger);
+      transform: translateY(-2px);
+    }
+    
+    .trend-down {
+      color: var(--success);
+      transform: translateY(2px) rotate(180deg);
+    }
+    
+    .trend-stable {
+      color: var(--secondary);
+      opacity: 0.5;
+    }
+    
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary: #3b82f6;
+        --primary-light: #60a5fa;
+        --primary-dark: #1d4ed8;
+        --secondary: #94a3b8;
+        --accent: #f59e0b;
+        --danger: #ef4444;
+        --success: #10b981;
+        --background: #0f172a;
+        --card: #1e293b;
+        --text: #f1f5f9;
+        --border: #334155;
+        --shadow: rgba(0, 0, 0, 0.2);
+      }
+      
+      input[type="range"] {
+        background-color: #334155;
+      }
+      
+      .gauge {
+        background: linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(15,23,42,0.8) 100%);
+      }
+      
+      .gauge-bar {
+        background-color: #334155;
+      }
+    }
+    
+    /* Connection status indicator */
+    .connection-status {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--success);
+      transition: background-color 0.3s ease;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+    
+    .connection-status.offline {
+      background-color: var(--danger);
+    }
+    
+    .connection-status.reconnecting {
+      background-color: var(--accent);
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    /* Touch-friendly improvements for mobile */
+    @media (max-width: 640px) {
+      input[type="range"]::-webkit-slider-thumb {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+      
+      button {
+        padding: 0.75rem 1.5rem;
+        min-width: 100%;
+        margin-top: 1rem;
+      }
+    }
+    
+    /* Value change highlight animation */
+    .highlight {
+      animation: highlight-pulse 1s ease;
+    }
+    
+    @keyframes highlight-pulse {
+      0% { background-color: rgba(59, 130, 246, 0); }
+      30% { background-color: rgba(59, 130, 246, 0.2); }
+      100% { background-color: rgba(59, 130, 246, 0); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Add connection status indicator -->
+  <div class="connection-status" id="connectionStatus" title="Connection Status"></div>
+  
+  <header>
+    <h1>
+      <span style="background: linear-gradient(90deg, #002f87 0%,  #32c09d 100%);
+           -webkit-background-clip: text;
+           background-clip: text;
+           color: transparent;
+           display: inline-block;
+           font-size: 1em;
+           font-weight: 1000;"
+           aria-label="VENTCON Pressure Control System">
+        VENTCON Pressure Control System
+      </span>
+    </h1>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Real-time Monitoring</h2>
+      
+      <div class="gauge-container">
+        <div class="gauge">
+          <div class="gauge-title">Outlet Pressure</div>
+          <div class="gauge-value">
+            <span id="pressure">--</span>
+            <small>bar</small>
+            <span id="pressure-trend" class="trend-indicator trend-stable">▲</span>
+          </div>
+          <div class="gauge-bar">
+            <div id="pressure-fill" class="gauge-fill" style="width:0%"></div>
+            <div id="pressure-target" class="gauge-target" style="left:30%"></div>
+          </div>
+        </div>
+        
+        <div class="gauge">
+          <div class="gauge-title">PWM Output</div>
+          <div class="gauge-value">
+            <span id="pwm">--</span>
+            <small>%</small>
+          </div>
+          <div class="gauge-bar">
+            <div id="pwm-fill" class="gauge-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-header">
+        <h3>Pressure Chart</h3>
+        <div class="chart-toggle">
+          <label for="chartToggle" class="toggle-label">Show Chart</label>
+          <input type="checkbox" id="chartToggle" checked>
+        </div>
+      </div>
+      
+      <div class="chart-container" id="chartContainer">
+        <canvas id="pressureChart"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin-bottom: 0;">Control Parameters</h2>
+        <button id="applyBtn" disabled>Apply Changes</button>
+      </div>
+      
+      <div class="control-row">
+        <label for="sp_slider">Setpoint Pressure:</label>
+        <div class="control-slider">
+          <input type="range" id="sp_slider" min="0" max="10" step="0.1" value="%SP%">
+          <input type="number" id="sp_text" value="%SP%" step="0.1">
+          <span>bar</span>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span>PID</span>
+        <div></div>
+      </div>
+
+      <div class="control-row">
+        <label for="kp_slider">Proportional:</label>
+        <div class="control-slider">
+          <input type="range" id="kp_slider" min="0" max="100" step="0.1" value="%KP%">
+          <input type="number" id="kp_text" value="%KP%" step="0.1">
+        </div>
+      </div>
+
+      <div class="control-row">
+        <label for="ki_slider">Integral:</label>
+        <div class="control-slider">
+          <input type="range" id="ki_slider" min="0" max="10" step="0.01" value="%KI%">
+          <input type="number" id="ki_text" value="%KI%" step="0.01">
+        </div>
+      </div>
+
+      <div class="control-row">
+        <label for="kd_slider">Derivative:</label>
+        <div class="control-slider">
+          <input type="range" id="kd_slider" min="0" max="1" step="0.01" value="%KD%">
+          <input type="number" id="kd_text" value="%KD%" step="0.01">
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span>System</span>
+        <div></div>
+      </div>
+
+      <div class="control-row">
+        <label for="flt_slider">Filter:</label>
+        <div class="control-slider">
+          <input type="range" id="flt_slider" min="0" max="1" step="0.01" value="%FLT%">
+          <input type="number" id="flt_text" value="%FLT%" step="0.01">
+        </div>
+      </div>
+
+      <div class="control-row">
+        <label for="freq_slider">PWM Frequency:</label>
+        <div class="control-slider">
+          <input type="range" id="freq_slider" min="100" max="10000" step="100" value="%FREQ%">
+          <input type="number" id="freq_text" value="%FREQ%" step="100">
+          <span>Hz</span>
+        </div>
+      </div>
+
+      <div class="control-row">
+        <label for="res_slider">PWM Resolution:</label>
+        <div class="control-slider">
+          <input type="range" id="res_slider" min="8" max="16" step="1" value="%RES%">
+          <input type="number" id="res_text" value="%RES%" step="1">
+          <span>bits</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>System Information</h2>
+      <div class="control-row">
+        <label>ADC Status:</label>
+        <div class="hardware-info">
+          <span class="status-indicator" id="adc_indicator"></span>
+          <span id="adc_status" class="status-text">--</span>
+        </div>
+      </div>
+
+      <div class="control-row">
+        <label>Network Status:</label>
+        <div class="hardware-info">
+          <span class="status-indicator" id="network_indicator"></span>
+          <span id="network_status" class="status-text">--</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>VENTCON Control System v2.0</p>
+  </footer>
+
+  <script>
+    // Track page visibility to optimize performance
+    let pageVisible = true;
+    document.addEventListener('visibilitychange', () => {
+      pageVisible = document.visibilityState === 'visible';
+    });
+    
+    // Connection status tracking
+    let isOnline = true;
+    let reconnectAttempts = 0;
+    const connectionStatus = document.getElementById('connectionStatus');
+    
+    // Check if network is available
+    window.addEventListener('online', () => {
+      isOnline = true;
+      connectionStatus.classList.remove('offline', 'reconnecting');
+      connectionStatus.title = 'Connected';
+    });
+    
+    window.addEventListener('offline', () => {
+      isOnline = false;
+      connectionStatus.classList.add('offline');
+      connectionStatus.classList.remove('reconnecting');
+      connectionStatus.title = 'Disconnected';
+    });
+    
+    // Debounce function for input events
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+    
+    // Highlight element when value changes
+    function highlightChange(element) {
+      element.classList.add('highlight');
+      setTimeout(() => element.classList.remove('highlight'), 1000);
+    }
+    
+    // Initialize the chart
+    const ctx = document.getElementById('pressureChart').getContext('2d');
+    let pressureData = [];
+    let setpointData = [];
+    
+    // Create chart instance
+    const pressureChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'Pressure',
+            data: pressureData,
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+            tension: 0.3,
+            borderWidth: 2,
+            pointRadius: 2,
+            pointHoverRadius: 4,
+            pointBorderWidth: 1,
+            pointStyle: 'circle'
+          },
+          {
+            label: 'Setpoint',
+            data: setpointData,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            borderDash: [5, 5],
+            tension: 0.1,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 0
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 10,
+            title: {
+              display: true,
+              text: 'Pressure (bar)'
+            },
+            ticks: {
+              callback: function(value) {
+                return value + ' bar';
+              }
+            }
+          },
+          x: {
+            type: 'time',
+            time: {
+              unit: 'second',
+              displayFormats: {
+                second: 'HH:mm:ss'
+              },
+              tooltipFormat: 'HH:mm:ss'
+            },
+            title: {
+              display: true,
+              text: 'Time'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              boxWidth: 15,
+              usePointStyle: true
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            titleColor: '#1e293b',
+            bodyColor: '#1e293b',
+            borderColor: '#e2e8f0',
+            borderWidth: 1,
+            cornerRadius: 6,
+            displayColors: true,
+            callbacks: {
+              label: function(context) {
+                return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' bar';
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Function to add data to the chart
+    function updateChart(pressure, setpoint) {
+      // Only update if chart is visible and page is visible
+      if (!document.getElementById('chartToggle').checked || !pageVisible) {
+        return;
+      }
+      
+      const now = new Date();
+      
+      pressureData.push({
+        x: now,
+        y: pressure
+      });
+      
+      setpointData.push({
+        x: now,
+        y: setpoint
+      });
+      
+      if (pressureData.length > 30) {
+        pressureData.shift();
+        setpointData.shift();
+      }
+      
+      pressureChart.update();
+    }
+
+    // Toggle chart visibility
+    document.getElementById('chartToggle').addEventListener('change', function() {
+      const chartContainer = document.getElementById('chartContainer');
+      if (this.checked) {
+        chartContainer.style.display = 'block';
+        pressureData = [];
+        setpointData = [];
+        pressureChart.update();
+      } else {
+        chartContainer.style.display = 'none';
+      }
+    });
+
+    // Synchronize range and number inputs, enable Apply button on change
+    ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) {
+      const slider = document.getElementById(param + "_slider");
+      const text = document.getElementById(param + "_text");
+      
+      const debouncedEnable = debounce(enableApply, 100);
+      
+      slider.addEventListener('input', function() {
+        text.value = slider.value;
+        debouncedEnable();
+      });
+
+      text.addEventListener('input', function() {
+        slider.value = text.value;
+        debouncedEnable();
+      });
+    });
+
+    function enableApply() {
+      document.getElementById('applyBtn').disabled = false;
+      document.getElementById('applyBtn').textContent = "Apply Changes";
+    }
+
+    document.getElementById('applyBtn').addEventListener('click', function() {
+      const params = ["sp", "kp", "ki", "kd", "flt", "freq", "res"].map(param => {
+        const value = document.getElementById(param + "_text").value;
+        return param + "=" + encodeURIComponent(value);
+      }).join("&");
+
+      // Show loading state
+      const btn = document.getElementById('applyBtn');
+      btn.textContent = "Applying...";
+
+      fetch("/set?" + params)
+        .then(() => {
+          btn.disabled = true;
+          btn.textContent = "Changes Applied";
+        })
+        .catch(err => {
+          btn.textContent = "Try Again";
+          alert("Failed to apply settings: " + err);
+        });
+    });
+
+    // Track pressure values for trend indicator
+    let lastPressureValues = [];
+    let pressureTrend = 0; // -1: down, 0: stable, 1: up
+    
+    // Update pressure trend
+    function updatePressureTrend(newValue) {
+      // Keep last 3 values for trend calculation
+      if (lastPressureValues.length >= 3) {
+        lastPressureValues.shift();
+      }
+      lastPressureValues.push(newValue);
+      
+      // Calculate trend only when we have enough values
+      if (lastPressureValues.length >= 3) {
+        const latest = lastPressureValues[lastPressureValues.length - 1];
+        const oldest = lastPressureValues[0];
+        const diff = latest - oldest;
+        
+        // Determine trend direction with a threshold to avoid minor fluctuations
+        const threshold = 0.05;
+        if (diff > threshold) {
+          pressureTrend = 1; // up
+        } else if (diff < -threshold) {
+          pressureTrend = -1; // down
+        } else {
+          pressureTrend = 0; // stable
+        }
+        
+        // Update trend indicator
+        const trendEl = document.getElementById('pressure-trend');
+        if (pressureTrend > 0) {
+          trendEl.className = 'trend-indicator trend-up';
+        } else if (pressureTrend < 0) {
+          trendEl.className = 'trend-indicator trend-down';
+        } else {
+          trendEl.className = 'trend-indicator trend-stable';
+        }
+      }
+    }
+    
+    // Improved error handling for API calls
+    function fetchWithRetry(url, options = {}, retries = 3, backoff = 300) {
+      return fetch(url, options)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          // Reset reconnect attempts on success
+          reconnectAttempts = 0;
+          connectionStatus.classList.remove('reconnecting', 'offline');
+          return response;
+        })
+        .catch(error => {
+          if (retries > 0) {
+            connectionStatus.classList.add('reconnecting');
+            connectionStatus.title = `Reconnecting (${retries} attempts left)`;
+            return new Promise(resolve => {
+              setTimeout(() => {
+                resolve(fetchWithRetry(url, options, retries - 1, backoff * 1.5));
+              }, backoff);
+            });
+          } else {
+            connectionStatus.classList.remove('reconnecting');
+            connectionStatus.classList.add('offline');
+            connectionStatus.title = 'Connection failed';
+            throw error;
+          }
+        });
+    }
+    
+    // Periodically update status and UI controls with improved error handling
+    let updateTimer;
+    function scheduleUpdate() {
+      clearTimeout(updateTimer);
+      updateTimer = setTimeout(() => {
+        if (isOnline && pageVisible) {
+          fetchWithRetry('/values')
+            .then(r => r.json())
+            .then(data => {
+              // Update pressure display with new gauge style
+              if (typeof data.pressure !== "undefined") {
+                const pressureVal = data.pressure;
+                document.getElementById('pressure').textContent = pressureVal.toFixed(2);
+                
+                // Update pressure fill and calculate percentage (0-10 bar range)
+                const pressurePercent = (pressureVal / 10) * 100;
+                document.getElementById('pressure-fill').style.width = `${pressurePercent}%`;
+                
+                // Update setpoint target marker
+                const setpointPercent = (data.sp / 10) * 100;
+                document.getElementById('pressure-target').style.left = `${setpointPercent}%`;
+                
+                // Update trend indicator
+                updatePressureTrend(pressureVal);
+                
+                // Still update the chart
+                updateChart(pressureVal, data.sp);
+              } else {
+                document.getElementById('pressure').textContent = "--";
+                document.getElementById('pressure-fill').style.width = "0%";
+              }
+              
+              // Update PWM output with new gauge style
+              if (data.pwm !== undefined) {
+                const pwmVal = data.pwm.toFixed(1);
+                document.getElementById('pwm').textContent = pwmVal;
+                document.getElementById('pwm-fill').style.width = `${pwmVal}%`;
+              } else {
+                document.getElementById('pwm').textContent = "--";
+                document.getElementById('pwm-fill').style.width = "0%";
+              }
+              
+              // Update ADC status with indicator
+              const adcIndicator = document.getElementById('adc_indicator');
+              if (data.adc_status === "100") {
+                document.getElementById('adc_status').textContent = "External ADS1015 ADC";
+                adcIndicator.style.backgroundColor = 'var(--success)';
+              } else if(data.adc_status === "000") {
+                document.getElementById('adc_status').textContent = "Internal ESP32 ADC";
+                adcIndicator.style.backgroundColor = 'var(--accent)';
+              } else {
+                document.getElementById('adc_status').textContent = "Unknown";
+                adcIndicator.style.backgroundColor = 'var(--danger)';
+              }
+              
+              // Update Network status with indicator
+              const networkIndicator = document.getElementById('network_indicator');
+              document.getElementById('network_status').textContent = "VENTCON_AP, IP: 192.168.4.1";
+              networkIndicator.style.backgroundColor = 'var(--success)';
+              
+              // Only update UI controls if Apply button is disabled (no unsaved changes)
+              if (document.getElementById('applyBtn').disabled) {
+                // Update all sliders and inputs with current values from server
+                if (typeof data.sp !== "undefined") {
+                  document.getElementById('sp_slider').value = data.sp;
+                  document.getElementById('sp_text').value = data.sp;
+                }
+
+                if (typeof data.kp !== "undefined") {
+                  document.getElementById('kp_slider').value = data.kp;
+                  document.getElementById('kp_text').value = data.kp;
+                }
+
+                if (typeof data.ki !== "undefined") {
+                  document.getElementById('ki_slider').value = data.ki;
+                  document.getElementById('ki_text').value = data.ki;
+                }
+
+                if (typeof data.kd !== "undefined") {
+                  document.getElementById('kd_slider').value = data.kd;
+                  document.getElementById('kd_text').value = data.kd;
+                }
+
+                if (typeof data.flt !== "undefined") {
+                  document.getElementById('flt_slider').value = data.flt;
+                  document.getElementById('flt_text').value = data.flt;
+                }
+
+                if (typeof data.freq !== "undefined") {
+                  document.getElementById('freq_slider').value = data.freq;
+                  document.getElementById('freq_text').value = data.freq;
+                }
+
+                if (typeof data.res !== "undefined") {
+                  document.getElementById('res_slider').value = data.res;
+                  document.getElementById('res_text').value = data.res;
+                }
+              }
+            })
+            .catch(err => {
+              console.error("Error fetching values:", err);
+            })
+            .finally(() => {
+              scheduleUpdate();
+            });
+        } else {
+          scheduleUpdate();
+        }
+      }, pageVisible ? 300 : 1000); // Update less frequently when page is not visible
+    }
+    
+    // Start the update cycle
+    scheduleUpdate();
+    
+    // Cleanup event listeners on page unload
+    window.addEventListener('beforeunload', () => {
+      clearTimeout(updateTimer);
+    });
+  </script>
+</body>
+</html>

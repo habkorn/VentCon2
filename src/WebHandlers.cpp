@@ -46,9 +46,7 @@ extern bool ads_found;
 
 void handleRoot() 
 {
-
-
-  String page = FPSTR(HTML_CONTENT);
+  String page = getFullHtmlContent();
   
   // Replace placeholders with current values
   page.replace("%SP%", String(settings.setpoint, 2));
