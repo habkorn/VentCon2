@@ -2,6 +2,7 @@
 
 // Define CSS as a constant string in PROGMEM to save RAM
 const char CSS_STYLES[] PROGMEM = R"rawliteral(
+<style>
 :root 
 {
   --primary: #2563eb;
@@ -363,4 +364,5 @@ span {
   color: var(--secondary);
   opacity: 0.5;
 }
+</style>
 )rawliteral";

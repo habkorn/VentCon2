@@ -16,13 +16,16 @@ const IPAddress ap_subnet(255, 255, 255, 0);
 
 // ====== Hardware Configuration ======
 const int SOLENOID_PIN = 5;      // PWM output pin for solenoid valve
-const int PWM_CHANNEL = 0;       // PWM channel for ESP32 LEDC
+const int ANALOG_PRESS_PIN = 10;      // Analog output pin for pressure sensor signal 
+const int PWM_CHANNEL_MOSFET = 0;       // PWM channel for ESP32 LEDC to switch MOSFET
+const int PWM_CHANNEL_ANALOG_PRESS = 1;       // PWM channel for ESP32 LEDC to output analog pressure signal
 Adafruit_ADS1015 ads;            // ADC for pressure sensor
 DNSServer dnsServer;             // DNS server for captive portal
 WebServer server(80);            // Web server on port 80
 
 // Add fallback analog pin for pressure if ADS1015 is not found
 const int FALLBACK_ANALOG_PIN = A0;
+
 
 // ====== ADS1015 Status Flag ======
 bool ads_found = false;           // False until ADS1015 is detected
@@ -78,14 +81,19 @@ const int ADS1015_DATA_RATE = 1600;       // 1600 samples per second (default)
 // ====== Global Variables ======
 bool continousValueOutput = false; // Flag for Serial output
 long lastContinousValueOutputTime=0; // Last time output was sent to Serial
+long lastAnalogOutPressureSignalTime=0; // Last time output was sent to Serial
 int PWM_MAX_VALUE = (1 << settings.pwm_res) - 1; // Maximum PWM value based on resolution
 bool manualPWMMode = false; // Flag to track manual PWM control mode
+int SERIAL_OUTPUT_INTERVAL  = 200; // Interval for continuous serial output in milliseconds
+int pwm_analog_pressure_signal_freq=5000; // Frequency for analog pressure signal output
+int pwm_analog_pressure_signal_pwm_res=12; // Resolution for analog pressure signal output
+int SENSOR_MAX_VALUE = (1 << pwm_analog_pressure_signal_pwm_res) - 1; 
 
 // ====== PWM Update Function ======
 void updatePWM()
 {
-  ledcSetup(PWM_CHANNEL, settings.pwm_freq, settings.pwm_res);
-  ledcWrite(PWM_CHANNEL, pwmOutput);
+  ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
+  ledcWrite(PWM_CHANNEL_MOSFET, pwmOutput);
 }
 
 // ====== Save Settings to SPIFFS ======
@@ -129,6 +137,7 @@ void loadSettings()
       
       // Update PWM_MAX_VALUE to match the loaded resolution
       PWM_MAX_VALUE = (1 << settings.pwm_res) - 1;
+
       
     }
     file.close();
@@ -163,6 +172,14 @@ void showSettingsFromSPIFFS()
     {
       Serial.println("No settings file found in SPIFFS");
     }
+}
+
+
+// ====== Version Information ======
+const char* getVersionString() {
+  static char versionString[50];
+  sprintf(versionString, "2.0.0 (Build: %s %s)", __DATE__, __TIME__);
+  return versionString;
 }
 
 // ====== Serial Command Parser ======
@@ -233,7 +250,7 @@ void parseSerialCommand(String cmd)
     // Convert percentage to absolute PWM value
     pwmOutput = (duty_percent / 100.0) * PWM_MAX_VALUE;
     // Apply PWM value
-    ledcWrite(PWM_CHANNEL, (uint32_t)pwmOutput);
+    ledcWrite(PWM_CHANNEL_MOSFET, (uint32_t)pwmOutput);
     Serial.printf("PWM manually set to: %.1f%% (%d/%d)\n", 
                  duty_percent, (int)pwmOutput, PWM_MAX_VALUE);
                  
@@ -270,6 +287,7 @@ void parseSerialCommand(String cmd)
       "\nSAVE      Force save settings to flash"
       "\nSTARTCD   Start continuous data output for plotting"
       "\nSTOPCD    Stop continuous data output"
+      "\nVER       Display firmware version and build timestamp"
       "\nHELP      Show this help message"
     );
   }
@@ -318,6 +336,11 @@ void parseSerialCommand(String cmd)
     Serial.println("Stopping output for Continuous Data");
     continousValueOutput = false;
   }
+  else if (cmd == "VER")
+  {
+    // Display firmware version and build timestamp
+    Serial.printf("Firmware Version: %s\n", getVersionString());
+  }
   else
   {
     Serial.println("Invalid command. Type 'HELP' for options.");
@@ -363,8 +386,11 @@ void setup()
 
   }
 
-  ledcSetup(PWM_CHANNEL, settings.pwm_freq, settings.pwm_res);
-  ledcAttachPin(SOLENOID_PIN, PWM_CHANNEL);
+  ledcSetup(PWM_CHANNEL_ANALOG_PRESS, pwm_analog_pressure_signal_freq, pwm_analog_pressure_signal_pwm_res);
+  ledcAttachPin(ANALOG_PRESS_PIN, PWM_CHANNEL_ANALOG_PRESS);
+
+  ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
+  ledcAttachPin(SOLENOID_PIN, PWM_CHANNEL_MOSFET);
   
   // Initialize SPIFFS for settings storage
   if (!SPIFFS.begin(true))
@@ -458,20 +484,32 @@ void loop()
   {
     pid.Compute();
     pwmOutput = constrain(pwmOutput, 0, PWM_MAX_VALUE); // Constrain output to valid range
-    ledcWrite(PWM_CHANNEL, (uint32_t)pwmOutput);
+    ledcWrite(PWM_CHANNEL_MOSFET, (uint32_t)pwmOutput);
   }
+
+  if (millis()-lastAnalogOutPressureSignalTime >= 10)
+  { 
+    // Output analog pressure signal to ANALOG_PRESS_PIN
+    // Scale pressureInput to PWM range
+    // Use SENSOR_MAX_VALUE to ensure it fits within the PWM resolution
+    
+    ledcWrite(PWM_CHANNEL_ANALOG_PRESS, (uint32_t)(pressureInput/SENSOR_MAX_VALUE*pwm_analog_pressure_signal_pwm_res));   
+    lastAnalogOutPressureSignalTime = millis();
+  }
+
   // We don't set PWM here if in manual mode since it was set directly in the command handler
 
   // ====== Emergency Shutdown ======
   if (pressureInput > SENSOR_MAX_BAR * 1.1)
   {
     // Stop PWM output
-    ledcWrite(PWM_CHANNEL, 0);
+    ledcWrite(PWM_CHANNEL_MOSFET, 0);
     
     // Use non-blocking approach instead of delay
 
     static unsigned long lastEmergencyMsgTime = 0;
-    if (millis() - lastEmergencyMsgTime >= 1000) {
+    if (millis() - lastEmergencyMsgTime >= 1000) 
+    {
       Serial.println("EMERGENCY SHUTDOWN! Pressure exceeds safe limit.");
       lastEmergencyMsgTime = millis();
     }
@@ -482,35 +520,33 @@ void loop()
   while (Serial.available())
   {
     char c = Serial.read();
-    if (c == '\n')
+    if (c == '\n') // newline
     {
       parseSerialCommand(serialBuffer);
       serialBuffer = "";
     }
-    else if (c != '\r')
+    else if (c != '\r') // Ignore carriage return
     {
-      serialBuffer += c;
+      serialBuffer += c; // Append character to buffer
     }
   }
     
-
-  if(continousValueOutput == true && (millis() - lastContinousValueOutputTime >= 250))
+  long deltaTimeContinousOutput = millis() - lastContinousValueOutputTime;
+  
+  if(continousValueOutput == true && (deltaTimeContinousOutput >= SERIAL_OUTPUT_INTERVAL))
   {
-    // Output in format suitable for data plotting
-    Serial.print("voltage=");
-    Serial.print(voltage, 3);
-    Serial.print(", ");
-
-    Serial.print("press=");
-    Serial.print(pressureInput, 1);
-    Serial.print(", ");
-
-    Serial.print("setPress=");
-    Serial.print(settings.setpoint, 1); // Fix: print setpoint, not Input again
-    Serial.print(", ");
- 
-    Serial.print("PWM=");
-    Serial.println((pwmOutput/PWM_MAX_VALUE)*100.0); // Fix: use floating point, add newline
+    // Format all data at once using a single buffer
+    char buffer[150]; // Buffer size to fit all data
+    int len = snprintf(buffer, sizeof(buffer),
+      "voltage=%.3f, press=%.3f, setPress=%.3f, PWM%%=%.1f, deltaTime=%ld\r\n",
+      voltage,
+      pressureInput,
+      settings.setpoint,
+      (pwmOutput/PWM_MAX_VALUE)*100.0,
+      deltaTimeContinousOutput);
+    
+    // Send the entire buffer in one operation
+    Serial.write(buffer, len);
     
     lastContinousValueOutputTime = millis();
   }

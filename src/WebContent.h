@@ -20,12 +20,12 @@ const char HTML_CONTENT[] PROGMEM = R"rawliteral(
   <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
-  <style>
+
 )rawliteral";
 
 // Concatenate parts of the HTML
 const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
-  </style>
+
 </head>
 
 <body>
@@ -110,24 +110,24 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="kp_slider">Proportional</label>
         <div class="control-slider">
-          <input type="range" id="kp_slider" min="0" max="100" step="0.1" value="%KP%">
-          <input type="number" id="kp_text" value="%KP%" step="0.1">
+          <input type="range" id="kp_slider" min="0" max="3000" step="100" value="%KP%">
+          <input type="number" id="kp_text" value="%KP%" step="1">
         </div>
       </div>
 
       <div class="control-row">
         <label for="ki_slider">Integral</label>
         <div class="control-slider">
-          <input type="range" id="ki_slider" min="0" max="10" step="0.01" value="%KI%">
-          <input type="number" id="ki_text" value="%KI%" step="0.01">
+          <input type="range" id="ki_slider" min="0" max="10000" step="100" value="%KI%">
+          <input type="number" id="ki_text" value="%KI%" step="1">
         </div>
       </div>
 
       <div class="control-row">
         <label for="kd_slider">Derivative</label>
         <div class="control-slider">
-          <input type="range" id="kd_slider" min="0" max="1" step="0.01" value="%KD%">
-          <input type="number" id="kd_text" value="%KD%" step="0.01">
+          <input type="range" id="kd_slider" min="0" max="1000" step="100" value="%KD%">
+          <input type="number" id="kd_text" value="%KD%" step="1">
         </div>
       </div>
 
@@ -145,7 +145,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       </div>
 
       <div class="control-row">
-        <label for="freq_slider">PWM Frequency in Hz</label>
+        <label for="freq_slider">PWM Frequency</label>
         <div class="control-slider">
           <input type="range" id="freq_slider" min="100" max="10000" step="100" value="%FREQ%">
           <input type="number" id="freq_text" value="%FREQ%" step="100">
@@ -154,7 +154,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       </div>
 
       <div class="control-row">
-        <label for="res_slider">PWM Resolution in bit</label>
+        <label for="res_slider">PWM Resolution</label>
         <div class="control-slider">
           <input type="range" id="res_slider" min="8" max="16" step="1" value="%RES%">
           <input type="number" id="res_text" value="%RES%" step="1">
@@ -301,13 +301,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
     // Function to add data to the chart
     function updateChart(pressure, setpoint) 
     {
-      if (!document.getElementById('chartToggle').checked) 
-      {
-        return;
-      }
-      
       const now = new Date();
       
+      // Always collect data, even when chart is hidden
       pressureData.push({
         x: now,
         y: pressure
@@ -324,7 +320,11 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         setpointData.shift();
       }
       
-      pressureChart.update();
+      // Only update the chart if it's visible
+      if (document.getElementById('chartToggle').checked) 
+      {
+        pressureChart.update();
+      }
     }
 
     // Toggle chart visibility
@@ -334,8 +334,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       if (this.checked) 
       {
         chartContainer.style.display = 'block';
-        pressureData = [];
-        setpointData = [];
+        // Don't clear the data, just update the chart with existing data
         pressureChart.update();
       } 
       else 
@@ -469,7 +468,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             // Update trend indicator
             updatePressureTrend(pressureVal);
             
-            // Still update the chart
+            // Always call updateChart, it will handle visibility internally
             updateChart(pressureVal, data.sp);
           } 
           else 
@@ -493,11 +492,11 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           // Update ADC status with indicator
           const adcIndicator = document.getElementById('adc_indicator');
           if (data.adc_status === "100") {
-            document.getElementById('adc_status').textContent = "External ADS1015 ADC";
+            document.getElementById('adc_status').textContent = "External ADS1015 ADC - 12 Bit";
             adcIndicator.style.backgroundColor = 'var(--success)';
           } 
           else if(data.adc_status === "000") {
-            document.getElementById('adc_status').textContent = "Internal ESP32 ADC";
+            document.getElementById('adc_status').textContent = "Internal ESP32 ADC - 12 Bit";
             adcIndicator.style.backgroundColor = 'var(--accent)';
           } 
           else 
