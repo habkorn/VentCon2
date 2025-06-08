@@ -2,7 +2,7 @@
 #include <ArduinoJson.h>
 #include <DNSServer.h> 
 #include "WebContent.h"
-#include <PID_v1.h>
+#include <PID_v2.h> // Changed from PID_v1 to PID_v2
 
 // External declarations from main.cpp
 extern WebServer server;
@@ -88,11 +88,11 @@ void handleSet()
   {
     settings.pwm_res = server.arg("res").toInt();
     updatePWM();
-    pid.SetOutputLimits(0, (1 << settings.pwm_res) - 1);
+    pid.SetOutputLimits(0, (1 << settings.pwm_res) - 1);  // No change needed in method signature
   }
 
   // Update PID and save settings
-  pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
+  pid.SetTunings(settings.Kp, settings.Ki, settings.Kd); // Updated for PID_v2
   saveSettings();
   server.send(200, "text/plain", "OK");
 }
