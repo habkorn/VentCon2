@@ -10,7 +10,7 @@ UseSoftwareSupportedFlowControl = true
 BlockKeystrokesWhileFlowHalted = true
 DTRDefaultState = true
 RTSDefaultState = true
-ViewerMode = Chart
+ViewerMode = Plain
 WrapPlainText = true
 TerminalMode = Raw
 SaveTXHistory = true
@@ -163,4 +163,4 @@ ChartTraceProperties = 28:Label=Trace 29	Color=&h0000CC00	Style=0	Width=1	MStyle
 ChartTraceProperties = 29:Label=Trace 30	Color=&h00FF0000	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
 KeepOnTop = false
 PreventWindowClosure = false
-WindowPosition = 392,234,900,607
+WindowPosition = 0,106,1536,806

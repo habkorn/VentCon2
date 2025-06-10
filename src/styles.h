@@ -364,5 +364,16 @@ span {
   color: var(--secondary);
   opacity: 0.5;
 }
+
+/* Logo styling */
+.logo-container {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.logo {
+  height: 60px;
+  max-width: 100%;
+}
 </style>
 )rawliteral";

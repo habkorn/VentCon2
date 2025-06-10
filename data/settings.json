@@ -2,8 +2,11 @@
   "kp": 0.0,
   "ki": 0.0,
   "kd": 0.0,
-  "flt": 0.1,
+  "flt": 0.0,
   "sp": 3.0,
   "freq": 2000,
-  "res": 12
+  "res": 14,
+  "aw": false,
+  "hyst": false,
+  "hystamt": 5.0
 }
