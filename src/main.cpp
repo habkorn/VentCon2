@@ -3,32 +3,39 @@
 #include <DNSServer.h>
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
-#include <PID_v2.h>   // Changed from PID_v1 to PID_v2
+#include <PID_v2.h>
 #include <Adafruit_ADS1X15.h>
 #include "WebContent.h"
+#include "Constants.h"  // Add this include
 
 // External function declarations
 extern void setupWebHandlers();
 
 // ====== WiFi Access Point Configuration ======
-const char* ap_ssid = "VENTCON_AP";
-const char* ap_password = "ventcon12!";
+const char* ap_ssid = NetworkConfig::AP_SSID;
+const char* ap_password = NetworkConfig::AP_PASSWORD;
 const IPAddress ap_ip(192, 168, 4, 1);
 const IPAddress ap_gateway(192, 168, 4, 1);
 const IPAddress ap_subnet(255, 255, 255, 0);
 
+const int MAX_CLIENTS = NetworkConfig::MAX_CLIENTS; // Maximum number of clients allowed
+
 // ====== Hardware Configuration ======
-const int SOLENOID_PIN = 5;      // PWM output pin for solenoid valve
-const int ANALOG_PRESS_PIN = 10;      // Analog output pin for pressure sensor signal 
-const int PWM_CHANNEL_MOSFET = 0;       // PWM channel for ESP32 LEDC to switch MOSFET
-const int PWM_CHANNEL_ANALOG_PRESS = 1;       // PWM channel for ESP32 LEDC to output analog pressure signal
+const int SOLENOID_PIN = HardwareConfig::SOLENOID_PIN;
+const int ANALOG_PRESS_PIN = HardwareConfig::ANALOG_PRESS_PIN;
+const int PWM_CHANNEL_MOSFET = HardwareConfig::PWM_CHANNEL_MOSFET;
+const int PWM_CHANNEL_ANALOG_PRESS = HardwareConfig::PWM_CHANNEL_ANALOG_PRESS;
 Adafruit_ADS1015 ads;            // ADC for pressure sensor
 DNSServer dnsServer;             // DNS server for captive portal
 WebServer server(80);            // Web server on port 80
 
 // Add fallback analog pin for pressure if ADS1015 is not found
-const int FALLBACK_ANALOG_PIN = A0;
+const int FALLBACK_ANALOG_PIN = HardwareConfig::FALLBACK_ANALOG_PIN; // ESP32 internal ADC pin
 
+// ====== Valve Configuration ======
+
+const float VALVE_MIN_DUTY = ValveConfig::VALVE_MIN_DUTY; 
+const float VALVE_MAX_DUTY = ValveConfig::VALVE_MAX_DUTY;
 
 // ====== ADS1015 Status Flag ======
 bool ads_found = false;           // False until ADS1015 is detected
@@ -79,9 +86,8 @@ Settings settings =
   .hystAmount = DEFAULT_SETTINGS.hystAmount  // Default compensation of 5 percentage points
 };
 // ====== WiFi Connection Management ======
-const int MAX_CLIENTS = 2; // Maximum number of allowed connections
 int connectedClients = 0;
-String connectedMACs[MAX_CLIENTS]; // Store MAC addresses of connected clients
+String connectedMACs[NetworkConfig::MAX_CLIENTS]; // Store MAC addresses of connected clients
 // ====== PID and Sensor Variables ======
 double pressureInput, pwmOutput; // PID input (pressure) and output (PWM)
 PID pid(&pressureInput, &pwmOutput, &settings.setpoint, settings.Kp, settings.Ki, settings.Kd, DIRECT);
@@ -90,16 +96,15 @@ float filtered_pressure = 0;
 float raw_pressure = 0;
 
 // ====== Sensor Configuration ======
-const int ADC_CHANNEL = 0;
-const float MIN_VOLTAGE = 2; // Minimum voltage for pressure sensor
-const float MAX_VOLTAGE = 4.09; // Minimum voltage for pressure sensor
+const int ADC_CHANNEL = SensorConfig::ADC_CHANNEL; // ADC channel for pressure sensor
+const float MIN_VOLTAGE = SensorConfig::MIN_VOLTAGE; // Minimum voltage for pressure sensor
+const float MAX_VOLTAGE = SensorConfig::MAX_VOLTAGE; // Minimum voltage for pressure sensor
 
-const float SENSOR_MIN_BAR = 0.;
-const float SENSOR_MAX_BAR = 7.5;
+const float SENSOR_MIN_BAR = SensorConfig::SENSOR_MIN_BAR; // Minimum pressure in bar
+const float SENSOR_MAX_BAR = SensorConfig::SENSOR_MAX_BAR; // Maximum pressure in bar
 
 // ====== Valve Configuration ======
-const float VALVE_MIN_DUTY = 50.0; // Minimum effective duty cycle for valve (%)
-const float VALVE_MAX_DUTY = 90.0; // Maximum effective duty cycle for valve (%)
+// REMOVED: Duplicate valve constants - now using values from Constants.h
 
 // Low-pass filter variables
 float last_filtered_pressure = 0;  // Previous filtered value
@@ -262,7 +267,8 @@ uint32_t mapPwmToValve(double pidOutput, int maxPwmValue)
   }
   
   // Map PID's 0-100% to valve's effective range
-  float mappedPercent = VALVE_MIN_DUTY + (pidPercent / 100.0) * (VALVE_MAX_DUTY - VALVE_MIN_DUTY);
+  float mappedPercent = VALVE_MIN_DUTY + (pidPercent / 100.0) * 
+                       (VALVE_MAX_DUTY - VALVE_MIN_DUTY);
   
   // Constrain to valid range
   mappedPercent = constrain(mappedPercent, 0.0, 100.0);
@@ -297,7 +303,8 @@ float cycleAmplitudes[10]; // Store amplitudes
 // Update these constants to account for the valve's effective range
 const float AUTOTUNE_RELAY_STEP_RAW = 75.0; // PWM step size in % for relay test
 // Calculate the unmapped value to achieve desired valve opening
-const float AUTOTUNE_RELAY_STEP = (AUTOTUNE_RELAY_STEP_RAW - VALVE_MIN_DUTY) / (VALVE_MAX_DUTY - VALVE_MIN_DUTY) * 100.0;
+const float AUTOTUNE_RELAY_STEP = (AUTOTUNE_RELAY_STEP_RAW - VALVE_MIN_DUTY) / 
+                                 (VALVE_MAX_DUTY - VALVE_MIN_DUTY) * 100.0;
 const float AUTOTUNE_TEST_SETPOINT = 3.0; // Target pressure for auto-tuning
 const float AUTOTUNE_NOISE_BAND = 0.1; // Deadband to prevent noise-triggered oscillations
 

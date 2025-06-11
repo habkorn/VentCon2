@@ -29,6 +29,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
 </head>
 
 <body>
+
   <header>
     <div class="logo-container" style="margin-bottom: 0;">
       <img src="/Logo.svg" alt="VENTREX Logo" class="logo" id="ventrexLogo">
@@ -100,9 +101,10 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="sp_slider">Setpoint Outlet Pressure in bar(g)</label>
         <div class="control-slider">
+          <button type="button" class="slider-btn" id="sp_decrement">-</button>
           <input type="range" id="sp_slider" min="0" max="10" step="0.1" value="%SP%">
+          <button type="button" class="slider-btn" id="sp_increment">+</button>
           <input type="number" id="sp_text" value="%SP%" step="0.1">
-          <span>bar</span>
         </div>
       </div>
 
@@ -114,7 +116,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="kp_slider">Proportional</label>
         <div class="control-slider">
+          <button type="button" class="slider-btn" id="kp_decrement">-</button>
           <input type="range" id="kp_slider" min="0" max="100" step="1" value="%KP%">
+          <button type="button" class="slider-btn" id="kp_increment">+</button>
           <input type="number" id="kp_text" value="%KP%" step="1">
         </div>
       </div>
@@ -122,7 +126,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="ki_slider">Integral</label>
         <div class="control-slider">
+          <button type="button" class="slider-btn" id="ki_decrement">-</button>
           <input type="range" id="ki_slider" min="0" max="100" step="1" value="%KI%">
+          <button type="button" class="slider-btn" id="ki_increment">+</button>
           <input type="number" id="ki_text" value="%KI%" step="1">
         </div>
       </div>
@@ -130,7 +136,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="kd_slider">Derivative</label>
         <div class="control-slider">
+          <button type="button" class="slider-btn" id="kd_decrement">-</button>
           <input type="range" id="kd_slider" min="0" max="10" step="0.1" value="%KD%">
+          <button type="button" class="slider-btn" id="kd_increment">+</button>
           <input type="number" id="kd_text" value="%KD%" step="1">
         </div>
       </div>
@@ -143,26 +151,30 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="flt_slider">Low Pass Filter Strength on Pressure Sensor (alpha)</label>
         <div class="control-slider">
+          <button type="button" class="slider-btn" id="flt_decrement">-</button>
           <input type="range" id="flt_slider" min="0" max="1" step="0.01" value="%FLT%">
+          <button type="button" class="slider-btn" id="flt_increment">+</button>
           <input type="number" id="flt_text" value="%FLT%" step="0.01">
         </div>
       </div>
 
       <div class="control-row">
-        <label for="freq_slider">PWM Frequency</label>
+        <label for="freq_slider">PWM Frequency in Hz</label>
         <div class="control-slider">
+          <button type="button" class="slider-btn" id="freq_decrement">-</button>
           <input type="range" id="freq_slider" min="100" max="10000" step="100" value="%FREQ%">
+          <button type="button" class="slider-btn" id="freq_increment">+</button>
           <input type="number" id="freq_text" value="%FREQ%" step="100">
-          <span>Hz</span>
         </div>
       </div>
 
       <div class="control-row">
-        <label for="res_slider">PWM Resolution</label>
+        <label for="res_slider">PWM Resolution in bits</label>
         <div class="control-slider">
+          <button type="button" class="slider-btn" id="res_decrement">-</button>
           <input type="range" id="res_slider" min="8" max="16" step="1" value="%RES%">
+          <button type="button" class="slider-btn" id="res_increment">+</button>
           <input type="number" id="res_text" value="%RES%" step="1">
-          <span>bits</span>
         </div>
       </div>
     </section>
@@ -188,7 +200,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
   </main>
 
   <footer>
-    <p>VENTCON Control System v2.0.0 by HAB</p>
+    <p>VENTCON Control System v%VERSION% by HAB</p>
     <!-- Hidden Easter egg panel -->
     <div id="easterEgg" style="display: none; margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 8px; text-align: center;">
       <h3 style="color: #002f87;">Developer Mode Activated! 🚀</h3>
@@ -200,6 +212,8 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
   </footer>
 
   <script>
+
+
     // Initialize the chart
     const ctx = document.getElementById('pressureChart').getContext('2d');
     let pressureData = [];
@@ -213,7 +227,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       data: {
         datasets: [
           {
-            label: 'Pressure',
+            label: 'Outlet',
             data: pressureData,
             borderColor: '#2563eb',
             backgroundColor: 'rgba(37, 99, 235, 0.1)',
@@ -261,15 +275,19 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         scales: {
           y: {
             beginAtZero: true,
+            min: 0,
             max: 10,
             position: 'left',
             title: {
               display: true,
-              text: 'Pressure (bar)'
+              text: 'Pressure in bar(g)'
             },
             ticks: {
+              color: '#2563eb',  // Match the color of the Pressure line
+              stepSize: 2,
+              autoSkip: false,
               callback: function(value) {
-                return value + ' bar';
+                return value;
               }
             },
             grid: {
@@ -278,6 +296,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           },
           pwm: {
             beginAtZero: true,
+            min: 0,
             max: 100,
             position: 'right',
             title: {
@@ -285,8 +304,11 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
               text: 'PWM (%)'
             },
             ticks: {
+              color: '#10b981',  // Match the color of the PWM line
+              stepSize: 20,
+              autoSkip: false,
               callback: function(value) {
-                return value + '%';
+                return value;
               }
             },
             grid: {
@@ -305,7 +327,20 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             title: {
               display: true,
               text: 'Time'
-            }
+            },
+            ticks: {
+              color: '#1e293b',  // Dark color for x-axis labels
+              autoSkip: true,
+              maxTicksLimit: 10,
+              font: {
+                size: 8,
+                family: 'courier, monospace',
+                weight: 'bold'
+              },
+              maxRotation: 45,  // Prevent label rotation
+              minRotation: 45   // Prevent label rotation
+            },
+
           }
         },
         plugins: {
@@ -419,6 +454,37 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       text.addEventListener('input', function() 
       {
         slider.value = text.value;
+        enableApply();
+      });
+    });
+
+    // Add increment/decrement button logic for all sliders
+    [
+      {param: 'sp', min: 0, max: 10, step: 0.1},
+      {param: 'kp', min: 0, max: 100, step: 1},
+      {param: 'ki', min: 0, max: 100, step: 1},
+      {param: 'kd', min: 0, max: 10, step: 0.1},
+      {param: 'flt', min: 0, max: 1, step: 0.01},
+      {param: 'freq', min: 100, max: 10000, step: 100},
+      {param: 'res', min: 8, max: 16, step: 1}
+    ].forEach(function(cfg) {
+      const slider = document.getElementById(cfg.param + '_slider');
+      const text = document.getElementById(cfg.param + '_text');
+      const decBtn = document.getElementById(cfg.param + '_decrement');
+      const incBtn = document.getElementById(cfg.param + '_increment');
+      
+      decBtn.addEventListener('click', function() {
+        let value = parseFloat(text.value);
+        value = Math.max(cfg.min, +(value - cfg.step).toFixed(10));
+        text.value = value;
+        slider.value = value;
+        enableApply();
+      });
+      incBtn.addEventListener('click', function() {
+        let value = parseFloat(text.value);
+        value = Math.min(cfg.max, +(value + cfg.step).toFixed(10));
+        text.value = value;
+        slider.value = value;
         enableApply();
       });
     });
@@ -715,6 +781,35 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           clickCount = 0;
         }
       });
+    })();
+
+    // Add scroll handler to temporarily disable sliders during scrolling
+    (function() {
+      const sliders = document.querySelectorAll('input[type="range"]');
+      let scrollTimeout;
+      
+      // Add a class to disable sliders during scroll
+      function disableSliders() {
+        sliders.forEach(slider => {
+          slider.classList.add('scrolling');
+        });
+      }
+      
+      // Remove the class with a small delay after scrolling stops
+      function enableSliders() {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          sliders.forEach(slider => {
+            slider.classList.remove('scrolling');
+          });
+        }, 250); // Wait 250ms after scrolling stops before re-enabling
+      }
+      
+      // Attach scroll event listener
+      window.addEventListener('scroll', () => {
+        disableSliders();
+        enableSliders();
+      }, { passive: true });
     })();
   </script>
 </body>

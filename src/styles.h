@@ -148,6 +148,39 @@ h3 {
   gap: 0.5rem;
 }
 
+.slider-btn 
+{
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid var(--primary);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  user-select: none;
+  padding: 0;
+}
+
+.slider-btn:active {
+  background: var(--primary-dark);
+  color: #fff;
+}
+
+.slider-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 input[type="range"] {
   flex: 1;
   height: 0.375rem;
@@ -155,6 +188,7 @@ input[type="range"] {
   background-color: var(--border);
   border-radius: 0.25rem;
   outline: none;
+  pointer-events: none; /* Make the track non-interactive */
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -164,6 +198,40 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 50%;
   background-color: var(--primary);
   cursor: pointer;
+  pointer-events: auto; /* Make the thumb interactive */
+}
+
+/* Add a new class for temporarily disabling sliders during scroll */
+input[type="range"].scrolling::-webkit-slider-thumb {
+  pointer-events: none !important; /* Disable during scrolling */
+}
+
+input[type="range"].scrolling::-moz-range-thumb {
+  pointer-events: none !important; /* Disable during scrolling for Firefox */
+}
+
+input[type="range"].scrolling::-ms-thumb {
+  pointer-events: none !important; /* Disable during scrolling for IE/Edge */
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--primary);
+  cursor: pointer;
+  pointer-events: auto; /* Make the thumb interactive for Firefox */
+  border: none;
+}
+
+input[type="range"]::-ms-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--primary);
+  cursor: pointer;
+  pointer-events: auto; /* Make the thumb interactive for IE/Edge */
+  border: none;
 }
 
 input[type="number"] {
@@ -212,7 +280,7 @@ progress {
 }
 
 .chart-container {
-  height: 180px;
+  height: 260px;
   width: 100%;
   margin-top: 0.5rem;
 }
@@ -375,5 +443,11 @@ span {
   height: 60px;
   max-width: 100%;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 )rawliteral";
+

@@ -1,8 +1,9 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
-#include <DNSServer.h> 
+#include <DNSServer.h>
 #include <SPIFFS.h>
 #include "WebContent.h"
+#include "Constants.h"  // Add this include
 #include <PID_v2.h> // Changed from PID_v1 to PID_v2
 
 /*
@@ -91,6 +92,7 @@ extern int pwm_max_value; // Make sure to access the global pwm_max_value
 
 // Add external declarations
 extern int connectedClients;
+// No need to declare MAX_CLIENTS since it's available from Constants.h
 
 // 1. Data Flow from Web to Arduino:
 
@@ -153,6 +155,7 @@ void handleRoot()
   page.replace("%FLT%", String(settings.filter_strength, 2));
   page.replace("%FREQ%", String(settings.pwm_freq));
   page.replace("%RES%", String(settings.pwm_res));
+  page.replace("%VERSION%", VENTCON_VERSION);  // Add this line to replace version from Constants.h
 
   server.send(200, "text/html", page);
 }
@@ -230,7 +233,7 @@ void handleValues()
     settings.pwm_freq,
     settings.pwm_res,
     connectedClients,
-    2,  // Hardcode the MAX_CLIENTS value (2) to match main.cpp
+    NetworkConfig::MAX_CLIENTS,  // Use constant from header
     pressureInput,
     pwm_percent,
     adc_status
