@@ -225,10 +225,54 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
   </footer>
 
   <script>
+    // Cached DOM elements
+    let cachedElements = {};
+    
+    // Cache DOM elements on load
+    function cacheElements() {
+      cachedElements = {
+        loader: document.getElementById('loader'),
+        pressure: document.getElementById('pressure'),
+        pressureFill: document.getElementById('pressure-fill'),
+        pressureTarget: document.getElementById('pressure-target'),
+        pressureTrend: document.getElementById('pressure-trend'),
+        pwm: document.getElementById('pwm'),
+        pwmFill: document.getElementById('pwm-fill'),
+        pwmTrend: document.getElementById('pwm-trend'),
+        adcIndicator: document.getElementById('adc_indicator'),
+        adcStatus: document.getElementById('adc_status'),
+        networkIndicator: document.getElementById('network_indicator'),
+        networkStatus: document.getElementById('network_status'),
+        chartToggle: document.getElementById('chartToggle'),
+        chartContainer: document.getElementById('chartContainer'),
+        saveSnackbar: document.getElementById('saveSnackbar'),
+        saveSnackbarText: document.getElementById('saveSnackbarText'),
+        // Cache all slider and text elements
+        sliders: {
+          sp: document.getElementById('sp_slider'),
+          kp: document.getElementById('kp_slider'),
+          ki: document.getElementById('ki_slider'),
+          kd: document.getElementById('kd_slider'),
+          flt: document.getElementById('flt_slider'),
+          freq: document.getElementById('freq_slider'),
+          res: document.getElementById('res_slider')
+        },
+        texts: {
+          sp: document.getElementById('sp_text'),
+          kp: document.getElementById('kp_text'),
+          ki: document.getElementById('ki_text'),
+          kd: document.getElementById('kd_text'),
+          flt: document.getElementById('flt_text'),
+          freq: document.getElementById('freq_text'),
+          res: document.getElementById('res_text')
+        }
+      };
+    }
+
     // Hide loader as soon as DOM is interactive
     document.addEventListener('DOMContentLoaded', function() {
-      var loader = document.getElementById('loader');
-      if(loader) loader.style.display = 'none';
+      cacheElements();
+      if(cachedElements.loader) cachedElements.loader.style.display = 'none';
     });
 
     // Initialize the chart
@@ -343,7 +387,12 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             },
             title: {
               display: true,
-              text: 'Time'
+              text: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+              font: {
+                size: 8,
+                family: 'courier, monospace',
+                weight: 'bold'
+              }
             },
             ticks: {
               color: '#1e293b',  // Dark color for x-axis labels
@@ -434,149 +483,168 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       }
       
       // Only update the chart if it's visible
-      if (document.getElementById('chartToggle').checked) 
+      if (cachedElements.chartToggle && cachedElements.chartToggle.checked) 
       {
         pressureChart.update();
       }
     }
 
     // Toggle chart visibility
-    document.getElementById('chartToggle').addEventListener('change', function() 
-    {
-      const chartContainer = document.getElementById('chartContainer');
-      if (this.checked) 
-      {
-        chartContainer.style.display = 'block';
-        // Don't clear the data, just update the chart with existing data
-        pressureChart.update();
-      } 
-      else 
-      {
-        chartContainer.style.display = 'none';
+    document.addEventListener('DOMContentLoaded', function() {
+      if (cachedElements.chartToggle) {
+        cachedElements.chartToggle.addEventListener('change', function() 
+        {
+          if (this.checked) 
+          {
+            cachedElements.chartContainer.style.display = 'block';
+            // Don't clear the data, just update the chart with existing data
+            pressureChart.update();
+          } 
+          else 
+          {
+            cachedElements.chartContainer.style.display = 'none';
+          }
+        });
       }
-    });    // Track changes to show the save snackbar
+    });
+
+    // Track changes to show the save snackbar
     let pendingChanges = {};
     let changeTimeout;
     
     // Synchronize range and number inputs, show save snackbar on change
-    ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) 
-    {
-      const slider = document.getElementById(param + "_slider");
-      const text = document.getElementById(param + "_text");
-      
-      slider.addEventListener('input', function() 
+    document.addEventListener('DOMContentLoaded', function() {
+      ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) 
       {
-        text.value = slider.value;
-        showSaveSnackbar(param, slider.value);
+        const slider = cachedElements.sliders[param];
+        const text = cachedElements.texts[param];
+        
+        if (slider && text) {
+          slider.addEventListener('input', function() 
+          {
+            text.value = slider.value;
+            showSaveSnackbar(param, slider.value);
+          });
+
+          text.addEventListener('input', function() 
+          {
+            slider.value = text.value;
+            showSaveSnackbar(param, text.value);
+          });
+        }
       });
 
-      text.addEventListener('input', function() 
-      {
-        slider.value = text.value;
-        showSaveSnackbar(param, text.value);
+      // Add increment/decrement button logic for all sliders
+      [
+        {param: 'sp', min: 0, max: 10, step: 0.1},
+        {param: 'kp', min: 0, max: 100, step: 1},
+        {param: 'ki', min: 0, max: 100, step: 1},
+        {param: 'kd', min: 0, max: 10, step: 0.1},
+        {param: 'flt', min: 0, max: 1, step: 0.01},
+        {param: 'freq', min: 100, max: 10000, step: 100},
+        {param: 'res', min: 8, max: 16, step: 1}
+      ].forEach(function(cfg) {
+        const slider = cachedElements.sliders[cfg.param];
+        const text = cachedElements.texts[cfg.param];
+        const decBtn = document.getElementById(cfg.param + '_decrement');
+        const incBtn = document.getElementById(cfg.param + '_increment');
+        
+        if (decBtn && incBtn && slider && text) {
+          decBtn.addEventListener('click', function() {
+            let value = parseFloat(text.value);
+            value = Math.max(cfg.min, +(value - cfg.step).toFixed(10));
+            text.value = value;
+            slider.value = value;
+            showSaveSnackbar(cfg.param, value);
+          });
+          incBtn.addEventListener('click', function() {
+            let value = parseFloat(text.value);
+            value = Math.min(cfg.max, +(value + cfg.step).toFixed(10));
+            text.value = value;
+            slider.value = value;
+            showSaveSnackbar(cfg.param, value);
+          });
+        }
       });
-    });    // Add increment/decrement button logic for all sliders
-    [
-      {param: 'sp', min: 0, max: 10, step: 0.1},
-      {param: 'kp', min: 0, max: 100, step: 1},
-      {param: 'ki', min: 0, max: 100, step: 1},
-      {param: 'kd', min: 0, max: 10, step: 0.1},
-      {param: 'flt', min: 0, max: 1, step: 0.01},
-      {param: 'freq', min: 100, max: 10000, step: 100},
-      {param: 'res', min: 8, max: 16, step: 1}
-    ].forEach(function(cfg) {
-      const slider = document.getElementById(cfg.param + '_slider');
-      const text = document.getElementById(cfg.param + '_text');
-      const decBtn = document.getElementById(cfg.param + '_decrement');
-      const incBtn = document.getElementById(cfg.param + '_increment');
-      
-      decBtn.addEventListener('click', function() {
-        let value = parseFloat(text.value);
-        value = Math.max(cfg.min, +(value - cfg.step).toFixed(10));
-        text.value = value;
-        slider.value = value;
-        showSaveSnackbar(cfg.param, value);
-      });
-      incBtn.addEventListener('click', function() {
-        let value = parseFloat(text.value);
-        value = Math.min(cfg.max, +(value + cfg.step).toFixed(10));
-        text.value = value;
-        slider.value = value;
-        showSaveSnackbar(cfg.param, value);
-      });
-    });    // Snackbar management functions
+    });
+
+    // Snackbar management functions
     function showSaveSnackbar(param, value) {
       // Store the changed parameter
       pendingChanges[param] = value;
       
       // Show the save snackbar
-      const saveSnackbar = document.getElementById('saveSnackbar');
-      saveSnackbar.style.display = 'block';
-      
-      // Add animation for a subtle bounce effect
-      saveSnackbar.animate([
-        { transform: 'translateX(-50%) scale(0.95)' },
-        { transform: 'translateX(-50%) scale(1.02)' },
-        { transform: 'translateX(-50%) scale(1)' }
-      ], { duration: 300, easing: 'ease-out' });
+      if (cachedElements.saveSnackbar) {
+        cachedElements.saveSnackbar.style.display = 'block';
+        
+        // Add animation for a subtle bounce effect
+        cachedElements.saveSnackbar.animate([
+          { transform: 'translateX(-50%) scale(0.95)' },
+          { transform: 'translateX(-50%) scale(1.02)' },
+          { transform: 'translateX(-50%) scale(1)' }
+        ], { duration: 300, easing: 'ease-out' });
+      }
       
       // Auto-hide after 8 seconds of inactivity
       clearTimeout(changeTimeout);
       changeTimeout = setTimeout(() => {
-        const saveSnackbar = document.getElementById('saveSnackbar');
-        saveSnackbar.animate([
-          { opacity: 1 },
-          { opacity: 0 }
-        ], { duration: 300, easing: 'ease-out' });
-        
-        setTimeout(() => {
-          saveSnackbar.style.display = 'none';
-        }, 300);
+        if (cachedElements.saveSnackbar) {
+          cachedElements.saveSnackbar.animate([
+            { opacity: 1 },
+            { opacity: 0 }
+          ], { duration: 300, easing: 'ease-out' });
+          
+          setTimeout(() => {
+            cachedElements.saveSnackbar.style.display = 'none';
+          }, 300);
+        }
       }, 8000);
     }
     
     // Initialize save snackbar click handler
-    document.getElementById('saveSnackbar').addEventListener('click', function() 
-    {
-      const saveSnackbar = document.getElementById('saveSnackbar');
-      const saveSnackbarText = document.getElementById('saveSnackbarText');
-      saveSnackbarText.textContent = "Saving...";
-      saveSnackbar.style.pointerEvents = 'none';
-      
-      // Build parameters string from pending changes
-      const params = Object.entries(pendingChanges).map(([param, value]) => 
-        param + "=" + encodeURIComponent(value)
-      ).join("&");
+    document.addEventListener('DOMContentLoaded', function() {
+      if (cachedElements.saveSnackbar) {
+        cachedElements.saveSnackbar.addEventListener('click', function() 
+        {
+          cachedElements.saveSnackbarText.textContent = "Saving...";
+          cachedElements.saveSnackbar.style.pointerEvents = 'none';
+          
+          // Build parameters string from pending changes
+          const params = Object.entries(pendingChanges).map(([param, value]) => 
+            param + "=" + encodeURIComponent(value)
+          ).join("&");
 
-      fetch("/set?" + params)
-        .then(() => {
-          saveSnackbarText.textContent = "Settings Updated";
-          saveSnackbar.style.background = '#10b981'; // Success green
-          
-          // Clear pending changes
-          pendingChanges = {};
-          
-          // Hide snackbar after a short delay
-          setTimeout(() => {
-            saveSnackbar.animate([
-              { opacity: 1 },
-              { opacity: 0 }
-            ], { duration: 300, easing: 'ease-out' });
-            
-            setTimeout(() => {
-              saveSnackbar.style.display = 'none';
-              saveSnackbar.style.background = '#2563eb'; // Reset to blue
-              saveSnackbarText.textContent = "Apply Changes";
-              saveSnackbar.style.pointerEvents = 'auto';
-            }, 300);
-          }, 1000);
-        })
-        .catch(err => {
-          saveSnackbarText.textContent = "Try Again";
-          saveSnackbar.style.background = '#dc2626'; // Error red
-          saveSnackbar.style.pointerEvents = 'auto';
-          console.error("Failed to save settings:", err);
+          fetch("/set?" + params)
+            .then(() => {
+              cachedElements.saveSnackbarText.textContent = "Settings Updated";
+              cachedElements.saveSnackbar.style.background = '#10b981'; // Success green
+              
+              // Clear pending changes
+              pendingChanges = {};
+              
+              // Hide snackbar after a short delay
+              setTimeout(() => {
+                cachedElements.saveSnackbar.animate([
+                  { opacity: 1 },
+                  { opacity: 0 }
+                ], { duration: 300, easing: 'ease-out' });
+                
+                setTimeout(() => {
+                  cachedElements.saveSnackbar.style.display = 'none';
+                  cachedElements.saveSnackbar.style.background = '#2563eb'; // Reset to blue
+                  cachedElements.saveSnackbarText.textContent = "Apply Changes";
+                  cachedElements.saveSnackbar.style.pointerEvents = 'auto';
+                }, 300);
+              }, 1000);
+            })
+            .catch(err => {
+              cachedElements.saveSnackbarText.textContent = "Try Again";
+              cachedElements.saveSnackbar.style.background = '#dc2626'; // Error red
+              cachedElements.saveSnackbar.style.pointerEvents = 'auto';
+              console.error("Failed to save settings:", err);
+            });
         });
+      }
     });
 
     // Track pressure values for trend indicator
@@ -615,19 +683,20 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           pressureTrend = 0; // stable
         }
         
-        // Update trend indicator
-        const trendEl = document.getElementById('pressure-trend');
-        if (pressureTrend > 0) 
-        {
-          trendEl.className = 'trend-indicator trend-up';
-        } 
-        else if (pressureTrend < 0) 
-        {
-          trendEl.className = 'trend-indicator trend-down';
-        } 
-        else 
-        {
-          trendEl.className = 'trend-indicator trend-stable';
+        // Update trend indicator using cached element
+        if (cachedElements.pressureTrend) {
+          if (pressureTrend > 0) 
+          {
+            cachedElements.pressureTrend.className = 'trend-indicator trend-up';
+          } 
+          else if (pressureTrend < 0) 
+          {
+            cachedElements.pressureTrend.className = 'trend-indicator trend-down';
+          } 
+          else 
+          {
+            cachedElements.pressureTrend.className = 'trend-indicator trend-stable';
+          }
         }
       }
     }
@@ -668,19 +737,20 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           pwmTrend = 0; // stable
         }
         
-        // Update trend indicator
-        const trendEl = document.getElementById('pwm-trend');
-        if (pwmTrend > 0) 
-        {
-          trendEl.className = 'trend-indicator trend-up';
-        } 
-        else if (pwmTrend < 0) 
-        {
-          trendEl.className = 'trend-indicator trend-down';
-        } 
-        else 
-        {
-          trendEl.className = 'trend-indicator trend-stable';
+        // Update trend indicator using cached element
+        if (cachedElements.pwmTrend) {
+          if (pwmTrend > 0) 
+          {
+            cachedElements.pwmTrend.className = 'trend-indicator trend-up';
+          } 
+          else if (pwmTrend < 0) 
+          {
+            cachedElements.pwmTrend.className = 'trend-indicator trend-down';
+          } 
+          else 
+          {
+            cachedElements.pwmTrend.className = 'trend-indicator trend-stable';
+          }
         }
       }
     }
@@ -692,19 +762,25 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         .then(r => r.json())
         .then(data => 
         {
-          // Update pressure display with new gauge style
+          // Update pressure display with cached elements
           if (typeof data.pressure !== "undefined") 
           {
             const pressureVal = data.pressure;
-            document.getElementById('pressure').textContent = pressureVal.toFixed(2);
+            if (cachedElements.pressure) {
+              cachedElements.pressure.textContent = pressureVal.toFixed(2);
+            }
             
             // Update pressure fill and calculate percentage (0-10 bar range)
             const pressurePercent = (pressureVal / 10) * 100;
-            document.getElementById('pressure-fill').style.width = `${pressurePercent}%`;
+            if (cachedElements.pressureFill) {
+              cachedElements.pressureFill.style.width = `${pressurePercent}%`;
+            }
             
             // Update setpoint target marker
             const setpointPercent = (data.sp / 10) * 100;
-            document.getElementById('pressure-target').style.left = `${setpointPercent}%`;
+            if (cachedElements.pressureTarget) {
+              cachedElements.pressureTarget.style.left = `${setpointPercent}%`;
+            }
             
             // Update trend indicator
             updatePressureTrend(pressureVal);
@@ -717,83 +793,66 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           } 
           else 
           {
-            document.getElementById('pressure').textContent = "--";
-            document.getElementById('pressure-fill').style.width = "0%";
+            if (cachedElements.pressure) cachedElements.pressure.textContent = "--";
+            if (cachedElements.pressureFill) cachedElements.pressureFill.style.width = "0%";
           }
           
-          // Update PWM output with new gauge style
+          // Update PWM output with cached elements
           if (data.pwm !== undefined) {
             const pwmVal = parseFloat(data.pwm);
-            document.getElementById('pwm').textContent = pwmVal.toFixed(3);
-            document.getElementById('pwm-fill').style.width = `${pwmVal}%`;
+            if (cachedElements.pwm) {
+              cachedElements.pwm.textContent = pwmVal.toFixed(3);
+            }
+            if (cachedElements.pwmFill) {
+              cachedElements.pwmFill.style.width = `${pwmVal}%`;
+            }
             
             // Update PWM trend indicator
             updatePwmTrend(pwmVal);
           } 
           else 
           {
-            document.getElementById('pwm').textContent = "--";
-            document.getElementById('pwm-fill').style.width = "0%";
+            if (cachedElements.pwm) cachedElements.pwm.textContent = "--";
+            if (cachedElements.pwmFill) cachedElements.pwmFill.style.width = "0%";
           }
           
-          // Update ADC status with indicator
-          const adcIndicator = document.getElementById('adc_indicator');
-          if (data.adc_status === "100") {
-            document.getElementById('adc_status').textContent = "External ADS1015 ADC - 12 Bit";
-            adcIndicator.style.backgroundColor = 'var(--success)';
-          } 
-          else if(data.adc_status === "000") {
-            document.getElementById('adc_status').textContent = "Internal ESP32 ADC - 12 Bit";
-            adcIndicator.style.backgroundColor = 'var(--accent)';
-          } 
-          else 
-          {
-            document.getElementById('adc_status').textContent = "Unknown";
-            adcIndicator.style.backgroundColor = 'var(--danger)';
+          // Update ADC status with cached elements
+          if (cachedElements.adcIndicator && cachedElements.adcStatus) {
+            if (data.adc_status === "100") {
+              cachedElements.adcStatus.textContent = "External ADS1015 ADC - 12 Bit";
+              cachedElements.adcIndicator.style.backgroundColor = 'var(--success)';
+            } 
+            else if(data.adc_status === "000") {
+              cachedElements.adcStatus.textContent = "Internal ESP32 ADC - 12 Bit";
+              cachedElements.adcIndicator.style.backgroundColor = 'var(--accent)';
+            } 
+            else 
+            {
+              cachedElements.adcStatus.textContent = "Unknown";
+              cachedElements.adcIndicator.style.backgroundColor = 'var(--danger)';
+            }
           }
           
-          // Update Network status with indicator
-          const networkIndicator = document.getElementById('network_indicator');
-          document.getElementById('network_status').textContent = "VENTCON_AP, IP: 192.168.4.1";
-          networkIndicator.style.backgroundColor = 'var(--success)';
-            // Only update UI controls if no unsaved changes (saveSnackbar is hidden)
-          if (document.getElementById('saveSnackbar').style.display === 'none') 
+          // Update Network status with cached elements
+          if (cachedElements.networkIndicator && cachedElements.networkStatus) {
+            cachedElements.networkStatus.textContent = "VENTCON_AP, IP: 192.168.4.1";
+            cachedElements.networkIndicator.style.backgroundColor = 'var(--success)';
+          }
+          
+          // Only update UI controls if no unsaved changes (saveSnackbar is hidden)
+          if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.style.display === 'none') 
           {
-            // Update all sliders and inputs with current values from server
-            if (typeof data.sp !== "undefined") {
-              document.getElementById('sp_slider').value = data.sp;
-              document.getElementById('sp_text').value = data.sp;
-            }
-
-            if (typeof data.kp !== "undefined") {
-              document.getElementById('kp_slider').value = data.kp;
-              document.getElementById('kp_text').value = data.kp;
-            }
-
-            if (typeof data.ki !== "undefined") {
-              document.getElementById('ki_slider').value = data.ki;
-              document.getElementById('ki_text').value = data.ki;
-            }
-
-            if (typeof data.kd !== "undefined") {
-              document.getElementById('kd_slider').value = data.kd;
-              document.getElementById('kd_text').value = data.kd;
-            }
-
-            if (typeof data.flt !== "undefined") {
-              document.getElementById('flt_slider').value = data.flt;
-              document.getElementById('flt_text').value = data.flt;
-            }
-
-            if (typeof data.freq !== "undefined") {
-              document.getElementById('freq_slider').value = data.freq;
-              document.getElementById('freq_text').value = data.freq;
-            }
-
-            if (typeof data.res !== "undefined") {
-              document.getElementById('res_slider').value = data.res;
-              document.getElementById('res_text').value = data.res;
-            }
+            // Update all sliders and inputs with current values from server using cached elements
+            ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(param => {
+              if (typeof data[param] !== "undefined") {
+                if (cachedElements.sliders[param]) {
+                  cachedElements.sliders[param].value = data[param];
+                }
+                if (cachedElements.texts[param]) {
+                  cachedElements.texts[param].value = data[param];
+                }
+              }
+            });
           }
         })
         .catch(err => 
