@@ -10,7 +10,7 @@ UseSoftwareSupportedFlowControl = true
 BlockKeystrokesWhileFlowHalted = true
 DTRDefaultState = true
 RTSDefaultState = true
-ViewerMode = Plain
+ViewerMode = Chart
 WrapPlainText = true
 TerminalMode = Raw
 SaveTXHistory = true
@@ -117,7 +117,7 @@ UnpauseOnSend = false
 ChartShowLegend = true
 ChartXAxisDataSource = FromFirstDataColumn
 ChartTitle = 
-ChartXAxisLabel = Time (s)
+ChartXAxisLabel = t
 ChartYAxisLabel = 
 ChartXAutoLimits = true
 ChartYAutoLimits = false
@@ -135,7 +135,7 @@ ChartTraceProperties = 0:Label=voltage	Color=&h00FF00FF	Style=0	Width=1	MStyle=8
 ChartTraceProperties = 1:Label=press	Color=&h000000FF	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
 ChartTraceProperties = 2:Label=setPress	Color=&h00FF8000	Style=0	Width=1	MStyle=8	Scale=0	Visible=True
 ChartTraceProperties = 3:Label=PWM%	Color=&h0000CCCC	Style=0	Width=1	MStyle=8	Scale=-1	Visible=True
-ChartTraceProperties = 4:Label=Time (s)	Color=&h00000000	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
+ChartTraceProperties = 4:Label=t	Color=&h00000000	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
 ChartTraceProperties = 5:Label=Trace 6	Color=&h00DDDD00	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
 ChartTraceProperties = 6:Label=Trace 7	Color=&h00942192	Style=0	Width=1	MStyle=8	Scale=0	Visible=False
 ChartTraceProperties = 7:Label=dc	Color=&h00FFB600	Style=0	Width=1	MStyle=8	Scale=0	Visible=False

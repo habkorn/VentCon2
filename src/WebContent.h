@@ -29,6 +29,13 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
 </head>
 
 <body>
+  <div class="loader" id="loader" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:center;">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <img src="/Logo.svg" alt="VENTREX Logo" style="height:60px;margin-bottom:16px;">
+      <div style="border:6px solid #f3f3f3;border-top:6px solid #2563eb;border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;"></div>
+      <span style="margin-top:12px;color:#2563eb;font-weight:600;">Loading...</span>
+    </div>
+  </div>
 
   <header>
     <div class="logo-container" style="margin-bottom: 0;">
@@ -50,7 +57,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
 
   <main>
     <section class="card">
-      <h2>Real-time Monitoring</h2>
+      <h2 style="text-align: center;">Real Time Monitoring</h2>
       
       <div class="gauge-container">
         <div class="gauge">
@@ -69,7 +76,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         <div class="gauge">
           <div class="gauge-title">PWM Output</div>
           <div class="gauge-value">
-            <span id="pwm">--</span>
+            <span id="pwm" style="color: #10b981;">--</span>
             <small>%</small>
             <span id="pwm-trend" class="trend-indicator trend-stable">▲</span>
           </div>
@@ -90,35 +97,37 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="chart-container" id="chartContainer">
         <canvas id="pressureChart"></canvas>
       </div>
-    </section>
-
-    <section class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin-bottom: 0;">Control Parameters</h2>
-        <button id="applyBtn" disabled>Apply Changes</button>
+    </section>    <section class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h2 style="margin-bottom: 0;">Set Parameters</h2>
+      </div>
+      
+      <!-- Snackbar Apply Changes button (hidden by default) -->
+      <div id="saveSnackbar" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2563eb; color:white; padding:12px 24px; border-radius:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15); font-weight:600; z-index:1000; display:none; cursor:pointer; transition:all 0.3s ease;">
+        <span id="saveSnackbarText">Apply Changes</span>
       </div>
       
       <div class="control-row">
         <label for="sp_slider">Setpoint Outlet Pressure in bar(g)</label>
         <div class="control-slider">
-          <button type="button" class="slider-btn" id="sp_decrement">-</button>
+          <button type="button" class="slider-btn decrement-btn" id="sp_decrement">-</button>
           <input type="range" id="sp_slider" min="0" max="10" step="0.1" value="%SP%">
-          <button type="button" class="slider-btn" id="sp_increment">+</button>
+          <button type="button" class="slider-btn increment-btn" id="sp_increment">+</button>
           <input type="number" id="sp_text" value="%SP%" step="0.1">
         </div>
-      </div>
-
-      <div class="section-title">
+      </div>      
+      
+      <div class="section-title" style="display: flex; align-items: center; justify-content: space-between;margin-top: 1.0rem;">
         <span>PID</span>
-        <div></div>
+        <button id="resetPidBtn" class="reset-btn" title="Re-initialize PID with current settings" style="padding: 8px 12px; font-size: 12px; min-width: auto;">Reset PID</button>
       </div>
 
       <div class="control-row">
         <label for="kp_slider">Proportional</label>
         <div class="control-slider">
-          <button type="button" class="slider-btn" id="kp_decrement">-</button>
+          <button type="button" class="slider-btn decrement-btn" id="kp_decrement">-</button>
           <input type="range" id="kp_slider" min="0" max="100" step="1" value="%KP%">
-          <button type="button" class="slider-btn" id="kp_increment">+</button>
+          <button type="button" class="slider-btn increment-btn" id="kp_increment">+</button>
           <input type="number" id="kp_text" value="%KP%" step="1">
         </div>
       </div>
@@ -126,9 +135,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="ki_slider">Integral</label>
         <div class="control-slider">
-          <button type="button" class="slider-btn" id="ki_decrement">-</button>
+          <button type="button" class="slider-btn decrement-btn" id="ki_decrement">-</button>
           <input type="range" id="ki_slider" min="0" max="100" step="1" value="%KI%">
-          <button type="button" class="slider-btn" id="ki_increment">+</button>
+          <button type="button" class="slider-btn increment-btn" id="ki_increment">+</button>
           <input type="number" id="ki_text" value="%KI%" step="1">
         </div>
       </div>
@@ -136,24 +145,24 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="kd_slider">Derivative</label>
         <div class="control-slider">
-          <button type="button" class="slider-btn" id="kd_decrement">-</button>
+          <button type="button" class="slider-btn decrement-btn" id="kd_decrement">-</button>
           <input type="range" id="kd_slider" min="0" max="10" step="0.1" value="%KD%">
-          <button type="button" class="slider-btn" id="kd_increment">+</button>
+          <button type="button" class="slider-btn increment-btn" id="kd_increment">+</button>
           <input type="number" id="kd_text" value="%KD%" step="1">
         </div>
       </div>
 
-      <div class="section-title">
+      <div class="section-title" style="display: flex; align-items: center; justify-content: space-between;margin-top: 1.75rem;">
         <span>System</span>
         <div></div>
       </div>
 
       <div class="control-row">
-        <label for="flt_slider">Low Pass Filter Strength on Pressure Sensor (alpha)</label>
+        <label for="flt_slider">Low Pass Filter Strength on Pressure Sensor (α)</label>
         <div class="control-slider">
-          <button type="button" class="slider-btn" id="flt_decrement">-</button>
+          <button type="button" class="slider-btn decrement-btn" id="flt_decrement">-</button>
           <input type="range" id="flt_slider" min="0" max="1" step="0.01" value="%FLT%">
-          <button type="button" class="slider-btn" id="flt_increment">+</button>
+          <button type="button" class="slider-btn increment-btn" id="flt_increment">+</button>
           <input type="number" id="flt_text" value="%FLT%" step="0.01">
         </div>
       </div>
@@ -161,9 +170,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="freq_slider">PWM Frequency in Hz</label>
         <div class="control-slider">
-          <button type="button" class="slider-btn" id="freq_decrement">-</button>
+          <button type="button" class="slider-btn decrement-btn" id="freq_decrement">-</button>
           <input type="range" id="freq_slider" min="100" max="10000" step="100" value="%FREQ%">
-          <button type="button" class="slider-btn" id="freq_increment">+</button>
+          <button type="button" class="slider-btn increment-btn" id="freq_increment">+</button>
           <input type="number" id="freq_text" value="%FREQ%" step="100">
         </div>
       </div>
@@ -171,9 +180,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="res_slider">PWM Resolution in bits</label>
         <div class="control-slider">
-          <button type="button" class="slider-btn" id="res_decrement">-</button>
+          <button type="button" class="slider-btn decrement-btn" id="res_decrement">-</button>
           <input type="range" id="res_slider" min="8" max="16" step="1" value="%RES%">
-          <button type="button" class="slider-btn" id="res_increment">+</button>
+          <button type="button" class="slider-btn increment-btn" id="res_increment">+</button>
           <input type="number" id="res_text" value="%RES%" step="1">
         </div>
       </div>
@@ -212,7 +221,11 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
   </footer>
 
   <script>
-
+    // Hide loader as soon as DOM is interactive
+    document.addEventListener('DOMContentLoaded', function() {
+      var loader = document.getElementById('loader');
+      if(loader) loader.style.display = 'none';
+    });
 
     // Initialize the chart
     const ctx = document.getElementById('pressureChart').getContext('2d');
@@ -437,9 +450,11 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       {
         chartContainer.style.display = 'none';
       }
-    });
-
-    // Synchronize range and number inputs, enable Apply button on change
+    });    // Track changes to show the save snackbar
+    let pendingChanges = {};
+    let changeTimeout;
+    
+    // Synchronize range and number inputs, show save snackbar on change
     ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) 
     {
       const slider = document.getElementById(param + "_slider");
@@ -448,17 +463,15 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       slider.addEventListener('input', function() 
       {
         text.value = slider.value;
-        enableApply();
+        showSaveSnackbar(param, slider.value);
       });
 
       text.addEventListener('input', function() 
       {
         slider.value = text.value;
-        enableApply();
+        showSaveSnackbar(param, text.value);
       });
-    });
-
-    // Add increment/decrement button logic for all sliders
+    });    // Add increment/decrement button logic for all sliders
     [
       {param: 'sp', min: 0, max: 10, step: 0.1},
       {param: 'kp', min: 0, max: 100, step: 1},
@@ -478,43 +491,87 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         value = Math.max(cfg.min, +(value - cfg.step).toFixed(10));
         text.value = value;
         slider.value = value;
-        enableApply();
+        showSaveSnackbar(cfg.param, value);
       });
       incBtn.addEventListener('click', function() {
         let value = parseFloat(text.value);
         value = Math.min(cfg.max, +(value + cfg.step).toFixed(10));
         text.value = value;
         slider.value = value;
-        enableApply();
+        showSaveSnackbar(cfg.param, value);
       });
-    });
-
-    function enableApply() 
-    {
-      document.getElementById('applyBtn').disabled = false;
-      document.getElementById('applyBtn').textContent = "Apply Changes";
+    });    // Snackbar management functions
+    function showSaveSnackbar(param, value) {
+      // Store the changed parameter
+      pendingChanges[param] = value;
+      
+      // Show the save snackbar
+      const saveSnackbar = document.getElementById('saveSnackbar');
+      saveSnackbar.style.display = 'block';
+      
+      // Add animation for a subtle bounce effect
+      saveSnackbar.animate([
+        { transform: 'translateX(-50%) scale(0.95)' },
+        { transform: 'translateX(-50%) scale(1.02)' },
+        { transform: 'translateX(-50%) scale(1)' }
+      ], { duration: 300, easing: 'ease-out' });
+      
+      // Auto-hide after 8 seconds of inactivity
+      clearTimeout(changeTimeout);
+      changeTimeout = setTimeout(() => {
+        const saveSnackbar = document.getElementById('saveSnackbar');
+        saveSnackbar.animate([
+          { opacity: 1 },
+          { opacity: 0 }
+        ], { duration: 300, easing: 'ease-out' });
+        
+        setTimeout(() => {
+          saveSnackbar.style.display = 'none';
+        }, 300);
+      }, 8000);
     }
-
-    document.getElementById('applyBtn').addEventListener('click', function() 
+    
+    // Initialize save snackbar click handler
+    document.getElementById('saveSnackbar').addEventListener('click', function() 
     {
-      const params = ["sp", "kp", "ki", "kd", "flt", "freq", "res"].map(param => 
-      {
-        const value = document.getElementById(param + "_text").value;
-        return param + "=" + encodeURIComponent(value);
-      }).join("&");
-
-      // Show loading state
-      const btn = document.getElementById('applyBtn');
-      btn.textContent = "Applying...";
+      const saveSnackbar = document.getElementById('saveSnackbar');
+      const saveSnackbarText = document.getElementById('saveSnackbarText');
+      saveSnackbarText.textContent = "Saving...";
+      saveSnackbar.style.pointerEvents = 'none';
+      
+      // Build parameters string from pending changes
+      const params = Object.entries(pendingChanges).map(([param, value]) => 
+        param + "=" + encodeURIComponent(value)
+      ).join("&");
 
       fetch("/set?" + params)
         .then(() => {
-          btn.disabled = true;
-          btn.textContent = "Changes Applied";
+          saveSnackbarText.textContent = "Settings Updated";
+          saveSnackbar.style.background = '#10b981'; // Success green
+          
+          // Clear pending changes
+          pendingChanges = {};
+          
+          // Hide snackbar after a short delay
+          setTimeout(() => {
+            saveSnackbar.animate([
+              { opacity: 1 },
+              { opacity: 0 }
+            ], { duration: 300, easing: 'ease-out' });
+            
+            setTimeout(() => {
+              saveSnackbar.style.display = 'none';
+              saveSnackbar.style.background = '#2563eb'; // Reset to blue
+              saveSnackbarText.textContent = "Apply Changes";
+              saveSnackbar.style.pointerEvents = 'auto';
+            }, 300);
+          }, 1000);
         })
         .catch(err => {
-          btn.textContent = "Try Again";
-          alert("Failed to apply settings: " + err);
+          saveSnackbarText.textContent = "Try Again";
+          saveSnackbar.style.background = '#dc2626'; // Error red
+          saveSnackbar.style.pointerEvents = 'auto';
+          console.error("Failed to save settings:", err);
         });
     });
 
@@ -695,9 +752,8 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           const networkIndicator = document.getElementById('network_indicator');
           document.getElementById('network_status').textContent = "VENTCON_AP, IP: 192.168.4.1";
           networkIndicator.style.backgroundColor = 'var(--success)';
-          
-          // Only update UI controls if Apply button is disabled (no unsaved changes)
-          if (document.getElementById('applyBtn').disabled) 
+            // Only update UI controls if no unsaved changes (saveSnackbar is hidden)
+          if (document.getElementById('saveSnackbar').style.display === 'none') 
           {
             // Update all sliders and inputs with current values from server
             if (typeof data.sp !== "undefined") {
@@ -740,8 +796,68 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         {
           console.error("Error fetching values:", err);
         });
-    }, 300);
-
+    }, 300);    // Add event listener for PID reset button
+    document.getElementById('resetPidBtn').addEventListener('click', function() {
+      // Create visual feedback
+      const btn = document.getElementById('resetPidBtn');
+      const originalText = btn.textContent;
+      btn.textContent = "Resetting...";
+      btn.style.backgroundColor = "#60a5fa"; // Lighter blue during reset
+      
+      // Call the reset endpoint
+      fetch('/resetPID')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            btn.textContent = "Reset!";
+            btn.style.backgroundColor = "#10b981"; // Success green
+            
+            // Display a notification using the save snackbar
+            const saveSnackbar = document.getElementById('saveSnackbar');
+            const saveSnackbarText = document.getElementById('saveSnackbarText');
+            saveSnackbar.style.display = 'block';
+            saveSnackbar.style.background = '#10b981'; // Success green
+            saveSnackbarText.textContent = "PID Controller Reset";
+            
+            // Hide snackbar after 2 seconds
+            setTimeout(() => {
+              saveSnackbar.animate([
+                { opacity: 1 },
+                { opacity: 0 }
+              ], { duration: 300, easing: 'ease-out' });
+              
+              setTimeout(() => {
+                saveSnackbar.style.display = 'none';
+                saveSnackbar.style.background = '#2563eb'; // Reset to blue
+                saveSnackbarText.textContent = "Apply Changes";
+              }, 300);
+            }, 2000);
+            
+            // Reset button after 1 second
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.style.backgroundColor = "#f59e0b"; // Back to original color
+            }, 1000);
+          } else {
+            btn.textContent = "Error";
+            btn.style.backgroundColor = "#ef4444"; // Error red
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.style.backgroundColor = "#f59e0b";
+            }, 1500);
+          }
+        })
+        .catch(error => {
+          console.error('Error resetting PID:', error);
+          btn.textContent = "Error";
+          btn.style.backgroundColor = "#ef4444"; // Error red
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.backgroundColor = "#f59e0b";
+          }, 1500);
+        });
+    });
+    
     // Easter egg implementation
     (function() {
       const logo = document.getElementById('ventrexLogo');

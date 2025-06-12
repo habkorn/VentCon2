@@ -448,6 +448,35 @@ span {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.increment-btn {
+  background-color: #10b981 !important;
+  color: #fff !important;
+  border: none;
+}
+.decrement-btn {
+  background-color: #002f87 !important;
+  color: #fff !important;
+  border: none;
+}
+
+.reset-btn {
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: auto;
+  margin-right: 12px;
+}
+
+.reset-btn:hover {
+  background-color: #d97706;
+}
 </style>
 )rawliteral";
 

@@ -89,6 +89,7 @@ extern void saveSettings();
 extern void updatePWM();
 extern bool ads_found;
 extern int pwm_max_value; // Make sure to access the global pwm_max_value
+extern float last_filtered_pressure; // Add declaration for last_filtered_pressure
 
 // Add external declarations
 extern int connectedClients;
@@ -238,17 +239,37 @@ void handleValues()
     pwm_percent,
     adc_status
   );
+    server.send(200, "application/json", json);
+}
+
+// Handler for PID controller reset
+void handleResetPID() {
+  // Temporarily set to manual mode
+  pid.SetMode(PID::Manual);
+  pwmOutput = 0;
+  ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, 0);
   
-  server.send(200, "application/json", json);
+  // Clear any internal state
+  last_filtered_pressure = 0;
+  
+  // Reset internal state (by re-initializing the PID controller)
+  pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
+  pid.SetOutputLimits(0, pwm_max_value);
+  
+  // Set back to automatic mode
+  pid.SetMode(PID::Automatic);
+  
+  // Send success response
+  server.send(200, "application/json", "{\"success\":true,\"message\":\"PID controller reset successfully\"}");
 }
 
 // Setup function to register all web handlers
-void setupWebHandlers() 
-{
-  // Register main page and API endpoints
+void setupWebHandlers()
+{  // Register main page and API endpoints
   server.on("/", handleRoot);
   server.on("/set", handleSet);
   server.on("/values", handleValues);
+  server.on("/resetPID", handleResetPID);
   
   // Register handlers for JavaScript files at root level
   server.on("/chart.min.js", [](){

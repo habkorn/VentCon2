@@ -116,7 +116,7 @@ const int ADS1015_DATA_RATE = 1600;       // 1600 samples per second (default)
 
 // ====== Global Variables ======
 bool continousValueOutput = false; // Flag for Serial output
-long lastMainLoopTime=0; // Last time output was sent to Serial
+unsigned long lastMainLoopTime=0; // Last time output was sent to Serial
 long lastcontinousValueOutputTime=0; // Last time output was sent to Serial
 long lastAnalogOutPressureSignalTime=0; // Last time output was sent to Serial
 int pwm_max_value = (1 << settings.pwm_res) - 1; // Maximum PWM value based on resolution
@@ -127,8 +127,8 @@ int pwm_analog_pressure_signal_pwm_res=12; // Resolution for analog pressure sig
 int SENSOR_MAX_VALUE = (1 << pwm_analog_pressure_signal_pwm_res) - 1; 
 int SAMPLE_TIME=20; // Sample time for PID control in milliseconds
 
-long deltaTimeMainLoop = 0; // Time difference for main loop execution
-long deltaTimecontinousValueOutput = 0; // Time difference for continuous value output
+unsigned long deltaTimeMainLoop = 0; // Time difference for main loop execution
+unsigned long deltaTimecontinousValueOutput = 0; // Time difference for continuous value output
 
 // Track previous pressure direction for hysteresis compensation
 bool pressureIncreasing = false;
@@ -1301,9 +1301,9 @@ void loop()
   }
     
   // ====== Continuous Serial Output ======
-  deltaTimeMainLoop = millis() - lastMainLoopTime;
-  lastMainLoopTime = millis();
-
+  unsigned long now_micros = micros();
+  deltaTimeMainLoop = now_micros - lastMainLoopTime;
+  lastMainLoopTime = now_micros;
 
   deltaTimecontinousValueOutput = millis() - lastcontinousValueOutputTime;
 
@@ -1311,16 +1311,16 @@ void loop()
   if(continousValueOutput == true && (deltaTimecontinousValueOutput >= SERIAL_OUTPUT_INTERVAL))
   {
     // Format all data at once using a single buffer
-    char buffer[170]; // Buffer size to fit all data
+    char buffer[100]; // Buffer size to fit all data
     
     int len = snprintf(buffer, sizeof(buffer),
-      "voltage=%.3f, press=%.3f, setPress=%.3f, PWM%%=%.1f, Time (s)=%.2f, deltaTime=%ld%s\r\n",
+      "voltage=%.3f, press=%.3f, setPress=%.3f, PWM%%=%.3f, t=%.2f, dt=%lu%s\r\n",
       voltage,
       pressureInput,
       settings.setpoint,
       (autoTuneRunning ? autoTuneOutputValue : (pwmOutput/pwm_max_value)*100.0),
-      lastMainLoopTime / 1000.,
-      deltaTimeMainLoop,
+      lastMainLoopTime / 1000000.0, // Convert micros to seconds
+      deltaTimeMainLoop, // Now formatted as unsigned long in microseconds
       autoTuneRunning ? ", TUNING" : "");
 
     // Send the entire buffer in one operation
