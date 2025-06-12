@@ -16,10 +16,10 @@ const char HTML_CONTENT[] PROGMEM = R"rawliteral(
   <title>VentCon Pressure Control</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Load JS libraries from LittleFS root -->
-  <script src="/chart.min.js"></script>
-  <script src="/moment.min.js"></script>
-  <script src="/chartjs-adapter-moment.min.js"></script>
+  <!-- Load JS libraries from LittleFS root with deferred loading -->
+  <script src="/chart.min.js" defer></script>
+  <script src="/moment.min.js" defer></script>
+  <script src="/chartjs-adapter-moment.min.js" defer></script>
 
 )rawliteral";
 
@@ -31,7 +31,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
 <body>
   <div class="loader" id="loader" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:#fff;display:flex;align-items:center;justify-content:center;">
     <div style="display:flex;flex-direction:column;align-items:center;">
-      <img src="/Logo.svg" alt="VENTREX Logo" style="height:60px;margin-bottom:16px;">
+      <img src="/Logo.svg" alt="VENTREX Logo" style="height:30px;margin-bottom:16px;">
       <div style="border:6px solid #f3f3f3;border-top:6px solid #2563eb;border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;"></div>
       <span style="margin-top:12px;color:#2563eb;font-weight:600;">Loading...</span>
     </div>
@@ -87,7 +87,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       </div>
       
       <div class="chart-header">
-        <h3>Pressure Chart</h3>
+        <h3>Live Chart</h3>
         <div class="chart-toggle">
           <label for="chartToggle" class="toggle-label">Show Chart</label>
           <input type="checkbox" id="chartToggle" checked>
@@ -219,12 +219,12 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <h3 style="color: #002f87;">Developer Mode Activated! 🚀</h3>
       <p>Hello there, curious one!</p> 
       <p>You've found the secret developer panel.</p>
-      <p>VENTCON Control System - Created with ❤️ by VENTREX</p>
+      <p>VENTCON Control System - Made with ❤️ by VENTREX</p>
       <div id="devInfo"></div>
     </div>
   </footer>
 
-  <script>
+  <script defer>
     // Cached DOM elements
     let cachedElements = {};
     
@@ -269,272 +269,244 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       };
     }
 
-    // Hide loader as soon as DOM is interactive
-    document.addEventListener('DOMContentLoaded', function() {
+    // Wait for all deferred scripts to load before initializing
+    function initializeApp() {
+      // Check if Chart.js is available
+      if (typeof Chart === 'undefined') {
+        setTimeout(initializeApp, 50);
+        return;
+      }
+      
       cacheElements();
       if(cachedElements.loader) cachedElements.loader.style.display = 'none';
-    });
-
-    // Initialize the chart
-    const ctx = document.getElementById('pressureChart').getContext('2d');
-    let pressureData = [];
-    let setpointData = [];
-    let pwmData = [];  // New dataset for PWM values
+      
+      // Initialize the chart after Chart.js is loaded
+      initializeChart();
+      
+      // Setup all other functionality
+      setupEventListeners();
+      startDataUpdates();
+    }
     
-    // Create chart instance
-    const pressureChart = new Chart(ctx, 
-    {
-      type: 'line',
-      data: {
-        datasets: [
-          {
-            label: 'Outlet',
-            data: pressureData,
-            borderColor: '#2563eb',
-            backgroundColor: 'rgba(37, 99, 235, 0.1)',
-            tension: 0.3,
-            borderWidth: 2,
-            pointRadius: 2,
-            pointHoverRadius: 4,
-            pointBorderWidth: 1,
-            pointStyle: 'circle',
-            yAxisID: 'y'  // Assign to left y-axis
-          },
-          {
-            label: 'Setpoint',
-            data: setpointData,
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            borderDash: [5, 5],
-            tension: 0.1,
-            borderWidth: 2,
-            pointRadius: 0,
-            pointHoverRadius: 3,
-            yAxisID: 'y'  // Assign to left y-axis
-          },
-          {
-            label: 'PWM Output',
-            data: pwmData,
-            borderColor: '#10b981',  // Green color for PWM
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.3,
-            borderWidth: 2,
-            pointRadius: 1,
-            pointHoverRadius: 3,
-            pointBorderWidth: 1,
-            pointStyle: 'circle',
-            yAxisID: 'pwm'  // Assign to right y-axis
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-          duration: 0
+    // Initialize chart in separate function
+    function initializeChart() {
+      const ctx = document.getElementById('pressureChart');
+      if (!ctx) return;
+      
+      const chartCtx = ctx.getContext('2d');
+      window.pressureData = [];
+      window.setpointData = [];
+      window.pwmData = [];
+      
+      // Create chart instance
+      window.pressureChart = new Chart(chartCtx, 
+      {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Outlet',
+              data: pressureData,
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              tension: 0.3,
+              borderWidth: 2,
+              pointRadius: 2,
+              pointHoverRadius: 4,
+              pointBorderWidth: 1,
+              pointStyle: 'circle',
+              yAxisID: 'y'  // Assign to left y-axis
+            },
+            {
+              label: 'Setpoint',
+              data: setpointData,
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderDash: [5, 5],
+              tension: 0.1,
+              borderWidth: 2,
+              pointRadius: 0,
+              pointHoverRadius: 3,
+              yAxisID: 'y'  // Assign to left y-axis
+            },
+            {
+              label: 'PWM Output',
+              data: pwmData,
+              borderColor: '#10b981',  // Green color for PWM
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.3,
+              borderWidth: 2,
+              pointRadius: 1,
+              pointHoverRadius: 3,
+              pointBorderWidth: 1,
+              pointStyle: 'circle',
+              yAxisID: 'pwm'  // Assign to right y-axis
+            }
+          ]
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            min: 0,
-            max: 10,
-            position: 'left',
-            title: {
-              display: true,
-              text: 'Pressure in bar(g)'
-            },
-            ticks: {
-              color: '#2563eb',  // Match the color of the Pressure line
-              stepSize: 2,
-              autoSkip: false,
-              callback: function(value) {
-                return value;
-              }
-            },
-            grid: {
-              display: true
-            }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 0
           },
-          pwm: {
-            beginAtZero: true,
-            min: 0,
-            max: 100,
-            position: 'right',
-            title: {
-              display: true,
-              text: 'PWM (%)'
-            },
-            ticks: {
-              color: '#10b981',  // Match the color of the PWM line
-              stepSize: 20,
-              autoSkip: false,
-              callback: function(value) {
-                return value;
-              }
-            },
-            grid: {
-              display: false  // Don't show grid lines for secondary axis
-            }
-          },
-          x: {
-            type: 'time',
-            time: {
-              unit: 'second',
-              displayFormats: {
-                second: 'HH:mm:ss'
+          scales: {
+            y: {
+              beginAtZero: true,
+              min: 0,
+              max: 10,
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Pressure in bar(g)'
               },
-              tooltipFormat: 'HH:mm:ss'
-            },
-            title: {
-              display: true,
-              text: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
-              font: {
-                size: 8,
-                family: 'courier, monospace',
-                weight: 'bold'
-              }
-            },
-            ticks: {
-              color: '#1e293b',  // Dark color for x-axis labels
-              autoSkip: true,
-              maxTicksLimit: 10,
-              font: {
-                size: 8,
-                family: 'courier, monospace',
-                weight: 'bold'
-              },
-              maxRotation: 45,  // Prevent label rotation
-              minRotation: 45   // Prevent label rotation
-            },
-
-          }
-        },
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-              boxWidth: 25,
-              usePointStyle: false,
-              generateLabels: function(chart) {
-                // Get the default labels
-                const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                
-                // Apply custom styling for lines instead of points
-                original.forEach(label => {
-                  // For the setpoint dataset (which has dashed style)
-                  if (label.text === 'Setpoint') {
-                    label.lineDash = [5, 5]; // Match the graph's dashed style
-                  }
-                });
-                
-                return original;
-              }
-            }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            titleColor: '#1e293b',
-            bodyColor: '#1e293b',
-            borderColor: '#e2e8f0',
-            borderWidth: 1,
-            cornerRadius: 6,
-            displayColors: true,
-            callbacks: {
-              label: function(context) {
-                const label = context.dataset.label;
-                const value = context.parsed.y.toFixed(3);
-                if (label === 'PWM Output') {
-                  return label + ': ' + value + '%';
+              ticks: {
+                color: '#2563eb',  // Match the color of the Pressure line
+                stepSize: 2,
+                autoSkip: false,
+                callback: function(value) {
+                  return value;
                 }
-                return label + ': ' + value + ' bar';
+              },
+              grid: {
+                display: true
+              }
+            },
+            pwm: {
+              beginAtZero: true,
+              min: 0,
+              max: 100,
+              position: 'right',
+              title: {
+                display: true,
+                text: 'PWM (%)'
+              },
+              ticks: {
+                color: '#10b981',  // Match the color of the PWM line
+                stepSize: 20,
+                autoSkip: false,
+                callback: function(value) {
+                  return value;
+                }
+              },
+              grid: {
+                display: false  // Don't show grid lines for secondary axis
+              }
+            },
+            x: {
+              type: 'time',
+              time: {
+                unit: 'second',
+                displayFormats: {
+                  second: 'HH:mm:ss'
+                },
+                tooltipFormat: 'HH:mm:ss'
+              },
+              title: {
+                display: true,
+                text: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+                font: {
+                  size: 8,
+                  family: 'courier, monospace',
+                  weight: 'bold'
+                }
+              },
+              ticks: {
+                color: '#1e293b',  // Dark color for x-axis labels
+                autoSkip: true,
+                maxTicksLimit: 10,
+                font: {
+                  size: 8,
+                  family: 'courier, monospace',
+                  weight: 'bold'
+                },
+                maxRotation: 45,  // Prevent label rotation
+                minRotation: 45   // Prevent label rotation
+              },
+
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 25,
+                usePointStyle: false,
+                generateLabels: function(chart) {
+                  // Get the default labels
+                  const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                  
+                  // Apply custom styling for lines instead of points
+                  original.forEach(label => {
+                    // For the setpoint dataset (which has dashed style)
+                    if (label.text === 'Setpoint') {
+                      label.lineDash = [5, 5]; // Match the graph's dashed style
+                    }
+                  });
+                  
+                  return original;
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              titleColor: '#1e293b',
+              bodyColor: '#1e293b',
+              borderColor: '#e2e8f0',
+              borderWidth: 1,
+              cornerRadius: 6,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  const label = context.dataset.label;
+                  const value = context.parsed.y.toFixed(3);
+                  if (label === 'PWM Output') {
+                    return label + ': ' + value + '%';
+                  }
+                  return label + ': ' + value + ' bar';
+                }
               }
             }
           }
         }
-      }
-    });
-
-    // Function to add data to the chart
-    function updateChart(pressure, setpoint, pwm) 
-    {
-      const now = new Date();
-      
-      // Always collect data, even when chart is hidden
-      pressureData.push({
-        x: now,
-        y: pressure
       });
-      
-      setpointData.push({
-        x: now,
-        y: setpoint
-      });
-      
-      pwmData.push({
-        x: now,
-        y: pwm
-      });
-      
-      if (pressureData.length > 30) 
-      {
-        pressureData.shift();
-        setpointData.shift();
-        pwmData.shift();
-      }
-      
-      // Only update the chart if it's visible
-      if (cachedElements.chartToggle && cachedElements.chartToggle.checked) 
-      {
-        pressureChart.update();
-      }
     }
-
-    // Toggle chart visibility
-    document.addEventListener('DOMContentLoaded', function() {
-      if (cachedElements.chartToggle) {
-        cachedElements.chartToggle.addEventListener('change', function() 
-        {
-          if (this.checked) 
-          {
+    
+    // Setup all event listeners
+    function setupEventListeners() {
+      // Chart toggle functionality
+      if (cachedElements.chartToggle && cachedElements.chartContainer) {
+        cachedElements.chartToggle.addEventListener('change', function() {
+          if (!cachedElements.chartContainer || !window.pressureChart) return;
+          
+          if (this.checked) {
             cachedElements.chartContainer.style.display = 'block';
-            // Don't clear the data, just update the chart with existing data
-            pressureChart.update();
-          } 
-          else 
-          {
+            window.pressureChart.update();
+          } else {
             cachedElements.chartContainer.style.display = 'none';
           }
         });
       }
-    });
-
-    // Track changes to show the save snackbar
-    let pendingChanges = {};
-    let changeTimeout;
-    
-    // Synchronize range and number inputs, show save snackbar on change
-    document.addEventListener('DOMContentLoaded', function() {
-      ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) 
-      {
-        const slider = cachedElements.sliders[param];
-        const text = cachedElements.texts[param];
+      
+      // Setup slider and text input synchronization
+      ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) {
+        const slider = cachedElements.sliders ? cachedElements.sliders[param] : null;
+        const text = cachedElements.texts ? cachedElements.texts[param] : null;
         
         if (slider && text) {
-          slider.addEventListener('input', function() 
-          {
+          slider.addEventListener('input', function() {
             text.value = slider.value;
             showSaveSnackbar(param, slider.value);
           });
 
-          text.addEventListener('input', function() 
-          {
+          text.addEventListener('input', function() {
             slider.value = text.value;
             showSaveSnackbar(param, text.value);
           });
         }
       });
 
-      // Add increment/decrement button logic for all sliders
+      // Setup increment/decrement buttons
       [
         {param: 'sp', min: 0, max: 10, step: 0.1},
         {param: 'kp', min: 0, max: 100, step: 1},
@@ -544,8 +516,8 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         {param: 'freq', min: 100, max: 10000, step: 100},
         {param: 'res', min: 8, max: 16, step: 1}
       ].forEach(function(cfg) {
-        const slider = cachedElements.sliders[cfg.param];
-        const text = cachedElements.texts[cfg.param];
+        const slider = cachedElements.sliders ? cachedElements.sliders[cfg.param] : null;
+        const text = cachedElements.texts ? cachedElements.texts[cfg.param] : null;
         const decBtn = document.getElementById(cfg.param + '_decrement');
         const incBtn = document.getElementById(cfg.param + '_increment');
         
@@ -566,205 +538,37 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           });
         }
       });
-    });
-
-    // Snackbar management functions
-    function showSaveSnackbar(param, value) {
-      // Store the changed parameter
-      pendingChanges[param] = value;
       
-      // Show the save snackbar
-      if (cachedElements.saveSnackbar) {
-        cachedElements.saveSnackbar.style.display = 'block';
-        
-        // Add animation for a subtle bounce effect
-        cachedElements.saveSnackbar.animate([
-          { transform: 'translateX(-50%) scale(0.95)' },
-          { transform: 'translateX(-50%) scale(1.02)' },
-          { transform: 'translateX(-50%) scale(1)' }
-        ], { duration: 300, easing: 'ease-out' });
+      // Setup save snackbar click handler
+      if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText) {
+        cachedElements.saveSnackbar.addEventListener('click', handleSaveClick);
       }
       
-      // Auto-hide after 8 seconds of inactivity
-      clearTimeout(changeTimeout);
-      changeTimeout = setTimeout(() => {
-        if (cachedElements.saveSnackbar) {
-          cachedElements.saveSnackbar.animate([
-            { opacity: 1 },
-            { opacity: 0 }
-          ], { duration: 300, easing: 'ease-out' });
-          
-          setTimeout(() => {
-            cachedElements.saveSnackbar.style.display = 'none';
-          }, 300);
-        }
-      }, 8000);
+      // Setup PID reset button
+      const resetBtn = document.getElementById('resetPidBtn');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', handlePidReset);
+      }
+      
+      // Setup Easter egg
+      setupEasterEgg();
+      
+      // Setup scroll handler
+      setupScrollHandler();
     }
     
-    // Initialize save snackbar click handler
-    document.addEventListener('DOMContentLoaded', function() {
-      if (cachedElements.saveSnackbar) {
-        cachedElements.saveSnackbar.addEventListener('click', function() 
-        {
-          cachedElements.saveSnackbarText.textContent = "Saving...";
-          cachedElements.saveSnackbar.style.pointerEvents = 'none';
-          
-          // Build parameters string from pending changes
-          const params = Object.entries(pendingChanges).map(([param, value]) => 
-            param + "=" + encodeURIComponent(value)
-          ).join("&");
-
-          fetch("/set?" + params)
-            .then(() => {
-              cachedElements.saveSnackbarText.textContent = "Settings Updated";
-              cachedElements.saveSnackbar.style.background = '#10b981'; // Success green
-              
-              // Clear pending changes
-              pendingChanges = {};
-              
-              // Hide snackbar after a short delay
-              setTimeout(() => {
-                cachedElements.saveSnackbar.animate([
-                  { opacity: 1 },
-                  { opacity: 0 }
-                ], { duration: 300, easing: 'ease-out' });
-                
-                setTimeout(() => {
-                  cachedElements.saveSnackbar.style.display = 'none';
-                  cachedElements.saveSnackbar.style.background = '#2563eb'; // Reset to blue
-                  cachedElements.saveSnackbarText.textContent = "Apply Changes";
-                  cachedElements.saveSnackbar.style.pointerEvents = 'auto';
-                }, 300);
-              }, 1000);
-            })
-            .catch(err => {
-              cachedElements.saveSnackbarText.textContent = "Try Again";
-              cachedElements.saveSnackbar.style.background = '#dc2626'; // Error red
-              cachedElements.saveSnackbar.style.pointerEvents = 'auto';
-              console.error("Failed to save settings:", err);
-            });
-        });
-      }
-    });
-
-    // Track pressure values for trend indicator
-    let lastPressureValues = [];
-    let pressureTrend = 0; // -1: down, 0: stable, 1: up
-    
-    // Update pressure trend
-    function updatePressureTrend(newValue) 
-    {
-      // Keep last 3 values for trend calculation
-      if (lastPressureValues.length >= 3) 
-      {
-        lastPressureValues.shift();
-      }
-      lastPressureValues.push(newValue);
-      
-      // Calculate trend only when we have enough values
-      if (lastPressureValues.length >= 3) 
-      {
-        const latest = lastPressureValues[lastPressureValues.length - 1];
-        const oldest = lastPressureValues[0];
-        const diff = latest - oldest;
-        
-        // Determine trend direction with a threshold to avoid minor fluctuations
-        const threshold = 0.05;
-        if (diff > threshold) 
-        {
-          pressureTrend = 1; // up
-        } 
-        else if (diff < -threshold) 
-        {
-          pressureTrend = -1; // down
-        } 
-        else 
-        {
-          pressureTrend = 0; // stable
-        }
-        
-        // Update trend indicator using cached element
-        if (cachedElements.pressureTrend) {
-          if (pressureTrend > 0) 
-          {
-            cachedElements.pressureTrend.className = 'trend-indicator trend-up';
-          } 
-          else if (pressureTrend < 0) 
-          {
-            cachedElements.pressureTrend.className = 'trend-indicator trend-down';
-          } 
-          else 
-          {
-            cachedElements.pressureTrend.className = 'trend-indicator trend-stable';
-          }
-        }
-      }
-    }
-    
-    // Track PWM values for trend indicator
-    let lastPwmValues = [];
-    let pwmTrend = 0; // -1: down, 0: stable, 1: up
-    
-    // Update PWM trend
-    function updatePwmTrend(newValue) 
-    {
-      // Keep last 3 values for trend calculation
-      if (lastPwmValues.length >= 3) 
-      {
-        lastPwmValues.shift();
-      }
-      lastPwmValues.push(newValue);
-      
-      // Calculate trend only when we have enough values
-      if (lastPwmValues.length >= 3) 
-      {
-        const latest = lastPwmValues[lastPwmValues.length - 1];
-        const oldest = lastPwmValues[0];
-        const diff = latest - oldest;
-        
-        // Determine trend direction with a threshold to avoid minor fluctuations
-        const threshold = 0.5; // Higher threshold for PWM since it can fluctuate more
-        if (diff > threshold) 
-        {
-          pwmTrend = 1; // up
-        } 
-        else if (diff < -threshold) 
-        {
-          pwmTrend = -1; // down
-        } 
-        else 
-        {
-          pwmTrend = 0; // stable
-        }
-        
-        // Update trend indicator using cached element
-        if (cachedElements.pwmTrend) {
-          if (pwmTrend > 0) 
-          {
-            cachedElements.pwmTrend.className = 'trend-indicator trend-up';
-          } 
-          else if (pwmTrend < 0) 
-          {
-            cachedElements.pwmTrend.className = 'trend-indicator trend-down';
-          } 
-          else 
-          {
-            cachedElements.pwmTrend.className = 'trend-indicator trend-stable';
-          }
-        }
-      }
+    // Start periodic data updates
+    function startDataUpdates() {
+      setInterval(updateData, 250);
     }
 
-    // Periodically update status and UI controls
-    setInterval(() => 
-    {
+    // Data update function
+    function updateData() {
       fetch('/values')
         .then(r => r.json())
-        .then(data => 
-        {
+        .then(data => {
           // Update pressure display with cached elements
-          if (typeof data.pressure !== "undefined") 
-          {
+          if (typeof data.pressure !== "undefined") {
             const pressureVal = data.pressure;
             if (cachedElements.pressure) {
               cachedElements.pressure.textContent = pressureVal.toFixed(2);
@@ -790,9 +594,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             
             // Always call updateChart, it will handle visibility internally
             updateChart(pressureVal, data.sp, pwmVal);
-          } 
-          else 
-          {
+          } else {
             if (cachedElements.pressure) cachedElements.pressure.textContent = "--";
             if (cachedElements.pressureFill) cachedElements.pressureFill.style.width = "0%";
           }
@@ -809,9 +611,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             
             // Update PWM trend indicator
             updatePwmTrend(pwmVal);
-          } 
-          else 
-          {
+          } else {
             if (cachedElements.pwm) cachedElements.pwm.textContent = "--";
             if (cachedElements.pwmFill) cachedElements.pwmFill.style.width = "0%";
           }
@@ -821,13 +621,10 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             if (data.adc_status === "100") {
               cachedElements.adcStatus.textContent = "External ADS1015 ADC - 12 Bit";
               cachedElements.adcIndicator.style.backgroundColor = 'var(--success)';
-            } 
-            else if(data.adc_status === "000") {
+            } else if(data.adc_status === "000") {
               cachedElements.adcStatus.textContent = "Internal ESP32 ADC - 12 Bit";
               cachedElements.adcIndicator.style.backgroundColor = 'var(--accent)';
-            } 
-            else 
-            {
+            } else {
               cachedElements.adcStatus.textContent = "Unknown";
               cachedElements.adcIndicator.style.backgroundColor = 'var(--danger)';
             }
@@ -840,8 +637,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           }
           
           // Only update UI controls if no unsaved changes (saveSnackbar is hidden)
-          if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.style.display === 'none') 
-          {
+          if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.style.display === 'none') {
             // Update all sliders and inputs with current values from server using cached elements
             ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(param => {
               if (typeof data[param] !== "undefined") {
@@ -855,14 +651,225 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             });
           }
         })
-        .catch(err => 
-        {
+        .catch(err => {
           console.error("Error fetching values:", err);
         });
-    }, 300);    // Add event listener for PID reset button
-    document.getElementById('resetPidBtn').addEventListener('click', function() {
-      // Create visual feedback
-      const btn = document.getElementById('resetPidBtn');
+    }
+
+    // Hide loader as soon as DOM is interactive
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    // Function to add data to the chart
+    function updateChart(pressure, setpoint, pwm) {
+      if (!window.pressureChart || !cachedElements.chartToggle) return;
+      
+      const now = new Date();
+      
+      // Always collect data, even when chart is hidden
+      window.pressureData.push({
+        x: now,
+        y: pressure
+      });
+      
+      window.setpointData.push({
+        x: now,
+        y: setpoint
+      });
+      
+      window.pwmData.push({
+        x: now,
+        y: pwm
+      });
+      
+      if (window.pressureData.length > 30) {
+        window.pressureData.shift();
+        window.setpointData.shift();
+        window.pwmData.shift();
+      }
+      
+      // Only update the chart if it's visible
+      if (cachedElements.chartToggle.checked) {
+        window.pressureChart.update();
+      }
+    }
+
+    // Track pressure values for trend indicator
+    let lastPressureValues = [];
+    let pressureTrend = 0; // -1: down, 0: stable, 1: up
+    
+    // Update pressure trend
+    function updatePressureTrend(newValue) {
+      // Keep last 3 values for trend calculation
+      if (lastPressureValues.length >= 3) {
+        lastPressureValues.shift();
+      }
+      lastPressureValues.push(newValue);
+      
+      // Calculate trend only when we have enough values
+      if (lastPressureValues.length >= 3) {
+        const latest = lastPressureValues[lastPressureValues.length - 1];
+        const oldest = lastPressureValues[0];
+        const diff = latest - oldest;
+        
+        // Determine trend direction with a threshold to avoid minor fluctuations
+        const threshold = 0.05;
+        if (diff > threshold) {
+          pressureTrend = 1; // up
+        } else if (diff < -threshold) {
+          pressureTrend = -1; // down
+        } else {
+          pressureTrend = 0; // stable
+        }
+        
+        // Update trend indicator using cached element
+        if (cachedElements.pressureTrend) {
+          if (pressureTrend > 0) {
+            cachedElements.pressureTrend.className = 'trend-indicator trend-up';
+          } else if (pressureTrend < 0) {
+            cachedElements.pressureTrend.className = 'trend-indicator trend-down';
+          } else {
+            cachedElements.pressureTrend.className = 'trend-indicator trend-stable';
+          }
+        }
+      }
+    }
+    
+    // Track PWM values for trend indicator
+    let lastPwmValues = [];
+    let pwmTrend = 0; // -1: down, 0: stable, 1: up
+    
+    // Update PWM trend
+    function updatePwmTrend(newValue) {
+      // Keep last 3 values for trend calculation
+      if (lastPwmValues.length >= 3) {
+        lastPwmValues.shift();
+      }
+      lastPwmValues.push(newValue);
+      
+      // Calculate trend only when we have enough values
+      if (lastPwmValues.length >= 3) {
+        const latest = lastPwmValues[lastPwmValues.length - 1];
+        const oldest = lastPwmValues[0];
+        const diff = latest - oldest;
+        
+        // Determine trend direction with a threshold to avoid minor fluctuations
+        const threshold = 0.5; // Higher threshold for PWM since it can fluctuate more
+        if (diff > threshold) {
+          pwmTrend = 1; // up
+        } else if (diff < -threshold) {
+          pwmTrend = -1; // down
+        } else {
+          pwmTrend = 0; // stable
+        }
+        
+        // Update trend indicator using cached element
+        if (cachedElements.pwmTrend) {
+          if (pwmTrend > 0) {
+            cachedElements.pwmTrend.className = 'trend-indicator trend-up';
+          } else if (pwmTrend < 0) {
+            cachedElements.pwmTrend.className = 'trend-indicator trend-down';
+          } else {
+            cachedElements.pwmTrend.className = 'trend-indicator trend-stable';
+          }
+        }
+      }
+    }
+
+    // Track changes to show the save snackbar
+    let pendingChanges = {};
+    let changeTimeout;
+
+    // Snackbar management functions
+    function showSaveSnackbar(param, value) {
+      if (!cachedElements.saveSnackbar) return;
+      
+      // Store the changed parameter
+      pendingChanges[param] = value;
+      
+      // Show the save snackbar
+      cachedElements.saveSnackbar.style.display = 'block';
+      
+      // Add animation for a subtle bounce effect with null check
+      if (cachedElements.saveSnackbar.animate) {
+        cachedElements.saveSnackbar.animate([
+          { transform: 'translateX(-50%) scale(0.95)' },
+          { transform: 'translateX(-50%) scale(1.02)' },
+          { transform: 'translateX(-50%) scale(1)' }
+        ], { duration: 300, easing: 'ease-out' });
+      }
+      
+      // Auto-hide after 8 seconds of inactivity
+      clearTimeout(changeTimeout);
+      changeTimeout = setTimeout(() => {
+        if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.animate) {
+          cachedElements.saveSnackbar.animate([
+            { opacity: 1 },
+            { opacity: 0 }
+          ], { duration: 300, easing: 'ease-out' });
+          
+          setTimeout(() => {
+            if (cachedElements.saveSnackbar) {
+              cachedElements.saveSnackbar.style.display = 'none';
+            }
+          }, 300);
+        }
+      }, 8000);
+    }
+    
+    // Handle save button click
+    function handleSaveClick() {
+      if (!cachedElements.saveSnackbarText) return;
+      
+      cachedElements.saveSnackbarText.textContent = "Saving...";
+      cachedElements.saveSnackbar.style.pointerEvents = 'none';
+      
+      // Build parameters string from pending changes
+      const params = Object.entries(pendingChanges).map(([param, value]) => 
+        param + "=" + encodeURIComponent(value)
+      ).join("&");
+
+      fetch("/set?" + params)
+        .then(() => {
+          if (cachedElements.saveSnackbarText && cachedElements.saveSnackbar) {
+            cachedElements.saveSnackbarText.textContent = "Settings Updated";
+            cachedElements.saveSnackbar.style.background = '#10b981'; // Success green
+            
+            // Clear pending changes
+            pendingChanges = {};
+            
+            // Hide snackbar after a short delay
+            setTimeout(() => {
+              if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.animate) {
+                cachedElements.saveSnackbar.animate([
+                  { opacity: 1 },
+                  { opacity: 0 }
+                ], { duration: 300, easing: 'ease-out' });
+                
+                setTimeout(() => {
+                  if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText) {
+                    cachedElements.saveSnackbar.style.display = 'none';
+                    cachedElements.saveSnackbar.style.background = '#2563eb'; // Reset to blue
+                    cachedElements.saveSnackbarText.textContent = "Apply Changes";
+                    cachedElements.saveSnackbar.style.pointerEvents = 'auto';
+                  }
+                }, 300);
+              }
+            }, 1000);
+          }
+        })
+        .catch(err => {
+          if (cachedElements.saveSnackbarText && cachedElements.saveSnackbar) {
+            cachedElements.saveSnackbarText.textContent = "Try Again";
+            cachedElements.saveSnackbar.style.background = '#dc2626'; // Error red
+            cachedElements.saveSnackbar.style.pointerEvents = 'auto';
+          }
+          console.error("Failed to save settings:", err);
+        });
+    }
+
+    // Handle PID reset
+    function handlePidReset() {
+      const btn = this;
       const originalText = btn.textContent;
       btn.textContent = "Resetting...";
       btn.style.backgroundColor = "#60a5fa"; // Lighter blue during reset
@@ -876,25 +883,32 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             btn.style.backgroundColor = "#10b981"; // Success green
             
             // Display a notification using the save snackbar
-            const saveSnackbar = document.getElementById('saveSnackbar');
-            const saveSnackbarText = document.getElementById('saveSnackbarText');
-            saveSnackbar.style.display = 'block';
-            saveSnackbar.style.background = '#10b981'; // Success green
-            saveSnackbarText.textContent = "PID Controller Reset";
+            const saveSnackbar = cachedElements.saveSnackbar || document.getElementById('saveSnackbar');
+            const saveSnackbarText = cachedElements.saveSnackbarText || document.getElementById('saveSnackbarText');
             
-            // Hide snackbar after 2 seconds
-            setTimeout(() => {
-              saveSnackbar.animate([
-                { opacity: 1 },
-                { opacity: 0 }
-              ], { duration: 300, easing: 'ease-out' });
+            if (saveSnackbar && saveSnackbarText) {
+              saveSnackbar.style.display = 'block';
+              saveSnackbar.style.background = '#10b981'; // Success green
+              saveSnackbarText.textContent = "PID Controller Reset";
               
+              // Hide snackbar after 2 seconds
               setTimeout(() => {
-                saveSnackbar.style.display = 'none';
-                saveSnackbar.style.background = '#2563eb'; // Reset to blue
-                saveSnackbarText.textContent = "Apply Changes";
-              }, 300);
-            }, 2000);
+                if (saveSnackbar && saveSnackbar.animate) {
+                  saveSnackbar.animate([
+                    { opacity: 1 },
+                    { opacity: 0 }
+                  ], { duration: 300, easing: 'ease-out' });
+                  
+                  setTimeout(() => {
+                    if (saveSnackbar && saveSnackbarText) {
+                      saveSnackbar.style.display = 'none';
+                      saveSnackbar.style.background = '#2563eb'; // Reset to blue
+                      saveSnackbarText.textContent = "Apply Changes";
+                    }
+                  }, 300);
+                }
+              }, 2000);
+            }
             
             // Reset button after 1 second
             setTimeout(() => {
@@ -919,77 +933,92 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             btn.style.backgroundColor = "#f59e0b";
           }, 1500);
         });
-    });
-    
-    // Easter egg implementation
-    (function() {
-      const logo = document.getElementById('ventrexLogo');
-      let clickCount = 0;
-      let clickTimer;
-      
-      logo.addEventListener('click', function() {
-        clickCount++;
-        
-        // Reset click count after 2 seconds of inactivity
-        clearTimeout(clickTimer);
-        clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
-        
-        // Activate Easter egg after 5 clicks
-        if (clickCount >= 5) {
-          const easterEgg = document.getElementById('easterEgg');
-          
-          if (easterEgg.style.display === 'none') {
-            // Show Easter egg and populate with system info
-            easterEgg.style.display = 'block';
-            document.getElementById('devInfo').innerHTML = 
-              `<p>ESP32 Uptime: ${Math.floor(Date.now()/1000)} seconds</p>
-               <p>Memory Usage: JavaScript Heap ${performance?.memory?.usedJSHeapSize ? 
-                 (performance.memory.usedJSHeapSize/1048576).toFixed(2) + ' MB' : 'Not available'}</p>
-               <p>Chart Data Points: ${pressureData.length}</p>
-               <p>Browser: ${navigator.userAgent}</p>`;
-            
-            // Add a small animation to the logo
-            logo.style.transition = 'transform 1s';
-            logo.style.transform = 'rotate(360deg)';
-            setTimeout(() => { logo.style.transform = 'rotate(0deg)'; }, 1000);
-          } else {
-            // Hide Easter egg
-            easterEgg.style.display = 'none';
-          }
-          
-          clickCount = 0;
-        }
-      });
-    })();
+    }
 
-    // Add scroll handler to temporarily disable sliders during scrolling
-    (function() {
-      const sliders = document.querySelectorAll('input[type="range"]');
-      let scrollTimeout;
+    // Setup Easter egg
+    function setupEasterEgg() {
+      const logo = document.getElementById('ventrexLogo');
+      const easterEgg = document.getElementById('easterEgg');
+      const devInfo = document.getElementById('devInfo');
       
-      // Add a class to disable sliders during scroll
-      function disableSliders() {
-        sliders.forEach(slider => {
-          slider.classList.add('scrolling');
+      if (logo && easterEgg && devInfo) {
+        let clickCount = 0;
+        let clickTimer;
+        
+        logo.addEventListener('click', function() {
+          clickCount++;
+          
+          // Reset click count after 2 seconds of inactivity
+          clearTimeout(clickTimer);
+          clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+          
+          // Activate Easter egg after 5 clicks
+          if (clickCount >= 5) {
+            if (easterEgg.style.display === 'none') {
+              // Show Easter egg and populate with system info
+              easterEgg.style.display = 'block';
+              devInfo.innerHTML = 
+                `<p>Memory Usage: JavaScript Heap ${performance?.memory?.usedJSHeapSize ? 
+                   (performance.memory.usedJSHeapSize/1048576).toFixed(2) + ' MB' : 'Not available'}</p>
+                 <p>Chart Data Points: ${window.pressureData ? window.pressureData.length : 0}</p>
+                 <p>Current Time: ${new Date().toLocaleTimeString()}</p>
+                 <p>Language: ${navigator.language}</p>
+                 <p>Screen Resolution: ${window.screen.width}x${window.screen.height}</p>
+                 <p>Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}</p>
+                 <p>Platform: ${navigator.platform || 'Unknown'}</p>
+                 <p>Browser: ${navigator.userAgent}</p>`;
+              
+              // Add a small animation to the logo
+              logo.style.transition = 'transform 1s';
+              logo.style.transform = 'rotate(360deg)';
+              setTimeout(() => { logo.style.transform = 'rotate(0deg)'; }, 1000);
+            } else {
+              // Hide Easter egg
+              easterEgg.style.display = 'none';
+            }
+            
+            clickCount = 0;
+          }
         });
       }
-      
-      // Remove the class with a small delay after scrolling stops
-      function enableSliders() {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
+    }
+
+    // Setup scroll handler
+    function setupScrollHandler() {
+      const sliders = document.querySelectorAll('input[type="range"]');
+      if (sliders && sliders.length > 0) {
+        let scrollTimeout;
+        
+        // Add a class to disable sliders during scroll
+        function disableSliders() {
           sliders.forEach(slider => {
-            slider.classList.remove('scrolling');
+            if (slider && slider.classList) {
+              slider.classList.add('scrolling');
+            }
           });
-        }, 250); // Wait 250ms after scrolling stops before re-enabling
+        }
+        
+        // Remove the class with a small delay after scrolling stops
+        function enableSliders() {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            sliders.forEach(slider => {
+              if (slider && slider.classList) {
+                slider.classList.remove('scrolling');
+              }
+            });
+          }, 250); // Wait 250ms after scrolling stops before re-enabling
+        }
+        
+        // Attach scroll event listener
+        if (window.addEventListener) {
+          window.addEventListener('scroll', () => {
+            disableSliders();
+            enableSliders();
+          }, { passive: true });
+        }
       }
-      
-      // Attach scroll event listener
-      window.addEventListener('scroll', () => {
-        disableSliders();
-        enableSliders();
-      }, { passive: true });
-    })();
+    }
   </script>
 </body>
 </html>
