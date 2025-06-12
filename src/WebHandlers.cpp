@@ -1,7 +1,7 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 #include <DNSServer.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include "WebContent.h"
 #include "Constants.h"  // Add this include
 #include <PID_v2.h> // Changed from PID_v1 to PID_v2
@@ -24,14 +24,14 @@
  * 2. Web Server Layer (port 80):
  *    - Serves HTML/CSS/JS content for the main interface
  *    - Handles API endpoints for data exchange
- *    - Serves static files from SPIFFS (JS libraries, SVG logo)
+ *    - Serves static files from LittleFS (JS libraries, SVG logo)
  *    - Implements a 404 handler for unmatched routes
  *
  * 3. API Endpoints:
  *    - GET /         : Main web interface with real-time monitoring and controls
  *    - GET /values   : JSON API returning current system state (pressure, settings, status)
  *    - GET /set?...  : Accepts parameter updates (PID values, setpoint, etc.)
- *    - GET /[file]   : Serves static files from SPIFFS filesystem
+ *    - GET /[file]   : Serves static files from LittleFS filesystem
  *
  * 4. Data Flow:
  *    - Browser → ESP32: Parameter updates via /set API with URL parameters
@@ -41,7 +41,7 @@
  * 5. Resources Management:
  *    - Uses PROGMEM for storing HTML content to conserve RAM
  *    - Assembles responses dynamically to insert current values
- *    - Serves static files (JS libraries, SVG) from SPIFFS filesystem
+ *    - Serves static files (JS libraries, SVG) from LittleFS filesystem
  *    - Minimizes JSON payload sizes for efficient communication
  *
  * 6. Responsive Design:
@@ -99,7 +99,7 @@ extern int connectedClients;
 
 // When a user adjusts values on the web interface, the browser sends an HTTP request to the /set endpoint with parameters (e.g., /set?sp=3.0&kp=1.5)
 // The handleSet function processes these parameters using server.hasArg() and server.arg() methods
-// The Arduino settings are updated accordingly, and the changes are saved to SPIFFS
+// The Arduino settings are updated accordingly, and the changes are saved to LittleFS
 // The PID controller is reconfigured when relevant parameters change
 
 // 2. Data Flow from Arduino to Web:
@@ -130,13 +130,13 @@ String getContentType(String filename) {
   return "text/plain";
 }
 
-// Handler for serving files from SPIFFS
+// Handler for serving files from LittleFS
 bool handleFileRead(String path) {
   if (path.endsWith("/")) path += "index.html"; // Default to index.html if path ends with a slash
   String contentType = getContentType(path);
   
-  if (SPIFFS.exists(path)) {
-    File file = SPIFFS.open(path, "r");
+  if (LittleFS.exists(path)) {
+    File file = LittleFS.open(path, "r");
     server.streamFile(file, contentType);
     file.close();
     return true;

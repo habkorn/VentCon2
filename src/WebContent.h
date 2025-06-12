@@ -16,7 +16,7 @@ const char HTML_CONTENT[] PROGMEM = R"rawliteral(
   <title>VentCon Pressure Control</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Load JS libraries from SPIFFS root -->
+  <!-- Load JS libraries from LittleFS root -->
   <script src="/chart.min.js"></script>
   <script src="/moment.min.js"></script>
   <script src="/chartjs-adapter-moment.min.js"></script>
@@ -97,7 +97,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div class="chart-container" id="chartContainer">
         <canvas id="pressureChart"></canvas>
       </div>
-    </section>    <section class="card">
+    </section>   
+   
+    <section class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
         <h2 style="margin-bottom: 0;">Set Parameters</h2>
       </div>
@@ -115,7 +117,9 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           <button type="button" class="slider-btn increment-btn" id="sp_increment">+</button>
           <input type="number" id="sp_text" value="%SP%" step="0.1">
         </div>
-      </div>      
+      </div>    
+      
+      <hr>
       
       <div class="section-title" style="display: flex; align-items: center; justify-content: space-between;margin-top: 1.0rem;">
         <span>PID</span>

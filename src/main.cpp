@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <PID_v2.h>
 #include <Adafruit_ADS1X15.h>
@@ -143,10 +143,10 @@ void updatePWM()
   ledcWrite(PWM_CHANNEL_MOSFET, pwmOutput);
 }
 
-// ====== Save Settings to SPIFFS ======
+// ====== Save Settings to LittleFS ======
 void saveSettings()
 {
-  File file = SPIFFS.open("/settings.json", "w");
+  File file = LittleFS.open("/settings.json", "w");
   JsonDocument doc;
   doc["kp"] = settings.Kp;
   doc["ki"] = settings.Ki;
@@ -162,12 +162,12 @@ void saveSettings()
   file.close();
 }
 
-// ====== Load Settings from SPIFFS ======
+// ====== Load Settings from LittleFS ======
 void loadSettings()
 {
-  if (SPIFFS.exists("/settings.json"))
+  if (LittleFS.exists("/settings.json"))
   {
-    File file = SPIFFS.open("/settings.json", "r");
+    File file = LittleFS.open("/settings.json", "r");
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, file);
     
@@ -195,12 +195,12 @@ void loadSettings()
   }
 }
 
-void showSettingsFromSPIFFS()
+void showSettingsFromLittleFS()
 {
-    // Read and display settings from SPIFFS without modifying current settings
-    if (SPIFFS.exists("/settings.json"))
+    // Read and display settings from LittleFS without modifying current settings
+    if (LittleFS.exists("/settings.json"))
     {
-      File file = SPIFFS.open("/settings.json", "r");
+      File file = LittleFS.open("/settings.json", "r");
       JsonDocument doc;
       DeserializationError error = deserializeJson(doc, file);
       
@@ -208,7 +208,7 @@ void showSettingsFromSPIFFS()
         Serial.println("\n=== Error Reading Settings File ===");
         Serial.printf("deserializeJson() failed: %s\n", error.c_str());
       } else {
-        Serial.println("\n=== Settings Stored in SPIFFS ===");
+        Serial.println("\n=== Settings Stored in LittleFS ===");
         Serial.printf("PID Parameters:    Kp=%.2f, Ki=%.2f, Kd=%.2f\n", 
                     doc["kp"].as<double>(), doc["ki"].as<double>(), doc["kd"].as<double>());
         Serial.printf("Filter Strength:   %.2f\n", doc["flt"].as<float>());
@@ -225,7 +225,7 @@ void showSettingsFromSPIFFS()
     }
     else
     {
-      Serial.println("No settings file found in SPIFFS");
+      Serial.println("No settings file found in LittleFS");
     }
 }
 
@@ -621,11 +621,11 @@ void processAutoTune()
   }
 }
 
-// Helper function to list all files in SPIFFS
+// Helper function to list all files in LittleFS
 void listFiles() {
   Serial.println("\n=== Files in Flash Memory ===");
   
-  File root = SPIFFS.open("/");
+  File root = LittleFS.open("/");
   if (!root) {
     Serial.println("Failed to open directory");
     return;
@@ -653,9 +653,9 @@ void listFiles() {
   Serial.println("------------------------------");
   Serial.printf("Total: %d files, %.2f KB\n", fileCount, totalSize / 1024.0);
   Serial.printf("Flash usage: %.1f%% (of %.2f KB)\n", 
-                (totalSize * 100.0) / (SPIFFS.totalBytes()), 
-                SPIFFS.totalBytes() / 1024.0);
-  Serial.printf("Free space: %.2f KB\n", (SPIFFS.totalBytes() - SPIFFS.usedBytes()) / 1024.0);
+                (totalSize * 100.0) / (LittleFS.totalBytes()), 
+                LittleFS.totalBytes() / 1024.0);
+  Serial.printf("Free space: %.2f KB\n", (LittleFS.totalBytes() - LittleFS.usedBytes()) / 1024.0);
 }
 
 // ====== Serial Command Parser ======
@@ -757,7 +757,7 @@ void parseSerialCommand(String cmd)
   }
   else if (cmd == "READ")
   {
-    showSettingsFromSPIFFS();
+    showSettingsFromLittleFS();
   }
   else if (cmd == "LISTFILES" || cmd == "DIR" || cmd == "LS")
   {
@@ -1119,14 +1119,12 @@ void setup()
   {
     Serial.println("ADS1015 found! ");
 
-  }
-  
-  // Initialize SPIFFS for settings storage
-  if (!SPIFFS.begin(true))
-    Serial.println("SPIFFS error!");
-
+  }  
+  // Initialize LittleFS for settings storage
+  if (!LittleFS.begin(true))
+    Serial.println("LittleFS error!");
   loadSettings();
-  showSettingsFromSPIFFS(); // Show loaded settings on startup
+  showSettingsFromLittleFS(); // Show loaded settings on startup
 
   ledcSetup(PWM_CHANNEL_ANALOG_PRESS, pwm_analog_pressure_signal_freq, pwm_analog_pressure_signal_pwm_res);
   ledcAttachPin(ANALOG_PRESS_PIN, PWM_CHANNEL_ANALOG_PRESS);
