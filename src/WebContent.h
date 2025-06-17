@@ -130,7 +130,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         <label for="kp_slider">Proportional</label>
         <div class="control-slider">
           <button type="button" class="slider-btn decrement-btn" id="kp_decrement">-</button>
-          <input type="range" id="kp_slider" min="0" max="100" step="1" value="%KP%">
+          <input type="range" id="kp_slider" min="0" max="3000" step="1" value="%KP%">
           <button type="button" class="slider-btn increment-btn" id="kp_increment">+</button>
           <input type="number" id="kp_text" value="%KP%" step="1">
         </div>
@@ -140,7 +140,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         <label for="ki_slider">Integral</label>
         <div class="control-slider">
           <button type="button" class="slider-btn decrement-btn" id="ki_decrement">-</button>
-          <input type="range" id="ki_slider" min="0" max="100" step="1" value="%KI%">
+          <input type="range" id="ki_slider" min="0" max="5000" step="1" value="%KI%">
           <button type="button" class="slider-btn increment-btn" id="ki_increment">+</button>
           <input type="number" id="ki_text" value="%KI%" step="1">
         </div>
@@ -150,7 +150,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         <label for="kd_slider">Derivative</label>
         <div class="control-slider">
           <button type="button" class="slider-btn decrement-btn" id="kd_decrement">-</button>
-          <input type="range" id="kd_slider" min="0" max="10" step="0.1" value="%KD%">
+          <input type="range" id="kd_slider" min="0" max="1000" step="1" value="%KD%">
           <button type="button" class="slider-btn increment-btn" id="kd_increment">+</button>
           <input type="number" id="kd_text" value="%KD%" step="1">
         </div>
@@ -190,6 +190,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           <input type="number" id="res_text" value="%RES%" step="1">
         </div>
       </div>
+
     </section>
 
     <section class="card">
@@ -215,12 +216,67 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
   <footer>
     <p>VENTCON Control System v%VERSION% by HAB</p>
     <!-- Hidden Easter egg panel -->
-    <div id="easterEgg" style="display: none; margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 8px; text-align: center;">
-      <h3 style="color: #002f87;">Developer Mode Activated! 🚀</h3>
-      <p>Hello there, curious one!</p> 
-      <p>You've found the secret developer panel.</p>
-      <p>VENTCON Control System - Made with ❤️ by VENTREX</p>
-      <div id="devInfo"></div>
+    <div id="easterEgg" style="display: none; margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 8px; text-align: left;">
+      <h3 style="color: #002f87; text-align: center;">Developer Mode Activated! 🚀</h3>
+      <p style="text-align: center;">Hello there, curious one!</p> 
+      <p style="text-align: center;">You've found the secret developer panel.</p>
+      <p style="text-align: center;">VENTCON Control System - Made with ❤️ by VENTREX</p>
+      
+      <div style="margin-top: 20px;">
+        <h4 style="color: #002f87; margin-bottom: 10px;">📊 System Information</h4>
+        <div id="devInfo" style="font-family: monospace; font-size: 12px; margin-bottom: 15px;"></div>
+          <h4 style="color: #002f87; margin-bottom: 10px;">💻 Serial Commands Reference</h4>
+        <div style="font-family: monospace; font-size: 11px; background: #fff; padding: 12px; border-radius: 6px; max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
+          <strong>PID Control:</strong><br>
+          KP 0.5 &nbsp;&nbsp;&nbsp;&nbsp; Set proportional gain<br>
+          KI 0.1 &nbsp;&nbsp;&nbsp;&nbsp; Set integral gain<br>
+          KD 0.01 &nbsp;&nbsp;&nbsp;&nbsp;Set derivative gain<br>
+          SP 3.0 &nbsp;&nbsp;&nbsp;&nbsp; Set pressure setpoint (bar)<br>          
+          SAMPLE 10 &nbsp;&nbsp;Set PID sample time (1-1000 ms)<br>
+          RESET &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reset PID controller (clear integral windup)<br><br>
+          
+          <strong>Signal Processing:</strong><br>
+          FLT 0.2 &nbsp;&nbsp;&nbsp;&nbsp;Set filter strength (0.0-1.0)<br>
+          AW ON/OFF &nbsp;&nbsp;Enable/disable anti-windup for deadband<br>
+          HYST ON/OFF &nbsp;Enable/disable hysteresis compensation<br>
+          HYSTAMT 5 &nbsp;&nbsp;Set hysteresis compensation amount (%)<br><br>
+          
+          <strong>PWM Control:</strong><br>
+          FREQ 1000 &nbsp;&nbsp;Set PWM frequency (100-10000Hz)<br>
+          RES 8 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set PWM resolution (1-16 bits)<br>
+          PWM 25 &nbsp;&nbsp;&nbsp;&nbsp;Force PWM duty cycle (0-100%) for testing<br>
+          RESUME &nbsp;&nbsp;&nbsp;&nbsp;Resume normal PID control after manual PWM<br><br>
+          
+          <strong>Control Loop:</strong><br>
+          CONTROL FREQ 1000 Set control loop frequency (10-1000 Hz)<br><br>
+          
+          <strong>Auto-Tuning:</strong><br>
+          TUNE START &nbsp;Start PID auto-tuning process<br>
+          TUNE STOP &nbsp;&nbsp;Cancel auto-tuning process<br>
+          TUNE CANCEL Cancel auto-tuning process<br>
+          TUNE ACCEPT Accept auto-tuned PID parameters<br>
+          TUNE REJECT Reject auto-tuned PID parameters<br>
+          TUNE SP 3.0 Set auto-tuning test setpoint (0.5-10.0 bar)<br>
+          TUNE MIN 65 Set auto-tuning minimum PWM (50-90%)<br>
+          TUNE MAX 85 Set auto-tuning maximum PWM (60-95%)<br>
+          TUNE CYCLE 100 Set min cycle time for auto-tuning (50-2000ms)<br>
+          TUNE RULE n Select auto-tuning rule (0-3, see TUNE RULES)<br>
+          TUNE AGGR x Set tuning aggressiveness (0.5-2.0)<br>
+          TUNE RULES &nbsp;Show available tuning rules<br><br>
+          
+          <strong>System & Data:</strong><br>
+          STATUS &nbsp;&nbsp;&nbsp;&nbsp;Show current parameters<br>
+          SAVE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Force save settings to flash<br>
+          READ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read settings stored in flash<br>
+          STARTCD &nbsp;&nbsp;&nbsp;Start continuous data output for plotting<br>
+          STOPCD &nbsp;&nbsp;&nbsp;&nbsp;Stop continuous data output<br>
+          PAGE ON &nbsp;&nbsp;&nbsp;Enable web server processing<br>
+          PAGE OFF &nbsp;&nbsp;Disable web server processing<br>
+          DIR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List all files in flash memory with sizes<br>
+          VER &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Display firmware version and build info<br>
+          HELP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Show this help message<br>
+        </div>
+      </div>
     </div>
   </footer>
 
@@ -481,14 +537,14 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           
           if (this.checked) {
             cachedElements.chartContainer.style.display = 'block';
-            window.pressureChart.update();
+            // Force a single update when showing chart with 'none' animation mode
+            window.pressureChart.update('none');
           } else {
             cachedElements.chartContainer.style.display = 'none';
           }
         });
       }
-      
-      // Setup slider and text input synchronization
+        // Setup slider and text input synchronization
       ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) {
         const slider = cachedElements.sliders ? cachedElements.sliders[param] : null;
         const text = cachedElements.texts ? cachedElements.texts[param] : null;
@@ -509,12 +565,13 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       // Setup increment/decrement buttons
       [
         {param: 'sp', min: 0, max: 10, step: 0.1},
-        {param: 'kp', min: 0, max: 100, step: 1},
-        {param: 'ki', min: 0, max: 100, step: 1},
-        {param: 'kd', min: 0, max: 10, step: 0.1},
+        {param: 'kp', min: 0, max: 3000, step: 100},
+        {param: 'ki', min: 0, max: 5000, step: 200},
+        {param: 'kd', min: 0, max: 1000, step: 10},
         {param: 'flt', min: 0, max: 1, step: 0.01},
         {param: 'freq', min: 100, max: 10000, step: 100},
-        {param: 'res', min: 8, max: 16, step: 1}
+        {param: 'res', min: 8, max: 16, step: 1},
+        {param: 'psamt', min: 5, max: 200, step: 1}
       ].forEach(function(cfg) {
         const slider = cachedElements.sliders ? cachedElements.sliders[cfg.param] : null;
         const text = cachedElements.texts ? cachedElements.texts[cfg.param] : null;
@@ -641,10 +698,10 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             // Update all sliders and inputs with current values from server using cached elements
             ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(param => {
               if (typeof data[param] !== "undefined") {
-                if (cachedElements.sliders[param]) {
+                if (cachedElements.sliders && cachedElements.sliders[param]) {
                   cachedElements.sliders[param].value = data[param];
                 }
-                if (cachedElements.texts[param]) {
+                if (cachedElements.texts && cachedElements.texts[param]) {
                   cachedElements.texts[param].value = data[param];
                 }
               }
@@ -681,15 +738,17 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         y: pwm
       });
       
+      // Maintain fixed data window size
       if (window.pressureData.length > 30) {
         window.pressureData.shift();
         window.setpointData.shift();
         window.pwmData.shift();
       }
       
-      // Only update the chart if it's visible
+      // Only update the chart if it's visible - use optimized update
       if (cachedElements.chartToggle.checked) {
-        window.pressureChart.update();
+        // Use 'none' mode for better performance - no animations
+        window.pressureChart.update('none');
       }
     }
 
@@ -958,15 +1017,19 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
               // Show Easter egg and populate with system info
               easterEgg.style.display = 'block';
               devInfo.innerHTML = 
-                `<p>Memory Usage: JavaScript Heap ${performance?.memory?.usedJSHeapSize ? 
-                   (performance.memory.usedJSHeapSize/1048576).toFixed(2) + ' MB' : 'Not available'}</p>
-                 <p>Chart Data Points: ${window.pressureData ? window.pressureData.length : 0}</p>
-                 <p>Current Time: ${new Date().toLocaleTimeString()}</p>
-                 <p>Language: ${navigator.language}</p>
-                 <p>Screen Resolution: ${window.screen.width}x${window.screen.height}</p>
-                 <p>Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}</p>
-                 <p>Platform: ${navigator.platform || 'Unknown'}</p>
-                 <p>Browser: ${navigator.userAgent}</p>`;
+                `<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                   <div>Memory: ${performance?.memory?.usedJSHeapSize ? 
+                     (performance.memory.usedJSHeapSize/1048576).toFixed(2) + ' MB' : 'N/A'}</div>
+                   <div>Chart Points: ${window.pressureData ? window.pressureData.length : 0}</div>
+                   <div>Time: ${new Date().toLocaleTimeString()}</div>
+                   <div>Language: ${navigator.language}</div>
+                   <div>Resolution: ${window.screen.width}x${window.screen.height}</div>
+                   <div>Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}</div>
+                 </div>
+                 <div style="margin-top: 8px; font-size: 10px; color: #666;">
+                   Platform: ${navigator.platform || 'Unknown'}<br>
+                   User Agent: ${navigator.userAgent.substring(0, 80)}...
+                 </div>`;
               
               // Add a small animation to the logo
               logo.style.transition = 'transform 1s';

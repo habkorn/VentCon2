@@ -30,14 +30,11 @@ def main():
     data_dir = "data"
     
     # Ensure data directory exists
-    os.makedirs(data_dir, exist_ok=True)
-    
-    # Files to compress (add your actual files here)
+    os.makedirs(data_dir, exist_ok=True)    # Files to compress (add your actual files here)
     files_to_compress = [
-        ("chart.min.js", "data/chart.min.js.gz"),
-        ("moment.min.js", "data/moment.min.js.gz"), 
-        ("chartjs-adapter-moment.min.js", "data/chartjs-adapter-moment.min.js.gz"),
-        ("Logo.svg", "data/Logo.svg.gz")
+        ("data/chart.min.js", "data/chart.min.js.gz"),
+        ("data/moment.min.js", "data/moment.min.js.gz"), 
+        ("data/chartjs-adapter-moment.min.js", "data/chartjs-adapter-moment.min.js.gz")
     ]
     
     print("Compressing web resources for ESP32...")

@@ -6,14 +6,19 @@
 \contentsline {subsection}{\numberline {2.4}Hysteresis Compensation}{3}{subsection.2.4}%
 \contentsline {section}{\numberline {3}Auto-Tuning Procedure}{4}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Relay Method Theory}{4}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Implementation in VentCon2}{4}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}Multiple Tuning Rules}{5}{subsection.3.3}%
-\contentsline {subsection}{\numberline {3.4}Adjustable Aggressiveness}{5}{subsection.3.4}%
-\contentsline {subsection}{\numberline {3.5}Auto-Tuning Workflow}{6}{subsection.3.5}%
-\contentsline {section}{\numberline {4}Performance Considerations}{7}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Tuning Rule Selection}{7}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}Comparative Step Responses}{7}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Practical Recommendations}{8}{subsection.4.3}%
-\contentsline {subsection}{\numberline {4.4}Limitations}{9}{subsection.4.4}%
-\contentsline {section}{\numberline {5}Conclusion}{9}{section.5}%
-\contentsline {section}{\numberline {6}References}{9}{section.6}%
+\contentsline {subsection}{\numberline {3.2}Relay Method Visualization}{5}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Implementation in VentCon2}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Configurable Auto-Tuning Parameters}{7}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Cycle Detection and Data Collection}{7}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Multiple Tuning Rules}{8}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Valve Range Compensation}{8}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.8}Adjustable Aggressiveness}{9}{subsection.3.8}%
+\contentsline {subsection}{\numberline {3.9}Auto-Tuning Workflow}{9}{subsection.3.9}%
+\contentsline {subsection}{\numberline {3.10}Minimum Cycle Time Guidelines}{10}{subsection.3.10}%
+\contentsline {section}{\numberline {4}Performance Considerations}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Tuning Rule Selection}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Comparative Step Responses}{11}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Practical Recommendations}{12}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Limitations}{12}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Conclusion}{13}{section.5}%
+\contentsline {section}{\numberline {6}References}{13}{section.6}%

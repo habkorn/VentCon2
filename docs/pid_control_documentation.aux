@@ -7,37 +7,46 @@
 \@writefile{toc}{\contentsline {section}{\numberline {2}PID Control Implementation}{2}{section.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Basic PID Theory}{2}{subsection.2.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Implementation in VentCon2}{2}{subsection.2.2}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces PID Configuration}}{2}{lstlisting.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces PID Configuration}}{3}{lstlisting.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Anti-Windup Implementation}{3}{subsection.2.3}\protected@file@percent }
 \@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Anti-Windup Implementation}}{3}{lstlisting.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Hysteresis Compensation}{3}{subsection.2.4}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces Hysteresis Compensation}}{3}{lstlisting.3}\protected@file@percent }
 \citation{astrom1984automatic}
 \citation{ziegler1942optimum}
 \citation{wiki:pidtuning}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}{\ignorespaces Hysteresis Compensation}}{4}{lstlisting.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}Auto-Tuning Procedure}{4}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Relay Method Theory}{4}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Implementation in VentCon2}{4}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Relay Method Visualization}{5}{subsection.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Relay method auto-tuning illustration showing the square wave relay output (red) switching between the valve's effective operating range of 50-90\% and the resulting sinusoidal pressure response (blue). The ultimate period $T_u$ and oscillation amplitude $a$ are measured to calculate the PID parameters.}}{5}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:relay_method}{{1}{5}{Relay method auto-tuning illustration showing the square wave relay output (red) switching between the valve's effective operating range of 50-90\% and the resulting sinusoidal pressure response (blue). The ultimate period $T_u$ and oscillation amplitude $a$ are measured to calculate the PID parameters}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Implementation in VentCon2}{6}{subsection.3.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces Auto-Tuning Relay Output}}{6}{lstlisting.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Configurable Auto-Tuning Parameters}{7}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Cycle Detection and Data Collection}{7}{subsection.3.5}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces Cycle Detection Logic}}{7}{lstlisting.5}\protected@file@percent }
 \citation{wiki:pidtuning}
 \citation{ni:pidtuning}
 \citation{ni:pidtuning}
 \citation{ziegler1942optimum}
 \citation{tyreus1992tuning}
 \citation{pessen1954new}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}{\ignorespaces Auto-Tuning Relay Output}}{5}{lstlisting.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Multiple Tuning Rules}{5}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Adjustable Aggressiveness}{5}{subsection.3.4}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces PID Tuning Rules\cite  {ni:pidtuning}}}{6}{table.caption.2}\protected@file@percent }
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}{\ignorespaces Aggressiveness Implementation}}{6}{lstlisting.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Auto-Tuning Workflow}{6}{subsection.3.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {4}Performance Considerations}{7}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Tuning Rule Selection}{7}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Comparative Step Responses}{7}{subsection.4.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Typical step responses for different tuning rules applied to the pressure control system. The plot shows how each rule affects rise time, overshoot, and settling characteristics.}}{8}{figure.caption.3}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:step_responses}{{1}{8}{Typical step responses for different tuning rules applied to the pressure control system. The plot shows how each rule affects rise time, overshoot, and settling characteristics}{figure.caption.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Practical Recommendations}{8}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Multiple Tuning Rules}{8}{subsection.3.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces PID Tuning Rules\cite  {ni:pidtuning}}}{8}{table.caption.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Valve Range Compensation}{8}{subsection.3.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8}Adjustable Aggressiveness}{9}{subsection.3.8}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}{\ignorespaces Aggressiveness Implementation}}{9}{lstlisting.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9}Auto-Tuning Workflow}{9}{subsection.3.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10}Minimum Cycle Time Guidelines}{10}{subsection.3.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Performance Considerations}{10}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Tuning Rule Selection}{10}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Comparative Step Responses}{11}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Typical step responses for different tuning rules applied to the pressure control system. The plot shows how each rule affects rise time, overshoot, and settling characteristics.}}{11}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:step_responses}{{2}{11}{Typical step responses for different tuning rules applied to the pressure control system. The plot shows how each rule affects rise time, overshoot, and settling characteristics}{figure.caption.4}{}}
 \citation{astrom1995pid}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Practical Recommendations}{12}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Limitations}{12}{subsection.4.4}\protected@file@percent }
 \citation{odwyer2009handbook}
 \citation{controlguru}
 \citation{controlnotes}
@@ -48,14 +57,13 @@
 \bibcite{tyreus1992tuning}{3}
 \bibcite{pessen1954new}{4}
 \bibcite{astrom1995pid}{5}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Limitations}{9}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{9}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}References}{9}{section.6}\protected@file@percent }
 \bibcite{odwyer2009handbook}{6}
 \bibcite{wiki:pid}{7}
 \bibcite{wiki:pidtuning}{8}
 \bibcite{controlguru}{9}
 \bibcite{controlnotes}{10}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{13}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}References}{13}{section.6}\protected@file@percent }
 \bibcite{oreilly:pidtuning}{11}
 \bibcite{ni:pidtuning}{12}
-\gdef \@abspage@last{10}
+\gdef \@abspage@last{14}

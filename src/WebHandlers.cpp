@@ -78,10 +78,12 @@ extern struct Settings {
   double setpoint;
   int pwm_freq;
   int pwm_res;
+  int pid_sample_time; // Sample time for PID control in milliseconds
   bool antiWindup;
   bool hysteresis;
   float hystAmount;
 } settings;
+
 
 extern double pressureInput, pwmOutput;
 extern PID pid;
@@ -144,8 +146,39 @@ bool handleFileRead(String path) {
   return false;
 }
 
+/*
+ * handleRoot() - Main Web Interface Handler
+ * 
+ * This function serves the primary web interface when users navigate to the ESP32's IP address.
+ * It's the core of the web-based control system, providing a complete HTML page with embedded
+ * CSS and JavaScript for real-time monitoring and control.
+ * 
+ * Operation Flow:
+ * 1. Retrieves the complete HTML template from getFullHtmlContent() (defined in WebContent.h)
+ * 2. Performs dynamic placeholder replacement to inject current system values into the HTML
+ * 3. Sends the customized HTML page to the client's browser
+ * 
+ * Placeholder Replacement:
+ * - %SP%     → Current pressure setpoint value
+ * - %KP%     → PID proportional gain
+ * - %KI%     → PID integral gain  
+ * - %KD%     → PID derivative gain
+ * - %FLT%    → Pressure filter strength
+ * - %FREQ%   → PWM frequency setting
+ * - %RES%    → PWM resolution (bits)
+ * - %PSAMT%  → PID sample time (milliseconds)
+ * - %VERSION% → Software version from Constants.h
+ * 
+ * This approach allows the HTML template to be static (stored in PROGMEM) while still
+ * displaying current system values when the page loads. The browser receives a fully
+ * populated HTML page that immediately shows the current state without requiring
+ * additional AJAX calls for initial values.
+ * 
+ * Response: Sends HTTP 200 with content-type "text/html" containing the complete interface
+ */
 void handleRoot() 
 {
+  
   String page = getFullHtmlContent();
   
   // Replace placeholders with current values
@@ -156,11 +189,47 @@ void handleRoot()
   page.replace("%FLT%", String(settings.filter_strength, 2));
   page.replace("%FREQ%", String(settings.pwm_freq));
   page.replace("%RES%", String(settings.pwm_res));
+  page.replace("%PSAMT%", String(settings.pid_sample_time));
+
   page.replace("%VERSION%", VENTCON_VERSION);  // Add this line to replace version from Constants.h
 
   server.send(200, "text/html", page);
 }
 
+/*
+ * handleSet() - Parameter Update Handler
+ * 
+ * This function processes HTTP GET requests to the /set endpoint, allowing the web interface
+ * to update system parameters in real-time. It's called when users adjust sliders, input
+ * fields, or other controls on the web interface.
+ * 
+ * Operation Flow:
+ * 1. Receives HTTP GET request with URL parameters (e.g., /set?sp=3.0&kp=1.5&ki=0.2)
+ * 2. Checks for each possible parameter using server.hasArg()
+ * 3. Updates corresponding settings values using server.arg().toFloat() or .toInt()
+ * 4. Applies special handling for PWM frequency/resolution changes
+ * 5. Updates PID controller with new tuning parameters
+ * 6. Saves all settings to persistent storage (LittleFS)
+ * 7. Sends "OK" response to confirm successful update
+ * 
+ * Supported Parameters:
+ * - sp    → Pressure setpoint (double)
+ * - kp    → PID proportional gain (double)
+ * - ki    → PID integral gain (double)
+ * - kd    → PID derivative gain (double)
+ * - flt   → Pressure filter strength (float)
+ * - freq  → PWM frequency in Hz (int) - triggers updatePWM()
+ * - res   → PWM resolution in bits (int) - maintains duty cycle percentage
+ * - psamt → PID sample time in milliseconds (int, constrained 1-1000ms)
+ * 
+ * Special Handling:
+ * - PWM Resolution: Calculates current duty cycle percentage before changing resolution,
+ *   then scales pwmOutput to maintain the same duty cycle with new resolution
+ * - PID Sample Time: Constrains value between 1-1000ms for stability
+ * - All changes are immediately applied to the running PID controller
+ * 
+ * Response: HTTP 200 with "text/plain" content type and "OK" message
+ */
 void handleSet() 
 {
   // Process parameter updates
@@ -184,8 +253,7 @@ void handleSet()
     settings.pwm_freq = server.arg("freq").toInt();
     updatePWM();
   }
-  
-  if (server.hasArg("res")) 
+    if (server.hasArg("res")) 
   {
     int old_res = settings.pwm_res;
     int new_res = server.arg("res").toInt();
@@ -208,6 +276,14 @@ void handleSet()
       updatePWM();
     }
   }
+  
+  if (server.hasArg("psamt")) 
+  {
+    int newSampleTime = server.arg("psamt").toInt();
+    newSampleTime = constrain(newSampleTime, 1, 1000);
+    settings.pid_sample_time = newSampleTime;
+    pid.SetSampleTime(newSampleTime);
+  }
 
   // Update PID and save settings
   pid.SetTunings(settings.Kp, settings.Ki, settings.Kd); // Updated for PID_v2
@@ -215,17 +291,60 @@ void handleSet()
   server.send(200, "text/plain", "OK");
 }
 
-void handleValues() 
+/*
+ * handleValues() - Real-time System Data API
+ * 
+ * This function provides the core data feed for the web interface's real-time monitoring.
+ * It's called periodically (every 250ms) by JavaScript to fetch current system state
+ * and update all gauges, displays, and charts without requiring a page refresh.
+ * 
+ * Operation Flow:
+ * 1. Calculates current PWM duty cycle percentage from raw pwmOutput value
+ * 2. Determines ADC status based on ADS1115 availability
+ * 3. Assembles all system data into a compact JSON response
+ * 4. Sends JSON data to the requesting web client
+ * 
+ * Data Included:
+ * - Settings: sp, kp, ki, kd, flt, freq, res, psamt (current configuration)
+ * - Status: client_count, max_clients, adc_status (system health)
+ * - Real-time: pressure, pwm (current measurements and output)
+ * 
+ * JSON Response Format:
+ * {
+ *   "sp": 3.00,           // Setpoint pressure
+ *   "kp": 1.50,           // PID proportional gain
+ *   "ki": 0.20,           // PID integral gain
+ *   "kd": 0.05,           // PID derivative gain
+ *   "flt": 0.80,          // Filter strength
+ *   "freq": 1000,         // PWM frequency (Hz)
+ *   "res": 12,            // PWM resolution (bits)
+ *   "psamt": 100,         // PID sample time (ms)
+ *   "client_count": 2,    // Currently connected clients
+ *   "max_clients": 4,     // Maximum allowed clients
+ *   "pressure": 2.85,     // Current pressure reading
+ *   "pwm": 65.432,        // PWM output percentage
+ *   "adc_status": "100"   // ADC status ("100"=OK, "000"=Error)
+ * }
+ * 
+ * Performance Considerations:
+ * - Uses fixed-size buffer (330 chars) for predictable memory usage
+ * - snprintf() prevents buffer overflows
+ * - Minimal JSON structure reduces network overhead
+ * - Called frequently, so must execute quickly
+ * 
+ * Response: HTTP 200 with "application/json" content type
+ */
+void handleValues() // Send current values as JSON  
 {
   const int max_pwm = (1 << settings.pwm_res) - 1;
   const float pwm_percent = max_pwm > 0 ? (pwmOutput / max_pwm) * 100.0 : 0;
   const char* adc_status = ads_found ? "100" : "000";
   
-  char json[320]; // Increased buffer size for additional fields
+  char json[330]; // Increased buffer size for additional fields
   snprintf(json, sizeof(json),
     "{\"sp\":%.2f,\"kp\":%.2f,\"ki\":%.2f,\"kd\":%.2f,\"flt\":%.2f,"
-    "\"freq\":%d,\"res\":%d,\"client_count\":%d,\"max_clients\":%d,"
-    "\"pressure\":%.2f,\"pwm\":%.2f,\"adc_status\":\"%s\"}",
+    "\"freq\":%d,\"res\":%d,\"psamt\":%d,\"client_count\":%d,\"max_clients\":%d,"
+    "\"pressure\":%.2f,\"pwm\":%.3f,\"adc_status\":\"%s\"}",
     settings.setpoint,
     settings.Kp,
     settings.Ki,
@@ -233,15 +352,15 @@ void handleValues()
     settings.filter_strength,
     settings.pwm_freq,
     settings.pwm_res,
+    settings.pid_sample_time,
     connectedClients,
     NetworkConfig::MAX_CLIENTS,  // Use constant from header
     pressureInput,
     pwm_percent,
     adc_status
   );
-    server.send(200, "application/json", json);
+    server.send(200, "application/json", json); // why 200? Because this is a successful response
 }
-
 // Handler for PID controller reset
 void handleResetPID() {
   // Temporarily set to manual mode
@@ -266,6 +385,17 @@ void handleResetPID() {
 // Setup function to register all web handlers
 void setupWebHandlers()
 {  // Register main page and API endpoints
+  // describe API endpoints:  
+  // - GET /         : Main web interface (HTML page)
+  // - GET /set      : Update parameters (sp, kp, ki, kd, flt, freq, res, psamt)
+  // - GET /values   : Get current system values as JSON
+  // - GET /resetPID : Reset PID controller to initial state
+  // - GET /[file]   : Serve static files from LittleFS (e.g., JS libraries, SVG logo)
+  // - GET /Logo.svg : Serve SVG logo file
+  // - GET /chart.min.js, /moment.min.js, /chartjs-adapter-moment.min.js : Serve JS libraries
+  // - Fallback for other static files with 404 handling
+  // - GET /favicon.ico : Serve favicon if requested (not implemented yet)
+
   server.on("/", handleRoot);
   server.on("/set", handleSet);
   server.on("/values", handleValues);

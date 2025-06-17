@@ -51,6 +51,8 @@ struct Settings
   double setpoint;
   int pwm_freq;
   int pwm_res;
+  int pid_sample_time; // Sample time for PID control in milliseconds
+  int control_freq_hz; // Control loop frequency in Hz
   bool antiWindup;  // Flag to enable/disable anti-windup for deadband
   bool hysteresis;  // Flag to enable/disable hysteresis compensation
   float hystAmount; // Amount of hysteresis compensation (percentage points)
@@ -66,6 +68,8 @@ Settings DEFAULT_SETTINGS =
   .setpoint = 3.0,
   .pwm_freq = 2000,
   .pwm_res = 14,
+  .pid_sample_time = 10, // Sample time in milliseconds
+  .control_freq_hz = 1000, // Default 1000Hz control loop
   .antiWindup = false,
   .hysteresis = false,
   .hystAmount = 5.0  // Default compensation of 5 percentage points
@@ -81,13 +85,20 @@ Settings settings =
   .setpoint = DEFAULT_SETTINGS.setpoint,
   .pwm_freq = DEFAULT_SETTINGS.pwm_freq,
   .pwm_res = DEFAULT_SETTINGS.pwm_res,
+  .pid_sample_time = DEFAULT_SETTINGS.pid_sample_time,
+  .control_freq_hz = DEFAULT_SETTINGS.control_freq_hz,
   .antiWindup = DEFAULT_SETTINGS.antiWindup,
   .hysteresis = DEFAULT_SETTINGS.hysteresis,
   .hystAmount = DEFAULT_SETTINGS.hystAmount  // Default compensation of 5 percentage points
 };
+
+
+
 // ====== WiFi Connection Management ======
 int connectedClients = 0;
 String connectedMACs[NetworkConfig::MAX_CLIENTS]; // Store MAC addresses of connected clients
+bool webServerEnabled = true; // Flag to enable/disable web server processing
+
 // ====== PID and Sensor Variables ======
 double pressureInput, pwmOutput; // PID input (pressure) and output (PWM)
 PID pid(&pressureInput, &pwmOutput, &settings.setpoint, settings.Kp, settings.Ki, settings.Kd, DIRECT);
@@ -103,20 +114,19 @@ const float MAX_VOLTAGE = SensorConfig::MAX_VOLTAGE; // Minimum voltage for pres
 const float SENSOR_MIN_BAR = SensorConfig::SENSOR_MIN_BAR; // Minimum pressure in bar
 const float SENSOR_MAX_BAR = SensorConfig::SENSOR_MAX_BAR; // Maximum pressure in bar
 
-// ====== Valve Configuration ======
-// REMOVED: Duplicate valve constants - now using values from Constants.h
 
 // Low-pass filter variables
 float last_filtered_pressure = 0;  // Previous filtered value
 
 // ====== ADS1015 Configuration ======
 const uint8_t ADS1015_I2C_ADDRESS = 0x48; // Default I2C address for ADS1015
-const adsGain_t ADS1015_GAIN = GAIN_ONE;  // +/-4.096V range (adjust as needed)
-const int ADS1015_DATA_RATE = 1600;       // 1600 samples per second (default)
+const adsGain_t ADS1015_GAIN = GAIN_TWOTHIRDS;  // +/-6.144V range (for 0-5V signals)
+
+const uint16_t ADS1015_DATA_RATE = RATE_ADS1015_1600SPS;   //  Data rate for ADS1015 (Default)
+
 
 // ====== Global Variables ======
 bool continousValueOutput = false; // Flag for Serial output
-unsigned long lastMainLoopTime=0; // Last time output was sent to Serial
 long lastcontinousValueOutputTime=0; // Last time output was sent to Serial
 long lastAnalogOutPressureSignalTime=0; // Last time output was sent to Serial
 int pwm_max_value = (1 << settings.pwm_res) - 1; // Maximum PWM value based on resolution
@@ -124,11 +134,11 @@ bool manualPWMMode = false; // Flag to track manual PWM control mode
 int SERIAL_OUTPUT_INTERVAL  = 100; // Interval for continuous serial output in milliseconds
 int pwm_analog_pressure_signal_freq=5000; // Frequency for analog pressure signal output
 int pwm_analog_pressure_signal_pwm_res=12; // Resolution for analog pressure signal output
-int SENSOR_MAX_VALUE = (1 << pwm_analog_pressure_signal_pwm_res) - 1; 
-int SAMPLE_TIME=20; // Sample time for PID control in milliseconds
+int SENSOR_MAX_VALUE = (1 << pwm_analog_pressure_signal_pwm_res) - 1;
+TaskHandle_t networkTaskHandle = NULL;
+TaskHandle_t controlTaskHandle = NULL;
 
-unsigned long deltaTimeMainLoop = 0; // Time difference for main loop execution
-unsigned long deltaTimecontinousValueOutput = 0; // Time difference for continuous value output
+int16_t adc_value;  // Variable to store ADC value 
 
 // Track previous pressure direction for hysteresis compensation
 bool pressureIncreasing = false;
@@ -146,20 +156,32 @@ void updatePWM()
 // ====== Save Settings to LittleFS ======
 void saveSettings()
 {
+  // Save implementation remains the same
   File file = LittleFS.open("/settings.json", "w");
-  JsonDocument doc;
-  doc["kp"] = settings.Kp;
-  doc["ki"] = settings.Ki;
-  doc["kd"] = settings.Kd;
-  doc["flt"] = settings.filter_strength;
-  doc["sp"] = settings.setpoint;
-  doc["freq"] = settings.pwm_freq;
-  doc["res"] = settings.pwm_res;
-  doc["aw"] = settings.antiWindup;
-  doc["hyst"] = settings.hysteresis;  // Save hysteresis setting
-  doc["hystamt"] = settings.hystAmount;  // Save hysteresis amount
-  serializeJson(doc, file);
-  file.close();
+  if (file)
+  {
+    JsonDocument doc;
+    doc["Kp"] = settings.Kp;
+    doc["Ki"] = settings.Ki;
+    doc["Kd"] = settings.Kd;
+    doc["filter_strength"] = settings.filter_strength;
+    doc["setpoint"] = settings.setpoint;
+    doc["pwm_freq"] = settings.pwm_freq;
+    doc["pwm_res"] = settings.pwm_res;
+    doc["pid_sample_time"] = settings.pid_sample_time;
+    doc["control_freq_hz"] = settings.control_freq_hz;
+    doc["antiWindup"] = settings.antiWindup;
+    doc["hysteresis"] = settings.hysteresis;
+    doc["hystAmount"] = settings.hystAmount;
+    
+    serializeJson(doc, file);
+    file.close();
+    Serial.println("Settings saved to LittleFS");
+  }
+  else
+  {
+    Serial.println("Error: Unable to save settings!");
+  }
 }
 
 // ====== Load Settings from LittleFS ======
@@ -176,17 +198,19 @@ void loadSettings()
       Serial.println("Failed to parse settings.json");
     } else 
     {
-      // Alternative approach using isNull() to check if keys exist
-      settings.Kp = !doc["kp"].isNull() ? doc["kp"].as<double>() : DEFAULT_SETTINGS.Kp;
-      settings.Ki = !doc["ki"].isNull() ? doc["ki"].as<double>() : DEFAULT_SETTINGS.Ki;
-      settings.Kd = !doc["kd"].isNull() ? doc["kd"].as<double>() : DEFAULT_SETTINGS.Kd;
-      settings.filter_strength = !doc["flt"].isNull() ? doc["flt"].as<float>() : DEFAULT_SETTINGS.filter_strength;
-      settings.setpoint = !doc["sp"].isNull() ? doc["sp"].as<double>() : DEFAULT_SETTINGS.setpoint;
-      settings.pwm_freq = !doc["freq"].isNull() ? doc["freq"].as<int>() : DEFAULT_SETTINGS.pwm_freq;
-      settings.pwm_res = !doc["res"].isNull() ? doc["res"].as<int>() : DEFAULT_SETTINGS.pwm_res;
-      settings.antiWindup = !doc["aw"].isNull() ? doc["aw"].as<bool>() : DEFAULT_SETTINGS.antiWindup;
-      settings.hysteresis = !doc["hyst"].isNull() ? doc["hyst"].as<bool>() : DEFAULT_SETTINGS.hysteresis;
-      settings.hystAmount = !doc["hystamt"].isNull() ? doc["hystamt"].as<float>() : DEFAULT_SETTINGS.hystAmount;
+      // Alternative approach using isNull() to check if keys exist      
+      settings.Kp = !doc["Kp"].isNull() ? doc["Kp"].as<double>() : DEFAULT_SETTINGS.Kp;
+      settings.Ki = !doc["Ki"].isNull() ? doc["Ki"].as<double>() : DEFAULT_SETTINGS.Ki;
+      settings.Kd = !doc["Kd"].isNull() ? doc["Kd"].as<double>() : DEFAULT_SETTINGS.Kd;
+      settings.filter_strength = !doc["filter_strength"].isNull() ? doc["filter_strength"].as<float>() : DEFAULT_SETTINGS.filter_strength;
+      settings.setpoint = !doc["setpoint"].isNull() ? doc["setpoint"].as<double>() : DEFAULT_SETTINGS.setpoint;
+      settings.pwm_freq = !doc["pwm_freq"].isNull() ? doc["pwm_freq"].as<int>() : DEFAULT_SETTINGS.pwm_freq;
+      settings.pwm_res = !doc["pwm_res"].isNull() ? doc["pwm_res"].as<int>() : DEFAULT_SETTINGS.pwm_res;
+      settings.pid_sample_time = !doc["pid_sample_time"].isNull() ? doc["pid_sample_time"].as<int>() : DEFAULT_SETTINGS.pid_sample_time;
+      settings.control_freq_hz = !doc["control_freq_hz"].isNull() ? doc["control_freq_hz"].as<int>() : DEFAULT_SETTINGS.control_freq_hz;
+      settings.antiWindup = !doc["antiWindup"].isNull() ? doc["antiWindup"].as<bool>() : DEFAULT_SETTINGS.antiWindup;
+      settings.hysteresis = !doc["hysteresis"].isNull() ? doc["hysteresis"].as<bool>() : DEFAULT_SETTINGS.hysteresis;
+      settings.hystAmount = !doc["hystAmount"].isNull() ? doc["hystAmount"].as<float>() : DEFAULT_SETTINGS.hystAmount;
       
       // Update PWM_MAX_VALUE to match the loaded resolution
       pwm_max_value = (1 << settings.pwm_res) - 1;
@@ -210,19 +234,24 @@ void showSettingsFromLittleFS()
       } else {
         Serial.println("\n=== Settings Stored in LittleFS ===");
         Serial.printf("PID Parameters:    Kp=%.2f, Ki=%.2f, Kd=%.2f\n", 
-                    doc["kp"].as<double>(), doc["ki"].as<double>(), doc["kd"].as<double>());
-        Serial.printf("Filter Strength:   %.2f\n", doc["flt"].as<float>());
-        Serial.printf("Pressure Setpoint: %.2f bar\n", doc["sp"].as<double>());
+                    doc["Kp"].as<double>(), doc["Ki"].as<double>(), doc["Kd"].as<double>());
+        Serial.printf("Filter Strength:   %.2f\n", doc["filter_strength"].as<float>());
+        Serial.printf("Pressure Setpoint: %.2f bar\n", doc["setpoint"].as<double>());
+
         Serial.printf("PWM Configuration: %d Hz, %d-bit (max value: %d)\n", 
-                    doc["freq"].as<int>(), doc["res"].as<int>(), 
-                    (1 << doc["res"].as<int>()) - 1);
-        Serial.printf("Anti-Windup:       %s\n", doc["aw"].as<bool>() ? "Enabled" : "Disabled");
+                    doc["pwm_freq"].as<int>(), doc["pwm_res"].as<int>(), 
+                    (1 << doc["pwm_res"].as<int>()) - 1);
+        Serial.printf("Control Loop Freq: %d Hz\n", doc["control_freq_hz"].as<int>());
+        Serial.printf("Anti-Windup:       %s\n", doc["antiWindup"].as<bool>() ? "Enabled" : "Disabled");
+        Serial.printf("PID Sample Time:   %d ms\n", doc["pid_sample_time"].as<int>());
         Serial.printf("Hysteresis Comp:   %s (%.1f%%)\n", 
-                    doc["hyst"].as<bool>() ? "Enabled" : "Disabled", 
-                    doc["hystamt"].as<float>());
+                    doc["hysteresis"].as<bool>() ? "Enabled" : "Disabled", 
+                    doc["hystAmount"].as<float>());
       }
       file.close();
+
     }
+
     else
     {
       Serial.println("No settings file found in LittleFS");
@@ -293,19 +322,28 @@ float autoTuneOutputValue = 0;
 float autoTuneSetpoint = 0;
 bool autoTuneState = false;
 const unsigned long AUTO_TUNE_TIMEOUT = 180000; // 3 minutes timeout
-const unsigned long MIN_CYCLE_TIME = 1000; // Minimum cycle time in ms to prevent false transitions
-const int AUTO_TUNE_CYCLES = 10; // Number of cycles to collect
+unsigned long min_cycle_time = 100; // Minimum cycle time in ms to prevent false transitions
+const int AUTO_TUNE_CYCLES = 20; // Number of cycles to collect
 int currentCycle = 0;
-unsigned long cycleTimes[10]; // Store cycle times
-float cycleAmplitudes[10]; // Store amplitudes
+unsigned long cycleTimes[20]; // Store cycle times
+float cycleAmplitudes[20]; // Store amplitudes
+
+// Additional variables for proper amplitude tracking
+float maxPressure = 0;
+float minPressure = 999;
+bool firstCycleComplete = false;
 
 // Auto-tune constants for relay method
-// Update these constants to account for the valve's effective range
-const float AUTOTUNE_RELAY_STEP_RAW = 75.0; // PWM step size in % for relay test
-// Calculate the unmapped value to achieve desired valve opening
-const float AUTOTUNE_RELAY_STEP = (AUTOTUNE_RELAY_STEP_RAW - VALVE_MIN_DUTY) / 
-                                 (VALVE_MAX_DUTY - VALVE_MIN_DUTY) * 100.0;
-const float AUTOTUNE_TEST_SETPOINT = 3.0; // Target pressure for auto-tuning
+// Use the valve's effective range for better oscillation amplitude
+const float AUTOTUNE_RELAY_HIGH = ValveConfig::VALVE_MAX_DUTY; // Use maximum effective valve opening
+const float AUTOTUNE_RELAY_LOW = ValveConfig::VALVE_MIN_DUTY;   // Use minimum effective valve opening (changed from 0.0)
+
+float min_auto_tune_cycle_pwm_value= 65.; // Minimum PWM value to trigger auto-tuning (e.g. 65%)
+float max_auto_tune_cycle_pwm_value= 85.; // Maximum PWM value to trigger auto-tuning (e.g. 85%)
+
+float autotune_effective_amplitude = max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value; // e.g. 20% effective range
+
+float AUTOTUNE_TEST_SETPOINT = 5.0; // Target pressure for auto-tuning (now variable)
 const float AUTOTUNE_NOISE_BAND = 0.1; // Deadband to prevent noise-triggered oscillations
 
 // New auto-tuning rules and control
@@ -318,7 +356,7 @@ enum TuningRule
 };
 
 TuningRule currentTuningRule = ZIEGLER_NICHOLS_AGGRESSIVE; // Default to more aggressive tuning
-float tuningAggressiveness = 1.2; // Multiplier for Kp/Ki (higher = more aggressive)
+float tuningAggressiveness = 2.0; // Higher multiplier for more aggressive response (was 1.2)
 
 // ====== PID Auto-Tuning Implementation ======
 /*
@@ -328,23 +366,21 @@ float tuningAggressiveness = 1.2; // Multiplier for Kp/Ki (higher = more aggress
  * force controlled oscillation around the setpoint, which is safer and more reliable.
  * 
  * The process:
- * 1. The system applies a square wave output (relay) that switches between 0% and AUTOTUNE_RELAY_STEP (75%)
+ * 1. The system applies a square wave output (relay) that switches between 50% and 90% valve duty cycle
  * 2. This causes the pressure to oscillate around the setpoint
  * 3. The code measures:
  *    - The period of oscillation (Tu)
  *    - The amplitude of oscillation (A)
  * 4. From these measurements, it calculates the "ultimate gain" (Ku) using the formula:
- *    Ku = (4 * AUTOTUNE_RELAY_STEP) / (π * A)
- * 5. It then applies the Ziegler-Nichols tuning rules to calculate PID parameters:
- *    - Kp = 0.6 * Ku
- *    - Ki = 1.2 * Ku / Tu
- *    - Kd = 0.075 * Ku * Tu
+ *    Ku = (4 * AUTOTUNE_EFFECTIVE_AMPLITUDE) / (π * A)
+ * 5. It then applies the selected tuning rules to calculate PID parameters with valve range compensation
  * 
  * Advantages:
  * - No need to drive the system to instability, safer than traditional Z-N
  * - Works well for many types of processes, especially first and second-order systems
  * - Fully automated, requiring minimal user intervention
  * - Adapts to the specific system dynamics and valve characteristics
+ * - Uses only the valve's effective operating range (50-90%) for accurate system characterization
  * 
  * Limitations:
  * - May not work well with highly nonlinear systems
@@ -356,14 +392,15 @@ float tuningAggressiveness = 1.2; // Multiplier for Kp/Ki (higher = more aggress
  * 1. Ensure the system is at a stable starting point
  * 2. Choose a setpoint that's in the middle of your operating range
  * 3. Minimize external disturbances during tuning
- * 4. The AUTOTUNE_RELAY_STEP should be high enough to cause measurable oscillation
+ * 4. The relay amplitude (40% effective range) should be high enough to cause measurable oscillation
  * 5. After auto-tuning, you may want to reduce Ki slightly to reduce overshoot
  * 
  * Implementation details:
- * - AUTO_TUNE_CYCLES (10): Number of oscillation cycles to measure for averaging
+ * - AUTO_TUNE_CYCLES (20): Number of oscillation cycles to measure for averaging
  * - AUTO_TUNE_TIMEOUT (180s): Safety timeout to prevent indefinite tuning
- * - MIN_CYCLE_TIME (1000ms): Prevents false triggers from noise or sensor jitter
+ * - MIN_CYCLE_TIME (100ms): Prevents false triggers from noise or sensor jitter
  * - AUTOTUNE_NOISE_BAND (0.1): Deadband around setpoint to improve stability
+ * - AUTOTUNE_EFFECTIVE_AMPLITUDE (40%): Difference between max and min valve positions
  * 
  * After tuning, you can accept the parameters with "TUNE ACCEPT" or reject with "TUNE REJECT"
  */
@@ -374,14 +411,14 @@ float tuningAggressiveness = 1.2; // Multiplier for Kp/Ki (higher = more aggress
  * The auto-tuning process is controlled through the following serial commands:
  * 
  * 1. "TUNE START" - Initiates the auto-tuning process:
- *    - Saves the current setpoint and temporarily sets to AUTOTUNE_TEST_SETPOINT (3.0 bar)
+ *    - Saves the current setpoint and temporarily sets to AUTOTUNE_TEST_SETPOINT (configurable)
  *    - Switches to manual control mode
- *    - Begins applying relay outputs (alternating between 0% and 75%)
+ *    - Begins applying relay outputs (alternating between 50% and 90% valve duty)
  *    - Collects data on oscillation periods and amplitudes
  *    - Progress is reported in real-time via serial output
  * 
  * 2. During auto-tuning:
- *    - The tuning runs automatically for up to 3 minutes or 10 cycles
+ *    - The tuning runs automatically for up to 3 minutes or 20 cycles
  *    - The continuous data output will show "TUNING" if enabled with "STARTCD"
  *    - You can monitor the process through the pressure readings
  * 
@@ -393,6 +430,7 @@ float tuningAggressiveness = 1.2; // Multiplier for Kp/Ki (higher = more aggress
  * 4. After auto-tuning completes (or reaches timeout):
  *    - The system calculates optimal PID parameters
  *    - Displays the results (periods, amplitudes, Ku, Tu)
+ *    - Applies valve range compensation (2.5x for 50-90% range)
  *    - Proposes new Kp, Ki, and Kd values
  *    - Prompts for acceptance or rejection
  * 
@@ -404,7 +442,14 @@ float tuningAggressiveness = 1.2; // Multiplier for Kp/Ki (higher = more aggress
  *    - Reloads the previous PID parameters
  *    - No changes are saved
  * 
+ * Additional commands:
+ * - "TUNE SP x.x" - Set the auto-tuning test setpoint (0.5-10.0 bar)
+ * - "TUNE RULE n" - Select tuning rule (0-3)
+ * - "TUNE AGGR x.x" - Set aggressiveness factor (0.5-2.0)
+ * 
  * Example sequence for a complete auto-tuning process:
+ *   > TUNE SP 3.5           (optional: set test setpoint)
+ *   > TUNE RULE 1           (optional: select aggressive Z-N rule)
  *   > STARTCD               (optional: start continuous data output)
  *   > TUNE START            (start auto-tuning)
  *   ... system collects data and displays progress ...
@@ -421,28 +466,36 @@ void startAutoTune()
   
   // Set auto-tune setpoint and prepare system
   settings.setpoint = AUTOTUNE_TEST_SETPOINT;
-  
+
   // Initialize auto-tune variables
   autoTuneRunning = true;
   autoTuneStartTime = millis();
+
   lastTransitionTime = 0;
-  autoTuneState = false;
+  autoTuneState = false;  // Start with relay off
   currentCycle = 0;
   
-  // Set initial output state - Use raw percentage for clarity in reporting
-  autoTuneOutputValue = AUTOTUNE_RELAY_STEP_RAW;
+  // Initialize amplitude tracking
+  maxPressure = pressureInput;
+  minPressure = pressureInput;
+  firstCycleComplete = false;
+  // Set initial output state - Use high relay value for clarity in reporting
+  autoTuneOutputValue = max_auto_tune_cycle_pwm_value;
   
-  // Switch to manual mode
+  // Switch to manual mode for auto-tuning
   manualPWMMode = true;
   
-  // Apply initial output
-  float pwmValue = (autoTuneOutputValue / 100.0) * pwm_max_value;
-  ledcWrite(PWM_CHANNEL_MOSFET, mapPwmToValve(pwmValue, pwm_max_value));
-  
+  // Apply initial output - map to valve's effective range
+  uint32_t pwmValue = (uint32_t)((autoTuneOutputValue / 100.0) * pwm_max_value);
+
+  ledcWrite(PWM_CHANNEL_MOSFET, pwmValue);
+
   Serial.println("\n=== PID Auto-Tuning Started ===");
   Serial.printf("Target Setpoint: %.2f bar\n", settings.setpoint);
-  Serial.printf("Relay Output: %.1f%% (actual valve opening)\n", AUTOTUNE_RELAY_STEP_RAW);
-  Serial.println("Auto-tuning will run for up to 3 minutes or 10 complete cycles");
+  Serial.printf("Relay Output: %.1f%% - %.1f%% (valve effective range)\n", min_auto_tune_cycle_pwm_value, max_auto_tune_cycle_pwm_value);
+  Serial.printf("Valve operating range: %.1f%% - %.1f%%\n", VALVE_MIN_DUTY, VALVE_MAX_DUTY);
+  Serial.printf("Effective relay amplitude: %.1f%%\n", autotune_effective_amplitude);
+  Serial.println("Auto-tuning will run for up to 3 minutes or 20 complete cycles");
   Serial.println("Keep system stable and avoid disturbances during tuning");
 }
 
@@ -461,55 +514,56 @@ void stopAutoTune(bool calculateParameters = false)
     }
     
     float avgPeriod = (float)totalTime / currentCycle / 1000.0; // Convert to seconds
-    float avgAmplitude = totalAmplitude / currentCycle;
-    
-    // Calculate ultimate gain Ku and period Tu
-    // Use the AUTOTUNE_RELAY_STEP_RAW for calculations since that's the actual valve opening used
-    float Ku = (4.0 * AUTOTUNE_RELAY_STEP_RAW) / (3.14159 * avgAmplitude);
+    float avgAmplitude = totalAmplitude / currentCycle;    // Calculate ultimate gain Ku and period Tu
+    // Use the effective amplitude for calculations - the actual pressure swing amplitude
+    float effectiveAmplitude = max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value;
+    float Ku = (4.0 * effectiveAmplitude) / (3.141592 * avgAmplitude);
     float Tu = avgPeriod;
-    
-    // Calculate PID parameters based on selected tuning rule
+      // Calculate PID parameters based on selected tuning rule
     float newKp = 0.0, newKi = 0.0, newKd = 0.0;
     const char* ruleName = "";
+    
+    // Apply a scaling factor to compensate for limited valve range (50-90% instead of 0-100%)
+    float valveRangeCompensation = 100.0 / (VALVE_MAX_DUTY - VALVE_MIN_DUTY); // 100/40 = 2.5x
     
     switch (currentTuningRule) 
     {
       case ZIEGLER_NICHOLS_CLASSIC:
-        // Classic Ziegler-Nichols - balanced response
-        newKp = 0.6 * Ku;
-        newKi = 1.2 * Ku / Tu;
-        newKd = 0.075 * Ku * Tu;
+        // Classic Ziegler-Nichols - balanced response, scaled for valve range
+        newKp = 1.5 * Ku * valveRangeCompensation;
+        newKi = 3.0 * Ku / Tu * valveRangeCompensation;
+        newKd = 0.18 * Ku * Tu;
         ruleName = "Ziegler-Nichols Classic";
         break;
         
       case ZIEGLER_NICHOLS_AGGRESSIVE:
-        // Modified Ziegler-Nichols for faster response
-        newKp = 0.7 * Ku * tuningAggressiveness; // Higher proportional gain
-        newKi = 1.75 * Ku / Tu;                  // Stronger integral action
-        newKd = 0.085 * Ku * Tu;                 // Slightly more derivative
+        // Modified Ziegler-Nichols for faster response, scaled for valve range
+        newKp = 2.0 * Ku * tuningAggressiveness * valveRangeCompensation; // Much higher proportional gain
+        newKi = 4.5 * Ku / Tu * valveRangeCompensation;                  // Much stronger integral action
+        newKd = 0.25 * Ku * Tu;                                          // More derivative
         ruleName = "Ziegler-Nichols Aggressive";
         break;
         
       case TYREUS_LUYBEN:
-        // Tyreus-Luyben - more conservative with less overshoot
-        newKp = 0.45 * Ku;
-        newKi = 0.36 * Ku / Tu; // Much lower integral gain = slower response
-        newKd = 0.14 * Ku * Tu; // Higher derivative gain = more damping
+        // Tyreus-Luyben - more conservative but still scaled for valve range
+        newKp = 1.2 * Ku * valveRangeCompensation;
+        newKi = 1.0 * Ku / Tu * valveRangeCompensation; // Higher integral gain than before
+        newKd = 0.35 * Ku * Tu; // Higher derivative gain = more damping
         ruleName = "Tyreus-Luyben";
         break;
         
       case PESSEN_INTEGRAL:
-        // Pessen Integral Rule - aggressive for setpoint tracking
-        newKp = 0.7 * Ku;
-        newKi = 1.75 * Ku / Tu; // Higher integral action for fast setpoint tracking
-        newKd = 0.105 * Ku * Tu;
+        // Pessen Integral Rule - very aggressive for setpoint tracking
+        newKp = 2.2 * Ku * valveRangeCompensation;
+        newKi = 5.0 * Ku / Tu * valveRangeCompensation; // Very high integral action for fast setpoint tracking
+        newKd = 0.3 * Ku * Tu;
         ruleName = "Pessen Integral";
         break;
     }
-    
-    Serial.println("\n=== Auto-Tuning Results ===");
+      Serial.println("\n=== Auto-Tuning Results ===");
     Serial.printf("Average Period: %.2f seconds\n", avgPeriod);
     Serial.printf("Average Amplitude: %.2f bar\n", avgAmplitude);
+    Serial.printf("Valve Range Compensation: %.2fx\n", valveRangeCompensation);
     Serial.printf("Ultimate Gain (Ku): %.2f\n", Ku);
     Serial.printf("Ultimate Period (Tu): %.2f s\n", Tu);
     Serial.printf("Tuning Rule: %s\n", ruleName);
@@ -549,7 +603,7 @@ void stopAutoTune(bool calculateParameters = false)
   pid.SetMode(PID::Automatic);
 }
 
-void processAutoTune()
+void performAutoTune()
 {
   // Check if timeout occurred
   if (millis() - autoTuneStartTime > AUTO_TUNE_TIMEOUT)
@@ -566,58 +620,63 @@ void processAutoTune()
     stopAutoTune(true);
     return;
   }
-  
   // Relay oscillation logic
   if (!autoTuneState && pressureInput > settings.setpoint)
-  {
-    // Transition from low to high
-    unsigned long now = millis();
-    
-    // Debounce transitions to prevent noise
-    if (now - lastTransitionTime > MIN_CYCLE_TIME)
-    {
-      // Record cycle data if this isn't the first transition
-      if (lastTransitionTime > 0)
-      {
-        cycleTimes[currentCycle] = now - lastTransitionTime;
-        cycleAmplitudes[currentCycle] = pressureInput - (settings.setpoint - cycleAmplitudes[currentCycle]);
-        currentCycle++;
-        
-        Serial.printf("Cycle %d: Period=%.2fs, Amplitude=%.2f bar\n", 
-                      currentCycle, (now - lastTransitionTime)/1000.0, 
-                      cycleAmplitudes[currentCycle-1]);
-      }
-      else
-      {
-        // First transition, just store amplitude
-        cycleAmplitudes[0] = pressureInput - settings.setpoint;
-      }
-      
-      lastTransitionTime = now;
-      autoTuneState = true;
-      autoTuneOutputValue = 0; // Set output low
-      
-      // Apply the output - use direct PWM without percentage conversion
-      ledcWrite(PWM_CHANNEL_MOSFET, 0); // Completely closed
-    }
-  }
-  else if (autoTuneState && pressureInput < settings.setpoint - AUTOTUNE_NOISE_BAND)
   {
     // Transition from high to low
     unsigned long now = millis();
     
     // Debounce transitions to prevent noise
-    if (now - lastTransitionTime > MIN_CYCLE_TIME)
+    if (now - lastTransitionTime > min_cycle_time)
+    {
+      // Record cycle data if this isn't the first transition
+      if (lastTransitionTime > 0)
+      {
+        cycleTimes[currentCycle] = now - lastTransitionTime;
+        cycleAmplitudes[currentCycle] = maxPressure - minPressure;
+        currentCycle++;
+        
+        Serial.printf("Cycle %d: Period=%.2fs, Amplitude=%.2f bar (Max=%.2f, Min=%.2f)\n", 
+                      currentCycle, (now - lastTransitionTime)/1000.0, 
+                      cycleAmplitudes[currentCycle-1], maxPressure, minPressure);
+      } 
+      
+      lastTransitionTime = now;
+      autoTuneState = true;
+      autoTuneOutputValue = min_auto_tune_cycle_pwm_value; // Set output to low effective range
+      
+      // Reset amplitude tracking for next cycle
+      maxPressure = pressureInput;
+      minPressure = pressureInput;
+      
+      uint32_t pwmValue = (uint32_t)((autoTuneOutputValue / 100.0) * pwm_max_value);
+      ledcWrite(PWM_CHANNEL_MOSFET, pwmValue);
+    }
+  }
+  else if (autoTuneState && pressureInput < settings.setpoint - AUTOTUNE_NOISE_BAND)
+  {
+    // Transition from low to high
+    unsigned long now = millis();
+    
+    // Debounce transitions to prevent noise
+    if (now - lastTransitionTime > min_cycle_time)
     {
       lastTransitionTime = now;
       autoTuneState = false;
-      autoTuneOutputValue = AUTOTUNE_RELAY_STEP_RAW; // Set output high - use raw percentage
+      autoTuneOutputValue = max_auto_tune_cycle_pwm_value; // Set output high - use raw percentage
       
-      // Apply the output - calculate the direct PWM value for the desired valve opening
-      float mappedDuty = VALVE_MIN_DUTY + (AUTOTUNE_RELAY_STEP_RAW / 100.0) * (VALVE_MAX_DUTY - VALVE_MIN_DUTY);
-      uint32_t pwmValue = (uint32_t)((mappedDuty / 100.0) * pwm_max_value);
+      // Apply the output - calculate the direct PWM value for the desired valve opening (90%)
+
+      uint32_t pwmValue = (uint32_t)((autoTuneOutputValue / 100.0) * pwm_max_value);
       ledcWrite(PWM_CHANNEL_MOSFET, pwmValue);
     }
+  }
+  
+  // Track max and min pressures during oscillation
+  if (autoTuneRunning) 
+  {
+    if (pressureInput > maxPressure) maxPressure = pressureInput;
+    if (pressureInput < minPressure) minPressure = pressureInput;
   }
 }
 
@@ -657,6 +716,8 @@ void listFiles() {
                 LittleFS.totalBytes() / 1024.0);
   Serial.printf("Free space: %.2f KB\n", (LittleFS.totalBytes() - LittleFS.usedBytes()) / 1024.0);
 }
+
+
 
 // ====== Serial Command Parser ======
 void parseSerialCommand(String cmd)
@@ -759,29 +820,29 @@ void parseSerialCommand(String cmd)
   {
     showSettingsFromLittleFS();
   }
-  else if (cmd == "LISTFILES" || cmd == "DIR" || cmd == "LS")
+  else if (cmd == "DIR" )
   {
     listFiles();
   }
-  else if (cmd == "AW ON" || cmd == "AWON")
+  else if (cmd == "AW ON" )
   {
     settings.antiWindup = true;
     Serial.println("Anti-windup for deadband enabled");
     saveSettings();
   }
-  else if (cmd == "AW OFF" || cmd == "AWOFF")
+  else if (cmd == "AW OFF" )
   {
     settings.antiWindup = false;
     Serial.println("Anti-windup for deadband disabled");
     saveSettings();
   }
-  else if (cmd == "HYST ON" || cmd == "HYSTON")
+  else if (cmd == "HYST ON" )
   {
     settings.hysteresis = true;
     Serial.println("Hysteresis compensation enabled");
     saveSettings();
   }
-  else if (cmd == "HYST OFF" || cmd == "HYSTOFF")
+  else if (cmd == "HYST OFF" )
   {
     settings.hysteresis = false;
     Serial.println("Hysteresis compensation disabled");
@@ -794,40 +855,128 @@ void parseSerialCommand(String cmd)
     Serial.printf("Hysteresis compensation amount set to: %.1f%%\n", settings.hystAmount);
     saveSettings();
   }
+  else if (cmd.startsWith("TUNE SP "))
+  {
+    float newSetpoint = cmd.substring(8).toFloat();
+    AUTOTUNE_TEST_SETPOINT = constrain(newSetpoint, 0.5, 10.0);
+    Serial.printf("Auto-tuning test setpoint set to: %.1f bar\n", AUTOTUNE_TEST_SETPOINT);
+  }    else if (cmd.startsWith("SAMPLE "))
+  {
+    int newSampleTime = cmd.substring(7).toInt();
+    newSampleTime = constrain(newSampleTime, 1, 1000);
+    settings.pid_sample_time = newSampleTime; // Update the settings structure
+    pid.SetSampleTime(settings.pid_sample_time);
+    Serial.printf("PID sample time set to: %d ms (%.1f Hz)\n", settings.pid_sample_time, 1000.0/settings.pid_sample_time);
+    
+    // Check timing relationship and provide feedback
+    float controlPeriod = 1000.0 / settings.control_freq_hz;
+    float pidPeriod = settings.pid_sample_time;
+    if (controlPeriod > pidPeriod) {
+      Serial.printf("WARNING: Control period (%.1f ms) > PID period (%.1f ms) - PID limited to %.0f Hz\n", 
+                   controlPeriod, pidPeriod, settings.control_freq_hz);
+    } else if (controlPeriod < pidPeriod / 2) {
+      Serial.printf("INFO: Control freq much faster than PID - good for sensor resolution\n");
+    } else {
+      Serial.printf("OK: Control/PID timing balanced\n");
+    }
+    
+    saveSettings();
+  }
+  else if (cmd.startsWith("TUNE MIN "))
+  {
+    float newMin = cmd.substring(9).toFloat();
+    min_auto_tune_cycle_pwm_value = constrain(newMin, ValveConfig::VALVE_MIN_DUTY, max_auto_tune_cycle_pwm_value);
+    autotune_effective_amplitude = max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value;
+    // Update effective amplitude
+    Serial.printf("Auto-tuning minimum PWM set to: %.1f%%\n", min_auto_tune_cycle_pwm_value);
+    Serial.printf("Effective amplitude: %.1f%%\n", max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value);
+  }
+  else if (cmd.startsWith("TUNE MAX "))
+  {
+    float newMax = cmd.substring(9).toFloat();
+    max_auto_tune_cycle_pwm_value = constrain(newMax, min_auto_tune_cycle_pwm_value, ValveConfig::VALVE_MAX_DUTY);
+    autotune_effective_amplitude = max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value;
+    // Update effective amplitude
+    Serial.printf("Auto-tuning maximum PWM set to: %.1f%%\n", max_auto_tune_cycle_pwm_value);
+    Serial.printf("Effective amplitude: %.1f%%\n", max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value);
+  }  else if (cmd.startsWith("TUNE CYCLE "))
+  {
+    unsigned long newCycleTime = cmd.substring(11).toInt();
+    min_cycle_time = constrain(newCycleTime, 50UL, 2000UL);
+    Serial.printf("Auto-tuning minimum cycle time set to: %lu ms\n", min_cycle_time);
+    Serial.printf("This prevents noise-triggered transitions during auto-tuning\n");
+  }  else if (cmd.startsWith("CONTROL FREQ "))
+  {
+    int new_freq = cmd.substring(13).toInt();
+    settings.control_freq_hz = constrain(new_freq, 10, 1000); // Max 1000 Hz
+    Serial.printf("Control loop frequency updated to: %d Hz (period: %.1f ms)\n", 
+                 settings.control_freq_hz, 1000.0/settings.control_freq_hz);
+    
+    // Check timing relationship and provide feedback
+    float controlPeriod = 1000.0 / settings.control_freq_hz;
+    float pidPeriod = settings.pid_sample_time;
+    if (controlPeriod > pidPeriod) {
+      Serial.printf("WARNING: Control period (%.1f ms) > PID period (%.1f ms) - PID limited to %.0f Hz\n", 
+                   controlPeriod, pidPeriod, settings.control_freq_hz);
+    } else if (controlPeriod < pidPeriod / 2) {
+      Serial.printf("INFO: Control freq much faster than PID - good for sensor resolution\n");
+    } else {
+      Serial.printf("OK: Control/PID timing balanced\n");
+    }
+    
+    saveSettings();
+  }
   else if (cmd == "HELP")
   {
     Serial.println(
-      "\n=== Serial Command Help ==="
+      "\n=== Serial Command Help === All commands are case-insensitive."
+      "\n--- PID Control ---"
       "\nKP 0.5     Set proportional gain"
       "\nKI 0.1     Set integral gain"
       "\nKD 0.01    Set derivative gain"
-      "\nFLT 0.2    Set filter strength (0.0-1.0)"
       "\nSP 3.0     Set pressure setpoint (bar)"
+      "\nSAMPLE 10  Set PID sample time (1-1000 ms)"
+      "\nRESET      Reset PID controller (clear integral windup and state)"
+      "\n"
+      "\n--- Signal Processing ---"
+      "\nFLT 0.2    Set filter strength (0.0-1.0)"
+      "\nAW ON/OFF  Enable/disable anti-windup for deadband"
+      "\nHYST ON/OFF Enable/disable hysteresis compensation"
+      "\nHYSTAMT 5  Set hysteresis compensation amount (%)"
+      "\n"
+      "\n--- PWM Control ---"
       "\nFREQ 1000  Set PWM frequency (100-10000Hz)"
       "\nRES 8      Set PWM resolution (1-16 bits)"
-      "\nAW ON      Enable anti-windup for deadband"
-      "\nAW OFF     Disable anti-windup for deadband"
-      "\nHYST ON    Enable hysteresis compensation"
-      "\nHYST OFF   Disable hysteresis compensation"
-      "\nHYSTAMT 5  Set hysteresis compensation amount (%)"
+      "\nPWM 25     Force PWM duty cycle (0-100%) for testing"
+      "\nRESUME     Resume normal PID control after manual PWM"
+      "\n"
+      "\n--- Control Loop ---"
+      "\nCONTROL FREQ 1000 Set control loop frequency (10-1000 Hz)"
+      "\n"
+      "\n--- Auto-Tuning ---"
       "\nTUNE START Start PID auto-tuning process"
       "\nTUNE STOP  Cancel auto-tuning process"
       "\nTUNE ACCEPT Accept auto-tuned PID parameters"
       "\nTUNE REJECT Reject auto-tuned PID parameters"
-      "\nPWM 25     Force PWM duty cycle (0-100%) for testing"
-      "\nRESUME     Resume normal PID control after manual PWM control"
-      "\nRESET      Reset PID controller (clear integral windup and state)"
-      "\nREAD       Read and display settings stored in flash"
-      "\nLISTFILES  List all files in flash memory with sizes"
+      "\nTUNE SP 3.0 Set auto-tuning test setpoint (0.5-10.0 bar)"
+      "\nTUNE MIN 65 Set auto-tuning minimum PWM (50-90%)"
+      "\nTUNE MAX 85 Set auto-tuning maximum PWM (60-95%)"
+      "\nTUNE CYCLE 100 Set min cycle time for auto-tuning (50-2000ms)"
+      "\nTUNE RULE n Select auto-tuning rule (0-3, see TUNE RULES)"
+      "\nTUNE AGGR x Set tuning aggressiveness (0.5-2.0)"
+      "\nTUNE RULES  Show available tuning rules"
+      "\n"
+      "\n--- System & Data ---"
       "\nSTATUS     Show current parameters"
       "\nSAVE       Force save settings to flash"
+      "\nREAD       Read settings stored in flash"
       "\nSTARTCD    Start continuous data output for plotting"
       "\nSTOPCD     Stop continuous data output"
-      "\nVER        Display firmware version and build timestamp"
+      "\nPAGE ON     Enable web server processing"
+      "\nPAGE OFF    Disable web server processing"
+      "\nDIR        List all files in flash memory with sizes"
+      "\nVER        Display firmware version and build info"
       "\nHELP       Show this help message"
-      "\nTUNE RULE n Select auto-tuning rule (0-3, see TUNE RULES)"
-      "\nTUNE AGGR x Set tuning aggressiveness (0.5-2.0), only for Z-N Aggressive"
-      "\nTUNE RULES  Show available tuning rules"
     );
   }
   else if (cmd == "STATUS")
@@ -839,6 +988,36 @@ void parseSerialCommand(String cmd)
     Serial.println("Pressure Control:");
     Serial.printf("  Current Pressure: %.2f bar\n", pressureInput);
     Serial.printf("  Setpoint: %.2f bar\n", settings.setpoint);
+    Serial.printf("  Control Loop Freq: %d Hz (period: %.1f ms)\n", 
+                 settings.control_freq_hz, 1000.0/settings.control_freq_hz);
+    Serial.printf("  Auto-Tune Test Setpoint: %.2f bar\n", AUTOTUNE_TEST_SETPOINT);
+    Serial.printf("  Auto-Tune PWM Range: %.1f%% - %.1f%% (amplitude: %.1f%%)\n", 
+                 min_auto_tune_cycle_pwm_value, max_auto_tune_cycle_pwm_value,
+                 max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value);
+    Serial.printf("  Auto-Tune Min Cycle Time: %lu ms\n", min_cycle_time);
+    
+    // Sensor Information section
+    Serial.println("\nSensor Information:");
+    Serial.printf("  ADC Source: %s\n", ads_found ? "ADS1015" : "ESP32 Internal");
+    if (ads_found) {
+      Serial.printf("  ADS1015 Address: 0x%02X\n", ADS1015_I2C_ADDRESS);
+      Serial.printf("  ADS1015 Channel: %d\n", ADC_CHANNEL);
+      const char* gainStr = (ADS1015_GAIN == GAIN_TWOTHIRDS) ? "GAIN_TWOTHIRDS (+/-6.144V)" :
+                           (ADS1015_GAIN == GAIN_ONE) ? "GAIN_ONE (+/-4.096V)" :
+                           (ADS1015_GAIN == GAIN_TWO) ? "GAIN_TWO (+/-2.048V)" :
+                           (ADS1015_GAIN == GAIN_FOUR) ? "GAIN_FOUR (+/-1.024V)" :
+                           (ADS1015_GAIN == GAIN_EIGHT) ? "GAIN_EIGHT (+/-0.512V)" :
+                           (ADS1015_GAIN == GAIN_SIXTEEN) ? "GAIN_SIXTEEN (+/-0.256V)" : "Unknown";
+      Serial.printf("  Gain Setting: %s\n", gainStr);
+    } else {
+      Serial.printf("  Fallback Pin: %d\n", FALLBACK_ANALOG_PIN);
+    }
+    Serial.printf("  Raw ADC Value: %d\n", adc_value);
+    Serial.printf("  Voltage: %.3f V\n", voltage);
+    Serial.printf("  Raw Pressure: %.3f bar\n", raw_pressure);
+    Serial.printf("  Filtered Pressure: %.3f bar\n", filtered_pressure);
+    Serial.printf("  Voltage Range: %.1fV - %.1fV\n", MIN_VOLTAGE, MAX_VOLTAGE);
+    Serial.printf("  Pressure Range: %.1f - %.1f bar\n", SENSOR_MIN_BAR, SENSOR_MAX_BAR);
     
     // PWM Output section
     Serial.println("\nPWM Output:");
@@ -849,11 +1028,11 @@ void parseSerialCommand(String cmd)
     Serial.printf("  Frequency: %d Hz\n", settings.pwm_freq);
     Serial.printf("  Control Mode: %s\n", manualPWMMode ? "MANUAL" : "PID");
     Serial.printf("  Solenoid Pin: %d\n", SOLENOID_PIN);
-    
-    // PID Configuration section
+      // PID Configuration section
     Serial.println("\nPID Configuration:");
     Serial.printf("  Kp=%.2f, Ki=%.2f, Kd=%.2f\n", 
                  settings.Kp, settings.Ki, settings.Kd);
+    Serial.printf("  Sample Time: %d ms (%.1f Hz)\n", settings.pid_sample_time, 1000.0/settings.pid_sample_time);
     Serial.printf("  Filter Strength: %.2f\n", settings.filter_strength);
     Serial.printf("  Anti-Windup: %s\n", settings.antiWindup ? "Enabled" : "Disabled");
     Serial.printf("  Hysteresis Comp: %s (%.1f%%)\n", 
@@ -862,6 +1041,7 @@ void parseSerialCommand(String cmd)
     // Network section
     Serial.println("\nNetwork:");
     Serial.printf("  IP: %s\n", WiFi.softAPIP().toString().c_str());
+    Serial.printf("  Web Server: %s\n", webServerEnabled ? "Enabled" : "Disabled");
   }
   else if (cmd == "SAVE")
   {
@@ -877,6 +1057,16 @@ void parseSerialCommand(String cmd)
   {
     Serial.println("Stopping output for Continuous Data");
     continousValueOutput = false;
+  }
+  else if (cmd == "PAGE ON")
+  {
+    webServerEnabled = true;
+    Serial.println("Web server processing enabled");
+  }
+  else if (cmd == "PAGE OFF")
+  {
+    webServerEnabled = false;
+    Serial.println("Web server processing disabled");
   }
   else if (cmd == "VER")
   {
@@ -983,6 +1173,11 @@ void parseSerialCommand(String cmd)
     Serial.println("2 - Tyreus-Luyben: Less overshoot, slower recovery");
     Serial.println("3 - Pessen Integral: Fast setpoint tracking");
     Serial.printf("\nCurrent Rule: %d, Aggressiveness: %.1f\n", currentTuningRule, tuningAggressiveness);
+    Serial.printf("Auto-Tune Test Setpoint: %.1f bar\n", AUTOTUNE_TEST_SETPOINT);
+    Serial.printf("Auto-Tune PWM Range: %.1f%% - %.1f%% (amplitude: %.1f%%)\n", 
+                 min_auto_tune_cycle_pwm_value, max_auto_tune_cycle_pwm_value,
+                 max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value);
+    Serial.printf("Auto-Tune Min Cycle Time: %lu ms\n", min_cycle_time);
   }
   else
   {
@@ -1082,6 +1277,189 @@ void onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
   }
 }
 
+// Create the control task function
+void controlTask(void* parameter) 
+{
+    TickType_t lastWakeTime = xTaskGetTickCount();
+    
+    // Use configurable frequency
+    TickType_t frequency = pdMS_TO_TICKS(1000 / settings.control_freq_hz);
+    
+    static unsigned long lastCycleEnd = 0;
+    
+    while(true) 
+    {
+        // Update frequency if settings changed
+        frequency = pdMS_TO_TICKS(1000 / settings.control_freq_hz);
+        
+        unsigned long taskStartTime = micros();
+        
+        // ====== Sensor Reading and PID Update ======
+        if (ads_found)
+        {
+            adc_value = ads.readADC_SingleEnded(ADC_CHANNEL);
+            voltage = ads.computeVolts(adc_value);
+        }
+        else
+        {
+            // Use ESP32 built-in ADC as fallback
+            adc_value = analogRead(FALLBACK_ANALOG_PIN);
+            voltage = adc_value * (3.3 / 4095.0); // Assuming 3.3V reference
+        }
+
+        // Calculate pressure from voltage
+        raw_pressure = calculatePressure(voltage);
+     
+        // Apply low-pass filter
+        filtered_pressure = lowPassFilter(raw_pressure);
+        
+        // Save last pressure before updating, used for hysteresis compensation
+        lastPressure = pressureInput;
+        
+        // Update Input value for PID before computation
+        pressureInput = filtered_pressure;
+
+        // ====== Analog Pressure Signal Output =====
+        static unsigned long lastAnalogOutTime = 0;
+        if (millis() - lastAnalogOutTime >= 10)
+        { 
+            // Output analog pressure signal to ANALOG_PRESS_PIN
+            ledcWrite(PWM_CHANNEL_ANALOG_PRESS, (uint32_t)(pressureInput/SENSOR_MAX_VALUE*pwm_analog_pressure_signal_pwm_res));   
+            lastAnalogOutTime = millis();
+        }
+
+        // Process auto-tuning if active
+        if (autoTuneRunning)
+        {
+            performAutoTune();
+        }
+        // PID calculation and PWM output (only if not in auto-tune mode)
+        else if (!manualPWMMode) 
+        {
+            // Store previous output for anti-windup check
+            double previousOutput = pwmOutput;
+            
+            // Constrain output to valid range
+            pwmOutput = constrain(pwmOutput, 0, pwm_max_value);
+
+            // Compute PID output
+            pid.Compute();
+            
+            // Anti-windup for deadband and saturation
+            if (settings.antiWindup) 
+            {
+                float pidPercent = (pwmOutput / pwm_max_value) * 100.0;
+                
+                if ((pidPercent < VALVE_MIN_DUTY && pwmOutput > previousOutput) ||
+                    (pidPercent > VALVE_MAX_DUTY && pwmOutput > previousOutput)) 
+                {
+                    // Reset the PID to prevent integral accumulation
+                    pid.SetMode(PID::Manual);
+                    pid.SetMode(PID::Automatic);
+                    
+                    // Optional debug output if continuous output is enabled
+                    static unsigned long lastDebugTime = 0;
+                    if (continousValueOutput && (millis() - lastDebugTime >= SERIAL_OUTPUT_INTERVAL)) {
+                        if (pidPercent < VALVE_MIN_DUTY) 
+                        {
+                            Serial.println("Anti-windup: Below min duty cycle");
+                        } else 
+                        {
+                            Serial.println("Anti-windup: Above max duty cycle");
+                        }
+                        lastDebugTime = millis();
+                    }
+                }
+            }
+
+            // Use the mapping function to get actual PWM value to apply
+            uint32_t actualPwm = mapPwmToValve(pwmOutput, pwm_max_value);
+            ledcWrite(PWM_CHANNEL_MOSFET, actualPwm);
+        }
+
+        // ====== Emergency Shutdown ======
+        if (pressureInput > SENSOR_MAX_BAR * 1.1)
+        {
+            // Stop PWM output
+            ledcWrite(PWM_CHANNEL_MOSFET, 0);
+            
+            static unsigned long lastEmergencyMsgTime = 0;
+            if (millis() - lastEmergencyMsgTime >= 1000) 
+            {
+                Serial.println("EMERGENCY SHUTDOWN! Pressure exceeds safe limit.");
+                lastEmergencyMsgTime = millis();
+            }
+        }
+
+        // ====== Continuous Data Output ======
+        static unsigned long lastContinuousOutputTime = 0;
+        unsigned long deltaTimeContinuous = millis() - lastContinuousOutputTime;
+        
+        if(continousValueOutput == true && (deltaTimeContinuous >= SERIAL_OUTPUT_INTERVAL))
+        {
+            // Calculate execution time for this task iteration
+            unsigned long taskExecTime = micros() - taskStartTime;
+            
+            // Calculate total time including wait time from previous cycle
+            
+            unsigned long totalCycleTime = 0;
+            if (lastCycleEnd > 0) 
+            {
+                totalCycleTime = taskStartTime - lastCycleEnd;
+            }
+            
+            
+            // Format all data at once using a single buffer
+            char buffer[120];
+            
+            int len = snprintf(buffer, sizeof(buffer),
+              "voltage=%.3f, error=%.3f, press=%.3f, setPress=%.3f, PWM%%=%.3f, t=%.2f, exec=%lu, total=%lu, task=CTRL%s\r\n",
+              voltage,
+              settings.setpoint - pressureInput,
+              pressureInput,
+              settings.setpoint,
+              (autoTuneRunning ? autoTuneOutputValue : (pwmOutput/pwm_max_value)*100.0),
+              xTaskGetTickCount() * portTICK_PERIOD_MS / 1000.0, // Convert ticks to seconds
+              taskExecTime, // Task execution time in microseconds
+              totalCycleTime, // Total cycle time in microseconds (execution + wait)
+              autoTuneRunning ? ", TUNING" : "");
+
+            // Send the entire buffer in one operation
+            Serial.write(buffer, len);
+
+            lastContinuousOutputTime = millis();
+        }
+        
+        // Wait for next cycle - this properly yields to other tasks
+        vTaskDelayUntil(&lastWakeTime, frequency);
+        lastCycleEnd = taskStartTime; // Update last cycle start time
+    }
+}
+
+// Create the network task function
+void networkTask(void* parameter) 
+{
+    while(true) 
+    {
+        if (webServerEnabled) 
+        {
+            unsigned long netStart = micros();
+            
+            dnsServer.processNextRequest();
+            server.handleClient();
+            
+            unsigned long netTime = micros() - netStart;
+            if (netTime > 20000) 
+            { // Log if >20ms
+                // Serial.printf("Network delay: %lu us (Core 0)\n", netTime);
+            }
+        }
+        
+        // Small delay to prevent watchdog timeout and allow other tasks
+        vTaskDelay(pdMS_TO_TICKS(2)); // 2ms delay = ~500Hz update rate
+    }
+}
+
 // ====== Arduino Setup Function ======
 void setup()
 {
@@ -1092,12 +1470,16 @@ void setup()
   Serial.println("Ventcon System Starting...");
   Serial.println("====================================================");
   
+  // Set I2C bus speed to 100 kHz for ADS1015
+  Wire.setClock(100000);
+  
   // Try to initialize ADS1015 for up to 2 seconds
   unsigned long ads_start = millis();
   ads_found = false;
+
   while (millis() - ads_start < 2000)
   {
-    if (ads.begin(ADS1015_I2C_ADDRESS))
+    if (ads.begin(ADS1015_I2C_ADDRESS,&Wire))
     {
       ads_found = true;
       // Set ADS1015 gain and data rate after detection
@@ -1138,12 +1520,32 @@ void setup()
   // Start WiFi AP and DNS server for captive portal
   WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
   WiFi.softAP(ap_ssid, ap_password);
-  dnsServer.start(53, "*", ap_ip);
-  
+  dnsServer.start(53, "*", ap_ip);  // Create network task on Core 0
+  xTaskCreatePinnedToCore(
+        networkTask,           // Task function
+        "NetworkTask",         // Task name
+        4096,                  // Stack size (bytes)
+        NULL,                  // Parameter passed to task
+        1,                     // Task priority (1 = low, higher number = higher priority)
+        &networkTaskHandle,    // Task handle
+        0                      // Core 0
+  );
+
+  // Create control task on Core 1
+  xTaskCreatePinnedToCore(
+        controlTask,           // Task function
+        "ControlTask",         // Task name
+        4096,                  // Stack size (bytes)
+        NULL,                  // Parameter passed to task
+        2,                     // Task priority (2 = higher than network)
+        &controlTaskHandle,    // Task handle
+        1                      // Core 1
+  );
+
   // Initialize PID 
   pid.SetMode(PID::Automatic);
   pid.SetOutputLimits(0, pwm_max_value);
-  pid.SetSampleTime(SAMPLE_TIME); // Set PID sample time to 20ms (50Hz update rate)
+  pid.SetSampleTime(settings.pid_sample_time); // Use settings value for consistency
 
   // Use the new setup function for web handlers
   setupWebHandlers();
@@ -1161,127 +1563,6 @@ void setup()
 // ====== Arduino Main Loop ======
 void loop()
 {
-
-  
-  // ====== DNS and Web Server Processing ======
-  dnsServer.processNextRequest();
-  server.handleClient();
-
-  // ====== Sensor Reading and PID Update ======
-  int adc_value;
-
-  if (ads_found)
-  {
-    int16_t adc_raw = ads.readADC_SingleEnded(ADC_CHANNEL);
-    // Remove redundant second reading that isn't used
-    voltage = ads.computeVolts(adc_raw);
-  }
-  else
-  {
-    // Use ESP32 built-in ADC as fallback
-    adc_value = analogRead(FALLBACK_ANALOG_PIN);
-
-    voltage = adc_value * (3.3 / 4095.0); // Assuming 3.3V reference
-  }
-
-  // Calculate pressure from voltage
-  raw_pressure = calculatePressure(voltage);
- 
-  // Apply low-pass filter
-  filtered_pressure = lowPassFilter(raw_pressure);
-  
-  // Save last pressure before updating, used for hysteresis compensation
-  lastPressure = pressureInput;
-  
-  // Update Input value for PID before computation
-  pressureInput = filtered_pressure;
-
-  // ====== Analog Pressure Signal Output =====
-  if (millis()-lastAnalogOutPressureSignalTime >= 10)
-  { 
-    // Output analog pressure signal to ANALOG_PRESS_PIN
-    // Scale pressureInput to PWM range
-    // Use SENSOR_MAX_VALUE to ensure it fits within the PWM resolution
-    
-    ledcWrite(PWM_CHANNEL_ANALOG_PRESS, (uint32_t)(pressureInput/SENSOR_MAX_VALUE*pwm_analog_pressure_signal_pwm_res));   
-    lastAnalogOutPressureSignalTime = millis();
-  }
-
-  // Process auto-tuning if active
-  if (autoTuneRunning)
-  {
-    processAutoTune();
-  }
-  // PID calculation and PWM output (only if not in auto-tune mode)
-  else if (!manualPWMMode) 
-  {
-    // Store previous output for anti-windup check
-    double previousOutput = pwmOutput;
-    
-    // Compute PID output
-    pid.Compute();
-    
-    // Constrain output to valid range
-    pwmOutput = constrain(pwmOutput, 0, pwm_max_value);
-    
-    // Anti-windup for deadband and saturation: 
-    // If enabled, check if we're in the deadband or above max effective duty and prevent integral accumulation
-    if (settings.antiWindup) 
-    {
-      float pidPercent = (pwmOutput / pwm_max_value) * 100.0;
-      
-      // If we're below the valve's minimum effective duty cycle and trying to increase output
-      if ((pidPercent < VALVE_MIN_DUTY && pwmOutput > previousOutput) ||
-          // OR if we're above the valve's maximum effective duty cycle and still trying to increase
-          (pidPercent > VALVE_MAX_DUTY && pwmOutput > previousOutput)) 
-      {
-        // Reset the PID to prevent integral accumulation
-        pid.SetMode(PID::Manual);
-        pid.SetMode(PID::Automatic);
-        
-        // Optional debug output if continuous output is enabled
-        if (continousValueOutput && deltaTimecontinousValueOutput >= SERIAL_OUTPUT_INTERVAL) {
-          if (pidPercent < VALVE_MIN_DUTY) 
-          {
-            Serial.println("Anti-windup: Below min duty cycle");
-          } else 
-          {
-            Serial.println("Anti-windup: Above max duty cycle");
-          }
-        }
-      }
-    }
-
-
-    
-    // Use the mapping function to get actual PWM value to apply
-    uint32_t actualPwm = mapPwmToValve(pwmOutput, pwm_max_value);
-    ledcWrite(PWM_CHANNEL_MOSFET, actualPwm);
-
-
-
-  }
-
-
-
-  // We don't set PWM here if in manual mode since it was set directly in the command handler
-
-  // ====== Emergency Shutdown ======
-  if (pressureInput > SENSOR_MAX_BAR * 1.1)
-  {
-    // Stop PWM output
-    ledcWrite(PWM_CHANNEL_MOSFET, 0);
-    
-    // Use non-blocking approach instead of delay
-
-    static unsigned long lastEmergencyMsgTime = 0;
-    if (millis() - lastEmergencyMsgTime >= 1000) 
-    {
-      Serial.println("EMERGENCY SHUTDOWN! Pressure exceeds safe limit.");
-      lastEmergencyMsgTime = millis();
-    }
-  }
-
   // ====== Serial Command Processing ======
   static String serialBuffer;
   while (Serial.available())
@@ -1297,35 +1578,10 @@ void loop()
       serialBuffer += c; // Append character to buffer
     }
   }
-    
-  // ====== Continuous Serial Output ======
-  unsigned long now_micros = micros();
-  deltaTimeMainLoop = now_micros - lastMainLoopTime;
-  lastMainLoopTime = now_micros;
-
-  deltaTimecontinousValueOutput = millis() - lastcontinousValueOutputTime;
-
   
-  if(continousValueOutput == true && (deltaTimecontinousValueOutput >= SERIAL_OUTPUT_INTERVAL))
-  {
-    // Format all data at once using a single buffer
-    char buffer[100]; // Buffer size to fit all data
-    
-    int len = snprintf(buffer, sizeof(buffer),
-      "voltage=%.3f, press=%.3f, setPress=%.3f, PWM%%=%.3f, t=%.2f, dt=%lu%s\r\n",
-      voltage,
-      pressureInput,
-      settings.setpoint,
-      (autoTuneRunning ? autoTuneOutputValue : (pwmOutput/pwm_max_value)*100.0),
-      lastMainLoopTime / 1000000.0, // Convert micros to seconds
-      deltaTimeMainLoop, // Now formatted as unsigned long in microseconds
-      autoTuneRunning ? ", TUNING" : "");
-
-    // Send the entire buffer in one operation
-    Serial.write(buffer, len);
-
-    lastcontinousValueOutputTime = millis();
-  }
-  
+  // Small delay to prevent watchdog timeout and allow other tasks
+  vTaskDelay(pdMS_TO_TICKS(10)); // 10ms delay - serial commands don't need high frequency
 }
+
+
 

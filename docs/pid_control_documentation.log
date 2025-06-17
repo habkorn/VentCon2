@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  10 JUN 2025 15:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  16 JUN 2025 10:53
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -581,13 +581,13 @@ Overfull \hbox (13.7496pt too wide) in paragraph at lines 63--64
 []\OT1/cmr/m/n/10 This doc-u-ment de-scribes the im-ple-men-ta-tion of the PID (Proportional-
  []
 
-(pid_control_documentation.toc)
+(pid_control_documentation.toc [1
+
+{C:/Users/thomas.haberkorn/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}])
 \tf@toc=\write5
 \openout5 = `pid_control_documentation.toc'.
 
- [1
-
-{C:/Users/thomas.haberkorn/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}] (C:\Program Files\MiKTeX\tex/latex/listings\lstlang1.sty
+ (C:\Program Files\MiKTeX\tex/latex/listings\lstlang1.sty
 File: lstlang1.sty 2023/02/27 1.9 listings language file
 ) (C:\Program Files\MiKTeX\tex/latex/listings\lstlang1.sty
 File: lstlang1.sty 2023/02/27 1.9 listings language file
@@ -595,51 +595,66 @@ File: lstlang1.sty 2023/02/27 1.9 listings language file
 File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
 )
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 94.
- [2] [3] [4] [5] [6] [7] [8]
-Overfull \hbox (60.91246pt too wide) in paragraph at lines 399--400
+ [2] [3] [4]
+Overfull \hbox (75.65216pt too wide) in paragraph at lines 257--258
+ [][] 
+ []
+
+[5] [6] [7]
+Overfull \hbox (4.15416pt too wide) in paragraph at lines 352--366
+ [][] 
+ []
+
+
+Overfull \hbox (104.25592pt too wide) detected at line 378
+[][][][] \OT1/cmr/m/n/10.95 = [] = [] = 2\OML/cmm/m/it/10.95 :\OT1/cmr/m/n/10.95 5
+ []
+
+[8] [9] [10] [11]
+Overfull \hbox (60.91246pt too wide) in paragraph at lines 560--561
 []\OT1/cmr/m/n/10.95 Performance can be af-fected by noise (mit-i-gated with AU-TO-TUNE[]NOISE[]BAND) 
  []
 
-[9]
-Underfull \hbox (badness 2591) in paragraph at lines 465--469
+[12]
+Underfull \hbox (badness 2591) in paragraph at lines 626--630
 []\OT1/cmr/m/n/10.95 MathWorks (2023).  PID Tun-ing Al-go-rithms.  [][]$\OT1/cmtt/m/n/10.95 https : / / www .
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 465--469
+Underfull \hbox (badness 10000) in paragraph at lines 626--630
 \OT1/cmtt/m/n/10.95 mathworks . com / help / control / ug / pid-[]tuning-[]algorithms . html$[][]
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 477--481
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 638--642
 []\OT1/cmr/m/n/10.95 National In-stru-ments (2023).  PID the-ory ex-plained.
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 477--481
+Underfull \hbox (badness 10000) in paragraph at lines 638--642
 [][]$\OT1/cmtt/m/n/10.95 https : / / www . ni . com / en-[]us / innovations / white-[]papers / 06 /
  []
 
-[10] (pid_control_documentation.aux)
+[14] (pid_control_documentation.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
  ***********
 Package rerunfilecheck Info: File `pid_control_documentation.out' has not changed.
-(rerunfilecheck)             Checksum: 079BF4D1FD38F6D19912E15D02D3BD53;3028.
+(rerunfilecheck)             Checksum: D0C8C211E1BB1B9BF1F33C7E7EE1F8FF;4103.
  ) 
 Here is how much of TeX's memory you used:
- 33470 strings out of 474486
- 772168 string characters out of 5753537
- 2062542 words of memory out of 5000000
- 55154 multiletter control sequences out of 15000+600000
+ 33581 strings out of 474486
+ 774058 string characters out of 5753537
+ 2060542 words of memory out of 5000000
+ 55233 multiletter control sequences out of 15000+600000
  565767 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 99i,19n,101p,844b,2207s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on pid_control_documentation.pdf (10 pages, 256576 bytes).
+ 99i,19n,101p,844b,2217s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1095.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr6.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
+Output written on pid_control_documentation.pdf (14 pages, 293667 bytes).
 PDF statistics:
- 368 PDF objects out of 1000 (max. 8388607)
- 123 named destinations out of 1000 (max. 500000)
- 165 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 445 PDF objects out of 1000 (max. 8388607)
+ 155 named destinations out of 1000 (max. 500000)
+ 205 words of extra memory for PDF output out of 10000 (max. 10000000)
 

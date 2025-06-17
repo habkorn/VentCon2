@@ -1,7 +1,7 @@
 #pragma once
 
 // System Version
-#define VENTCON_VERSION "2.1.0"
+#define VENTCON_VERSION "2.1.2"
 
 // Network Configuration
 namespace NetworkConfig 
@@ -25,10 +25,10 @@ namespace HardwareConfig
 namespace SensorConfig 
 {
     constexpr int ADC_CHANNEL = 0;
-    constexpr float MIN_VOLTAGE = 2.0f;
-    constexpr float MAX_VOLTAGE = 4.09f;
+    constexpr float MIN_VOLTAGE = 0.5f;
+    constexpr float MAX_VOLTAGE = 4.50f;
     constexpr float SENSOR_MIN_BAR = 0.0f;
-    constexpr float SENSOR_MAX_BAR = 7.5f;
+    constexpr float SENSOR_MAX_BAR = 10.f;
 }
 
 // Valve Configuration
