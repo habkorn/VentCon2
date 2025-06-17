@@ -5,6 +5,10 @@
 #include <ArduinoJson.h>
 #include <PID_v2.h>
 #include <Adafruit_ADS1X15.h>
+#include "esp_system.h"
+#include "esp_heap_caps.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "WebContent.h"
 #include "Constants.h"  // Add this include
 
@@ -824,6 +828,51 @@ void parseSerialCommand(String cmd)
   {
     listFiles();
   }
+  else if (cmd == "MEM")
+  {
+    Serial.println("\n=== Memory Information ===");
+    
+    // Heap memory information
+    size_t freeHeap = ESP.getFreeHeap();
+    size_t totalHeap = ESP.getHeapSize();
+    size_t usedHeap = totalHeap - freeHeap;
+    size_t minFreeHeap = ESP.getMinFreeHeap();
+    size_t maxAllocHeap = ESP.getMaxAllocHeap();
+    
+    Serial.printf("Heap Memory:\n");
+    Serial.printf("  Total: %u bytes (%.1f KB)\n", totalHeap, totalHeap / 1024.0);
+    Serial.printf("  Used:  %u bytes (%.1f KB, %.1f%%)\n", 
+                 usedHeap, usedHeap / 1024.0, (usedHeap * 100.0) / totalHeap);
+    Serial.printf("  Free:  %u bytes (%.1f KB, %.1f%%)\n", 
+                 freeHeap, freeHeap / 1024.0, (freeHeap * 100.0) / totalHeap);
+    Serial.printf("  Min Free: %u bytes (%.1f KB)\n", minFreeHeap, minFreeHeap / 1024.0);
+    Serial.printf("  Max Alloc: %u bytes (%.1f KB)\n", maxAllocHeap, maxAllocHeap / 1024.0);
+    
+    // Flash memory information (LittleFS)
+    size_t totalFS = LittleFS.totalBytes();
+    size_t usedFS = LittleFS.usedBytes();
+    size_t freeFS = totalFS - usedFS;
+    
+    Serial.printf("\nFlash Storage (LittleFS):\n");
+    Serial.printf("  Total: %u bytes (%.1f KB)\n", totalFS, totalFS / 1024.0);
+    Serial.printf("  Used:  %u bytes (%.1f KB, %.1f%%)\n", 
+                 usedFS, usedFS / 1024.0, (usedFS * 100.0) / totalFS);
+    Serial.printf("  Free:  %u bytes (%.1f KB, %.1f%%)\n", 
+                 freeFS, freeFS / 1024.0, (freeFS * 100.0) / totalFS);
+    
+    // Task information
+    Serial.printf("\nTask Information:\n");
+    Serial.printf("  Control Task Stack: %u bytes free\n", uxTaskGetStackHighWaterMark(controlTaskHandle));
+    Serial.printf("  Network Task Stack: %u bytes free\n", uxTaskGetStackHighWaterMark(networkTaskHandle));
+    Serial.printf("  Main Loop Stack: %u bytes free\n", uxTaskGetStackHighWaterMark(NULL));
+    
+    // Additional system info
+    Serial.printf("\nSystem:\n");
+    Serial.printf("  Flash Size: %u MB\n", ESP.getFlashChipSize() / (1024 * 1024));
+    Serial.printf("  Chip Model: %s\n", ESP.getChipModel());
+    Serial.printf("  CPU Freq: %u MHz\n", ESP.getCpuFreqMHz());
+    Serial.printf("  SDK Version: %s\n", ESP.getSdkVersion());
+  }
   else if (cmd == "AW ON" )
   {
     settings.antiWindup = true;
@@ -975,6 +1024,7 @@ void parseSerialCommand(String cmd)
       "\nPAGE ON     Enable web server processing"
       "\nPAGE OFF    Disable web server processing"
       "\nDIR        List all files in flash memory with sizes"
+      "\nMEM        Show memory usage and system information"
       "\nVER        Display firmware version and build info"
       "\nHELP       Show this help message"
     );
@@ -1179,6 +1229,7 @@ void parseSerialCommand(String cmd)
                  max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value);
     Serial.printf("Auto-Tune Min Cycle Time: %lu ms\n", min_cycle_time);
   }
+
   else
   {
     Serial.println("Invalid command. Type 'HELP' for options.");
@@ -1470,9 +1521,7 @@ void setup()
   Serial.println("Ventcon System Starting...");
   Serial.println("====================================================");
   
-  // Set I2C bus speed to 100 kHz for ADS1015
-  Wire.setClock(100000);
-  
+
   // Try to initialize ADS1015 for up to 2 seconds
   unsigned long ads_start = millis();
   ads_found = false;
@@ -1570,6 +1619,7 @@ void loop()
     char c = Serial.read();
     if (c == '\n') // newline
     {
+     
       parseSerialCommand(serialBuffer);
       serialBuffer = "";
     }

@@ -272,6 +272,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           STOPCD &nbsp;&nbsp;&nbsp;&nbsp;Stop continuous data output<br>
           PAGE ON &nbsp;&nbsp;&nbsp;Enable web server processing<br>
           PAGE OFF &nbsp;&nbsp;Disable web server processing<br>
+          MEM &nbsp;&nbsp;Show memory usage and system information<br>
           DIR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List all files in flash memory with sizes<br>
           VER &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Display firmware version and build info<br>
           HELP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Show this help message<br>
@@ -350,11 +351,79 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       if (!ctx) return;
       
       const chartCtx = ctx.getContext('2d');
-      window.pressureData = [];
-      window.setpointData = [];
-      window.pwmData = [];
       
-      // Create chart instance
+      // Efficient circular buffer implementation
+      const BUFFER_SIZE = 60; // Increased for better smoothing
+      const DISPLAY_SIZE = 30; // Points to display on chart
+      
+      // Create circular buffers with object pooling
+      window.chartData = {
+        pressure: new Array(BUFFER_SIZE),
+        setpoint: new Array(BUFFER_SIZE),
+        pwm: new Array(BUFFER_SIZE),
+        currentIndex: 0,
+        count: 0,
+        
+        // Object pool for data points to reduce GC pressure
+        pointPool: [],
+        poolIndex: 0,
+        
+        // Get a pooled point object
+        getPoint: function(x, y) {
+          if (this.poolIndex >= this.pointPool.length) {
+            this.pointPool.push({ x: null, y: null });
+          }
+          const point = this.pointPool[this.poolIndex++];
+          point.x = x;
+          point.y = y;
+          return point;
+        },
+        
+        // Reset pool for reuse
+        resetPool: function() {
+          this.poolIndex = 0;
+        },
+        
+        // Add data point efficiently
+        addData: function(pressure, setpoint, pwm, timestamp) {
+          this.pressure[this.currentIndex] = pressure;
+          this.setpoint[this.currentIndex] = setpoint;
+          this.pwm[this.currentIndex] = pwm;
+          
+          this.currentIndex = (this.currentIndex + 1) % BUFFER_SIZE;
+          if (this.count < BUFFER_SIZE) this.count++;
+        },
+        
+        // Get display data with decimation
+        getDisplayData: function() {
+          this.resetPool();
+          
+          const displayCount = Math.min(this.count, DISPLAY_SIZE);
+          const step = Math.max(1, Math.floor(this.count / displayCount));
+          
+          const now = new Date();
+          const timeStep = 250; // 250ms between data points
+          
+          const pressureData = [];
+          const setpointData = [];
+          const pwmData = [];
+          
+          for (let i = 0; i < displayCount; i++) {
+            const bufferIndex = (this.currentIndex - displayCount + i + BUFFER_SIZE) % BUFFER_SIZE;
+            const timestamp = new Date(now.getTime() - (displayCount - i - 1) * timeStep);
+            
+            if (bufferIndex < this.count) {
+              pressureData.push(this.getPoint(timestamp, this.pressure[bufferIndex]));
+              setpointData.push(this.getPoint(timestamp, this.setpoint[bufferIndex]));
+              pwmData.push(this.getPoint(timestamp, this.pwm[bufferIndex]));
+            }
+          }
+          
+          return { pressureData, setpointData, pwmData };
+        }
+      };
+      
+      // Create chart instance with optimized configuration
       window.pressureChart = new Chart(chartCtx, 
       {
         type: 'line',
@@ -362,20 +431,20 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           datasets: [
             {
               label: 'Outlet',
-              data: pressureData,
+              data: [],
               borderColor: '#2563eb',
               backgroundColor: 'rgba(37, 99, 235, 0.1)',
               tension: 0.3,
               borderWidth: 2,
-              pointRadius: 2,
+              pointRadius: 1,
               pointHoverRadius: 4,
               pointBorderWidth: 1,
               pointStyle: 'circle',
-              yAxisID: 'y'  // Assign to left y-axis
+              yAxisID: 'y'
             },
             {
               label: 'Setpoint',
-              data: setpointData,
+              data: [],
               borderColor: '#f59e0b',
               backgroundColor: 'rgba(245, 158, 11, 0.1)',
               borderDash: [5, 5],
@@ -383,12 +452,12 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
               borderWidth: 2,
               pointRadius: 0,
               pointHoverRadius: 3,
-              yAxisID: 'y'  // Assign to left y-axis
+              yAxisID: 'y'
             },
             {
               label: 'PWM Output',
-              data: pwmData,
-              borderColor: '#10b981',  // Green color for PWM
+              data: [],
+              borderColor: '#10b981',
               backgroundColor: 'rgba(16, 185, 129, 0.1)',
               tension: 0.3,
               borderWidth: 2,
@@ -396,15 +465,22 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
               pointHoverRadius: 3,
               pointBorderWidth: 1,
               pointStyle: 'circle',
-              yAxisID: 'pwm'  // Assign to right y-axis
+              yAxisID: 'pwm'
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: {
-            duration: 0
+          animation: false, // Disable animations for better performance
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          elements: {
+            point: {
+              radius: 0 // Hide points by default for better performance
+            }
           },
           scales: {
             y: {
@@ -526,6 +602,10 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           }
         }
       });
+      
+      // Track last update time for throttling
+      window.lastChartUpdate = 0;
+      window.chartUpdateInterval = 200; // Update chart every 250ms max
     }
     
     // Setup all event listeners
@@ -537,8 +617,16 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
           
           if (this.checked) {
             cachedElements.chartContainer.style.display = 'block';
-            // Force a single update when showing chart with 'none' animation mode
-            window.pressureChart.update('none');
+            
+            // Force immediate update when showing chart
+            if (window.chartData) {
+              const displayData = window.chartData.getDisplayData();
+              window.pressureChart.data.datasets[0].data = displayData.pressureData;
+              window.pressureChart.data.datasets[1].data = displayData.setpointData;
+              window.pressureChart.data.datasets[2].data = displayData.pwmData;
+              window.pressureChart.update('none');
+              window.lastChartUpdate = Date.now();
+            }
           } else {
             cachedElements.chartContainer.style.display = 'none';
           }
@@ -616,7 +704,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
     
     // Start periodic data updates
     function startDataUpdates() {
-      setInterval(updateData, 250);
+      setInterval(updateData, 100);
     }
 
     // Data update function
@@ -716,39 +804,30 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
     // Hide loader as soon as DOM is interactive
     document.addEventListener('DOMContentLoaded', initializeApp);
 
-    // Function to add data to the chart
+    // Function to add data to the chart (optimized)
     function updateChart(pressure, setpoint, pwm) {
-      if (!window.pressureChart || !cachedElements.chartToggle) return;
+      if (!window.pressureChart || !window.chartData) return;
       
-      const now = new Date();
+      const now = Date.now();
       
-      // Always collect data, even when chart is hidden
-      window.pressureData.push({
-        x: now,
-        y: pressure
-      });
+      // Always collect data in efficient circular buffer
+      window.chartData.addData(pressure, setpoint, pwm, now);
       
-      window.setpointData.push({
-        x: now,
-        y: setpoint
-      });
-      
-      window.pwmData.push({
-        x: now,
-        y: pwm
-      });
-      
-      // Maintain fixed data window size
-      if (window.pressureData.length > 30) {
-        window.pressureData.shift();
-        window.setpointData.shift();
-        window.pwmData.shift();
-      }
-      
-      // Only update the chart if it's visible - use optimized update
-      if (cachedElements.chartToggle.checked) {
-        // Use 'none' mode for better performance - no animations
-        window.pressureChart.update('none');
+      // Only update chart display if visible and enough time has passed
+      if (cachedElements.chartToggle && cachedElements.chartToggle.checked) {
+        if (now - window.lastChartUpdate >= window.chartUpdateInterval) {
+          // Get optimized display data
+          const displayData = window.chartData.getDisplayData();
+          
+          // Update chart datasets efficiently
+          window.pressureChart.data.datasets[0].data = displayData.pressureData;
+          window.pressureChart.data.datasets[1].data = displayData.setpointData;
+          window.pressureChart.data.datasets[2].data = displayData.pwmData;
+          
+          // Use 'none' mode for no animations - fastest update
+          window.pressureChart.update('none');
+          window.lastChartUpdate = now;
+        }
       }
     }
 
