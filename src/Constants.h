@@ -1,7 +1,7 @@
 #pragma once
 
 // System Version
-#define VENTCON_VERSION "2.1.8"
+#define VENTCON_VERSION "2.1.4 (Build: " __DATE__ " " __TIME__ ")"
 
 // Network Configuration
 namespace NetworkConfig 

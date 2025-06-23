@@ -1,4 +1,4 @@
-#include <WiFi.h>
+
 #include <WebServer.h>
 #include <DNSServer.h>
 #include <LittleFS.h>
@@ -14,28 +14,12 @@
 #include "Settings.h"   // Add Settings class include
 #include "WebHandlers.h" // Add WebHandlers include
 
-// ====== WiFi Access Point Configuration ======
-const char* ap_ssid = NetworkConfig::AP_SSID;
-const char* ap_password = NetworkConfig::AP_PASSWORD;
-const IPAddress ap_ip(192, 168, 4, 1);
-const IPAddress ap_gateway(192, 168, 4, 1);
-const IPAddress ap_subnet(255, 255, 255, 0);
-
-// ====== WiFi Connection Management ======
-int connectedClients = 0;
-String connectedMACs[NetworkConfig::MAX_CLIENTS]; // Store MAC addresses of connected clients
-bool webServerEnabled = true; // Flag to enable/disable web server processing
-
-const int MAX_CLIENTS = NetworkConfig::MAX_CLIENTS; // Maximum number of clients allowed
-
 // ====== Hardware Configuration ======
 const int SOLENOID_PIN = HardwareConfig::SOLENOID_PIN;
 const int ANALOG_PRESS_PIN = HardwareConfig::ANALOG_PRESS_PIN;
 const int PWM_CHANNEL_MOSFET = HardwareConfig::PWM_CHANNEL_MOSFET;
 const int PWM_CHANNEL_ANALOG_PRESS = HardwareConfig::PWM_CHANNEL_ANALOG_PRESS;
 Adafruit_ADS1015 ads;            // ADC for pressure sensor
-DNSServer dnsServer;             // DNS server for captive portal
-WebServer server(80);            // Web server on port 80
 
 // Add fallback analog pin for pressure if ADS1015 is not found
 const int FALLBACK_ANALOG_PIN = HardwareConfig::FALLBACK_ANALOG_PIN; // ESP32 internal ADC pin
@@ -828,58 +812,98 @@ void parseSerialCommand(String cmd)
     settings.save();
   }
   else if (cmd == "HELP")
+  {    Serial.println(
+      "\n╔═══════════════════════════════════════════════════════════════════════════════╗"
+      "\n║                          VENTCON2 COMMAND REFERENCE                           ║"
+      "\n║                        All commands are case-insensitive                      ║"
+      "\n╚═══════════════════════════════════════════════════════════════════════════════╝"
+      "\n"
+      "\n┌─ PID CONTROL ─────────────────────────────────────────────────────────────────┐"
+      "\n│ KP <value>      │ Set proportional gain (e.g., KP 0.5)                        │"
+      "\n│ KI <value>      │ Set integral gain (e.g., KI 0.1)                            │"
+      "\n│ KD <value>      │ Set derivative gain (e.g., KD 0.01)                         │"
+      "\n│ SP <value>      │ Set pressure setpoint in bar (e.g., SP 3.0)                 │"
+      "\n│ SAMPLE <ms>     │ Set PID sample time, 1-1000ms (e.g., SAMPLE 10)             │"
+      "\n│ RESET           │ Reset PID controller (clear windup & state)                 │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘"
+      "\n"
+      "\n┌─ SIGNAL PROCESSING ───────────────────────────────────────────────────────────┐"
+      "\n│ FLT <value>     │ Set filter strength, 0.0-1.0 (e.g., FLT 0.2)                │"
+      "\n│ AW ON/OFF       │ Enable/disable anti-windup for deadband                     │"
+      "\n│ HYST ON/OFF     │ Enable/disable hysteresis compensation                      │"
+      "\n│ HYSTAMT <value> │ Set hysteresis amount in % (e.g., HYSTAMT 5)                │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘"
+      "\n"
+      "\n┌─ PWM & VALVE CONTROL ─────────────────────────────────────────────────────────┐"
+      "\n│ FREQ <hz>       │ Set PWM frequency, 100-10000Hz (e.g., FREQ 1000)            │"
+      "\n│ RES <bits>      │ Set PWM resolution, 1-16 bits (e.g., RES 8)                 │"
+      "\n│ PWM <percent>   │ Force PWM duty cycle, 0-100% (e.g., PWM 25)                 │"
+      "\n│ RESUME          │ Resume normal PID control after manual PWM                  │"
+      "\n│ CONTROL FREQ <> │ Set control loop frequency, 10-1000Hz                       │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘"
+      "\n"
+      "\n┌─ AUTO-TUNING ─────────────────────────────────────────────────────────────────┐"
+      "\n│ TUNE START      │ Start PID auto-tuning process                               │"
+      "\n│ TUNE STOP       │ Cancel auto-tuning process                                  │"
+      "\n│ TUNE ACCEPT     │ Accept calculated PID parameters                            │"
+      "\n│ TUNE REJECT     │ Reject and keep current PID parameters                      │"
+      "\n│ TUNE SP <bar>   │ Set auto-tune test setpoint, 0.5-10.0 bar                   │"
+      "\n│ TUNE MIN <pct>  │ Set auto-tune minimum PWM, 50-90%                           │"
+      "\n│ TUNE MAX <pct>  │ Set auto-tune maximum PWM, 60-95%                           │"
+      "\n│ TUNE CYCLE <ms> │ Set min cycle time, 50-2000ms                               │"
+      "\n│ TUNE RULE <0-3> │ Select tuning rule (see TUNE RULES)                         │"
+      "\n│ TUNE AGGR <val> │ Set aggressiveness factor, 0.5-2.0                          │"
+      "\n│ TUNE RULES      │ Show available tuning rules with descriptions               │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘"
+      "\n"
+      "\n┌─ NETWORK & WIFI ──────────────────────────────────────────────────────────────┐"
+      "\n│ SCAN WIFI       │ Scan and list WiFi networks with signal strength            │"
+      "\n│ WIFI CHANNEL <> │ Set WiFi AP channel, 1-13 (interference avoidance)          │"
+      "\n│ PAGE ON/OFF     │ Enable/disable web server processing                        │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘"
+      "\n"
+      "\n┌─ DATA & MONITORING ───────────────────────────────────────────────────────────┐"
+      "\n│ STATUS          │ Show comprehensive system status                            │"
+      "\n│ STARTCD         │ Start continuous data output for plotting                   │"
+      "\n│ STOPCD          │ Stop continuous data output                                 │"
+      "\n│ MEM             │ Show memory usage and system information                    │"
+      "\n│ VER             │ Display firmware version and build info                     │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘"
+      "\n"
+      "\n┌─ FILE SYSTEM & SETTINGS ──────────────────────────────────────────────────────┐"
+      "\n│ SAVE            │ Force save current settings to flash memory                 │"
+      "\n│ READ            │ Read and display settings stored in flash                   │"
+      "\n│ DIR             │ List all files in flash memory with sizes                   │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘"
+      "\n"
+      "\n┌─ QUICK REFERENCE ─────────────────────────────────────────────────────────────┐"
+      "\n│ HELP            │ Show this command reference                                 │"
+      "\n│                 │                                                             │"
+      "\n│ Example workflow:                                                             │"
+      "\n│   STATUS        → Check current system state                                  │"
+      "\n│   TUNE START    → Begin auto-tuning for optimal PID                           │"
+      "\n│   TUNE ACCEPT   → Accept calculated parameters                                │"
+      "\n│   STARTCD       → Monitor real-time data                                      │"
+      "\n│   SAVE          → Persist settings to flash                                   │"
+      "\n└───────────────────────────────────────────────────────────────────────────────┘");
+  }  else if (cmd == "SCAN WIFI")
   {
-    Serial.println(
-      "\n=== Serial Command Help === All commands are case-insensitive."
-      "\n--- PID Control ---"
-      "\nKP 0.5     Set proportional gain"
-      "\nKI 0.1     Set integral gain"
-      "\nKD 0.01    Set derivative gain"
-      "\nSP 3.0     Set pressure setpoint (bar)"
-      "\nSAMPLE 10  Set PID sample time (1-1000 ms)"
-      "\nRESET      Reset PID controller (clear integral windup and state)"
-      "\n"
-      "\n--- Signal Processing ---"
-      "\nFLT 0.2    Set filter strength (0.0-1.0)"
-      "\nAW ON/OFF  Enable/disable anti-windup for deadband"
-      "\nHYST ON/OFF Enable/disable hysteresis compensation"
-      "\nHYSTAMT 5  Set hysteresis compensation amount (%)"
-      "\n"
-      "\n--- PWM Control ---"
-      "\nFREQ 1000  Set PWM frequency (100-10000Hz)"
-      "\nRES 8      Set PWM resolution (1-16 bits)"
-      "\nPWM 25     Force PWM duty cycle (0-100%) for testing"
-      "\nRESUME     Resume normal PID control after manual PWM"
-      "\n"
-      "\n--- Control Loop ---"
-      "\nCONTROL FREQ 1000 Set control loop frequency (10-1000 Hz)"
-      "\n"
-      "\n--- Auto-Tuning ---"
-      "\nTUNE START Start PID auto-tuning process"
-      "\nTUNE STOP  Cancel auto-tuning process"
-      "\nTUNE ACCEPT Accept auto-tuned PID parameters"
-      "\nTUNE REJECT Reject auto-tuned PID parameters"
-      "\nTUNE SP 3.0 Set auto-tuning test setpoint (0.5-10.0 bar)"
-      "\nTUNE MIN 65 Set auto-tuning minimum PWM (50-90%)"
-      "\nTUNE MAX 85 Set auto-tuning maximum PWM (60-95%)"
-      "\nTUNE CYCLE 100 Set min cycle time for auto-tuning (50-2000ms)"
-      "\nTUNE RULE n Select auto-tuning rule (0-3, see TUNE RULES)"
-      "\nTUNE AGGR x Set tuning aggressiveness (0.5-2.0)"
-      "\nTUNE RULES  Show available tuning rules"
-      "\n"
-      "\n--- System & Data ---"
-      "\nSTATUS     Show current parameters"
-      "\nSAVE       Force save settings to flash"
-      "\nREAD       Read settings stored in flash"
-      "\nSTARTCD    Start continuous data output for plotting"
-      "\nSTOPCD     Stop continuous data output"
-      "\nPAGE ON     Enable web server processing"
-      "\nPAGE OFF    Disable web server processing"
-      "\nDIR        List all files in flash memory with sizes"
-      "\nMEM        Show memory usage and system information"
-      "\nVER        Display firmware version and build info"
-      "\nHELP       Show this help message"
-    );
+    // Call the WiFi scanning function from WebHandler
+    if (webHandler) {
+      webHandler->scanWiFiNetworks();
+    } else {
+      Serial.println("Error: WebHandler not initialized");
+    }
+  }
+  else if (cmd.startsWith("WIFI CHANNEL "))
+  {
+    // Change WiFi AP channel
+    int channel = cmd.substring(13).toInt();
+    if (webHandler) {
+      webHandler->changeWiFiChannel(channel);
+    } else {
+      Serial.println("Error: WebHandler not initialized");
+    }
   }
   else if (cmd == "STATUS")
   {
@@ -937,13 +961,13 @@ void parseSerialCommand(String cmd)
     Serial.printf("  Sample Time: %d ms (%.1f Hz)\n", settings.pid_sample_time, 1000.0/settings.pid_sample_time);
     Serial.printf("  Filter Strength: %.2f\n", settings.filter_strength);
     Serial.printf("  Anti-Windup: %s\n", settings.antiWindup ? "Enabled" : "Disabled");
-    Serial.printf("  Hysteresis Comp: %s (%.1f%%)\n", 
-                 settings.hysteresis ? "Enabled" : "Disabled", settings.hystAmount);
-    
-    // Network section
+    Serial.printf("  Hysteresis Comp: %s (%.1f%%)\n",                 settings.hysteresis ? "Enabled" : "Disabled", settings.hystAmount);    // Network section
     Serial.println("\nNetwork:");
-    Serial.printf("  IP: %s\n", WiFi.softAPIP().toString().c_str());
-    Serial.printf("  Web Server: %s\n", webServerEnabled ? "Enabled" : "Disabled");
+    Serial.printf("  SSID: %s\n", webHandler ? webHandler->getAPSSID() : "Not Initialized");
+    Serial.printf("  IP: %s\n", webHandler ? webHandler->getAPIP().toString().c_str() : "Not Initialized");
+    Serial.printf("  Channel: %d (%.1f MHz)\n", webHandler ? webHandler->getWiFiChannel() : 0, webHandler ? 2412.0 + (webHandler->getWiFiChannel() - 1) * 5.0 : 0.0);
+    Serial.printf("  Connected Clients: %d/%d\n", webHandler ? webHandler->getConnectedClients() : 0, NetworkConfig::MAX_CLIENTS);
+    Serial.printf("  Web Server: %s\n", webHandler ? (webHandler->isWebServerEnabled() ? "Enabled" : "Disabled") : "Not Initialized");
   }
   else if (cmd == "SAVE")
   {
@@ -959,16 +983,23 @@ void parseSerialCommand(String cmd)
   {
     Serial.println("Stopping output for Continuous Data");
     continousValueOutput = false;
-  }
-  else if (cmd == "PAGE ON")
+  }  else if (cmd == "PAGE ON")
   {
-    webServerEnabled = true;
-    Serial.println("Web server processing enabled");
+    if (webHandler) {
+      webHandler->setWebServerEnabled(true);
+      Serial.println("Web server processing enabled");
+    } else {
+      Serial.println("Error: WebHandler not initialized");
+    }
   }
   else if (cmd == "PAGE OFF")
   {
-    webServerEnabled = false;
-    Serial.println("Web server processing disabled");
+    if (webHandler) {
+      webHandler->setWebServerEnabled(false);
+      Serial.println("Web server processing disabled");
+    } else {
+      Serial.println("Error: WebHandler not initialized");
+    }
   }
   else if (cmd == "VER")
   {
@@ -1112,73 +1143,6 @@ float calculatePressure(float voltage)
 }
 
 
-
-// WiFi event handler function
-void onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) 
-{
-  char macStr[18];
-  
-  // Serial.printf("WiFi event: %d\n", event); // Debug output to see which events are actually firing
-  
-  switch(event) {
-    case ARDUINO_EVENT_WIFI_AP_STACONNECTED: // Updated event name for newer ESP32 cores
-      // A device has connected to the AP
-      snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
-               info.wifi_ap_staconnected.mac[0], info.wifi_ap_staconnected.mac[1],
-               info.wifi_ap_staconnected.mac[2], info.wifi_ap_staconnected.mac[3],
-               info.wifi_ap_staconnected.mac[4], info.wifi_ap_staconnected.mac[5]);
-      
-      // Serial.println("AP client connect event triggered!");
-      
-      if (connectedClients < MAX_CLIENTS) 
-      {
-        // We have room for this client
-        connectedMACs[connectedClients] = String(macStr);
-        connectedClients++;
-        
-        Serial.printf("Device connected to AP (%d/%d clients)\n", 
-                      connectedClients, MAX_CLIENTS);
-        Serial.printf("MAC address: %s\n", macStr);
-      } else 
-      {
-        // Too many clients, disconnect this one
-        Serial.println("Maximum client limit reached - disconnecting new client");
-        Serial.printf("MAC address: %s\n", macStr);
-        
-        // Force disconnection - this requires a brief reset of the AP
-        WiFi.softAPdisconnect(false);  // Disconnect all clients but keep AP running
-        delay(10); // Brief delay
-        WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet); // Reconfigure AP
-        WiFi.softAP(ap_ssid, ap_password);  // Restart AP with same settings
-      }
-      break;
-      
-    case ARDUINO_EVENT_WIFI_AP_STADISCONNECTED: // Updated event name for newer ESP32 cores
-      // A device has disconnected from the AP
-      snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
-              info.wifi_ap_stadisconnected.mac[0], info.wifi_ap_stadisconnected.mac[1],
-              info.wifi_ap_stadisconnected.mac[2], info.wifi_ap_stadisconnected.mac[3],
-              info.wifi_ap_stadisconnected.mac[4], info.wifi_ap_stadisconnected.mac[5]);
-              
-      // Serial.println("AP client disconnect event triggered!");
-      // Find and remove the client from our list
-      String disconnectedMAC = String(macStr);
-      for (int i = 0; i < MAX_CLIENTS; i++) {
-        if (connectedMACs[i] == disconnectedMAC) {
-          // Shift remaining clients down
-          for (int j = i; j < MAX_CLIENTS - 1; j++) {
-            connectedMACs[j] = connectedMACs[j + 1];
-          }
-          connectedMACs[MAX_CLIENTS - 1] = ""; // Clear the last slot
-          connectedClients--;
-          break;
-        }
-      }
-      
-      Serial.printf("Clients remaining: %d/%d\n", connectedClients, MAX_CLIENTS);
-      break;
-  }
-}
 
 // Create the control task function
 void controlTask(void* parameter) 
@@ -1341,15 +1305,14 @@ void controlTask(void* parameter)
 
 // Create the network task function
 void networkTask(void* parameter) 
-{
-    while(true) 
+{    while(true) 
     {
-        if (webServerEnabled) 
+        if (webHandler && webHandler->isWebServerEnabled()) 
         {
             unsigned long netStart = micros();
             
-            dnsServer.processNextRequest();
-            server.handleClient();
+            webHandler->getDNSServer().processNextRequest();
+            webHandler->getWebServer().handleClient();
             
             unsigned long netTime = micros() - netStart;
             if (netTime > 20000) 
@@ -1411,18 +1374,20 @@ void setup()
   showSettingsFromLittleFS(); // Show loaded settings on startup
 
   ledcSetup(PWM_CHANNEL_ANALOG_PRESS, pwm_analog_pressure_signal_freq, pwm_analog_pressure_signal_pwm_res);
-  ledcAttachPin(ANALOG_PRESS_PIN, PWM_CHANNEL_ANALOG_PRESS);
-
-  ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
+  ledcAttachPin(ANALOG_PRESS_PIN, PWM_CHANNEL_ANALOG_PRESS);  ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
   ledcAttachPin(SOLENOID_PIN, PWM_CHANNEL_MOSFET);
   
-  // Set up WiFi event handler before starting AP
-  WiFi.onEvent(onWiFiEvent);
+  // Initialize WebHandler with dependency injection
+  webHandler = new WebHandler(&settings, &pid, 
+                             &pressureInput, &pwmOutput, &ads_found, 
+                             &pwm_max_value, &last_filtered_pressure);
   
-  // Start WiFi AP and DNS server for captive portal
-  WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
-  WiFi.softAP(ap_ssid, ap_password);
-  dnsServer.start(53, "*", ap_ip);  // Create network task on Core 0
+  // Initialize WiFi AP and DNS server
+  webHandler->initializeWiFiAP();
+  
+  // Setup WiFi event handler
+  webHandler->setupWiFiEvents();
+
   xTaskCreatePinnedToCore(
         networkTask,           // Task function
         "NetworkTask",         // Task name
@@ -1442,27 +1407,18 @@ void setup()
         2,                     // Task priority (2 = higher than network)
         &controlTaskHandle,    // Task handle
         1                      // Core 1
-  );
-  // Initialize PID 
+  );  // Initialize PID 
   pid.SetMode(PID::Automatic);
   pid.SetOutputLimits(0, pwm_max_value);
   pid.SetSampleTime(settings.pid_sample_time); // Use settings value for consistency
 
-  // Initialize WebHandler with dependency injection
-  webHandler = new WebHandler(&server, &dnsServer, &settings, &pid, 
-                             &pressureInput, &pwmOutput, &ads_found, 
-                             &pwm_max_value, &last_filtered_pressure, 
-                             &connectedClients);
-  
   // Setup all web routes
   webHandler->setupRoutes();
-
   Serial.println("\nSystem Ready - AP Mode");
-  Serial.println("\nType HELP for command options");
-  Serial.printf("Connect to: %s\nPassword: %s\n", ap_ssid, ap_password);
+  Serial.println("\nType HELP for command options");  Serial.printf("Connect to: %s\nPassword: %s\n", webHandler->getAPSSID(), webHandler->getAPPassword());
   Serial.printf("Access via: http://www.ventcon.local\n");
   Serial.print("Direct IP access: http://");
-  Serial.println(WiFi.softAPIP());
+  Serial.println(webHandler->getAPIP());
 }
 
 

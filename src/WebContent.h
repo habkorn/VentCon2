@@ -225,57 +225,123 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div style="margin-top: 20px;">
         <h4 style="color: #002f87; margin-bottom: 10px;">📊 System Information</h4>
         <div id="devInfo" style="font-family: monospace; font-size: 12px; margin-bottom: 15px;"></div>
-          <h4 style="color: #002f87; margin-bottom: 10px;">💻 Serial Commands Reference</h4>
-        <div style="font-family: monospace; font-size: 11px; background: #fff; padding: 12px; border-radius: 6px; max-height: 300px; overflow-y: auto; border: 1px solid #ddd;">
-          <strong>PID Control:</strong><br>
-          KP 0.5 &nbsp;&nbsp;&nbsp;&nbsp; Set proportional gain<br>
-          KI 0.1 &nbsp;&nbsp;&nbsp;&nbsp; Set integral gain<br>
-          KD 0.01 &nbsp;&nbsp;&nbsp;&nbsp;Set derivative gain<br>
-          SP 3.0 &nbsp;&nbsp;&nbsp;&nbsp; Set pressure setpoint (bar)<br>          
-          SAMPLE 10 &nbsp;&nbsp;Set PID sample time (1-1000 ms)<br>
-          RESET &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reset PID controller (clear integral windup)<br><br>
+          <h4 style="color: #002f87; margin-bottom: 10px;">💻 Serial Commands Reference</h4>        <div style="font-family: monospace; font-size: 11px; background: #fff; padding: 12px; border-radius: 6px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd;">
+          <div style="text-align: center; font-weight: bold; margin-bottom: 15px; padding: 8px; background: #f8fafc; border-radius: 4px;">
+            <div style="color: #2563eb; font-size: 12px;">📋 VENTCON2 COMMAND REFERENCE</div>
+            <div style="color: #64748b; font-size: 10px; margin-top: 2px;">All commands are case-insensitive</div>
+          </div>
           
-          <strong>Signal Processing:</strong><br>
-          FLT 0.2 &nbsp;&nbsp;&nbsp;&nbsp;Set filter strength (0.0-1.0)<br>
-          AW ON/OFF &nbsp;&nbsp;Enable/disable anti-windup for deadband<br>
-          HYST ON/OFF &nbsp;Enable/disable hysteresis compensation<br>
-          HYSTAMT 5 &nbsp;&nbsp;Set hysteresis compensation amount (%)<br><br>
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">🎛️ PID CONTROL</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>KP &lt;value&gt;</strong></span><span>Set proportional gain (e.g., KP 0.5)</span>
+                <span><strong>KI &lt;value&gt;</strong></span><span>Set integral gain (e.g., KI 0.1)</span>
+                <span><strong>KD &lt;value&gt;</strong></span><span>Set derivative gain (e.g., KD 0.01)</span>
+                <span><strong>SP &lt;value&gt;</strong></span><span>Set pressure setpoint in bar (e.g., SP 3.0)</span>
+                <span><strong>SAMPLE &lt;ms&gt;</strong></span><span>Set PID sample time, 1-1000ms (e.g., SAMPLE 10)</span>
+                <span><strong>RESET</strong></span><span>Reset PID controller (clear windup & state)</span>
+              </div>
+            </div>
+          </div>
           
-          <strong>PWM Control:</strong><br>
-          FREQ 1000 &nbsp;&nbsp;Set PWM frequency (100-10000Hz)<br>
-          RES 8 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set PWM resolution (1-16 bits)<br>
-          PWM 25 &nbsp;&nbsp;&nbsp;&nbsp;Force PWM duty cycle (0-100%) for testing<br>
-          RESUME &nbsp;&nbsp;&nbsp;&nbsp;Resume normal PID control after manual PWM<br><br>
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">📊 SIGNAL PROCESSING</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>FLT &lt;value&gt;</strong></span><span>Set filter strength, 0.0-1.0 (e.g., FLT 0.2)</span>
+                <span><strong>AW ON/OFF</strong></span><span>Enable/disable anti-windup for deadband</span>
+                <span><strong>HYST ON/OFF</strong></span><span>Enable/disable hysteresis compensation</span>
+                <span><strong>HYSTAMT &lt;val&gt;</strong></span><span>Set hysteresis amount in % (e.g., HYSTAMT 5)</span>
+              </div>
+            </div>
+          </div>
           
-          <strong>Control Loop:</strong><br>
-          CONTROL FREQ 1000 Set control loop frequency (10-1000 Hz)<br><br>
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">⚡ PWM & VALVE CONTROL</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>FREQ &lt;hz&gt;</strong></span><span>Set PWM frequency, 100-10000Hz (e.g., FREQ 1000)</span>
+                <span><strong>RES &lt;bits&gt;</strong></span><span>Set PWM resolution, 1-16 bits (e.g., RES 8)</span>
+                <span><strong>PWM &lt;percent&gt;</strong></span><span>Force PWM duty cycle, 0-100% (e.g., PWM 25)</span>
+                <span><strong>RESUME</strong></span><span>Resume normal PID control after manual PWM</span>
+                <span><strong>CONTROL FREQ</strong></span><span>Set control loop frequency, 10-1000Hz</span>
+              </div>
+            </div>
+          </div>
           
-          <strong>Auto-Tuning:</strong><br>
-          TUNE START &nbsp;Start PID auto-tuning process<br>
-          TUNE STOP &nbsp;&nbsp;Cancel auto-tuning process<br>
-          TUNE CANCEL Cancel auto-tuning process<br>
-          TUNE ACCEPT Accept auto-tuned PID parameters<br>
-          TUNE REJECT Reject auto-tuned PID parameters<br>
-          TUNE SP 3.0 Set auto-tuning test setpoint (0.5-10.0 bar)<br>
-          TUNE MIN 65 Set auto-tuning minimum PWM (50-90%)<br>
-          TUNE MAX 85 Set auto-tuning maximum PWM (60-95%)<br>
-          TUNE CYCLE 100 Set min cycle time for auto-tuning (50-2000ms)<br>
-          TUNE RULE n Select auto-tuning rule (0-3, see TUNE RULES)<br>
-          TUNE AGGR x Set tuning aggressiveness (0.5-2.0)<br>
-          TUNE RULES &nbsp;Show available tuning rules<br><br>
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">🎯 AUTO-TUNING</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>TUNE START</strong></span><span>Start PID auto-tuning process</span>
+                <span><strong>TUNE STOP</strong></span><span>Cancel auto-tuning process</span>
+                <span><strong>TUNE ACCEPT</strong></span><span>Accept calculated PID parameters</span>
+                <span><strong>TUNE REJECT</strong></span><span>Reject and keep current PID parameters</span>
+                <span><strong>TUNE SP &lt;bar&gt;</strong></span><span>Set auto-tune test setpoint, 0.5-10.0 bar</span>
+                <span><strong>TUNE MIN &lt;pct&gt;</strong></span><span>Set auto-tune minimum PWM, 50-90%</span>
+                <span><strong>TUNE MAX &lt;pct&gt;</strong></span><span>Set auto-tune maximum PWM, 60-95%</span>
+                <span><strong>TUNE CYCLE &lt;ms&gt;</strong></span><span>Set min cycle time, 50-2000ms</span>
+                <span><strong>TUNE RULE &lt;0-3&gt;</strong></span><span>Select tuning rule (see TUNE RULES)</span>
+                <span><strong>TUNE AGGR &lt;val&gt;</strong></span><span>Set aggressiveness factor, 0.5-2.0</span>
+                <span><strong>TUNE RULES</strong></span><span>Show available tuning rules with descriptions</span>
+              </div>
+            </div>
+          </div>
           
-          <strong>System & Data:</strong><br>
-          STATUS &nbsp;&nbsp;&nbsp;&nbsp;Show current parameters<br>
-          SAVE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Force save settings to flash<br>
-          READ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read settings stored in flash<br>
-          STARTCD &nbsp;&nbsp;&nbsp;Start continuous data output for plotting<br>
-          STOPCD &nbsp;&nbsp;&nbsp;&nbsp;Stop continuous data output<br>
-          PAGE ON &nbsp;&nbsp;&nbsp;Enable web server processing<br>
-          PAGE OFF &nbsp;&nbsp;Disable web server processing<br>
-          MEM &nbsp;&nbsp;Show memory usage and system information<br>
-          DIR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List all files in flash memory with sizes<br>
-          VER &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Display firmware version and build info<br>
-          HELP &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Show this help message<br>
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">📡 NETWORK & WIFI</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>SCAN WIFI</strong></span><span>Scan and list WiFi networks with signal strength</span>
+                <span><strong>WIFI CHANNEL</strong></span><span>Set WiFi AP channel, 1-13 (interference avoidance)</span>
+                <span><strong>PAGE ON/OFF</strong></span><span>Enable/disable web server processing</span>
+              </div>
+            </div>
+          </div>
+          
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">📈 DATA & MONITORING</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>STATUS</strong></span><span>Show comprehensive system status</span>
+                <span><strong>STARTCD</strong></span><span>Start continuous data output for plotting</span>
+                <span><strong>STOPCD</strong></span><span>Stop continuous data output</span>
+                <span><strong>MEM</strong></span><span>Show memory usage and system information</span>
+                <span><strong>VER</strong></span><span>Display firmware version and build info</span>
+              </div>
+            </div>
+          </div>
+          
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; margin-bottom: 12px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">💾 FILE SYSTEM & SETTINGS</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>SAVE</strong></span><span>Force save current settings to flash memory</span>
+                <span><strong>READ</strong></span><span>Read and display settings stored in flash</span>
+                <span><strong>DIR</strong></span><span>List all files in flash memory with sizes</span>
+              </div>
+            </div>
+          </div>
+          
+          <div style="border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden;">
+            <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">🚀 QUICK REFERENCE</div>
+            <div style="padding: 8px;">
+              <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px; margin-bottom: 8px;">
+                <span><strong>HELP</strong></span><span>Show this command reference</span>
+              </div>
+              <div style="border-top: 1px solid #e2e8f0; padding-top: 8px; font-size: 10px;">
+                <div style="font-weight: bold; margin-bottom: 4px; color: #2563eb;">Example workflow:</div>
+                <div style="color: #64748b; line-height: 1.4;">
+                  STATUS → Check current system state<br>
+                  TUNE START → Begin auto-tuning for optimal PID<br>
+                  TUNE ACCEPT → Accept calculated parameters<br>
+                  STARTCD → Monitor real-time data<br>
+                  SAVE → Persist settings to flash
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -658,8 +724,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         {param: 'kd', min: 0, max: 1000, step: 10},
         {param: 'flt', min: 0, max: 1, step: 0.01},
         {param: 'freq', min: 100, max: 10000, step: 100},
-        {param: 'res', min: 8, max: 16, step: 1},
-        {param: 'psamt', min: 5, max: 200, step: 1}
+        {param: 'res', min: 8, max: 16, step: 1}
       ].forEach(function(cfg) {
         const slider = cachedElements.sliders ? cachedElements.sliders[cfg.param] : null;
         const text = cachedElements.texts ? cachedElements.texts[cfg.param] : null;
