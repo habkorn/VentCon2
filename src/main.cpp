@@ -151,7 +151,7 @@ uint32_t mapPwmToValve(double pidOutput, int maxPwmValue)
 // ====== Version Information ======
 const char* getVersionString() {
   static char versionString[50];
-  sprintf(versionString, "2.0.0 (Build: %s %s)", __DATE__, __TIME__);
+  sprintf(versionString, VENTCON_VERSION);
   return versionString;
 }
 
