@@ -11,9 +11,8 @@
 #include "freertos/task.h"
 #include "WebContent.h"
 #include "Constants.h"  // Add this include
-
-// External function declarations
-extern void setupWebHandlers();
+#include "Settings.h"   // Add Settings class include
+#include "WebHandlers.h" // Add WebHandlers include
 
 // ====== WiFi Access Point Configuration ======
 const char* ap_ssid = NetworkConfig::AP_SSID;
@@ -21,6 +20,11 @@ const char* ap_password = NetworkConfig::AP_PASSWORD;
 const IPAddress ap_ip(192, 168, 4, 1);
 const IPAddress ap_gateway(192, 168, 4, 1);
 const IPAddress ap_subnet(255, 255, 255, 0);
+
+// ====== WiFi Connection Management ======
+int connectedClients = 0;
+String connectedMACs[NetworkConfig::MAX_CLIENTS]; // Store MAC addresses of connected clients
+bool webServerEnabled = true; // Flag to enable/disable web server processing
 
 const int MAX_CLIENTS = NetworkConfig::MAX_CLIENTS; // Maximum number of clients allowed
 
@@ -44,64 +48,8 @@ const float VALVE_MAX_DUTY = ValveConfig::VALVE_MAX_DUTY;
 // ====== ADS1015 Status Flag ======
 bool ads_found = false;           // False until ADS1015 is detected
 
-
-// ====== PID and System Settings ======
-struct Settings
-{
-  double Kp;
-  double Ki;
-  double Kd;
-  float filter_strength;
-  double setpoint;
-  int pwm_freq;
-  int pwm_res;
-  int pid_sample_time; // Sample time for PID control in milliseconds
-  int control_freq_hz; // Control loop frequency in Hz
-  bool antiWindup;  // Flag to enable/disable anti-windup for deadband
-  bool hysteresis;  // Flag to enable/disable hysteresis compensation
-  float hystAmount; // Amount of hysteresis compensation (percentage points)
-};
-
-// ====== Default Settings ======
-Settings DEFAULT_SETTINGS = 
-{
-  .Kp = 0.0,
-  .Ki = 0.0,
-  .Kd = 0.0,
-  .filter_strength = 0.,
-  .setpoint = 3.0,
-  .pwm_freq = 2000,
-  .pwm_res = 14,
-  .pid_sample_time = 10, // Sample time in milliseconds
-  .control_freq_hz = 1000, // Default 1000Hz control loop
-  .antiWindup = false,
-  .hysteresis = false,
-  .hystAmount = 5.0  // Default compensation of 5 percentage points
-};
-
-// ====== Global Settings Variable ======
-Settings settings =   
-{
-  .Kp = DEFAULT_SETTINGS.Kp,
-  .Ki = DEFAULT_SETTINGS.Ki,
-  .Kd = DEFAULT_SETTINGS.Kd,
-  .filter_strength = DEFAULT_SETTINGS.filter_strength,
-  .setpoint = DEFAULT_SETTINGS.setpoint,
-  .pwm_freq = DEFAULT_SETTINGS.pwm_freq,
-  .pwm_res = DEFAULT_SETTINGS.pwm_res,
-  .pid_sample_time = DEFAULT_SETTINGS.pid_sample_time,
-  .control_freq_hz = DEFAULT_SETTINGS.control_freq_hz,
-  .antiWindup = DEFAULT_SETTINGS.antiWindup,
-  .hysteresis = DEFAULT_SETTINGS.hysteresis,
-  .hystAmount = DEFAULT_SETTINGS.hystAmount  // Default compensation of 5 percentage points
-};
-
-
-
-// ====== WiFi Connection Management ======
-int connectedClients = 0;
-String connectedMACs[NetworkConfig::MAX_CLIENTS]; // Store MAC addresses of connected clients
-bool webServerEnabled = true; // Flag to enable/disable web server processing
+// ====== Settings Instance ======
+Settings settings; // Use Settings class instance
 
 // ====== PID and Sensor Variables ======
 double pressureInput, pwmOutput; // PID input (pressure) and output (PWM)
@@ -121,6 +69,10 @@ const float SENSOR_MAX_BAR = SensorConfig::SENSOR_MAX_BAR; // Maximum pressure i
 
 // Low-pass filter variables
 float last_filtered_pressure = 0;  // Previous filtered value
+
+// ====== WebHandler Instance ======
+// Will be initialized in setup() after all dependencies are ready
+WebHandler* webHandler = nullptr;
 
 // ====== ADS1015 Configuration ======
 const uint8_t ADS1015_I2C_ADDRESS = 0x48; // Default I2C address for ADS1015
@@ -157,109 +109,10 @@ void updatePWM()
   ledcWrite(PWM_CHANNEL_MOSFET, pwmOutput);
 }
 
-// ====== Save Settings to LittleFS ======
-void saveSettings()
-{
-  // Save implementation remains the same
-  File file = LittleFS.open("/settings.json", "w");
-  if (file)
-  {
-    JsonDocument doc;
-    doc["Kp"] = settings.Kp;
-    doc["Ki"] = settings.Ki;
-    doc["Kd"] = settings.Kd;
-    doc["filter_strength"] = settings.filter_strength;
-    doc["setpoint"] = settings.setpoint;
-    doc["pwm_freq"] = settings.pwm_freq;
-    doc["pwm_res"] = settings.pwm_res;
-    doc["pid_sample_time"] = settings.pid_sample_time;
-    doc["control_freq_hz"] = settings.control_freq_hz;
-    doc["antiWindup"] = settings.antiWindup;
-    doc["hysteresis"] = settings.hysteresis;
-    doc["hystAmount"] = settings.hystAmount;
-    
-    serializeJson(doc, file);
-    file.close();
-    Serial.println("Settings saved to LittleFS");
-  }
-  else
-  {
-    Serial.println("Error: Unable to save settings!");
-  }
-}
-
-// ====== Load Settings from LittleFS ======
-void loadSettings()
-{
-  if (LittleFS.exists("/settings.json"))
-  {
-    File file = LittleFS.open("/settings.json", "r");
-    JsonDocument doc;
-    DeserializationError error = deserializeJson(doc, file);
-    
-    if (error) 
-    {
-      Serial.println("Failed to parse settings.json");
-    } else 
-    {
-      // Alternative approach using isNull() to check if keys exist      
-      settings.Kp = !doc["Kp"].isNull() ? doc["Kp"].as<double>() : DEFAULT_SETTINGS.Kp;
-      settings.Ki = !doc["Ki"].isNull() ? doc["Ki"].as<double>() : DEFAULT_SETTINGS.Ki;
-      settings.Kd = !doc["Kd"].isNull() ? doc["Kd"].as<double>() : DEFAULT_SETTINGS.Kd;
-      settings.filter_strength = !doc["filter_strength"].isNull() ? doc["filter_strength"].as<float>() : DEFAULT_SETTINGS.filter_strength;
-      settings.setpoint = !doc["setpoint"].isNull() ? doc["setpoint"].as<double>() : DEFAULT_SETTINGS.setpoint;
-      settings.pwm_freq = !doc["pwm_freq"].isNull() ? doc["pwm_freq"].as<int>() : DEFAULT_SETTINGS.pwm_freq;
-      settings.pwm_res = !doc["pwm_res"].isNull() ? doc["pwm_res"].as<int>() : DEFAULT_SETTINGS.pwm_res;
-      settings.pid_sample_time = !doc["pid_sample_time"].isNull() ? doc["pid_sample_time"].as<int>() : DEFAULT_SETTINGS.pid_sample_time;
-      settings.control_freq_hz = !doc["control_freq_hz"].isNull() ? doc["control_freq_hz"].as<int>() : DEFAULT_SETTINGS.control_freq_hz;
-      settings.antiWindup = !doc["antiWindup"].isNull() ? doc["antiWindup"].as<bool>() : DEFAULT_SETTINGS.antiWindup;
-      settings.hysteresis = !doc["hysteresis"].isNull() ? doc["hysteresis"].as<bool>() : DEFAULT_SETTINGS.hysteresis;
-      settings.hystAmount = !doc["hystAmount"].isNull() ? doc["hystAmount"].as<float>() : DEFAULT_SETTINGS.hystAmount;
-      
-      // Update PWM_MAX_VALUE to match the loaded resolution
-      pwm_max_value = (1 << settings.pwm_res) - 1;
-    }
-    file.close();
-  }
-}
-
 void showSettingsFromLittleFS()
 {
-    // Read and display settings from LittleFS without modifying current settings
-    if (LittleFS.exists("/settings.json"))
-    {
-      File file = LittleFS.open("/settings.json", "r");
-      JsonDocument doc;
-      DeserializationError error = deserializeJson(doc, file);
-      
-      if (error) {
-        Serial.println("\n=== Error Reading Settings File ===");
-        Serial.printf("deserializeJson() failed: %s\n", error.c_str());
-      } else {
-        Serial.println("\n=== Settings Stored in LittleFS ===");
-        Serial.printf("PID Parameters:    Kp=%.2f, Ki=%.2f, Kd=%.2f\n", 
-                    doc["Kp"].as<double>(), doc["Ki"].as<double>(), doc["Kd"].as<double>());
-        Serial.printf("Filter Strength:   %.2f\n", doc["filter_strength"].as<float>());
-        Serial.printf("Pressure Setpoint: %.2f bar\n", doc["setpoint"].as<double>());
-
-        Serial.printf("PWM Configuration: %d Hz, %d-bit (max value: %d)\n", 
-                    doc["pwm_freq"].as<int>(), doc["pwm_res"].as<int>(), 
-                    (1 << doc["pwm_res"].as<int>()) - 1);
-        Serial.printf("Control Loop Freq: %d Hz\n", doc["control_freq_hz"].as<int>());
-        Serial.printf("Anti-Windup:       %s\n", doc["antiWindup"].as<bool>() ? "Enabled" : "Disabled");
-        Serial.printf("PID Sample Time:   %d ms\n", doc["pid_sample_time"].as<int>());
-        Serial.printf("Hysteresis Comp:   %s (%.1f%%)\n", 
-                    doc["hysteresis"].as<bool>() ? "Enabled" : "Disabled", 
-                    doc["hystAmount"].as<float>());
-      }
-      file.close();
-
-    }
-
-    else
-    {
-      Serial.println("No settings file found in LittleFS");
-    }
+    // Use the Settings class method to display stored settings
+    settings.printStoredSettings();
 }
 
 // Function to map PID output to effective valve range
@@ -731,38 +584,37 @@ void parseSerialCommand(String cmd)
 
   // PID and system parameter commands
   if (cmd.startsWith("KP "))
-  {
-    settings.Kp = cmd.substring(3).toFloat();
+  {    settings.Kp = cmd.substring(3).toFloat();
     pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
     Serial.printf("Proportional gain set to: %.2f\n", settings.Kp);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("KI "))
   {
     settings.Ki = cmd.substring(3).toFloat();
     pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
     Serial.printf("Integral gain set to: %.2f\n", settings.Ki);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("KD "))
   {
     settings.Kd = cmd.substring(3).toFloat();
     pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
     Serial.printf("Derivative gain set to: %.2f\n", settings.Kd);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("FLT "))
   {
     float new_flt = cmd.substring(4).toFloat();
     settings.filter_strength = constrain(new_flt, 0.0, 1.0);
     Serial.printf("Filter strength set to: %.2f\n", settings.filter_strength);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("SP "))
   {
     settings.setpoint = cmd.substring(3).toFloat();
     Serial.printf("Setpoint updated to: %.2f bar\n", settings.setpoint);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("FREQ "))
   {
@@ -770,7 +622,7 @@ void parseSerialCommand(String cmd)
     settings.pwm_freq = constrain(new_freq, 100, 10000);
     updatePWM();
     Serial.printf("PWM frequency updated to: %d Hz\n", settings.pwm_freq);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("RES "))
   {
@@ -792,7 +644,7 @@ void parseSerialCommand(String cmd)
     
     Serial.printf("PWM resolution updated to: %d bits (max: %d)\n", settings.pwm_res, pwm_max_value);
     Serial.printf("Duty cycle maintained at: %.1f%%\n", current_duty_percent);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("PWM "))
   {
@@ -877,32 +729,32 @@ void parseSerialCommand(String cmd)
   {
     settings.antiWindup = true;
     Serial.println("Anti-windup for deadband enabled");
-    saveSettings();
+    settings.save();
   }
   else if (cmd == "AW OFF" )
   {
     settings.antiWindup = false;
     Serial.println("Anti-windup for deadband disabled");
-    saveSettings();
+    settings.save();
   }
   else if (cmd == "HYST ON" )
   {
     settings.hysteresis = true;
     Serial.println("Hysteresis compensation enabled");
-    saveSettings();
+    settings.save();
   }
   else if (cmd == "HYST OFF" )
   {
     settings.hysteresis = false;
     Serial.println("Hysteresis compensation disabled");
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("HYSTAMT "))
   {
     settings.hystAmount = cmd.substring(8).toFloat();
     settings.hystAmount = constrain(settings.hystAmount, 0.0, 20.0);
     Serial.printf("Hysteresis compensation amount set to: %.1f%%\n", settings.hystAmount);
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("TUNE SP "))
   {
@@ -929,7 +781,7 @@ void parseSerialCommand(String cmd)
       Serial.printf("OK: Control/PID timing balanced\n");
     }
     
-    saveSettings();
+    settings.save();
   }
   else if (cmd.startsWith("TUNE MIN "))
   {
@@ -973,7 +825,7 @@ void parseSerialCommand(String cmd)
       Serial.printf("OK: Control/PID timing balanced\n");
     }
     
-    saveSettings();
+    settings.save();
   }
   else if (cmd == "HELP")
   {
@@ -1095,7 +947,7 @@ void parseSerialCommand(String cmd)
   }
   else if (cmd == "SAVE")
   {
-    saveSettings();
+    settings.save();
     Serial.println("Settings saved to persistent storage");
   }
   else if (cmd == "STARTCD")
@@ -1172,13 +1024,13 @@ void parseSerialCommand(String cmd)
   else if (cmd == "TUNE ACCEPT")
   {
     Serial.println("New PID parameters accepted!");
-    saveSettings();
+    settings.save();
     pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
   }
   else if (cmd == "TUNE REJECT")
   {
     Serial.println("New PID parameters rejected. Reverting to previous values.");
-    loadSettings(); // Reload previous settings
+    settings.load(); // Reload previous settings
   }
   else if (cmd.startsWith("TUNE RULE "))
   {
@@ -1550,11 +1402,12 @@ void setup()
   {
     Serial.println("ADS1015 found! ");
 
-  }  
-  // Initialize LittleFS for settings storage
+  }    // Initialize LittleFS for settings storage
   if (!LittleFS.begin(true))
     Serial.println("LittleFS error!");
-  loadSettings();
+  settings.load();
+  // Update PWM max value after loading settings
+  pwm_max_value = (1 << settings.pwm_res) - 1;
   showSettingsFromLittleFS(); // Show loaded settings on startup
 
   ledcSetup(PWM_CHANNEL_ANALOG_PRESS, pwm_analog_pressure_signal_freq, pwm_analog_pressure_signal_pwm_res);
@@ -1590,14 +1443,19 @@ void setup()
         &controlTaskHandle,    // Task handle
         1                      // Core 1
   );
-
   // Initialize PID 
   pid.SetMode(PID::Automatic);
   pid.SetOutputLimits(0, pwm_max_value);
   pid.SetSampleTime(settings.pid_sample_time); // Use settings value for consistency
 
-  // Use the new setup function for web handlers
-  setupWebHandlers();
+  // Initialize WebHandler with dependency injection
+  webHandler = new WebHandler(&server, &dnsServer, &settings, &pid, 
+                             &pressureInput, &pwmOutput, &ads_found, 
+                             &pwm_max_value, &last_filtered_pressure, 
+                             &connectedClients);
+  
+  // Setup all web routes
+  webHandler->setupRoutes();
 
   Serial.println("\nSystem Ready - AP Mode");
   Serial.println("\nType HELP for command options");
