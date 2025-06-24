@@ -1,10 +1,9 @@
-
 #include <WebServer.h>
 #include <DNSServer.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <PID_v2.h>
-#include <Adafruit_ADS1X15.h>
+// #include <Adafruit_ADS1X15.h>
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 #include "freertos/FreeRTOS.h"
@@ -13,56 +12,29 @@
 #include "Constants.h"  // Add this include
 #include "Settings.h"   // Add Settings class include
 #include "WebHandlers.h" // Add WebHandlers include
+#include "SensorManager.h" // Add SensorManager include
 
 // ====== Hardware Configuration ======
 const int SOLENOID_PIN = HardwareConfig::SOLENOID_PIN;
 const int ANALOG_PRESS_PIN = HardwareConfig::ANALOG_PRESS_PIN;
 const int PWM_CHANNEL_MOSFET = HardwareConfig::PWM_CHANNEL_MOSFET;
 const int PWM_CHANNEL_ANALOG_PRESS = HardwareConfig::PWM_CHANNEL_ANALOG_PRESS;
-Adafruit_ADS1015 ads;            // ADC for pressure sensor
 
-// Add fallback analog pin for pressure if ADS1015 is not found
-const int FALLBACK_ANALOG_PIN = HardwareConfig::FALLBACK_ANALOG_PIN; // ESP32 internal ADC pin
+// ====== Settings and Sensor Instances ======
+Settings settings; // Use Settings class instance
+SensorManager* sensorManager = nullptr; // Will be initialized in setup()
 
 // ====== Valve Configuration ======
-
 const float VALVE_MIN_DUTY = ValveConfig::VALVE_MIN_DUTY; 
 const float VALVE_MAX_DUTY = ValveConfig::VALVE_MAX_DUTY;
 
-// ====== ADS1015 Status Flag ======
-bool ads_found = false;           // False until ADS1015 is detected
-
-// ====== Settings Instance ======
-Settings settings; // Use Settings class instance
-
-// ====== PID and Sensor Variables ======
+// ====== PID and Control Variables ======
 double pressureInput, pwmOutput; // PID input (pressure) and output (PWM)
 PID pid(&pressureInput, &pwmOutput, &settings.setpoint, settings.Kp, settings.Ki, settings.Kd, DIRECT);
-float voltage;
-float filtered_pressure = 0;
-float raw_pressure = 0;
-
-// ====== Sensor Configuration ======
-const int ADC_CHANNEL = SensorConfig::ADC_CHANNEL; // ADC channel for pressure sensor
-const float MIN_VOLTAGE = SensorConfig::MIN_VOLTAGE; // Minimum voltage for pressure sensor
-const float MAX_VOLTAGE = SensorConfig::MAX_VOLTAGE; // Minimum voltage for pressure sensor
-
-const float SENSOR_MIN_BAR = SensorConfig::SENSOR_MIN_BAR; // Minimum pressure in bar
-const float SENSOR_MAX_BAR = SensorConfig::SENSOR_MAX_BAR; // Maximum pressure in bar
-
-
-// Low-pass filter variables
-float last_filtered_pressure = 0;  // Previous filtered value
 
 // ====== WebHandler Instance ======
 // Will be initialized in setup() after all dependencies are ready
 WebHandler* webHandler = nullptr;
-
-// ====== ADS1015 Configuration ======
-const uint8_t ADS1015_I2C_ADDRESS = 0x48; // Default I2C address for ADS1015
-const adsGain_t ADS1015_GAIN = GAIN_TWOTHIRDS;  // +/-6.144V range (for 0-5V signals)
-
-const uint16_t ADS1015_DATA_RATE = RATE_ADS1015_1600SPS;   //  Data rate for ADS1015 (Default)
 
 
 // ====== Global Variables ======
@@ -77,8 +49,6 @@ int pwm_analog_pressure_signal_pwm_res=12; // Resolution for analog pressure sig
 int SENSOR_MAX_VALUE = (1 << pwm_analog_pressure_signal_pwm_res) - 1;
 TaskHandle_t networkTaskHandle = NULL;
 TaskHandle_t controlTaskHandle = NULL;
-
-int16_t adc_value;  // Variable to store ADC value 
 
 // Track previous pressure direction for hysteresis compensation
 bool pressureIncreasing = false;
@@ -861,9 +831,9 @@ void parseSerialCommand(String cmd)
       "\n│ WIFI CHANNEL <> │ Set WiFi AP channel, 1-13 (interference avoidance)          │"
       "\n│ PAGE ON/OFF     │ Enable/disable web server processing                        │"
       "\n└───────────────────────────────────────────────────────────────────────────────┘"
-      "\n"
-      "\n┌─ DATA & MONITORING ───────────────────────────────────────────────────────────┐"
+      "\n"      "\n┌─ DATA & MONITORING ───────────────────────────────────────────────────────────┐"
       "\n│ STATUS          │ Show comprehensive system status                            │"
+      "\n│ SENSOR          │ Test SensorManager and show detailed sensor readings       │"
       "\n│ STARTCD         │ Start continuous data output for plotting                   │"
       "\n│ STOPCD          │ Stop continuous data output                                 │"
       "\n│ MEM             │ Show memory usage and system information                    │"
@@ -921,29 +891,26 @@ void parseSerialCommand(String cmd)
                  min_auto_tune_cycle_pwm_value, max_auto_tune_cycle_pwm_value,
                  max_auto_tune_cycle_pwm_value - min_auto_tune_cycle_pwm_value);
     Serial.printf("  Auto-Tune Min Cycle Time: %lu ms\n", min_cycle_time);
-    
-    // Sensor Information section
+      // Sensor Information section
     Serial.println("\nSensor Information:");
-    Serial.printf("  ADC Source: %s\n", ads_found ? "ADS1015" : "ESP32 Internal");
-    if (ads_found) {
-      Serial.printf("  ADS1015 Address: 0x%02X\n", ADS1015_I2C_ADDRESS);
-      Serial.printf("  ADS1015 Channel: %d\n", ADC_CHANNEL);
-      const char* gainStr = (ADS1015_GAIN == GAIN_TWOTHIRDS) ? "GAIN_TWOTHIRDS (+/-6.144V)" :
-                           (ADS1015_GAIN == GAIN_ONE) ? "GAIN_ONE (+/-4.096V)" :
-                           (ADS1015_GAIN == GAIN_TWO) ? "GAIN_TWO (+/-2.048V)" :
-                           (ADS1015_GAIN == GAIN_FOUR) ? "GAIN_FOUR (+/-1.024V)" :
-                           (ADS1015_GAIN == GAIN_EIGHT) ? "GAIN_EIGHT (+/-0.512V)" :
-                           (ADS1015_GAIN == GAIN_SIXTEEN) ? "GAIN_SIXTEEN (+/-0.256V)" : "Unknown";
-      Serial.printf("  Gain Setting: %s\n", gainStr);
+    if (sensorManager) {
+      Serial.printf("  ADC Source: %s\n", sensorManager->isADSFound() ? "ADS1015" : "ESP32 Internal");
+      if (sensorManager->isADSFound()) {
+        Serial.printf("  ADS1015 Address: 0x48\n");
+        Serial.printf("  ADS1015 Channel: %d\n", SensorConfig::ADC_CHANNEL);
+        Serial.printf("  Gain Setting: GAIN_TWOTHIRDS (+/-6.144V)\n");
+      } else {
+        Serial.printf("  Fallback Pin: %d\n", HardwareConfig::FALLBACK_ANALOG_PIN);
+      }
+      Serial.printf("  Raw ADC Value: %d\n", sensorManager->getADCValue());
+      Serial.printf("  Voltage: %.3f V\n", sensorManager->getVoltage());
+      Serial.printf("  Raw Pressure: %.3f bar\n", sensorManager->getRawPressure());
+      Serial.printf("  Filtered Pressure: %.3f bar\n", sensorManager->getPressure());
+      Serial.printf("  Voltage Range: %.1fV - %.1fV\n", SensorConfig::MIN_VOLTAGE, SensorConfig::MAX_VOLTAGE);
+      Serial.printf("  Pressure Range: %.1f - %.1f bar\n", SensorConfig::SENSOR_MIN_BAR, SensorConfig::SENSOR_MAX_BAR);
     } else {
-      Serial.printf("  Fallback Pin: %d\n", FALLBACK_ANALOG_PIN);
+      Serial.println("  ERROR: SensorManager not initialized");
     }
-    Serial.printf("  Raw ADC Value: %d\n", adc_value);
-    Serial.printf("  Voltage: %.3f V\n", voltage);
-    Serial.printf("  Raw Pressure: %.3f bar\n", raw_pressure);
-    Serial.printf("  Filtered Pressure: %.3f bar\n", filtered_pressure);
-    Serial.printf("  Voltage Range: %.1fV - %.1fV\n", MIN_VOLTAGE, MAX_VOLTAGE);
-    Serial.printf("  Pressure Range: %.1f - %.1f bar\n", SENSOR_MIN_BAR, SENSOR_MAX_BAR);
     
     // PWM Output section
     Serial.println("\nPWM Output:");
@@ -1007,8 +974,7 @@ void parseSerialCommand(String cmd)
     Serial.printf("Firmware Version: %s\n", getVersionString());
   }
   else if (cmd == "RESET")
-  {
-    // Reset PID controller
+  {    // Reset PID controller
     Serial.println("Resetting PID controller...");
     
     // Reset the PID controller by re-initializing it
@@ -1016,8 +982,10 @@ void parseSerialCommand(String cmd)
     pwmOutput = 0;
     ledcWrite(PWM_CHANNEL_MOSFET, 0);
     
-    // Clear any internal state
-    last_filtered_pressure = 0;
+    // Note: Reset SensorManager filter state
+    if (sensorManager) {
+        sensorManager->resetFilterState();
+    }
     
     // Re-initialize PID with current settings
     pid.SetTunings(settings.Kp, settings.Ki, settings.Kd);
@@ -1113,6 +1081,27 @@ void parseSerialCommand(String cmd)
     Serial.printf("Auto-Tune Min Cycle Time: %lu ms\n", min_cycle_time);
   }
 
+  else if (cmd == "SENSOR")
+  {
+    // Test SensorManager functionality
+    if (sensorManager) {
+      Serial.println("\n=== SensorManager Test ===");
+      sensorManager->printSensorStatus();
+      
+      // Take a fresh reading
+      sensorManager->readSensor();
+      
+      Serial.println("\nCurrent Readings:");
+      Serial.printf("  ADC Value: %d\n", sensorManager->getADCValue());
+      Serial.printf("  Voltage: %.3f V\n", sensorManager->getVoltage());
+      Serial.printf("  Raw Pressure: %.3f bar\n", sensorManager->getRawPressure());
+      Serial.printf("  Filtered Pressure: %.3f bar\n", sensorManager->getPressure());
+      Serial.printf("  Pressure Safe: %s\n", sensorManager->isPressureSafe() ? "Yes" : "NO - EMERGENCY!");
+      Serial.printf("  Filter Strength: %.2f\n", settings.filter_strength);
+    } else {
+      Serial.println("ERROR: SensorManager not initialized");
+    }
+  }
   else
   {
     Serial.println("Invalid command. Type 'HELP' for options.");
@@ -1121,7 +1110,9 @@ void parseSerialCommand(String cmd)
 
 
 
-// Low-pass filter function
+// Low-pass filter function - DEPRECATED: Now handled by SensorManager
+// Kept for reference during transition
+/*
 float lowPassFilter(float measurement) 
 {
   // Apply exponential low-pass filter
@@ -1141,6 +1132,7 @@ float calculatePressure(float voltage)
   if (voltage < MIN_VOLTAGE) return 0.0;
   return (SENSOR_MAX_BAR-SENSOR_MIN_BAR)/(MAX_VOLTAGE-MIN_VOLTAGE) * (voltage - MIN_VOLTAGE) ;
 }
+*/
 
 
 
@@ -1158,40 +1150,23 @@ void controlTask(void* parameter)
     {
         // Update frequency if settings changed
         frequency = pdMS_TO_TICKS(1000 / settings.control_freq_hz);
+          unsigned long taskStartTime = micros();
         
-        unsigned long taskStartTime = micros();
-        
-        // ====== Sensor Reading and PID Update ======
-        if (ads_found)
-        {
-            adc_value = ads.readADC_SingleEnded(ADC_CHANNEL);
-            voltage = ads.computeVolts(adc_value);
-        }
-        else
-        {
-            // Use ESP32 built-in ADC as fallback
-            adc_value = analogRead(FALLBACK_ANALOG_PIN);
-            voltage = adc_value * (3.3 / 4095.0); // Assuming 3.3V reference
-        }
-
-        // Calculate pressure from voltage
-        raw_pressure = calculatePressure(voltage);
-     
-        // Apply low-pass filter
-        filtered_pressure = lowPassFilter(raw_pressure);
+        // ====== Sensor Reading using SensorManager ======
+        sensorManager->readSensor();
         
         // Save last pressure before updating, used for hysteresis compensation
         lastPressure = pressureInput;
         
         // Update Input value for PID before computation
-        pressureInput = filtered_pressure;
-
-        // ====== Analog Pressure Signal Output =====
+        pressureInput = sensorManager->getPressure();        // ====== Analog Pressure Signal Output =====
         static unsigned long lastAnalogOutTime = 0;
         if (millis() - lastAnalogOutTime >= 10)
         { 
             // Output analog pressure signal to ANALOG_PRESS_PIN
-            ledcWrite(PWM_CHANNEL_ANALOG_PRESS, (uint32_t)(pressureInput/SENSOR_MAX_VALUE*pwm_analog_pressure_signal_pwm_res));   
+            float pressurePercent = pressureInput / SensorConfig::SENSOR_MAX_BAR;
+            uint32_t analogOutValue = (uint32_t)(pressurePercent * ((1 << pwm_analog_pressure_signal_pwm_res) - 1));
+            ledcWrite(PWM_CHANNEL_ANALOG_PRESS, analogOutValue);   
             lastAnalogOutTime = millis();
         }
 
@@ -1242,10 +1217,8 @@ void controlTask(void* parameter)
             // Use the mapping function to get actual PWM value to apply
             uint32_t actualPwm = mapPwmToValve(pwmOutput, pwm_max_value);
             ledcWrite(PWM_CHANNEL_MOSFET, actualPwm);
-        }
-
-        // ====== Emergency Shutdown ======
-        if (pressureInput > SENSOR_MAX_BAR * 1.1)
+        }        // ====== Emergency Shutdown ======
+        if (!sensorManager->isPressureSafe())
         {
             // Stop PWM output
             ledcWrite(PWM_CHANNEL_MOSFET, 0);
@@ -1253,7 +1226,7 @@ void controlTask(void* parameter)
             static unsigned long lastEmergencyMsgTime = 0;
             if (millis() - lastEmergencyMsgTime >= 1000) 
             {
-                Serial.println("EMERGENCY SHUTDOWN! Pressure exceeds safe limit.");
+                Serial.printf("EMERGENCY SHUTDOWN! Pressure %.2f bar exceeds safe limit.\n", pressureInput);
                 lastEmergencyMsgTime = millis();
             }
         }
@@ -1278,10 +1251,9 @@ void controlTask(void* parameter)
             
             // Format all data at once using a single buffer
             char buffer[120];
-            
-            int len = snprintf(buffer, sizeof(buffer),
+              int len = snprintf(buffer, sizeof(buffer),
               "voltage=%.3f, error=%.3f, press=%.3f, setPress=%.3f, PWM%%=%.3f, t=%.2f, exec=%lu, total=%lu, task=CTRL%s\r\n",
-              voltage,
+              sensorManager->getVoltage(),
               settings.setpoint - pressureInput,
               pressureInput,
               settings.setpoint,
@@ -1328,59 +1300,38 @@ void networkTask(void* parameter)
 
 // ====== Arduino Setup Function ======
 void setup()
-{
-  Serial.begin(115200);
+{  Serial.begin(115200);
   delay(1000);
   Serial.println();
   Serial.println("====================================================");
   Serial.println("Ventcon System Starting...");
   Serial.println("====================================================");
   
-
-  // Try to initialize ADS1015 for up to 2 seconds
-  unsigned long ads_start = millis();
-  ads_found = false;
-
-  while (millis() - ads_start < 2000)
-  {
-    if (ads.begin(ADS1015_I2C_ADDRESS,&Wire))
-    {
-      ads_found = true;
-      // Set ADS1015 gain and data rate after detection
-      ads.setGain(ADS1015_GAIN);
-      ads.setDataRate(ADS1015_DATA_RATE);
-      break;
-    }
-    delay(100);
-  }
-
-  if (!ads_found)
-  {
-    Serial.println("WARNING: ADS1015 not found! Using analogRead(A0) as fallback for pressure input.");
-    // Optionally configure A0 as input (usually not needed on ESP32)
-    pinMode(FALLBACK_ANALOG_PIN, INPUT);
-  }
-  // Only attach PWM if ADS is found
-  if (ads_found)
-  {
-    Serial.println("ADS1015 found! ");
-
-  }    // Initialize LittleFS for settings storage
+  // Initialize LittleFS for settings storage
   if (!LittleFS.begin(true))
     Serial.println("LittleFS error!");
   settings.load();
+  
   // Update PWM max value after loading settings
   pwm_max_value = (1 << settings.pwm_res) - 1;
   showSettingsFromLittleFS(); // Show loaded settings on startup
 
+  // Initialize SensorManager
+  sensorManager = new SensorManager(&settings);
+  if (!sensorManager->initialize()) {
+    Serial.println("ERROR: Failed to initialize SensorManager!");
+    // Continue anyway as SensorManager has fallback options
+  }
+
   ledcSetup(PWM_CHANNEL_ANALOG_PRESS, pwm_analog_pressure_signal_freq, pwm_analog_pressure_signal_pwm_res);
   ledcAttachPin(ANALOG_PRESS_PIN, PWM_CHANNEL_ANALOG_PRESS);  ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
   ledcAttachPin(SOLENOID_PIN, PWM_CHANNEL_MOSFET);
-  
   // Initialize WebHandler with dependency injection
+  // Note: We need to create a persistent bool pointer for ads_found status
+  static bool ads_found_status = sensorManager->isADSFound();
   webHandler = new WebHandler(&settings, &pid, 
-                             &pressureInput, &pwmOutput, &ads_found, 
-                             &pwm_max_value, &last_filtered_pressure);
+                             &pressureInput, &pwmOutput, &ads_found_status, 
+                             &pwm_max_value, sensorManager->getLastFilteredPressurePtr());
   
   // Initialize WiFi AP and DNS server
   webHandler->initializeWiFiAP();

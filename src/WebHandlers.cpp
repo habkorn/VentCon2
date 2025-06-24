@@ -19,6 +19,10 @@
 // WebHandler Class Implementation
 
 // Static instance pointer initialization
+// This static pointer allows WiFi event callback functions (which must be static) 
+// to access the current WebHandler instance methods. It's used in the WiFi event
+// system where ESP32 WiFi events trigger static callback functions that need to
+// call instance-specific methods for handling client connections/disconnections.
 WebHandler* WebHandler::instance = nullptr;
 
 WebHandler::WebHandler(Settings* settings,
