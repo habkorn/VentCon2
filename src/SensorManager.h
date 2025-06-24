@@ -14,7 +14,8 @@
  * - Low-pass filtering for noise reduction
  * - Sensor status monitoring
  */
-class SensorManager {
+class SensorManager 
+{
 private:
     // Hardware components
     Adafruit_ADS1015 ads;

@@ -16,15 +16,18 @@ constexpr float Settings::DEFAULT_HYST_AMOUNT;
 
 const char* Settings::SETTINGS_FILE_PATH = "/settings.json";
 
-Settings::Settings() {
+Settings::Settings() 
+{
     resetToDefaults();
 }
 
-Settings::~Settings() {
+Settings::~Settings() 
+{
     // Destructor - no specific cleanup needed
 }
 
-void Settings::resetToDefaults() {
+void Settings::resetToDefaults() 
+{
     Kp = DEFAULT_KP;
     Ki = DEFAULT_KI;
     Kd = DEFAULT_KD;
@@ -39,7 +42,8 @@ void Settings::resetToDefaults() {
     hystAmount = DEFAULT_HYST_AMOUNT;
 }
 
-bool Settings::load() {
+bool Settings::load() 
+{
     if (!LittleFS.exists(SETTINGS_FILE_PATH)) {
         Serial.println("Settings file not found, using defaults");
         return false;
@@ -79,7 +83,8 @@ bool Settings::load() {
     return true;
 }
 
-bool Settings::save() {
+bool Settings::save() 
+{
     File file = LittleFS.open(SETTINGS_FILE_PATH, "w");
     if (!file) {
         Serial.println("Failed to open settings file for writing");
@@ -111,7 +116,8 @@ bool Settings::save() {
     return true;
 }
 
-void Settings::printSettings() {
+void Settings::printSettings() 
+{
     Serial.println("\n=== Current Settings ===");
     Serial.printf("PID Parameters:    Kp=%.2f, Ki=%.2f, Kd=%.2f\n", Kp, Ki, Kd);
     Serial.printf("Filter Strength:   %.2f\n", filter_strength);
@@ -125,7 +131,8 @@ void Settings::printSettings() {
                  hysteresis ? "Enabled" : "Disabled", hystAmount);
 }
 
-void Settings::printStoredSettings() {
+void Settings::printStoredSettings() 
+{
     if (!LittleFS.exists(SETTINGS_FILE_PATH)) {
         Serial.println("No settings file found in LittleFS");
         return;

@@ -22,7 +22,8 @@
  * 3. Access parameters via public members
  * 4. Call save() to persist changes
  */
-class Settings {
+class Settings 
+{
 public:
     // PID Parameters
     double Kp;

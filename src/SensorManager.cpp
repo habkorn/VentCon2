@@ -10,14 +10,17 @@ SensorManager::SensorManager(Settings* settings)
       raw_pressure(0.0),
       filtered_pressure(0.0),
       last_filtered_pressure(0.0),
-      settings(settings) {
+      settings(settings) 
+{
 }
 
-bool SensorManager::initialize() {
+bool SensorManager::initialize() 
+{
     Serial.println("Initializing SensorManager...");
     
     // Try to initialize ADS1015
-    if (initializeADS1015()) {
+    if (initializeADS1015()) 
+    {
         ads_found = true;
         Serial.println("ADS1015 found and configured successfully!");
         printSensorStatus();
@@ -33,18 +36,22 @@ bool SensorManager::initialize() {
     return true; // Always return true since we have a fallback
 }
 
-bool SensorManager::initializeADS1015(unsigned long timeout_ms) {
+bool SensorManager::initializeADS1015(unsigned long timeout_ms) 
+{
     unsigned long start_time = millis();
     
-    while (millis() - start_time < timeout_ms) {
-        if (ads.begin(ADS1015_I2C_ADDRESS, &Wire)) {
+    while (millis() - start_time < timeout_ms) 
+    {
+        if (ads.begin(ADS1015_I2C_ADDRESS, &Wire)) 
+        {
             // Configure ADS1015 settings
             ads.setGain(ADS1015_GAIN);
             ads.setDataRate(ADS1015_DATA_RATE);
             
             // Test read to verify communication
             int16_t test_reading = ads.readADC_SingleEnded(ADC_CHANNEL);
-            if (test_reading != 0 || ads.computeVolts(test_reading) >= 0) {
+            if (test_reading != 0 || ads.computeVolts(test_reading) >= 0) 
+            {
                 return true;
             }
         }
@@ -54,12 +61,16 @@ bool SensorManager::initializeADS1015(unsigned long timeout_ms) {
     return false;
 }
 
-void SensorManager::readSensor() {
+void SensorManager::readSensor() 
+{
     // Read ADC value based on available hardware
-    if (ads_found) {
+    if (ads_found) 
+    {
         adc_value = ads.readADC_SingleEnded(ADC_CHANNEL);
         voltage = ads.computeVolts(adc_value);
-    } else {
+    } 
+    else 
+    {
         // Use ESP32 built-in ADC as fallback
         adc_value = analogRead(FALLBACK_ANALOG_PIN);
         voltage = adc_value * (3.3 / 4095.0); // Assuming 3.3V reference
@@ -72,7 +83,8 @@ void SensorManager::readSensor() {
     filtered_pressure = lowPassFilter(raw_pressure);
 }
 
-float SensorManager::lowPassFilter(float measurement) {
+float SensorManager::lowPassFilter(float measurement) 
+{
     // Apply exponential low-pass filter
     // new_filtered = (1-alpha) * measurement + (alpha) * last_filtered
     float filtered = (1.0f - settings->filter_strength) * measurement + 
@@ -84,9 +96,11 @@ float SensorManager::lowPassFilter(float measurement) {
     return filtered;
 }
 
-float SensorManager::calculatePressure(float voltage) {
+float SensorManager::calculatePressure(float voltage) 
+{
     // Handle invalid voltages
-    if (voltage < MIN_VOLTAGE) {
+    if (voltage < MIN_VOLTAGE) 
+    {
         return 0.0;
     }
     
@@ -97,16 +111,19 @@ float SensorManager::calculatePressure(float voltage) {
     return SENSOR_MIN_BAR + (pressure_range / voltage_range) * (voltage - MIN_VOLTAGE);
 }
 
-void SensorManager::printSensorStatus() const {
+void SensorManager::printSensorStatus() const 
+{
     Serial.println("\n=== Sensor Configuration ===");
     Serial.printf("ADC Source: %s\n", ads_found ? "ADS1015" : "ESP32 Internal");
     
-    if (ads_found) {
+    if (ads_found) 
+    {
         Serial.printf("ADS1015 Address: 0x%02X\n", ADS1015_I2C_ADDRESS);
         Serial.printf("ADS1015 Channel: %d\n", ADC_CHANNEL);
         
         const char* gainStr;
-        switch(ADS1015_GAIN) {
+        switch(ADS1015_GAIN) 
+        {
             case GAIN_TWOTHIRDS: gainStr = "GAIN_TWOTHIRDS (+/-6.144V)"; break;
             case GAIN_ONE: gainStr = "GAIN_ONE (+/-4.096V)"; break;
             case GAIN_TWO: gainStr = "GAIN_TWO (+/-2.048V)"; break;
@@ -117,7 +134,9 @@ void SensorManager::printSensorStatus() const {
         }
         Serial.printf("Gain Setting: %s\n", gainStr);
         Serial.printf("Data Rate: %d SPS\n", ADS1015_DATA_RATE);
-    } else {
+    } 
+    else 
+    {
         Serial.printf("Fallback Pin: %d\n", FALLBACK_ANALOG_PIN);
         Serial.printf("Reference Voltage: 3.3V\n");
         Serial.printf("Resolution: 12-bit (0-4095)\n");
@@ -131,7 +150,8 @@ void SensorManager::printSensorStatus() const {
     Serial.println("=============================");
 }
 
-bool SensorManager::isPressureSafe() const {
+bool SensorManager::isPressureSafe() const 
+{
     // Check if pressure exceeds safe limit (10% above max rated pressure)
     return filtered_pressure <= (SENSOR_MAX_BAR * 1.1f);
 }
