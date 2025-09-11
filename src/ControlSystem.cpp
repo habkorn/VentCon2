@@ -1,7 +1,7 @@
 #include "ControlSystem.h"
 #include "Constants.h"
 
-ControlSystem::ControlSystem(Settings* settings, SensorManager* sensorManager, 
+ControlSystem::ControlSystem(SettingsHandler* settings, SensorManager* sensorManager, 
                            AutoTuner* autoTuner, PID* pid, double* pressureInput, 
                            double* pwmOutput, int* pwm_max_value, bool* manualPWMMode,
                            bool* continousValueOutput)
@@ -167,7 +167,7 @@ void ControlSystem::processControlLoop()
             double previousOutput = *pwmOutput;
             
             // Constrain output to valid range
-            *pwmOutput = constrain(*pwmOutput, 0, *pwm_max_value);
+            *pwmOutput = constrain(*pwmOutput, 0, *pwm_max_value); 
 
             // Compute PID output
             pid->Compute();

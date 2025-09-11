@@ -4,7 +4,7 @@
 #include <LittleFS.h>
 
 /**
- * Settings Class
+ * SettingsHandler Class
  * 
  * Encapsulates all system configuration parameters for the VentCon2 system.
  * Provides methods for loading, saving, and managing configuration data
@@ -17,12 +17,12 @@
  * - JSON serialization/deserialization
  * 
  * Usage:
- * 1. Create Settings instance
+ * 1. Create SettingsHandler instance
  * 2. Call load() to read from flash
  * 3. Access parameters via public members
  * 4. Call save() to persist changes
  */
-class Settings 
+class SettingsHandler 
 {
 public:
     // PID Parameters
@@ -44,10 +44,10 @@ public:
     float hystAmount;           // Amount of hysteresis compensation (percentage points)
     
     // Constructor with default values
-    Settings();
+    SettingsHandler();
     
     // Destructor
-    ~Settings();
+    ~SettingsHandler();
     
     // Load settings from LittleFS
     bool load();

@@ -1,32 +1,32 @@
-#include "Settings.h"
+#include "SettingsHandler.h"
 
 // Define static const members
-constexpr double Settings::DEFAULT_KP;
-constexpr double Settings::DEFAULT_KI;
-constexpr double Settings::DEFAULT_KD;
-constexpr float Settings::DEFAULT_FILTER_STRENGTH;
-constexpr double Settings::DEFAULT_SETPOINT;
-constexpr int Settings::DEFAULT_PWM_FREQ;
-constexpr int Settings::DEFAULT_PWM_RES;
-constexpr int Settings::DEFAULT_PID_SAMPLE_TIME;
-constexpr int Settings::DEFAULT_CONTROL_FREQ_HZ;
-constexpr bool Settings::DEFAULT_ANTI_WINDUP;
-constexpr bool Settings::DEFAULT_HYSTERESIS;
-constexpr float Settings::DEFAULT_HYST_AMOUNT;
+constexpr double SettingsHandler::DEFAULT_KP;
+constexpr double SettingsHandler::DEFAULT_KI;
+constexpr double SettingsHandler::DEFAULT_KD;
+constexpr float SettingsHandler::DEFAULT_FILTER_STRENGTH;
+constexpr double SettingsHandler::DEFAULT_SETPOINT;
+constexpr int SettingsHandler::DEFAULT_PWM_FREQ;
+constexpr int SettingsHandler::DEFAULT_PWM_RES;
+constexpr int SettingsHandler::DEFAULT_PID_SAMPLE_TIME;
+constexpr int SettingsHandler::DEFAULT_CONTROL_FREQ_HZ;
+constexpr bool SettingsHandler::DEFAULT_ANTI_WINDUP;
+constexpr bool SettingsHandler::DEFAULT_HYSTERESIS;
+constexpr float SettingsHandler::DEFAULT_HYST_AMOUNT;
 
-const char* Settings::SETTINGS_FILE_PATH = "/settings.json";
+const char* SettingsHandler::SETTINGS_FILE_PATH = "/settings.json";
 
-Settings::Settings() 
+SettingsHandler::SettingsHandler() 
 {
     resetToDefaults();
 }
 
-Settings::~Settings() 
+SettingsHandler::~SettingsHandler() 
 {
     // Destructor - no specific cleanup needed
 }
 
-void Settings::resetToDefaults() 
+void SettingsHandler::resetToDefaults() 
 {
     Kp = DEFAULT_KP;
     Ki = DEFAULT_KI;
@@ -42,7 +42,7 @@ void Settings::resetToDefaults()
     hystAmount = DEFAULT_HYST_AMOUNT;
 }
 
-bool Settings::load() 
+bool SettingsHandler::load() 
 {
     if (!LittleFS.exists(SETTINGS_FILE_PATH)) {
         Serial.println("Settings file not found, using defaults");
@@ -83,7 +83,7 @@ bool Settings::load()
     return true;
 }
 
-bool Settings::save() 
+bool SettingsHandler::save() 
 {
     File file = LittleFS.open(SETTINGS_FILE_PATH, "w");
     if (!file) {
@@ -116,7 +116,7 @@ bool Settings::save()
     return true;
 }
 
-void Settings::printSettings() 
+void SettingsHandler::printSettings() 
 {
     Serial.println("\n=== Current Settings ===");
     Serial.printf("PID Parameters:    Kp=%.2f, Ki=%.2f, Kd=%.2f\n", Kp, Ki, Kd);
@@ -131,7 +131,7 @@ void Settings::printSettings()
                  hysteresis ? "Enabled" : "Disabled", hystAmount);
 }
 
-void Settings::printStoredSettings() 
+void SettingsHandler::printStoredSettings() 
 {
     if (!LittleFS.exists(SETTINGS_FILE_PATH)) {
         Serial.println("No settings file found in LittleFS");

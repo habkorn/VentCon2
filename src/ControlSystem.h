@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <PID_v2.h>
-#include "Settings.h"
+#include "SettingsHandler.h"
 #include "SensorManager.h"
 #include "AutoTuner.h"
 #include "freertos/FreeRTOS.h"
@@ -13,7 +13,7 @@ class ControlSystem
 {
 private:
     // Dependencies
-    Settings* settings;
+    SettingsHandler* settings;
     SensorManager* sensorManager;
     AutoTuner* autoTuner;
     PID* pid;
@@ -38,7 +38,7 @@ private:
     void handleAnalogPressureOutput();
 
 public:
-    ControlSystem(Settings* settings, SensorManager* sensorManager, AutoTuner* autoTuner,
+    ControlSystem(SettingsHandler* settings, SensorManager* sensorManager, AutoTuner* autoTuner,
                  PID* pid, double* pressureInput, double* pwmOutput, int* pwm_max_value,
                  bool* manualPWMMode, bool* continousValueOutput);
     

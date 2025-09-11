@@ -7,7 +7,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-CommandProcessor::CommandProcessor(Settings* settings, SensorManager* sensorManager, 
+CommandProcessor::CommandProcessor(SettingsHandler* settings, SensorManager* sensorManager, 
                                  AutoTuner* autoTuner, WebHandler* webHandler, PID* pid,
                                  double* pressureInput, double* pwmOutput, int* pwm_max_value,
                                  bool* manualPWMMode, bool* continousValueOutput, 

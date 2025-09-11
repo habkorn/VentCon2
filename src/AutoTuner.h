@@ -1,7 +1,7 @@
 #pragma once
 
 #include <PID_v2.h>
-#include "Settings.h"
+#include "SettingsHandler.h"
 #include "Constants.h"
 
 /**
@@ -64,7 +64,7 @@ private:
     float tuningAggressiveness;
     
     // System references
-    Settings* settings;
+    SettingsHandler* settings;
     PID* pid;
     double* pressureInput;
     int* pwmMaxValue;
@@ -76,12 +76,12 @@ private:
 public:
     /**
      * Constructor
-     * @param settings Pointer to Settings instance
+     * @param settings Pointer to SettingsHandler instance
      * @param pid Pointer to PID controller instance
      * @param pressureInput Pointer to current pressure reading
      * @param pwmMaxValue Pointer to maximum PWM value
      */
-    AutoTuner(Settings* settings, PID* pid, double* pressureInput, int* pwmMaxValue);
+    AutoTuner(SettingsHandler* settings, PID* pid, double* pressureInput, int* pwmMaxValue);
     
     /**
      * Start the auto-tuning process

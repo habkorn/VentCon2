@@ -4,7 +4,7 @@
 #include <LittleFS.h>
 #include "WebContent.h"
 #include "Constants.h"  // Add this include
-#include "Settings.h"   // Add Settings class include
+#include "SettingsHandler.h"   // Add SettingsHandler class include
 #include "WebHandlers.h" // Include our class definition
 #include <PID_v2.h> // Changed from PID_v1 to PID_v2
 
@@ -25,7 +25,7 @@
 // call instance-specific methods for handling client connections/disconnections.
 WebHandler* WebHandler::instance = nullptr;
 
-WebHandler::WebHandler(Settings* settings,
+WebHandler::WebHandler(SettingsHandler* settings,
                        PID* pid,
                        double* pressureInput,
                        double* pwmOutput,

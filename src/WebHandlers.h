@@ -4,7 +4,7 @@
 #include <DNSServer.h>
 #include <WiFi.h>
 #include <PID_v2.h>
-#include "Settings.h"
+#include "SettingsHandler.h"
 #include "Constants.h"
 
 /**
@@ -24,7 +24,7 @@ private:
     DNSServer webDnsServer;
     
     // References to system components (dependency injection)
-    Settings* settings;
+    SettingsHandler* settings;
     PID* pid;
       // References to system variables
     double* pressureInput;
@@ -58,7 +58,7 @@ private:
     void handleResetPID();
 
 public:    // Constructor with dependency injection
-    WebHandler(Settings* settings,
+    WebHandler(SettingsHandler* settings,
                PID* pid,
                double* pressureInput,
                double* pwmOutput,

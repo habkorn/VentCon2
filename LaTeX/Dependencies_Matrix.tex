@@ -1,0 +1,123 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{rotating}
+
+\geometry{margin=2cm, landscape}
+
+\title{VentCon2 Class Dependencies Matrix}
+\author{Technical Supplement}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Class Dependency Matrix}
+
+This document provides a detailed dependency analysis of the VentCon2 system classes.
+
+\begin{table}[h!]
+\centering
+\footnotesize
+\begin{tabular}{@{}l|c|c|c|c|c|c|c|c|c@{}}
+\toprule
+\textbf{Class} & \rotatebox{90}{\textbf{Constants}} & \rotatebox{90}{\textbf{SettingsHandler}} & \rotatebox{90}{\textbf{SensorManager}} & \rotatebox{90}{\textbf{AutoTuner}} & \rotatebox{90}{\textbf{WebHandler}} & \rotatebox{90}{\textbf{CommandProcessor}} & \rotatebox{90}{\textbf{ControlSystem}} & \rotatebox{90}{\textbf{TaskManager}} & \rotatebox{90}{\textbf{PID Library}} \\
+\midrule
+\textbf{main.cpp} & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ \\
+\textbf{SettingsHandler} & \cellcolor{green!30}✓ & - & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ \\
+\textbf{SensorManager} & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & - & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ \\
+\textbf{AutoTuner} & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{gray!20}✗ & - & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ \\
+\textbf{WebHandler} & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & - & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ \\
+\textbf{CommandProcessor} & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & - & \cellcolor{gray!20}✗ & \cellcolor{yellow!30}Fwd & \cellcolor{green!30}✓ \\
+\textbf{ControlSystem} & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & - & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ \\
+\textbf{TaskManager} & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ & - & \cellcolor{gray!20}✗ \\
+\bottomrule
+\end{tabular}
+\caption{VentCon2 Class Dependency Matrix}
+\end{table}
+
+\section{Legend}
+\begin{itemize}
+    \item \colorbox{green!30}{✓} - Direct dependency (includes header file)
+    \item \colorbox{gray!20}{✗} - No dependency
+    \item \colorbox{yellow!30}{Fwd} - Forward declaration used
+    \item \textbf{-} - Self-reference (not applicable)
+\end{itemize}
+
+\section{Dependency Analysis}
+
+\subsection{Low Coupling Classes}
+\begin{itemize}
+    \item \textbf{SettingsHandler}: Only depends on Constants (excellent)
+    \item \textbf{SensorManager}: Only depends on SettingsHandler and Constants (good)
+    \item \textbf{AutoTuner}: Minimal dependencies (SettingsHandler, Constants, PID)
+\end{itemize}
+
+\subsection{High Coupling Classes}
+\begin{itemize}
+    \item \textbf{main.cpp}: Orchestrates all classes (expected for entry point)
+    \item \textbf{CommandProcessor}: Needs access to most system components (expected for control interface)
+\end{itemize}
+
+\subsection{Architectural Notes}
+\begin{itemize}
+    \item \textbf{Circular Dependency Prevention}: TaskManager uses forward declaration for CommandProcessor
+    \item \textbf{Dependency Injection}: All classes receive dependencies through constructors
+    \item \textbf{Interface Segregation}: Each class has a focused responsibility
+    \item \textbf{Single Responsibility}: Clear separation of concerns across classes
+\end{itemize}
+
+\section{Initialization Order Requirements}
+
+Based on the dependency matrix, the following initialization order must be maintained:
+
+\begin{enumerate}
+    \item \textbf{Constants} (Static definitions)
+    \item \textbf{SettingsHandler} (Load configuration)
+    \item \textbf{SensorManager} (Hardware initialization)
+    \item \textbf{AutoTuner} (Requires SettingsHandler and PID)
+    \item \textbf{CommandProcessor} (Requires most dependencies)
+    \item \textbf{WebHandler} (Network setup)
+    \item \textbf{ControlSystem} (Real-time control)
+    \item \textbf{TaskManager} (Task orchestration)
+\end{enumerate}
+
+\section{Memory and Performance Impact}
+
+\subsection{Stack Dependencies}
+\begin{table}[h!]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Class} & \textbf{Primary Dependencies} \\
+\midrule
+SettingsHandler & LittleFS, ArduinoJson \\
+SensorManager & Adafruit\_ADS1X15, SettingsHandler \\
+AutoTuner & PID\_v2, SettingsHandler \\
+WebHandler & WebServer, DNSServer, WiFi \\
+CommandProcessor & All system classes \\
+ControlSystem & FreeRTOS, all control classes \\
+TaskManager & FreeRTOS, ControlSystem, WebHandler \\
+\bottomrule
+\end{tabular}
+\caption{External Library Dependencies}
+\end{table}
+
+\subsection{Recommendations}
+
+\begin{itemize}
+    \item \textbf{Maintain Current Structure}: The dependency graph shows good architectural design
+    \item \textbf{Monitor CommandProcessor}: This class has the highest coupling - consider splitting if it grows
+    \item \textbf{SettingsHandler as Singleton}: Consider making SettingsHandler a singleton to reduce parameter passing
+    \item \textbf{Interface Abstraction}: For future testing, consider abstract interfaces for hardware-dependent classes
+\end{itemize}
+
+\end{document}

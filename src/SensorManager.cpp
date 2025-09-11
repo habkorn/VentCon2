@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-SensorManager::SensorManager(Settings* settings)
+SensorManager::SensorManager(SettingsHandler* settings)
     : ads(),
       ads_found(false),
       adc_value(0),

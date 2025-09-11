@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Adafruit_ADS1X15.h>
-#include "Settings.h"
+#include "SettingsHandler.h"
 #include "Constants.h"
 
 /**
@@ -29,7 +29,7 @@ private:
     float last_filtered_pressure;
     
     // Configuration references
-    Settings* settings;
+    SettingsHandler* settings;
     
     // Constants from configuration
     static constexpr int ADC_CHANNEL = SensorConfig::ADC_CHANNEL;
@@ -45,9 +45,9 @@ private:
 public:
     /**
      * Constructor
-     * @param settings Pointer to Settings instance for filter configuration
+     * @param settings Pointer to SettingsHandler instance for filter configuration
      */
-    SensorManager(Settings* settings);
+    SensorManager(SettingsHandler* settings);
     
     /**
      * Initialize the sensor system

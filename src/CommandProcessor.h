@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <PID_v2.h>
-#include "Settings.h"
+#include "SettingsHandler.h"
 #include "SensorManager.h"
 #include "AutoTuner.h"
 #include "WebHandlers.h"
@@ -14,7 +14,7 @@ class TaskManager;
 class CommandProcessor 
 {
 private:    // Dependencies
-    Settings* settings;
+    SettingsHandler* settings;
     SensorManager* sensorManager;
     AutoTuner* autoTuner;
     WebHandler* webHandler;
@@ -47,7 +47,7 @@ private:    // Dependencies
     const char* getVersionString();
 
 public:
-    CommandProcessor(Settings* settings, SensorManager* sensorManager, AutoTuner* autoTuner, 
+    CommandProcessor(SettingsHandler* settings, SensorManager* sensorManager, AutoTuner* autoTuner, 
                     WebHandler* webHandler, PID* pid, double* pressureInput, double* pwmOutput,
                     int* pwm_max_value, bool* manualPWMMode, bool* continousValueOutput,
                     TaskManager* taskManager = nullptr);

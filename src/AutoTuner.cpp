@@ -1,7 +1,7 @@
 #include "AutoTuner.h"
 #include <Arduino.h>
 
-AutoTuner::AutoTuner(Settings* settings, PID* pid, double* pressureInput, int* pwmMaxValue)
+AutoTuner::AutoTuner(SettingsHandler* settings, PID* pid, double* pressureInput, int* pwmMaxValue)
     : autoTuneRunning(false),
       autoTuneStartTime(0),
       lastTransitionTime(0),

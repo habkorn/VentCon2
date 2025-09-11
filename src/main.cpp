@@ -10,7 +10,7 @@
 #include "freertos/task.h"
 #include "WebContent.h"
 #include "Constants.h"  // Add this include
-#include "Settings.h"   // Add Settings class include
+#include "SettingsHandler.h"   // Add SettingsHandler class include
 #include "WebHandlers.h" // Add WebHandlers include
 #include "SensorManager.h" // Add SensorManager include
 #include "AutoTuner.h" // Add AutoTuner include
@@ -25,7 +25,7 @@ const int PWM_CHANNEL_MOSFET = HardwareConfig::PWM_CHANNEL_MOSFET;
 const int PWM_CHANNEL_ANALOG_PRESS = HardwareConfig::PWM_CHANNEL_ANALOG_PRESS;
 
 // ====== Settings and Sensor Instances ======
-Settings settings; // Use Settings class instance
+SettingsHandler settings; // Use SettingsHandler class instance
 SensorManager* sensorManager = nullptr; // Will be initialized in setup()
 AutoTuner* autoTuner = nullptr; // Will be initialized in setup()
 
@@ -58,7 +58,7 @@ int SENSOR_MAX_VALUE = (1 << pwm_analog_pressure_signal_pwm_res) - 1;
 
 void showSettingsFromLittleFS()
 {
-    // Use the Settings class method to display stored settings
+    // Use the SettingsHandler class method to display stored settings
     settings.printStoredSettings();
 }
 
