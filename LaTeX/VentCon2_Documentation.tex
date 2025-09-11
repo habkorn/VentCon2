@@ -175,25 +175,25 @@ The VentCon2 software architecture employs modern object-oriented design pattern
                                |
                                v
                 +--------------------------+    +--------------------------+
-                |      TaskManager         |    |        Constants         |
+                |      TaskManager         |    |      Constants.h         |
                 +--------------------------+    +--------------------------+
-                | - controlSystem:         |    | + PRESSURE_MIN: float    |
-                |   ControlSystem*         |    | + PRESSURE_MAX: float    |
-                | - webHandler: WebHandler*|    | + PWM_FREQ_MIN: int      |
-                | - controlTaskHandle: Task|    | + PWM_FREQ_MAX: int      |
-                | - networkTaskHandle: Task|    | + SOLENOID_PIN: int      |
-                | - taskRunning: bool      |    | + ANALOG_PRESS_PIN: int  |
-                +--------------------------+    | + PWM_CHANNEL_MOSFET: int|
-                | + createTasks(): bool    |    | + DEFAULT_SETPOINT: float|
-                | + startTasks(): void     |    | + EMERGENCY_LIMIT: float |
-                | + stopTasks(): void      |    | + VALVE_MIN_DUTY: float  |
-                | + getTaskStatus(): bool  |    | + VALVE_MAX_DUTY: float  |
-                | + monitorTasks(): void   |    +--------------------------+
-                +--------------------------+                    ^
-                               |                                |
-                               |          +---------------------+
-                               |          |  All classes use
-                               v          |  Constants namespace
+                | - controlSystem:         |    | NetworkConfig namespace  |
+                |   ControlSystem*         |    | HardwareConfig namespace |
+                | - webHandler: WebHandler*|    | SensorConfig namespace   |
+                | - controlTaskHandle: Task|    | ValveConfig namespace    |
+                | - networkTaskHandle: Task|    | - AP_SSID: constexpr     |
+                | - taskRunning: bool      |    | - SOLENOID_PIN: constexpr|
+                +--------------------------+    | - ANALOG_PRESS_PIN:      |
+                | + createTasks(): bool    |    |   constexpr              |
+                | + startTasks(): void     |    | - SENSOR_MIN_BAR:        |
+                | + stopTasks(): void      |    |   constexpr              |
+                | + getTaskStatus(): bool  |    | - SENSOR_MAX_BAR:        |
+                | + monitorTasks(): void   |    |   constexpr              |
+                +--------------------------+    | - VALVE_MIN_DUTY:        |
+                               |                 |   constexpr              |
+                               |          +------| - VALVE_MAX_DUTY:        |
+                               |          |      |   constexpr              |
+                               v          |      +--------------------------+
                 +-------------------------------------------------------------------+
                 |                        main.cpp                                   |
                 +-------------------------------------------------------------------+
@@ -229,7 +229,7 @@ Key Design Patterns:
 - Dependency Injection: main.cpp injects dependencies into all classes
 - Observer Pattern: Real-time data updates from control system to web interface  
 - Strategy Pattern: Multiple auto-tuning algorithms in AutoTuner
-• Singleton Pattern: Constants namespace provides global configuration
+• Singleton Pattern: Constants namespaces provide global configuration
 • Factory Pattern: Task creation and management in TaskManager
 \end{verbatim}
 \caption{VentCon2 UML Class Diagram (ASCII)}
@@ -491,9 +491,16 @@ void ControlSystem::processControlLoop() {
             // Compute PID output
             pid->Compute();
             
-            // Anti-windup and hysteresis compensation
-            if (settings->antiWindup || settings->hysteresis) {
-                handleAdvancedControl(previousOutput);
+            // Anti-windup for deadband and saturation
+            if (settings->antiWindup) {
+                float pidPercent = (*pwmOutput / *pwm_max_value) * 100.0;
+                
+                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput > previousOutput) ||
+                    (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmOutput > previousOutput)) {
+                    // Reset the PID to prevent integral accumulation
+                    pid->SetMode(PID::Manual);
+                    pid->SetMode(PID::Automatic);
+                }
             }
             
             // Update PWM output
@@ -902,8 +909,8 @@ The TaskManager class orchestrates FreeRTOS tasks for optimal real-time performa
 \toprule
 \textbf{Task} & \textbf{Core} & \textbf{Priority} & \textbf{Function} \\
 \midrule
-Control Task & Core 0 & High & PID control, sensor reading \\
-Network Task & Core 1 & Medium & Web server, WiFi management \\
+Control Task & Core 1 & High (2) & PID control, sensor reading \\
+Network Task & Core 0 & Low (1) & Web server, WiFi management \\
 Main Loop & Core 1 & Low & Serial commands, monitoring \\
 \bottomrule
 \end{tabular}
@@ -939,9 +946,9 @@ The system operates with strict timing requirements:
 \toprule
 \textbf{Operation} & \textbf{Frequency} & \textbf{Timing Constraint} \\
 \midrule
-Control Loop & 1000 Hz & 1 ms period \\
-Sensor Reading & 1000 Hz & < 0.5 ms \\
-PID Computation & 100 Hz & 10 ms period \\
+Control Loop & Configurable (default 1000 Hz) & Variable (default 1 ms) \\
+Sensor Reading & Configurable (default 1000 Hz) & < 0.5 ms \\
+PID Computation & Configurable (default 100 Hz) & 10 ms period \\
 Web Data Update & 10 Hz & 100 ms period \\
 Serial Commands & On demand & < 10 ms response \\
 \bottomrule

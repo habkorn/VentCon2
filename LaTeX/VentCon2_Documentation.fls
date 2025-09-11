@@ -1,6 +1,6 @@
-PWD c:\Users\thomas.haberkorn\OneDrive - VENTREX\Desktop\VentCon2\VentCon2\LaTeX
+PWD k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON Code\VentCon2\LaTeX
 INPUT C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\Users\thomas.haberkorn\OneDrive - VENTREX\Desktop\VentCon2\VentCon2\LaTeX\VentCon2_Documentation.tex
+INPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON Code\VentCon2\LaTeX\VentCon2_Documentation.tex
 OUTPUT VentCon2_Documentation.log
 INPUT C:\Program Files\MiKTeX\tex\latex\base\article.cls
 INPUT C:\Program Files\MiKTeX\tex\latex\base\article.cls
