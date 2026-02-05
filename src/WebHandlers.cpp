@@ -142,9 +142,12 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
 
 // Initialize WiFi Access Point
 void WebHandler::initializeWiFiAP() {
+    // Set WiFi mode to Access Point
+    WiFi.mode(WIFI_AP);
+    
     // Configure WiFi AP
     WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
-    WiFi.softAP(ap_ssid, ap_password);
+    WiFi.softAP(ap_ssid, ap_password, 1, 0, NetworkConfig::MAX_CLIENTS);
     
     // Start DNS server for captive portal
     webDnsServer.start(53, "*", ap_ip);
@@ -174,16 +177,62 @@ String WebHandler::getContentType(String filename) {
   return "text/plain";
 }
 
-// Handler for serving files from LittleFS
+// Handler for serving files from LittleFS with chunked transfer for large files
 bool WebHandler::handleFileRead(String path) {
-  if (path.endsWith("/")) path += "index.html"; // Default to index.html if path ends with a slash
+  if (path.endsWith("/")) path += "index.html";
   String contentType = getContentType(path);
-    if (LittleFS.exists(path)) {
+  
+  Serial.printf("File request: %s\n", path.c_str());
+  
+  if (LittleFS.exists(path)) {
     File file = LittleFS.open(path, "r");
-    webServer.streamFile(file, contentType);
-    file.close();
-    return true;
+    if (file) {
+      size_t fileSize = file.size();
+      Serial.printf("  Serving: %s (%d bytes, type: %s)\n", path.c_str(), fileSize, contentType.c_str());
+      
+      if (fileSize == 0) {
+        Serial.printf("  ERROR: File is empty!\n");
+        file.close();
+        webServer.send(500, "text/plain", "File is empty");
+        return true;
+      }
+      
+      // Send headers with content length
+      webServer.setContentLength(fileSize);
+      webServer.send(200, contentType, "");
+      
+      // Stream file in chunks to avoid WiFi buffer issues
+      const size_t chunkSize = 1024;  // 1KB chunks
+      uint8_t buffer[chunkSize];
+      size_t bytesRemaining = fileSize;
+      size_t bytesSent = 0;
+      
+      while (bytesRemaining > 0) {
+        size_t toRead = (bytesRemaining < chunkSize) ? bytesRemaining : chunkSize;
+        size_t bytesRead = file.read(buffer, toRead);
+        
+        if (bytesRead == 0) {
+          Serial.printf("  ERROR: Read failed at byte %d\n", bytesSent);
+          break;
+        }
+        
+        webServer.client().write(buffer, bytesRead);
+        bytesSent += bytesRead;
+        bytesRemaining -= bytesRead;
+        
+        // Yield to allow WiFi stack to process - critical for large files
+        yield();
+        delay(1);  // Small delay to prevent WiFi buffer overflow
+      }
+      
+      file.close();
+      Serial.printf("  Sent %d/%d bytes\n", bytesSent, fileSize);
+      return true;
+    } else {
+      Serial.printf("  ERROR: Could not open file!\n");
+    }
   }
+  Serial.printf("  NOT FOUND: %s\n", path.c_str());
   return false;
 }
 

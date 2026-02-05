@@ -393,11 +393,31 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
     }
 
     // Wait for all deferred scripts to load before initializing
+    let initAttempts = 0;
+    const MAX_INIT_ATTEMPTS = 100; // 5 seconds max wait (100 * 50ms)
+    
+    // Initialize chart update tracking variables globally
+    window.lastChartUpdate = 0;
+    window.chartUpdateInterval = 200;
+    
     function initializeApp() {
+      initAttempts++;
+      
       // Check if Chart.js is available
       if (typeof Chart === 'undefined') {
-        setTimeout(initializeApp, 50);
-        return;
+        if (initAttempts < MAX_INIT_ATTEMPTS) {
+          setTimeout(initializeApp, 50);
+          return;
+        } else {
+          // Chart.js failed to load, proceed without chart
+          console.error('Chart.js failed to load after 5 seconds');
+          cacheElements();
+          if(cachedElements.loader) cachedElements.loader.style.display = 'none';
+          if(cachedElements.chartContainer) cachedElements.chartContainer.style.display = 'none';
+          setupEventListeners();
+          startDataUpdates();
+          return;
+        }
       }
       
       cacheElements();
@@ -669,9 +689,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
         }
       });
       
-      // Track last update time for throttling
-      window.lastChartUpdate = 0;
-      window.chartUpdateInterval = 200; // Update chart every 250ms max
+      // Chart update tracking already initialized globally
     }
     
     // Setup all event listeners
