@@ -55,7 +55,7 @@ bool SensorManager::initializeADS1015(unsigned long timeout_ms)
                 return true;
             }
         }
-        delay(100);
+        delay(TimingConfig::I2C_INIT_DELAY_MS);
     }
     
     return false;
@@ -73,7 +73,7 @@ void SensorManager::readSensor()
     {
         // Use ESP32 built-in ADC as fallback
         adc_value = analogRead(FALLBACK_ANALOG_PIN);
-        voltage = adc_value * (3.3 / 4095.0); // Assuming 3.3V reference
+        voltage = adc_value * (Esp32AdcConfig::VREF / Esp32AdcConfig::ADC_MAX); // Assuming 3.3V reference
     }
     
     // Calculate pressure from voltage
@@ -138,8 +138,8 @@ void SensorManager::printSensorStatus() const
     else 
     {
         Serial.printf("Fallback Pin: %d\n", FALLBACK_ANALOG_PIN);
-        Serial.printf("Reference Voltage: 3.3V\n");
-        Serial.printf("Resolution: 12-bit (0-4095)\n");
+        Serial.printf("Reference Voltage: %.1fV\n", Esp32AdcConfig::VREF);
+        Serial.printf("Resolution: 12-bit (0-%d)\n", Esp32AdcConfig::ADC_MAX);
     }
 
     Serial.printf("Filter Strength: %.2f\n", settings->filter_strength);

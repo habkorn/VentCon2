@@ -3,51 +3,25 @@
 
 ControlSystem::ControlSystem(SettingsHandler* settings, SensorManager* sensorManager, 
                            AutoTuner* autoTuner, PID* pid, double* pressureInput, 
-                           double* pwmOutput, int* pwm_max_value, bool* manualPWMMode,
+                           double* pwmOutput, int* pwmFullScaleRaw, bool* manualPWMMode,
                            bool* continousValueOutput)
     : settings(settings), sensorManager(sensorManager), autoTuner(autoTuner), 
       pid(pid), pressureInput(pressureInput), pwmOutput(pwmOutput), 
-      pwm_max_value(pwm_max_value), manualPWMMode(manualPWMMode),
+      pwmFullScaleRaw(pwmFullScaleRaw), manualPWMMode(manualPWMMode),
       continousValueOutput(continousValueOutput), lastPressure(0.0), 
-      pressureIncreasing(false), SERIAL_OUTPUT_INTERVAL(100),
-      pwm_analog_pressure_signal_pwm_res(12) 
+      pressureIncreasing(false), SERIAL_OUTPUT_INTERVAL(TimingConfig::SERIAL_OUTPUT_INTERVAL_MS) 
 {
 }
 
-uint32_t ControlSystem::mapPwmToValve(double pidOutput, int maxPwmValue) 
+uint32_t ControlSystem::mapPwmToValve(double pidOutput, int maxPwmFullScaleRaw) 
 {
-    // Calculate the percentage within PID range (0-100%)
-    float pidPercent = (pidOutput / maxPwmValue) * 100.0;
+    // Convert PID output to percentage (0-100%)
+    float pidPercent = (pidOutput / maxPwmFullScaleRaw) * 100.0;
     
     // If below minimum threshold, keep valve closed
     if (pidPercent < 1.0) 
     {
         return 0;
-    }
-    
-    // Apply hysteresis compensation if enabled
-    if (settings->hysteresis) 
-    {
-        // Determine if pressure is currently increasing or decreasing
-        bool currentlyIncreasing = *pressureInput > lastPressure;
-        
-        // Apply compensation only when direction changes
-        if (currentlyIncreasing != pressureIncreasing) 
-        {
-            // When changing from increasing to decreasing, add compensation
-            if (!currentlyIncreasing) 
-            {
-                pidPercent += settings->hystAmount;
-            }
-            // When changing from decreasing to increasing, subtract compensation
-            else 
-            {
-                pidPercent -= settings->hystAmount;
-            }
-            
-            // Update direction flag
-            pressureIncreasing = currentlyIncreasing;
-        }
     }
     
     // Map PID's 0-100% to valve's effective range
@@ -58,19 +32,41 @@ uint32_t ControlSystem::mapPwmToValve(double pidOutput, int maxPwmValue)
     mappedPercent = constrain(mappedPercent, 0.0, 100.0);
     
     // Convert percentage back to absolute PWM value
-    return (uint32_t)((mappedPercent / 100.0) * maxPwmValue);
+    return (uint32_t)((mappedPercent / 100.0) * maxPwmFullScaleRaw);
 }
 
-void ControlSystem::handleAnalogPressureOutput() 
+void ControlSystem::applyHysteresisCompensation(double& output) 
 {
-    static unsigned long lastAnalogOutTime = 0;
-    if (millis() - lastAnalogOutTime >= 10) 
-    { 
-        // Output analog pressure signal to ANALOG_PRESS_PIN
-        float pressurePercent = *pressureInput / SensorConfig::SENSOR_MAX_BAR;
-        uint32_t analogOutValue = (uint32_t)(pressurePercent * ((1 << pwm_analog_pressure_signal_pwm_res) - 1));
-        ledcWrite(HardwareConfig::PWM_CHANNEL_ANALOG_PRESS, analogOutValue);   
-        lastAnalogOutTime = millis();
+    if (!settings->hysteresis) 
+    {
+        return;
+    }
+    
+    // Determine if pressure is currently increasing or decreasing
+    bool currentlyIncreasing = *pressureInput > lastPressure;
+    
+    // Apply compensation only when direction changes
+    if (currentlyIncreasing != pressureIncreasing) 
+    {
+        // Calculate compensation as fraction of max PWM value
+        double compensation = (*pwmFullScaleRaw * settings->hystAmount) / 100.0;
+        
+        // When changing from increasing to decreasing, add compensation
+        if (!currentlyIncreasing) 
+        {
+            output += compensation;
+        }
+        // When changing from decreasing to increasing, subtract compensation
+        else 
+        {
+            output -= compensation;
+        }
+        
+        // Constrain to valid range
+        output = constrain(output, 0.0, (double)*pwmFullScaleRaw);
+        
+        // Update direction flag
+        pressureIncreasing = currentlyIncreasing;
     }
 }
 
@@ -82,7 +78,7 @@ void ControlSystem::handleEmergencyShutdown()
         ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, 0);
         
         static unsigned long lastEmergencyMsgTime = 0;
-        if (millis() - lastEmergencyMsgTime >= 1000) 
+        if (millis() - lastEmergencyMsgTime >= TimingConfig::EMERGENCY_MSG_INTERVAL_MS) 
         {
             Serial.printf("EMERGENCY SHUTDOWN! Pressure %.2f bar exceeds safe limit.\n", *pressureInput);
             lastEmergencyMsgTime = millis();
@@ -115,7 +111,7 @@ void ControlSystem::handleContinuousDataOutput(unsigned long taskStartTime, unsi
           settings->setpoint - *pressureInput,
           *pressureInput,
           settings->setpoint,
-          (autoTuner && autoTuner->isRunning() ? autoTuner->getOutputValue() : (*pwmOutput / *pwm_max_value) * 100.0),
+          (autoTuner && autoTuner->isRunning() ? autoTuner->getOutputValue() : (*pwmOutput / *pwmFullScaleRaw) * 100.0),
           xTaskGetTickCount() * portTICK_PERIOD_MS / 1000.0, // Convert ticks to seconds
           taskExecTime, // Task execution time in microseconds
           totalCycleTime, // Total cycle time in microseconds (execution + wait)
@@ -152,9 +148,6 @@ void ControlSystem::processControlLoop()
         // Update Input value for PID before computation
         *pressureInput = sensorManager->getPressure();
         
-        // ====== Analog Pressure Signal Output =====
-        handleAnalogPressureOutput();
-        
         // Process auto-tuning if active
         if (autoTuner && autoTuner->isRunning()) 
         {
@@ -165,19 +158,21 @@ void ControlSystem::processControlLoop()
         {
             // Store previous output for anti-windup check
             double previousOutput = *pwmOutput;
-            
-            // Constrain output to valid range
-            *pwmOutput = constrain(*pwmOutput, 0, *pwm_max_value); 
 
             // Compute PID output
             pid->Compute();
             
+            // Constrain output to valid range (safety check, SetOutputLimits should handle this)
+            *pwmOutput = constrain(*pwmOutput, 0, *pwmFullScaleRaw);
+            
             // Anti-windup for deadband and saturation
             if (settings->antiWindup) 
             {
-                float pidPercent = (*pwmOutput / *pwm_max_value) * 100.0;
+                float pidPercent = (*pwmOutput / *pwmFullScaleRaw) * 100.0;
                 
-                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput > previousOutput) ||
+                // Below dead zone and trying to decrease further (valve already closed)
+                // Above saturation and trying to increase further (valve already fully open)
+                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput < previousOutput) ||
                     (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmOutput > previousOutput)) 
                 {
                     // Reset the PID to prevent integral accumulation
@@ -190,19 +185,22 @@ void ControlSystem::processControlLoop()
                     {
                         if (pidPercent < ValveConfig::VALVE_MIN_DUTY) 
                         {
-                            Serial.println("Anti-windup: Below min duty cycle");
+                            Serial.println("Anti-windup: Below min duty, valve closed");
                         } 
                         else 
                         {
-                            Serial.println("Anti-windup: Above max duty cycle");
+                            Serial.println("Anti-windup: Above max duty, valve saturated");
                         }
                         lastDebugTime = millis();
                     }
                 }
             }
 
+            // Apply hysteresis compensation to PID output
+            applyHysteresisCompensation(*pwmOutput);
+
             // Use the mapping function to get actual PWM value to apply
-            uint32_t actualPwm = mapPwmToValve(*pwmOutput, *pwm_max_value);
+            uint32_t actualPwm = mapPwmToValve(*pwmOutput, *pwmFullScaleRaw);
             ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, actualPwm);
         }
         

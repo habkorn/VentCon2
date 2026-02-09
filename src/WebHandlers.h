@@ -30,7 +30,7 @@ private:
     double* pressureInput;
     double* pwmOutput;
     bool* ads_found;
-    int* pwm_max_value;
+    int* pwmFullScaleRaw;
     float* last_filtered_pressure;
       // WiFi connection management variables
     int connectedClients;
@@ -52,7 +52,7 @@ private:
     void onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info);
     
     // Route handlers
-    void handleRoot();
+    void handleRoot();           // Memory-efficient streaming version
     void handleSet();
     void handleValues();
     void handleResetPID();
@@ -63,7 +63,7 @@ public:    // Constructor with dependency injection
                double* pressureInput,
                double* pwmOutput,
                bool* ads_found,
-               int* pwm_max_value,
+               int* pwmFullScaleRaw,
                float* last_filtered_pressure);
       // Destructor
     ~WebHandler();

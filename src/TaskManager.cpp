@@ -1,4 +1,5 @@
 #include "TaskManager.h"
+#include "Constants.h"
 
 TaskManager::TaskManager(ControlSystem* controlSystem, WebHandler* webHandler)
     : controlSystem(controlSystem), webHandler(webHandler), 
@@ -21,14 +22,14 @@ void TaskManager::networkTaskWrapper(void* parameter)
             webHandler->getWebServer().handleClient();
             
             unsigned long netTime = micros() - netStart;
-            if (netTime > 20000) 
+            if (netTime > TaskConfig::NETWORK_DELAY_WARNING_US)
             { // Log if >20ms
                 // Serial.printf("Network delay: %lu us (Core 0)\n", netTime);
             }
         }
         
-        // Small delay to prevent watchdog timeout and allow other tasks
-        vTaskDelay(pdMS_TO_TICKS(2)); // 2ms delay = ~500Hz update rate
+        // Delay to prevent watchdog timeout - matches web polling rate
+        vTaskDelay(pdMS_TO_TICKS(TaskConfig::NETWORK_TASK_DELAY_MS)); // 10ms delay = 100Hz, matches /values poll rate
     }
 }
 
@@ -40,7 +41,7 @@ bool TaskManager::createTasks()
     BaseType_t networkResult = xTaskCreatePinnedToCore(
         networkTaskWrapper,        // Task function
         "NetworkTask",            // Task name
-        4096,                     // Stack size (bytes)
+        TaskConfig::STACK_SIZE,                     // Stack size (bytes)
         this,                     // Parameter passed to task (this TaskManager instance)
         1,                        // Task priority (1 = low, higher number = higher priority)
         &networkTaskHandle,       // Task handle
@@ -61,7 +62,7 @@ bool TaskManager::createTasks()
     BaseType_t controlResult = xTaskCreatePinnedToCore(
         ControlSystem::controlTaskWrapper,  // Task function
         "ControlTask",                      // Task name
-        4096,                              // Stack size (bytes)
+        TaskConfig::STACK_SIZE,                              // Stack size (bytes)
         controlSystem,                     // Parameter passed to task (ControlSystem instance)
         2,                                 // Task priority (2 = higher than network)
         &controlTaskHandle,                // Task handle

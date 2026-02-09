@@ -24,7 +24,7 @@ private:    // Dependencies
     // System state pointers
     double* pressureInput;
     double* pwmOutput;
-    int* pwm_max_value;
+    int* pwmFullScaleRaw;
     bool* manualPWMMode;
     bool* continousValueOutput;
     
@@ -49,7 +49,7 @@ private:    // Dependencies
 public:
     CommandProcessor(SettingsHandler* settings, SensorManager* sensorManager, AutoTuner* autoTuner, 
                     WebHandler* webHandler, PID* pid, double* pressureInput, double* pwmOutput,
-                    int* pwm_max_value, bool* manualPWMMode, bool* continousValueOutput,
+                    int* pwmFullScaleRaw, bool* manualPWMMode, bool* continousValueOutput,
                     TaskManager* taskManager = nullptr);
     
     void processCommand(const String& cmd);

@@ -8,8 +8,12 @@ void handleRoot();
 void handleSet();
 void handleValues();
 
-// HTML Content (PROGMEM for flash storage)
-const char HTML_CONTENT[] PROGMEM = R"rawliteral(
+// ============================================================================
+// HTML CONTENT - Split into sections for memory-efficient streaming
+// ============================================================================
+
+// Section 1: HTML Head (scripts, meta tags)
+const char HTML_HEAD[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,8 +27,8 @@ const char HTML_CONTENT[] PROGMEM = R"rawliteral(
 
 )rawliteral";
 
-// Concatenate parts of the HTML
-const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
+// Section 2: Body start (static content before input fields)
+const char HTML_BODY_START[] PROGMEM = R"rawliteral(
 
 </head>
 
@@ -108,7 +112,11 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       <div id="saveSnackbar" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2563eb; color:white; padding:12px 24px; border-radius:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15); font-weight:600; z-index:1000; display:none; cursor:pointer; transition:all 0.3s ease;">
         <span id="saveSnackbarText">Apply Changes</span>
       </div>
-      
+)rawliteral";
+
+// Section 3: Dynamic input fields with placeholders (~1.5KB)
+// This is the ONLY section that needs String processing
+const char HTML_INPUTS[] PROGMEM = R"rawliteral(
       <div class="control-row">
         <label for="sp_slider">Setpoint Outlet Pressure in bar(g)</label>
         <div class="control-slider">
@@ -212,7 +220,10 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       </div>
     </section>
   </main>
+)rawliteral";
 
+// Section 4: Footer with version placeholder (small)
+const char HTML_FOOTER[] PROGMEM = R"rawliteral(
   <footer>
     <p>VENTCON Control System v%VERSION% by HAB</p>
     <!-- Hidden Easter egg panel -->
@@ -274,6 +285,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             <div style="background: #f1f5f9; padding: 6px 8px; font-weight: bold; color: #334155; border-bottom: 1px solid #e2e8f0;">🎯 AUTO-TUNING</div>
             <div style="padding: 8px;">
               <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
+                <span><strong>AUTOTUNE</strong></span><span>Test AutoTuner and show detailed configuration</span>
                 <span><strong>TUNE START</strong></span><span>Start PID auto-tuning process</span>
                 <span><strong>TUNE STOP</strong></span><span>Cancel auto-tuning process</span>
                 <span><strong>TUNE ACCEPT</strong></span><span>Accept calculated PID parameters</span>
@@ -305,6 +317,7 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
             <div style="padding: 8px;">
               <div style="display: grid; grid-template-columns: 120px 1fr; gap: 8px; font-size: 10px;">
                 <span><strong>STATUS</strong></span><span>Show comprehensive system status</span>
+                <span><strong>SENSOR</strong></span><span>Test SensorManager and show detailed sensor readings</span>
                 <span><strong>STARTCD</strong></span><span>Start continuous data output for plotting</span>
                 <span><strong>STOPCD</strong></span><span>Stop continuous data output</span>
                 <span><strong>MEM</strong></span><span>Show memory usage and system information</span>
@@ -346,7 +359,10 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
       </div>
     </div>
   </footer>
+)rawliteral";
 
+// Section 5: JavaScript and closing HTML tags (static, ~25KB)
+const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
   <script defer>
     // Cached DOM elements
     let cachedElements = {};
@@ -1248,14 +1264,3 @@ const char HTML_CONTENT_AFTER_STYLE[] PROGMEM = R"rawliteral(
 </body>
 </html>
 )rawliteral";
-
-// Function to assemble the full HTML content at runtime
-// Adding 'inline' to prevent multiple definition errors when included in multiple files
-
-inline String getFullHtmlContent() 
-{
-  String fullHtml = FPSTR(HTML_CONTENT);
-  fullHtml += FPSTR(CSS_STYLES);
-  fullHtml += FPSTR(HTML_CONTENT_AFTER_STYLE);
-  return fullHtml;
-}

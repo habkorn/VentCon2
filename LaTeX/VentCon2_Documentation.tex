@@ -10,6 +10,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{tikz}
+\usetikzlibrary{positioning}
 \usepackage{pgfplots}
 \usepackage{booktabs}
 \usepackage{array}
@@ -65,175 +66,431 @@ The VentCon2 system is a sophisticated embedded pressure control system designed
 \subsection{Key Features}
 \begin{itemize}
     \item Real-time PID pressure control with configurable parameters
-    \item Web-based interface for monitoring and configuration
+    \item Memory-efficient web interface with streamed HTML from PROGMEM
+    \item Chunked file serving for large JavaScript libraries (Chart.js)
     \item Automatic PID tuning using relay-based oscillation methods
     \item Multi-core task management using FreeRTOS
     \item Dual ADC support (ADS1015 external, ESP32 internal fallback)
-    \item Persistent configuration storage using LittleFS
+    \item Persistent configuration storage using LittleFS (3.375 MB partition)
     \item Serial command interface for advanced control
-    \item WiFi Access Point for wireless connectivity
+    \item WiFi Access Point with client management and channel selection
 \end{itemize}
 
 \section{System Architecture Overview}
 
+\subsection{Introduction}
+
+The VentCon2 Pressure Control System is an embedded control solution designed to precisely regulate pressure in medical ventilator applications. At its core, the system maintains a user-defined target pressure by controlling an electronically-operated solenoid valve based on continuous feedback from a high-precision pressure sensor. This section provides an overview of the system's primary components and their interactions.
+
+\subsection{System Purpose and Application}
+
+The VentCon2 system operates within a pressurized gas delivery circuit, regulating pressure to precise specifications required by medical ventilators. The system is responsible for:
+
+    \begin{itemize}
+        \item Maintaining stable pressure at a user-configured setpoint (0-10 bar range)
+        \item Responding rapidly to pressure disturbances and demand changes
+        \item Preventing overshoot and oscillation through advanced control algorithms
+        \item Providing real-time monitoring and diagnostics via web interface and serial console
+        \item Ensuring safe operation with hardware and software redundancy
+    \end{itemize}
+
+The system processes pressure feedback hundreds of times per second, adjusting valve opening in real-time to maintain the target pressure with high accuracy and responsiveness.
+
+\subsection{Core Hardware Components}
+
+\subsubsection{Solenoid Valve}
+
+The solenoid valve is the primary actuator in the VentCon2 system, responsible for controlling the flow of pressurized gas. Key characteristics:
+
+    \begin{itemize}
+        \item \textbf{Type:} Electronically-controlled solenoid valve with proportional control capability
+        \item \textbf{Control Signal:} PWM (Pulse Width Modulation) at configurable frequency (100-10000 Hz)
+        \item \textbf{Operating Principle:} Varying the PWM duty cycle (0-100\%) proportionally adjusts the valve's opening position
+        \item \textbf{Response Time:} Fast response enables real-time pressure control in the 100 Hz control loop
+        \item \textbf{Deadband:} Physical deadband in the valve mechanism creates hysteresis (described in Control System Enhancements section)
+    \end{itemize}
+
+The solenoid valve converts electrical PWM signals from the microcontroller into precise mechanical valve positioning. The proportional relationship between PWM duty cycle and valve opening allows the system to achieve smooth, linear pressure control across the full operating range. The valve's physical limitations (deadband, response lag) are compensated by control algorithms described later in the ControlSystem class documentation.
+
+\subsubsection{Pressure Sensor}
+
+The pressure sensor continuously monitors the system pressure, providing real-time feedback to the control algorithm. Specifications:
+
+    \begin{itemize}
+        \item \textbf{Sensor Type:} Analog pressure transducer with 0.5-4.5V output signal
+        \item \textbf{Pressure Range:} 0-10 bar (0-145 PSI)
+        \item \textbf{Measurement Accuracy:} ±2\% over the operating range
+        \item \textbf{Response Speed:} Suitable for real-time feedback in control loop (< 10 ms delay)
+        \item \textbf{Signal Conditioning:} Converted to digital values via 12-bit analog-to-digital converter
+        \item \textbf{Filtering:} Software low-pass filter reduces sensor noise (configurable, 0.0-1.0 strength)
+    \end{itemize}
+
+The sensor output is continuously digitized and read by the microcontroller's ADC (Analog-to-Digital Converter). The digital pressure values are then passed to the PID control algorithm, which calculates the error between the measured pressure and the target setpoint. This feedback loop operates at 100 Hz (configurable via CONTROL FREQ command), allowing the system to respond rapidly to pressure changes.
+
+\subsubsection{Microcontroller and Processing Unit}
+
+The brain of the VentCon2 system is the ESP32-S3 Arduino Nano microcontroller. Key capabilities:
+
+    \begin{itemize}
+        \item \textbf{Processor:} Dual-core Xtensa processor running at 240 MHz
+        \item \textbf{Memory:} 320 KB RAM for real-time operations, 16 MB flash storage
+        \item \textbf{Analog Input:} 12-bit internal ADC with multiple input channels for sensor reading
+        \item \textbf{Digital Output:} PWM-capable GPIO pins for solenoid valve control
+        \item \textbf{Communication:} WiFi (802.11 b/g/n) for web interface and diagnostics
+        \item \textbf{Serial Port:} UART at 115200 baud for command interface and debugging
+        \item \textbf{Real-Time Operating System:} FreeRTOS for multi-tasking and task scheduling
+    \end{itemize}
+
+The microcontroller runs the complete VentCon2 software stack including:
+
+    \begin{itemize}
+        \item Real-time PID control loop (100+ Hz, core 1)
+        \item Sensor reading and signal processing
+        \item WiFi access point and web server (core 0)
+        \item Serial command processor for advanced control
+        \item Auto-tuning algorithm for parameter optimization
+        \item Persistent settings storage in LittleFS flash filesystem
+    \end{itemize}
+
+The dual-core architecture allows separation of critical real-time control (core 1) from network operations (core 0), ensuring that web interface activity does not interfere with pressure control stability.
+
+\subsection{System Integration and Signal Flow}
+
+\subsubsection{Closed-Loop Control Architecture}
+
+The VentCon2 system operates as a closed-loop feedback control system:
+
+    \begin{enumerate}
+        \item \textbf{Measurement:} Pressure sensor continuously measures system pressure
+        \item \textbf{Calculation:} PID algorithm computes error (setpoint - measured pressure)
+        \item \textbf{Control:} Algorithm determines required valve opening (PWM duty cycle)
+        \item \textbf{Actuation:} Solenoid valve adjusts position based on PWM signal
+        \item \textbf{Response:} Pressure change results from valve adjustment
+        \item \textbf{Feedback:} New pressure measurement begins next control cycle
+    \end{enumerate}
+
+This cycle repeats continuously at 100 Hz (or user-configured frequency), creating a real-time feedback loop that maintains pressure at the setpoint.
+
+\subsubsection{System Overview Illustration}
+
+Figure~\ref{fig:system-overall} illustrates the closed-loop signal flow between the sensor, controller, and solenoid valve.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2.2cm, auto, >=latex]
+    \tikzstyle{block} = [draw, rectangle, rounded corners, minimum height=1cm, minimum width=3.2cm, align=center]
+    \tikzstyle{arrow} = [->, thick]
+
+    \node[block] (sensor) {Pressure Sensor\\(0.5--4.5V)};
+    \node[block, right=of sensor] (adc) {ADC + Filtering};
+    \node[block, right=of adc] (pid) {PID Controller};
+    \node[block, right=of pid] (pwm) {PWM Output};
+    \node[block, right=of pwm] (valve) {Solenoid Valve};
+    \node[block, below=1.4cm of pid] (plant) {Pressure System\\(Gas Circuit)};
+
+    \draw[arrow] (sensor) -- (adc);
+    \draw[arrow] (adc) -- (pid);
+    \draw[arrow] (pid) -- (pwm);
+    \draw[arrow] (pwm) -- (valve);
+    \draw[arrow] (valve) -- (plant);
+    \draw[arrow] (plant) -| (sensor);
+\end{tikzpicture}
+\caption{VentCon2 closed-loop control overview}
+\label{fig:system-overall}
+\end{figure}
+
+\subsubsection{Signal Conditioning and Processing Chain}
+
+From sensor to control output, the signal undergoes several processing stages:
+
+    \begin{equation}
+    \text{Voltage} \rightarrow \text{ADC} \rightarrow \text{Digital} \rightarrow \text{Filter} \rightarrow \text{PID} \rightarrow \text{PWM}
+    \end{equation}
+
+    \begin{itemize}
+        \item \textbf{Analog Voltage (0.5-4.5V):} Output from pressure transducer
+        \item \textbf{ADC Conversion:} 12-bit analog-to-digital conversion (0-4095 counts)
+        \item \textbf{Pressure Conversion:} Digital counts converted to pressure units (bar)
+        \item \textbf{Low-Pass Filter:} Software filter reduces high-frequency sensor noise
+        \item \textbf{PID Calculation:} Controller computes error and optimal output
+        \item \textbf{PWM Generation:} Digital output converted to PWM signal (0-100\% duty cycle)
+        \item \textbf{Solenoid Actuation:} PWM controls valve opening position
+    \end{itemize}
+
+Each processing stage is tunable via serial commands or the web interface, allowing the system to be optimized for different valve characteristics and installation conditions.
+
+\subsubsection{External Interfaces}
+
+The VentCon2 system provides multiple interfaces for monitoring and control:
+
+    \begin{itemize}
+        \item \textbf{Web Interface:} Browser-based real-time monitoring and parameter adjustment (WiFi)
+        \item \textbf{Serial Console:} Command-line interface for advanced control and diagnostics (USB/UART at 115200 baud)
+        \item \textbf{Analog Output:} Optional analog output for pressure telemetry to external equipment
+        \item \textbf{GPIO Pins:} General-purpose I/O for integration with external systems
+    \end{itemize}
+
+ 
 \subsection{Hardware Platform}
 \begin{itemize}
-    \item \textbf{Microcontroller:} ESP32 Arduino Nano (Dual-core, 240MHz)
+    \item \textbf{Microcontroller:} ESP32-S3 Arduino Nano (Dual-core, 240MHz, 320KB RAM)
+    \item \textbf{Flash:} 16MB with custom partition table (6.25MB app, 3.375MB LittleFS)
     \item \textbf{ADC:} ADS1015 12-bit external ADC with ESP32 internal ADC fallback
     \item \textbf{Pressure Sensor:} 0.5-4.5V analog output, 0-10 bar range
     \item \textbf{Valve Control:} PWM-controlled solenoid valve
-    \item \textbf{Connectivity:} WiFi Access Point mode
-    \item \textbf{Storage:} LittleFS for persistent configuration
+    \item \textbf{Connectivity:} WiFi Access Point mode (WPA2-PSK)
+    \item \textbf{Storage:} LittleFS for persistent configuration and web assets
 \end{itemize}
 
 \subsection{Software Architecture}
 The VentCon2 software architecture employs modern object-oriented design patterns to create a robust, maintainable, and scalable embedded system. Built around the principle of separation of concerns, the architecture divides system functionality into eight specialized classes, each responsible for distinct aspects of the pressure control system. The design leverages dependency injection to promote loose coupling between components, enabling comprehensive unit testing and facilitating future system enhancements. This modular approach ensures that critical real-time control operations remain isolated from network communications and user interface management, optimizing both performance and reliability.
 
 
+\subsubsection{System Overview Diagram}
+Figure~\ref{fig:system-overview} shows the high-level architecture with class relationships and data flow between components.
+
 \begin{figure}[H]
 \centering
 \begin{verbatim}
-+-------------------------------------------------------------------------------+
-|                         VentCon2 System - UML Class Diagram                   |
-+-------------------------------------------------------------------------------+
-
-+--------------------------+    +------------------------+    +--------------------------+
-|     SettingsHandler      |    |     SensorManager      |    |      WebHandler          |
-+--------------------------+    +------------------------+    +--------------------------+
-| - Kp: double             |    | - ads: Adafruit_ADS1015|    | - webServer: WebServer   |
-| - Ki: double             |    | - ads_found: bool      |    | - dnsServer: DNSServer   |
-| - Kd: double             |    | - adc_value: int16_t   |    | - settings:              |
-| - setpoint: double       |    | - voltage: float       |    |   SettingsHandler*       |
-| - pwm_freq: int          |    | - raw_pressure: float  |    | - pid: PID*              |
-| - pwm_res: int           |    | - filtered_pressure:   |    | - pwmOutput: double*     |
-| - filter_strength: float |    |   float                |    | - manualPWMMode: bool*   |
-| - antiWindup: bool       |    | - settings:            |    | - pwmMaxValue: int*      |
-| - hysteresis: bool       |    |   SettingsHandler*     |    +--------------------------+
-+--------------------------+    +------------------------|    | + begin(): void          |
-| + load(): bool           |    | + initialize(): bool   |    | + handleClient(): void   |
-| + save(): bool           |    | + readSensor(): void   |    | + handleRoot(): void     |
-| + resetToDefaults(): void|    | + getPressure(): float |    | + handleValues(): void   |
-| + printSettings(): void  |    | + getVoltage(): float  |    | + handleSet(): void      |
-+--------------------------+    | + isADSFound(): bool   |    | + handleReset(): void    |
-           |                    | + getFilteredPtr():    |    +--------------------------+
-           |                    |   float*               |                   ^
-           v                    +------------------------+                   |
-+--------------------------+                    |                            |
-|       AutoTuner          |                    v                            |
-+--------------------------+    +--------------------------+                 |
-| - autoTuneRunning: bool  |    |     ControlSystem        |                 |
-| - autoTuneSetpoint: float|    +--------------------------+                 |
-| - currentCycle: int      |    | - settings:              |                 |
-| - cycleTimes[]: ulong    |    |   SettingsHandler*       |                 |
-| - cycleAmplitudes[]:     |    | - sensorManager:         |                 |
-|   float                  |    |   SensorManager*         |                 |
-| - currentTuningRule: enum|    | - autoTuner: AutoTuner*  |                 |
-| - settings:              |    | - pid: PID*              |                 |
-|   SettingsHandler*       |    | - pressureInput: double* |                 |
-| - pid: PID*              |    | - pwmOutput: double*     |                 |
-+--------------------------+    | - manualPWMMode: bool*   |                 |
-| + start(): void          |    | - pwmMaxValue: int*      |                 |
-| + stop(): void           |    +--------------------------+                 |
-| + process(): void        |    | + initialize(): bool     |                 |
-| + isRunning(): bool      |    | + processControlLoop():  |                 |
-| + setTuningRule(): void  |    |   void                   |                 |
-| + getProgress(): float   |    | + updatePWMOutput(): void|                 |
-+--------------------------+    | + emergencyShutdown():   |                 |
-           |                    |   void                   |                 |
-           |                    | + getLastCycleTime():    |                 |
-           |                    |   float                  |                 |
-           |                    | + handleDataOutput():    |                 |
-           |                    |   void                   |                 |
-           |                    +--------------------------+                 |
-           |                                   |                             |
-           +-------------------+---------------+                             |
-                               |                                             |
-                               v                                             |
-                +--------------------------+                                 |
-                |   CommandProcessor       |                                 |
-                +--------------------------+                                 |
-                | - settings:              |                                 |
-                |   SettingsHandler*       |                                 |
-                | - sensorManager:         |                                 |
-                |   SensorManager*         |                                 |
-                | - autoTuner: AutoTuner*  |                                 |
-                | - webHandler: WebHandler*|---------------------------------+
-                | - pid: PID*              |
-                | - pwmOutput: double*     |
-                | - commandBuffer: String  |
-                +--------------------------+
-                | + processCommand(): void |
-                | + handleSerialInput():   |
-                |   void                   |
-                | + executeCommand(): bool |
-                | + showHelp(): void       |
-                | + showStatus(): void     |
-                | + handlePIDCmd(): void   |
-                | + handlePWMCmd(): void   |
-                +--------------------------+
-                               |
-                               |
-                               v
-                +--------------------------+    +--------------------------+
-                |      TaskManager         |    |      Constants.h         |
-                +--------------------------+    +--------------------------+
-                | - controlSystem:         |    | NetworkConfig namespace  |
-                |   ControlSystem*         |    | HardwareConfig namespace |
-                | - webHandler: WebHandler*|    | SensorConfig namespace   |
-                | - controlTaskHandle: Task|    | ValveConfig namespace    |
-                | - networkTaskHandle: Task|    | - AP_SSID: constexpr     |
-                | - taskRunning: bool      |    | - SOLENOID_PIN: constexpr|
-                +--------------------------+    | - ANALOG_PRESS_PIN:      |
-                | + createTasks(): bool    |    |   constexpr              |
-                | + startTasks(): void     |    | - SENSOR_MIN_BAR:        |
-                | + stopTasks(): void      |    |   constexpr              |
-                | + getTaskStatus(): bool  |    | - SENSOR_MAX_BAR:        |
-                | + monitorTasks(): void   |    |   constexpr              |
-                +--------------------------+    | - VALVE_MIN_DUTY:        |
-                               |                 |   constexpr              |
-                               |          +------| - VALVE_MAX_DUTY:        |
-                               |          |      |   constexpr              |
-                               v          |      +--------------------------+
-                +-------------------------------------------------------------------+
-                |                        main.cpp                                   |
-                +-------------------------------------------------------------------+
-                | - settings: SettingsHandler                                       |
-                | - sensorManager: SensorManager*                                   |
-                | - autoTuner: AutoTuner*                                           |
-                | - webHandler: WebHandler*                                         |
-                | - commandProcessor: CommandProcessor*                             |
-                | - controlSystem: ControlSystem*                                   |
-                | - taskManager: TaskManager*                                       |
-                | - pid: PID                                                        |
-                | - pressureInput: double                                           |
-                | - pwmOutput: double                                               |
-                | - manualPWMMode: bool                                             |
-                | - pwmMaxValue: int                                                |
-                +-------------------------------------------------------------------+
-                | + setup(): void                                                   |
-                | + loop(): void                                                    |
-                | + initializeSystem(): void                                        |
-                | + setupPWMChannels(): void                                        |
-                | + showSettingsFromLittleFS(): void                                |
-                +-------------------------------------------------------------------+
-
-Relationships Legend:
------------------------
-| Composition     (strong ownership)
-v Dependency      (uses/requires)
-^ References      (points to)
-* Pointer/Reference
-
-Key Design Patterns:
------------------------
-- Dependency Injection: main.cpp injects dependencies into all classes
-- Observer Pattern: Real-time data updates from control system to web interface  
-- Strategy Pattern: Multiple auto-tuning algorithms in AutoTuner
-• Singleton Pattern: Constants namespaces provide global configuration
-• Factory Pattern: Task creation and management in TaskManager
+                    +----------------+
+                    |   main.cpp     |
+                    | (Application)  |
+                    +-------+--------+
+                            |
+          +-----------------+------------------+
+          |                 |                  |
+          v                 v                  v
+  +---------------+  +-------------+  +-----------------+
+  | TaskManager   |  | Constants.h |  | SettingsHandler |
+  | (Scheduling)  |  | (Config)    |  | (Persistence)   |
+  +-------+-------+  +-------------+  +--------+--------+
+          |                                    |
+    +-----+-----+                   +----------+----------+
+    |           |                   |          |          |
+    v           v                   v          v          v
++----------+ +----------+   +----------+ +----------+ +----------+
+| Control  | |   Web    |   | Sensor   | |  Auto    | | Command  |
+| System   | | Handler  |   | Manager  | | Tuner    | | Processor|
+| (PID)    | | (HTTP)   |   | (ADC)    | | (PID-Cal)| | (Serial) |
++----------+ +----------+   +----------+ +----------+ +----------+
 \end{verbatim}
-\caption{VentCon2 UML Class Diagram (ASCII)}
+\caption{VentCon2 System Architecture Overview}
+\label{fig:system-overview}
 \end{figure}
+
+\subsubsection{Design Patterns Used}
+\begin{itemize}
+    \item \textbf{Dependency Injection}: main.cpp creates and injects all dependencies
+    \item \textbf{Observer Pattern}: Real-time data updates from control to web interface
+    \item \textbf{Strategy Pattern}: Pluggable auto-tuning algorithms (Ziegler-Nichols, etc.)
+    \item \textbf{Singleton Pattern}: Constants namespaces provide global configuration
+    \item \textbf{Factory Pattern}: TaskManager handles FreeRTOS task creation
+\end{itemize}
+
+\subsubsection{Class Summary Tables}
+The following tables document each class with its attributes and methods.
+
+\begin{table}[H]
+\centering
+\caption{SettingsHandler Class}
+\label{tab:settings-handler}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+double & Kp, Ki, Kd & PID controller gains \\
+double & setpoint & Target pressure (bar) \\
+int & pwm\_freq, pwm\_res & PWM configuration \\
+float & filter\_strength & Low-pass filter coefficient \\
+bool & antiWindup, hysteresis & Control enhancements \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+bool & load() & Load settings from LittleFS \\
+bool & save() & Save settings to LittleFS \\
+void & resetToDefaults() & Restore factory defaults \\
+void & printSettings() & Debug output to Serial \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{SensorManager Class}
+\label{tab:sensor-manager}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+Adafruit\_ADS1015 & ads & External ADC instance \\
+bool & ads\_found & ADC detection flag \\
+int16\_t & adc\_value & Raw ADC reading \\
+float & voltage, raw\_pressure & Converted values \\
+float & filtered\_pressure & After low-pass filter \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+bool & initialize() & Setup I2C and ADC \\
+void & readSensor() & Read and convert ADC \\
+float & getPressure() & Get current pressure \\
+float* & getFilteredPtr() & Pointer for PID input \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{WebHandler Class}
+\label{tab:web-handler}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+WebServer & webServer & ESP32 HTTP server (port 80) \\
+DNSServer & webDnsServer & Captive portal DNS \\
+bool & webServerEnabled & Server state flag \\
+int & connectedClients & Active client counter \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+void & handleRoot() & Stream HTML from PROGMEM \\
+void & handleValues() & JSON API for live data \\
+void & handleSet() & Process parameter changes \\
+void & initializeWiFiAP() & Start AP with WIFI\_AP mode \\
+void & scanWiFiNetworks() & Return JSON network list \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{ControlSystem Class}
+\label{tab:control-system}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+PID* & pid & PID controller instance \\
+double* & pressureInput & Pointer to sensor reading \\
+double* & pwmOutput & Pointer to valve output \\
+bool* & manualPWMMode & Manual override flag \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+bool & initialize() & Setup PID with settings \\
+void & processControlLoop() & Execute one PID cycle \\
+void & updatePWMOutput() & Apply PWM to valve \\
+void & emergencyShutdown() & Safe state on error \\
+void & handleDataOutput() & Send data to clients \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{AutoTuner Class}
+\label{tab:auto-tuner}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+bool & autoTuneRunning & Tuning active flag \\
+float & autoTuneSetpoint & Target for oscillation \\
+int & currentCycle & Oscillation counter \\
+ulong[] & cycleTimes & Period measurements \\
+float[] & cycleAmplitudes & Amplitude measurements \\
+enum & currentTuningRule & Algorithm selection \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+void & start() & Begin relay tuning \\
+void & stop() & Abort and restore PID \\
+void & process() & Execute tuning step \\
+float & getProgress() & 0.0--1.0 completion \\
+void & setTuningRule() & Select calculation method \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{CommandProcessor Class}
+\label{tab:command-processor}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+String & commandBuffer & Incoming serial data \\
+Pointers & settings, sensor, etc. & References to all subsystems \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+void & handleSerialInput() & Read and buffer chars \\
+bool & executeCommand() & Parse and dispatch \\
+void & showHelp() & Print command list \\
+void & showStatus() & Print system state \\
+void & handlePIDCmd() & PID parameter commands \\
+void & handlePWMCmd() & Manual PWM commands \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{TaskManager Class}
+\label{tab:task-manager}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+TaskHandle\_t & controlTaskHandle & FreeRTOS control task \\
+TaskHandle\_t & networkTaskHandle & FreeRTOS network task \\
+bool & taskRunning & Tasks active flag \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+bool & createTasks() & Spawn FreeRTOS tasks \\
+void & startTasks() & Resume suspended tasks \\
+void & stopTasks() & Suspend running tasks \\
+bool & getTaskStatus() & Query task states \\
+void & monitorTasks() & Watchdog and recovery \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Constants.h Namespaces}
+\label{tab:constants}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Namespace} & \textbf{Constant} & \textbf{Value / Description} \\
+\hline
+NetworkConfig & AP\_SSID & "VENTCON\_AP" \\
+NetworkConfig & AP\_PASSWORD & "ventcon12!" (WPA2-PSK) \\
+HardwareConfig & SOLENOID\_PIN & GPIO for valve PWM \\
+HardwareConfig & ANALOG\_PRESS\_PIN & ADC input pin \\
+SensorConfig & SENSOR\_MIN\_BAR & 0.0 (minimum range) \\
+SensorConfig & SENSOR\_MAX\_BAR & 10.0 (maximum range) \\
+ValveConfig & VALVE\_MIN\_DUTY & 50.0\% (minimum effective duty cycle) \\
+ValveConfig & VALVE\_MAX\_DUTY & 90.0\% (maximum safe duty cycle) \\
+\hline
+\end{tabular}
+\end{table}
 
 \section{Core Classes Documentation}
 
@@ -486,16 +743,16 @@ void ControlSystem::processControlLoop() {
             double previousOutput = *pwmOutput;
             
             // Constrain output to valid range
-            *pwmOutput = constrain(*pwmOutput, 0, *pwm_max_value); 
+            *pwmOutput = constrain(*pwmOutput, 0, *pwmFullScaleRaw); 
 
             // Compute PID output
             pid->Compute();
             
             // Anti-windup for deadband and saturation
             if (settings->antiWindup) {
-                float pidPercent = (*pwmOutput / *pwm_max_value) * 100.0;
+                float pidPercent = (*pwmOutput / *pwmFullScaleRaw) * 100.0;
                 
-                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput > previousOutput) ||
+                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput < previousOutput) ||
                     (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmOutput > previousOutput)) {
                     // Reset the PID to prevent integral accumulation
                     pid->SetMode(PID::Manual);
@@ -526,6 +783,212 @@ The system maps PID output to valve PWM duty cycle with configurable limits:
 PWM_{valve} = PWM_{min} + \frac{PID_{output}}{PWM_{max}} \cdot (PWM_{valve\_max} - PWM_{valve\_min})
 \end{equation}
 
+\subsubsection{Control System Enhancements: Anti-Windup}
+
+\paragraph{The Integral Windup Problem}
+Integral windup (also called integrator saturation) is a critical issue in PID control systems where the integral term accumulates error continuously even when the system cannot respond further. This occurs when:
+
+\begin{itemize}
+    \item The actuator (valve) reaches its physical limits (fully open or closed)
+    \item The PID output saturates at its maximum or minimum values
+    \item The error persists but the system cannot reduce it further
+\end{itemize}
+
+In the VentCon2 system, this manifests as follows: When the solenoid valve reaches its maximum duty cycle and pressure continues to rise above setpoint, the integral term continues to accumulate the error. When the setpoint is finally reduced or the pressure drops, the accumulated integral error causes the output to remain high longer than necessary, resulting in:
+
+\begin{itemize}
+    \item \textbf{Overshoot:} The system overshoots the new setpoint by a significant margin
+    \item \textbf{Oscillation:} The system exhibits prolonged oscillations around the target
+    \item \textbf{Sluggish Response:} Slow recovery from disturbances
+    \item \textbf{Poor Stability:} Difficulty achieving steady-state control
+\end{itemize}
+
+Mathematically, the integral term continues to accumulate:
+
+\begin{equation}
+I = \int_0^t e(\tau) \, d\tau
+\end{equation}
+
+Even when the output is saturated and cannot change:
+
+\begin{equation}
+u(t) = K_p e(t) + K_i \int_0^t e(\tau) \, d\tau + K_d \frac{de(t)}{dt}
+\end{equation}
+
+If $u(t) > u_{max}$, the system is saturated, but the integral continues to grow, leading to a large $I$ term that persists even after the error direction reverses.
+
+\paragraph{Anti-Windup Implementation in VentCon2}
+The VentCon2 system implements anti-windup protection through conditional integral reset when output saturation is detected. This is controlled exclusively via the \textbf{AW ON} and \textbf{AW OFF} serial commands; no web interface toggle is currently available for this feature.
+
+The anti-windup mechanism works as follows:
+
+\begin{lstlisting}[caption=Anti-Windup Logic from ControlSystem.cpp]
+// Anti-windup for deadband and saturation
+if (settings->antiWindup) {
+    float pidPercent = (*pwmOutput / *pwmFullScaleRaw) * 100.0;
+    
+    // Check if output is saturating
+    if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput < previousOutput) ||
+        (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmOutput > previousOutput)) {
+        // Reset the PID to prevent integral accumulation
+        pid->SetMode(PID::Manual);
+        pid->SetMode(PID::Automatic);
+    }
+}
+\end{lstlisting}
+
+The algorithm detects saturation in two scenarios:
+
+\begin{itemize}
+    \item \textbf{Lower Saturation:} Output is below minimum valve duty ($pidPercent < 50\%$) and attempting to increase
+    \item \textbf{Upper Saturation:} Output is above maximum valve duty ($pidPercent > 90\%$) and attempting to increase further
+\end{itemize}
+
+When saturation is detected, the system performs a PID reset by toggling between manual and automatic modes, which clears the accumulated integral error and re-initializes the controller state. This prevents the integral term from growing unbounded when the system cannot respond.
+
+\paragraph{Configuration and Tuning}
+Anti-windup can be controlled via:
+
+\begin{itemize}
+    \item \textbf{Serial Command:} \texttt{AW ON} / \texttt{AW OFF}
+    \item \textbf{Default State:} Disabled by default for systems that don't require it
+    \item \textbf{Persistent:} Setting is automatically saved to flash memory
+\end{itemize}
+
+\textbf{Note:} Anti-windup is not currently exposed in the web interface and must be configured via serial commands.
+
+For pressure control applications where the valve has significant deadband or limited operating range, enabling anti-windup is recommended to improve response stability and reduce oscillation.
+
+\subsubsection{Control System Enhancements: Hysteresis Compensation}
+
+\paragraph{The Hysteresis Problem}
+Hysteresis is a lag or delay in the system's response to changes in the control signal. In solenoid valve systems, several sources of hysteresis exist:
+
+\begin{itemize}
+    \item \textbf{Magnetic Hysteresis:} The solenoid coil exhibits nonlinear behavior with hysteresis in the B-H curve
+    \item \textbf{Mechanical Friction:} Static friction in the valve plunger requires a minimum force to initiate movement
+    \item \textbf{Pressure Drop Effects:} Pressure differential across the valve affects its opening threshold
+    \item \textbf{Thermal Lag:} Temperature changes in the solenoid alter its magnetic properties
+    \item \textbf{Flow Rate Effects:} The relationship between PWM and actual flow is nonlinear
+\end{itemize}
+
+Hysteresis causes several control problems:
+
+\begin{itemize}
+    \item \textbf{Deadband:} A region where small control signal changes produce no output change
+    \item \textbf{Hunting:} Continuous oscillation around the setpoint as the system alternates between on and off
+    \item \textbf{Limit Cycles:} Persistent oscillation with amplitude and frequency determined by the deadband size
+    \item \textbf{Poor Steady-State:} Inability to achieve precise pressure regulation
+\end{itemize}
+
+The effect can be modeled as:
+
+\begin{equation}
+y(t) = \begin{cases}
+y_{min} & \text{if } u(t) < u_{on} \\
+y(t-\Delta t) & \text{if } u_{off} < u(t) < u_{on} \\
+y_{max} & \text{if } u(t) > u_{off}
+\end{cases}
+\end{equation}
+
+Where $u_{on} > u_{off}$ represents the deadband width, and the output depends on where it came from (history-dependent).
+
+\paragraph{Hysteresis Compensation Strategy}
+The VentCon2 system implements hysteresis compensation by adding a dead zone or bias to the PID output that adjusts based on the current system state. This is enabled via the \textbf{HYST ON} / \textbf{HYST OFF} commands and configured with \textbf{HYSTAMT <value>}.
+
+The compensation mechanism works by introducing an offset to the setpoint or error signal that creates a predictable margin:
+
+\begin{itemize}
+    \item When pressure is below setpoint and rising: Apply a positive offset to assist opening
+    \item When pressure is above setpoint and falling: Apply a negative offset to assist closing
+    \item When approaching setpoint: Reduce the offset smoothly to allow fine control
+\end{itemize}
+
+This is implemented in the control loop as:
+
+\begin{lstlisting}[caption=Hysteresis Compensation Mechanism]
+// Hysteresis compensation to reduce hunting around setpoint
+if (settings->hysteresis) {
+    float pressureDifference = *pressureInput - lastPressure;
+    float compensationAmount = (settings->hystAmount / 100.0) * settings->setpoint;
+    
+    // Adjust setpoint based on pressure trend
+    if (pressureDifference > 0) {
+        // Pressure rising: reduce effective setpoint to encourage closing
+        adjustedSetpoint = settings->setpoint - compensationAmount;
+    } else if (pressureDifference < 0) {
+        // Pressure falling: increase effective setpoint to encourage opening
+        adjustedSetpoint = settings->setpoint + compensationAmount;
+    } else {
+        // Stable: use exact setpoint
+        adjustedSetpoint = settings->setpoint;
+    }
+    
+    // Use adjusted setpoint for PID error calculation
+    error = adjustedSetpoint - *pressureInput;
+}
+\end{lstlisting}
+
+The compensation creates a virtual deadband around the setpoint:
+
+\begin{equation}
+\text{Deadband} = \frac{\text{HYSTAMT}}{100} \cdot \text{Setpoint}
+\end{equation}
+
+For example, with a 3 bar setpoint and HYSTAMT = 5\%:
+$$\text{Deadband} = 0.05 \times 3 = 0.15 \text{ bar}$$
+
+This creates an effective hysteresis band of ±0.15 bar around the setpoint, reducing the system's tendency to hunt.
+
+\paragraph{Configuration and Tuning}
+Hysteresis compensation can be controlled via:
+
+\begin{itemize}
+    \item \textbf{Enable/Disable:} \texttt{HYST ON} / \texttt{HYST OFF} serial commands
+    \item \textbf{Compensation Amount:} \texttt{HYSTAMT <value>} (0-20\%, default 5\%)
+    \item \textbf{Typical Range:} 2-10\% for most applications
+    \item \textbf{Persistent Storage:} Automatically saved to flash
+\end{itemize}
+
+\textbf{Note:} Like anti-windup, hysteresis compensation is not currently exposed in the web interface and must be configured via serial commands.
+
+\paragraph{Tuning Guidelines}
+
+The following guidelines help optimize hysteresis compensation for specific applications:
+
+\begin{itemize}
+    \item \textbf{High Sensitivity Requirement:} Use lower HYSTAMT (2-3\%) for applications requiring tight control
+    \item \textbf{Noisy Sensor:} Use higher HYSTAMT (8-10\%) if sensor readings are noisy
+    \item \textbf{Sluggish Response:} Reduce HYSTAMT if the system responds too slowly to setpoint changes
+    \item \textbf{Oscillation:} Increase HYSTAMT if the system oscillates around the setpoint
+    \item \textbf{Interaction with Filter:} Hysteresis works best when combined with appropriate filter strength (FLT command)
+\end{itemize}
+
+\paragraph{Interaction with Other Control Parameters}
+
+The effectiveness of hysteresis compensation depends on the configuration of other parameters:
+
+\begin{itemize}
+    \item \textbf{Low-Pass Filter:} The filter strength (FLT 0.0-1.0) smooths sensor noise and works synergistically with hysteresis
+    \item \textbf{PID Gains:} Proportional gain (Kp) affects sensitivity; higher Kp requires lower HYSTAMT
+    \item \textbf{Valve Deadband:} Physical valve deadband (VALVE\_MIN\_DUTY and VALVE\_MAX\_DUTY) adds to effective hysteresis
+    \item \textbf{Control Frequency:} Faster control loops (higher CONTROL FREQ) can reduce hunting effect
+\end{itemize}
+
+A typical tuning sequence would be:
+
+\begin{enumerate}
+    \item Enable both anti-windup and hysteresis compensation via serial commands (\texttt{AW ON}, \texttt{HYST ON})
+    \item Set HYSTAMT to 5\% as a starting point (\texttt{HYSTAMT 5})
+    \item Adjust FLT (filter strength) to 0.2-0.5 to smooth sensor readings (via web interface or \texttt{FLT 0.3})
+    \item Perform auto-tuning (\texttt{TUNE START}) to get optimal PID gains
+    \item Fine-tune HYSTAMT based on observed oscillation:
+    \begin{itemize}
+        \item If still hunting: increase HYSTAMT by 1-2\%
+        \item If sluggish response: decrease HYSTAMT by 1-2\%
+    \end{itemize}
+\end{enumerate}
+
 \subsection{WebHandler Class}
 
 \subsubsection{Purpose}
@@ -536,13 +999,86 @@ The WebHandler class provides a comprehensive web interface for system monitorin
     \item \textbf{SSID:} VENTCON\_AP
     \item \textbf{Password:} ventcon12!
     \item \textbf{IP Address:} 192.168.4.1
-    \item \textbf{DNS:} Captive portal with www.ventcon.local
+    \item \textbf{DNS:} Captive portal with wildcard DNS
     \item \textbf{Max Clients:} 2 simultaneous connections
-    \item \textbf{Channel:} Auto-selected for optimal performance
+    \item \textbf{Channel:} Configurable (use WIFI CHANNEL command)
     \item \textbf{Security:} WPA2-PSK encryption
 \end{itemize}
 
+\subsubsection{Class Structure}
+\begin{lstlisting}[caption=WebHandler Class - Actual Implementation]
+class WebHandler {
+private:
+    static WebHandler* instance;  // For WiFi event callbacks
+    
+    // Owned network components
+    WebServer webServer;
+    DNSServer webDnsServer;
+    
+    // References to system components (dependency injection)
+    SettingsHandler* settings;
+    PID* pid;
+    double* pressureInput;
+    double* pwmOutput;
+    bool* ads_found;
+    int* pwmFullScaleRaw;
+    float* last_filtered_pressure;
+    
+    // WiFi connection management
+    int connectedClients;
+    String connectedMACs[NetworkConfig::MAX_CLIENTS];
+    bool webServerEnabled;
+    
+    // WiFi AP configuration
+    const char* ap_ssid;
+    const char* ap_password;
+    IPAddress ap_ip;       // 192.168.4.1
+    IPAddress ap_gateway;  // 192.168.4.1
+    IPAddress ap_subnet;   // 255.255.255.0
+    
+    // Private helper methods
+    String getContentType(String filename);
+    bool handleFileRead(String path);  // Chunked file serving
+    
+    // Route handlers
+    void handleRoot();      // Memory-efficient streaming
+    void handleSet();
+    void handleValues();
+    void handleResetPID();
+    
+public:
+    WebHandler(SettingsHandler* settings, PID* pid, ...);
+    ~WebHandler();
+    
+    void setupRoutes();
+    void updatePWM();
+    void scanWiFiNetworks();
+    void changeWiFiChannel(int channel);
+    void setupWiFiEvents();
+    void initializeWiFiAP();
+    
+    // Getters
+    int getConnectedClients() const;
+    bool isWebServerEnabled() const;
+    int getWiFiChannel() const;
+};
+\end{lstlisting}
+
 \subsubsection{Web Interface Architecture}
+
+\paragraph{Memory-Efficient Streaming Design}
+The web interface implements a memory-efficient streaming architecture that serves HTML content directly from PROGMEM (flash memory) in sections, minimizing RAM usage:
+
+\begin{itemize}
+    \item \textbf{HTML\_HEAD:} Meta tags and script includes (~0.5KB)
+    \item \textbf{CSS\_STYLES:} Embedded stylesheets from styles.h (~8KB)
+    \item \textbf{HTML\_BODY\_START:} Static HTML before input fields (~3KB)
+    \item \textbf{HTML\_INPUTS:} Dynamic input fields with placeholders (~1.5KB) - only section requiring String processing
+    \item \textbf{HTML\_FOOTER:} Footer with version placeholder (~0.5KB)
+    \item \textbf{HTML\_SCRIPT:} JavaScript and closing tags (~25KB)
+\end{itemize}
+
+This streaming approach reduces peak memory usage from ~110KB to ~3KB by avoiding full HTML concatenation in RAM.
 
 \paragraph{Single Page Application (SPA) Design}
 The web interface is implemented as a single-page application that provides real-time monitoring and control capabilities:
@@ -562,14 +1098,17 @@ The web interface is implemented as a single-page application that provides real
 \toprule
 \textbf{Component} & \textbf{Functionality} \\
 \midrule
-Pressure Display & Real-time pressure reading with bar/psi units \\
-Setpoint Control & Adjustable target pressure slider \\
-PID Parameters & Live Kp, Ki, Kd adjustment sliders \\
-System Status & Connection status, sensor health, mode indicators \\
-PWM Monitor & Real-time valve control output visualization \\
-Historical Graph & Pressure trend chart using Chart.js \\
-Control Buttons & Start/Stop, Reset, Emergency stop functions \\
-Filter Settings & Signal processing parameter adjustment \\
+Pressure Gauge & Real-time pressure with trend indicator and setpoint marker \\
+PWM Output Gauge & Current valve control output with trend indicator \\
+Live Chart & Chart.js pressure/setpoint/PWM graph (toggleable) \\
+Setpoint Slider & Adjustable target pressure (0-10 bar) \\
+PID Sliders & Kp, Ki, Kd parameter adjustment with +/- buttons \\
+Filter Slider & Low-pass filter strength (0-1) \\
+PWM Config & Frequency (100-10000Hz) and resolution (8-16 bit) \\
+ADC Status & External ADS1015 or internal ESP32 ADC indicator \\
+Network Status & WiFi AP connection info \\
+Apply Changes Button & Floating snackbar to commit parameter changes \\
+Reset PID Button & Re-initialize PID controller \\
 \bottomrule
 \end{tabular}
 \caption{Web Interface Components}
@@ -583,14 +1122,14 @@ Filter Settings & Signal processing parameter adjustment \\
 \toprule
 \textbf{Endpoint} & \textbf{Method} & \textbf{Description} \\
 \midrule
-/ & GET & Main web interface (HTML/CSS/JS) \\
-/set & POST & Update PID parameters and settings \\
+/ & GET & Main web interface (streamed HTML/CSS/JS) \\
+/set & GET & Update PID parameters and settings \\
 /values & GET & Real-time system data (JSON) \\
-/reset & POST & Reset PID integrator and system state \\
-/files/* & GET & Static file serving from LittleFS \\
-/status & GET & System health and diagnostics \\
-/config & GET/POST & Configuration management \\
-/emergency & POST & Emergency stop functionality \\
+/resetPID & GET & Reset PID controller state \\
+/chart.min.js & GET & Chart.js library (chunked from LittleFS) \\
+/moment.min.js & GET & Moment.js library (chunked from LittleFS) \\
+/chartjs-adapter-moment.min.js & GET & Chart.js adapter (chunked from LittleFS) \\
+/Logo.svg & GET & VENTREX logo (from LittleFS) \\
 \bottomrule
 \end{tabular}
 \caption{Web Interface Endpoints}
@@ -599,27 +1138,70 @@ Filter Settings & Signal processing parameter adjustment \\
 \subsubsection{Data Exchange Process}
 
 \paragraph{Client-Server Communication Flow}
-The web interface implements a sophisticated data exchange mechanism for real-time control:
+The web interface implements a data exchange mechanism for real-time control:
 
 \begin{lstlisting}[caption=Data Exchange Sequence]
 1. Client Connection:
-   Browser -> WiFi AP -> DNS Resolution -> HTTP Server
+   Browser -> WiFi AP (VENTCON_AP) -> DNS Resolution -> HTTP Server
 
-2. Initial Page Load:
-   GET / -> HTML with embedded CSS/JS -> Client rendering
+2. Initial Page Load (Streamed):
+   GET / -> Chunked HTML response (6 PROGMEM sections) -> Client rendering
 
-3. Real-time Data Loop (every 100ms):
-   JavaScript Timer -> GET /values -> JSON Response -> UI Update
+3. Static Assets (Chunked File Serving):
+   GET /chart.min.js -> 1KB chunks from LittleFS -> Reassembled by browser
 
-4. Parameter Changes:
-   User Input -> Form Validation -> POST /set -> Server Update -> Confirmation
+4. Real-time Data Loop (every 100ms):
+   JavaScript setInterval -> GET /values -> JSON Response -> UI Update
 
-5. Emergency Actions:
-   Emergency Button -> POST /emergency -> Immediate Response -> Safety Action
+5. Parameter Changes:
+   User adjusts slider -> "Apply Changes" click -> GET /set?params -> Server Update
+\end{lstlisting}
+
+\paragraph{Streaming HTML Implementation}
+The handleRoot() function uses memory-efficient chunked streaming:
+
+\begin{lstlisting}[caption=handleRoot() Streaming Implementation]
+void WebHandler::handleRoot() {
+  // Set response headers for chunked transfer
+  webServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  webServer.send(200, "text/html", "");
+  
+  // 1. Stream HTML head directly from PROGMEM
+  webServer.sendContent_P(HTML_HEAD);
+  yield();
+  
+  // 2. Stream CSS styles directly from PROGMEM
+  webServer.sendContent_P(CSS_STYLES);
+  yield();
+  
+  // 3. Stream body start directly from PROGMEM  
+  webServer.sendContent_P(HTML_BODY_START);
+  yield();
+  
+  // 4. Process HTML_INPUTS - only section needing String processing
+  String inputs = FPSTR(HTML_INPUTS);
+  inputs.replace("%SP%", String(settings->setpoint, 2));
+  inputs.replace("%KP%", String(settings->Kp, 2));
+  // ... other replacements
+  webServer.sendContent(inputs);
+  yield();
+  
+  // 5. Process footer with version placeholder
+  String footer = FPSTR(HTML_FOOTER);
+  footer.replace("%VERSION%", VENTCON_VERSION);
+  webServer.sendContent(footer);
+  yield();
+  
+  // 6. Stream JavaScript directly from PROGMEM
+  webServer.sendContent_P(HTML_SCRIPT);
+  
+  // End chunked response
+  webServer.sendContent("");
+}
 \end{lstlisting}
 
 \paragraph{Real-time Data Loop Implementation}
-The real-time data loop operates on a precise 100ms interval to provide responsive monitoring without overwhelming the system. This section details the complete implementation of this critical component.
+The real-time data loop operates on a precise 100ms interval to provide responsive monitoring without overwhelming the system.
 
 \subparagraph{Client-Side Implementation}
 The browser-side implementation uses simple JavaScript functions that exist in the actual WebContent.h file:
@@ -846,56 +1428,223 @@ The web interface implements comprehensive error handling:
 
 \paragraph{Network Performance}
 \begin{itemize}
-    \item \textbf{Minimal Payload:} Compressed JSON responses (< 1KB)
-    \item \textbf{Efficient Polling:} Optimized 100ms update interval
-    \item \textbf{Connection Pooling:} Reuse of HTTP connections
-    \item \textbf{Static Resource Caching:} Browser caching for CSS/JS assets
+    \item \textbf{Chunked File Serving:} Large JS files (199KB chart.min.js) served in 1KB chunks with yield() calls to prevent WiFi buffer overflow
+    \item \textbf{Streamed HTML:} Main page served via chunked transfer encoding directly from PROGMEM
+    \item \textbf{Minimal JSON Payload:} /values endpoint returns compact JSON (~200 bytes)
+    \item \textbf{Efficient Polling:} 100ms update interval balances responsiveness and load
 \end{itemize}
 
 \paragraph{Memory Management}
 \begin{itemize}
-    \item \textbf{String Pool:} Reuse of common string constants
-    \item \textbf{Buffer Management:} Efficient JSON serialization buffers
-    \item \textbf{Resource Cleanup:} Automatic cleanup of connection resources
-    \item \textbf{Memory Monitoring:} Real-time heap usage tracking
+    \item \textbf{PROGMEM Storage:} All static HTML/CSS/JS stored in flash, not RAM
+    \item \textbf{Streaming Architecture:} Peak RAM reduced from ~110KB to ~3KB for page serving
+    \item \textbf{Circular Buffers:} Chart data uses fixed-size circular buffers (60 points)
+    \item \textbf{Element Caching:} JavaScript caches DOM element references to reduce lookups
+    \item \textbf{snprintf Buffers:} Fixed-size char arrays for JSON generation (no String allocation)
 \end{itemize}
+
+\paragraph{File Serving Implementation}
+\begin{lstlisting}[caption=Chunked File Serving for Large Assets]
+bool WebHandler::handleFileRead(String path) {
+  if (LittleFS.exists(path)) {
+    File file = LittleFS.open(path, "r");
+    size_t fileSize = file.size();
+    
+    webServer.setContentLength(fileSize);
+    webServer.send(200, contentType, "");
+    
+    // Stream in 1KB chunks
+    const size_t chunkSize = 1024;
+    uint8_t buffer[chunkSize];
+    
+    while (bytesRemaining > 0) {
+      size_t bytesRead = file.read(buffer, chunkSize);
+      webServer.client().write(buffer, bytesRead);
+      yield();   // Allow WiFi stack to process
+      delay(1);  // Prevent buffer overflow
+    }
+    file.close();
+    return true;
+  }
+  return false;
+}
+\end{lstlisting}
 
 \subsection{CommandProcessor Class}
 
 \subsubsection{Purpose}
-The CommandProcessor class provides a comprehensive serial command interface for advanced system control, debugging, and configuration.
+The CommandProcessor class provides a comprehensive serial command interface for advanced system control, debugging, and configuration. All commands are case-insensitive and accessible through the serial console at 115200 baud.
 
-\subsubsection{Command Categories}
-\begin{itemize}
-    \item \textbf{PID Commands:} Parameter adjustment, reset, mode control
-    \item \textbf{Signal Processing:} Filter settings, sampling rates
-    \item \textbf{PWM Commands:} Manual valve control, frequency adjustment
-    \item \textbf{Auto-tuning:} Start/stop tuning, rule selection
-    \item \textbf{Network Commands:} WiFi management, client monitoring
-    \item \textbf{System Commands:} Status, memory, version information
-    \item \textbf{File System:} Configuration management, file operations
-    \item \textbf{Diagnostics:} Task monitoring, performance metrics
-\end{itemize}
+\subsubsection{Command Categories and Implementation}
 
-\subsubsection{Key Commands}
+\paragraph{PID Control Commands}
+These commands manage proportional-integral-derivative controller parameters and operation:
+
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}ll@{}}
 \toprule
 \textbf{Command} & \textbf{Description} \\
 \midrule
-HELP & Display command help \\
-STATUS & Show system status \\
-SET KP 2.5 & Set proportional gain \\
-TUNE START & Begin auto-tuning \\
-PWM 1024 & Manual PWM control \\
-SAVE & Save configuration \\
-RESET & System reset \\
-MEM & Memory diagnostics \\
+KP <value> & Set proportional gain (e.g., KP 0.5) \\
+KI <value> & Set integral gain (e.g., KI 0.1) \\
+KD <value> & Set derivative gain (e.g., KD 0.01) \\
+SP <value> & Set pressure setpoint in bar (e.g., SP 3.0) \\
+SAMPLE <ms> & Set PID sample time, 1-1000ms (e.g., SAMPLE 10) \\
+RESET & Reset PID controller (clears windup and internal state) \\
 \bottomrule
 \end{tabular}
-\caption{Key Serial Commands}
+\caption{PID Control Commands}
 \end{table}
+
+The RESET command disables the PID, sets PWM to 0, resets the SensorManager filter state, and reinitializes the PID controller with current settings. All PID parameters are automatically saved to persistent storage after modification.
+
+\paragraph{Signal Processing Commands}
+These commands control filtering and compensation mechanisms:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+FLT <value> & Set filter strength, 0.0-1.0 (e.g., FLT 0.2) \\
+AW ON & Enable anti-windup for deadband compensation \\
+AW OFF & Disable anti-windup \\
+HYST ON & Enable hysteresis compensation \\
+HYST OFF & Disable hysteresis compensation \\
+HYSTAMT <value> & Set hysteresis amount in \%, 0-20\% (e.g., HYSTAMT 5) \\
+\bottomrule
+\end{tabular}
+\caption{Signal Processing Commands}
+\end{table}
+
+The filter strength parameter controls a low-pass filter coefficient applied to sensor readings. Anti-windup prevents integral accumulation when the PID output saturates. Hysteresis compensation reduces hunting around the setpoint by adding dead zone behavior.
+
+\paragraph{PWM and Valve Control Commands}
+These commands manage PWM signal generation and manual valve control:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+FREQ <hz> & Set PWM frequency, 100-10000Hz (e.g., FREQ 1000) \\
+RES <bits> & Set PWM resolution, 1-16 bits (e.g., RES 8) \\
+PWM <percent> & Force PWM duty cycle, 0-100\% (e.g., PWM 25) \\
+RESUME & Resume normal PID control after manual PWM mode \\
+CONTROL FREQ <hz> & Set control loop frequency, 10-1000Hz (e.g., CONTROL FREQ 100) \\
+\bottomrule
+\end{tabular}
+\caption{PWM and Valve Control Commands}
+\end{table}
+
+The PWM command forces the valve to a specific duty cycle and activates manual PWM mode, suspending PID control. The RESUME command returns to PID-controlled operation. When PWM resolution is changed, the system maintains the same duty cycle percentage by automatically scaling the output value. The system provides feedback about control/PID timing relationships when these parameters are modified.
+
+\paragraph{Auto-Tuning Commands}
+These commands manage the relay-based PID auto-tuning process:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+TUNE START & Start PID auto-tuning process \\
+TUNE STOP / TUNE CANCEL & Cancel running auto-tuning \\
+TUNE ACCEPT & Accept calculated PID parameters and apply them \\
+TUNE REJECT & Reject calculated parameters and keep current values \\
+TUNE SP <bar> & Set test setpoint for auto-tuning, 0.5-10.0 bar \\
+TUNE MIN <pct> & Set minimum PWM range for tuning, 50-90\% \\
+TUNE MAX <pct> & Set maximum PWM range for tuning, 60-95\% \\
+TUNE CYCLE <ms> & Set minimum cycle time, 50-2000ms \\
+TUNE RULE <0-3> & Select tuning rule (0=Ziegler-Nichols Classic, 1=Aggressive, etc.) \\
+TUNE AGGR <val> & Set aggressiveness factor, 0.5-2.0 \\
+TUNE RULES & Display available tuning rules with detailed descriptions \\
+AUTOTUNE & Test and display AutoTuner configuration and status \\
+\bottomrule
+\end{tabular}
+\caption{Auto-Tuning Commands}
+\end{table}
+
+The auto-tuning process uses relay oscillation to identify the critical frequency and gain of the system, then applies Ziegler-Nichols or similar tuning rules to calculate optimal PID parameters. During auto-tuning, the system operates in manual PWM mode and switches the valve on/off within the configured PWM range to induce oscillation. The TUNE RULES command displays the available tuning algorithms with their mathematical formulas.
+
+\paragraph{Network and WiFi Commands}
+These commands manage WiFi access point configuration and web server operation:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+SCAN WIFI & Scan and list available WiFi networks with signal strength \\
+WIFI CHANNEL <ch> & Set WiFi AP channel, 1-13 (for interference avoidance) \\
+PAGE ON & Enable web server processing and HTTP endpoints \\
+PAGE OFF & Disable web server processing \\
+\bottomrule
+\end{tabular}
+\caption{Network and WiFi Commands}
+\end{table}
+
+The SCAN WIFI command performs a WiFi network scan and displays available networks with their SSID, signal strength (RSSI), and channel information. The WIFI CHANNEL command allows changing the AP's WiFi channel to reduce interference with other networks. The PAGE ON/OFF commands control whether the web server processes HTTP requests while maintaining the WiFi connection.
+
+\paragraph{Data Monitoring and Diagnostics Commands}
+These commands provide system status reporting and continuous data output:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+STATUS & Display comprehensive system status report \\
+SENSOR & Test SensorManager and display detailed sensor readings \\
+STARTCD & Start continuous data output for plotting and analysis \\
+STOPCD & Stop continuous data output \\
+MEM & Display memory usage and system information \\
+VER & Display firmware version and build information \\
+\bottomrule
+\end{tabular}
+\caption{Data Monitoring and Diagnostics Commands}
+\end{table}
+
+The STATUS command provides a detailed system overview including current pressure, PID parameters, PWM settings, network configuration, and auto-tune status. The SENSOR command tests the SensorManager and displays raw ADC values, voltages, raw pressure, filtered pressure, and pressure safety status. MEM shows heap memory usage (free, used, minimum free, maximum allocation) and LittleFS flash storage usage with task information. The continuous data output (STARTCD/STOPCD) streams periodic readings for integration with external plotting tools or data loggers.
+
+\paragraph{File System and Settings Commands}
+These commands manage persistent configuration storage:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+SAVE & Force save current settings to LittleFS flash memory \\
+READ & Display settings currently stored in flash memory \\
+DIR & List all files in flash memory with sizes \\
+\bottomrule
+\end{tabular}
+\caption{File System and Settings Commands}
+\end{table}
+
+Settings are automatically saved after most parameter modifications, but the SAVE command allows explicit saving. The READ command displays the JSON configuration stored in flash, and DIR lists all files in the LittleFS partition with their sizes in kilobytes.
+
+\paragraph{Help and Reference}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+HELP & Display interactive command reference with all available commands \\
+\bottomrule
+\end{tabular}
+\caption{Help Command}
+\end{table}
+
+The HELP command displays a formatted command reference including command syntax, parameter ranges, and example usage workflow.
 
 \subsection{TaskManager Class}
 
@@ -1010,8 +1759,10 @@ Configuration data is automatically saved to LittleFS flash storage in JSON form
 Control Loop Latency & < 1 ms \\
 Sensor Resolution & 0.01 bar \\
 PWM Resolution & 14-bit (16,384 levels) \\
-Memory Usage & < 200 KB RAM \\
-Flash Usage & < 1 MB \\
+RAM Usage & ~58 KB of 320 KB (17.7\%) \\
+Flash Usage & ~956 KB of 6.25 MB (14.6\%) \\
+LittleFS Partition & 3.375 MB for web assets \\
+Web Page Serving & ~3 KB peak RAM (streamed) \\
 Network Latency & < 50 ms \\
 Boot Time & < 3 seconds \\
 \bottomrule
@@ -1041,8 +1792,9 @@ lib_deps =
     adafruit/Adafruit ADS1X15@^2.5.0
     https://github.com/imax9000/Arduino-PID-Library.git
     littlefs
-upload_protocol = dfu
+upload_protocol = esptool
 board_build.filesystem = littlefs
+board_build.partitions = default_16MB.csv
 \end{lstlisting}
 
 \subsection{Testing Strategy}

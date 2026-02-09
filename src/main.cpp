@@ -22,7 +22,6 @@
 const int SOLENOID_PIN = HardwareConfig::SOLENOID_PIN;
 const int ANALOG_PRESS_PIN = HardwareConfig::ANALOG_PRESS_PIN;
 const int PWM_CHANNEL_MOSFET = HardwareConfig::PWM_CHANNEL_MOSFET;
-const int PWM_CHANNEL_ANALOG_PRESS = HardwareConfig::PWM_CHANNEL_ANALOG_PRESS;
 
 // ====== Settings and Sensor Instances ======
 SettingsHandler settings; // Use SettingsHandler class instance
@@ -48,13 +47,9 @@ TaskManager* taskManager = nullptr;
 // ====== Global Variables ======
 bool continousValueOutput = false; // Flag for Serial output
 long lastcontinousValueOutputTime=0; // Last time output was sent to Serial
-long lastAnalogOutPressureSignalTime=0; // Last time output was sent to Serial
-int pwm_max_value = (1 << settings.pwm_res) - 1; // Maximum PWM value based on resolution
+int pwmFullScaleRaw = (1 << settings.pwm_res) - 1; // Maximum PWM value based on resolution
 bool manualPWMMode = false; // Flag to track manual PWM control mode
-int SERIAL_OUTPUT_INTERVAL  = 100; // Interval for continuous serial output in milliseconds
-int pwm_analog_pressure_signal_freq=5000; // Frequency for analog pressure signal output
-int pwm_analog_pressure_signal_pwm_res=12; // Resolution for analog pressure signal output
-int SENSOR_MAX_VALUE = (1 << pwm_analog_pressure_signal_pwm_res) - 1;
+int SERIAL_OUTPUT_INTERVAL  = TimingConfig::SERIAL_OUTPUT_INTERVAL_MS; // Interval for continuous serial output in milliseconds
 
 void showSettingsFromLittleFS()
 {
@@ -91,8 +86,8 @@ void parseSerialCommand(String cmd)
 // ====== Arduino Setup Function ======
 void setup()
 {
-  Serial.begin(115200);
-  delay(1000);
+  Serial.begin(UartConfig::BAUD_RATE);
+  delay(TimingConfig::STARTUP_DELAY_MS);
   Serial.println();
   Serial.println("====================================================");
   Serial.println("Ventcon System Starting...");
@@ -113,7 +108,7 @@ void setup()
   settings.load();
   
   // Update PWM max value after loading settings
-  pwm_max_value = (1 << settings.pwm_res) - 1;
+  pwmFullScaleRaw = (1 << settings.pwm_res) - 1;
   showSettingsFromLittleFS(); // Show loaded settings on startup
   // Initialize SensorManager
   sensorManager = new SensorManager(&settings);
@@ -124,24 +119,25 @@ void setup()
   }
 
   // Initialize AutoTuner
-  autoTuner = new AutoTuner(&settings, &pid, &pressureInput, &pwm_max_value);
+  autoTuner = new AutoTuner(&settings, &pid, &pressureInput, &pwmFullScaleRaw);
   Serial.println("AutoTuner initialized successfully!");
   // Initialize CommandProcessor (now with TaskManager reference)
   commandProcessor = new CommandProcessor(&settings, sensorManager, autoTuner, 
                                         webHandler, &pid, &pressureInput, &pwmOutput,
-                                        &pwm_max_value, &manualPWMMode, &continousValueOutput,
+                                        &pwmFullScaleRaw, &manualPWMMode, &continousValueOutput,
                                         taskManager);
   Serial.println("CommandProcessor initialized successfully!");
 
-  ledcSetup(PWM_CHANNEL_ANALOG_PRESS, pwm_analog_pressure_signal_freq, pwm_analog_pressure_signal_pwm_res);
-  ledcAttachPin(ANALOG_PRESS_PIN, PWM_CHANNEL_ANALOG_PRESS);  ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
+  // Setup PWM for solenoid valve control
+  ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
   ledcAttachPin(SOLENOID_PIN, PWM_CHANNEL_MOSFET);
+  
   // Initialize WebHandler with dependency injection
   // Note: We need to create a persistent bool pointer for ads_found status
   static bool ads_found_status = sensorManager->isADSFound();
   webHandler = new WebHandler(&settings, &pid, 
                              &pressureInput, &pwmOutput, &ads_found_status, 
-                             &pwm_max_value, sensorManager->getLastFilteredPressurePtr());
+                             &pwmFullScaleRaw, sensorManager->getLastFilteredPressurePtr());
   
   // Initialize WiFi AP and DNS server
   webHandler->initializeWiFiAP();
@@ -150,7 +146,7 @@ void setup()
   webHandler->setupWiFiEvents();
   // Initialize ControlSystem
   controlSystem = new ControlSystem(&settings, sensorManager, autoTuner, &pid,
-                                   &pressureInput, &pwmOutput, &pwm_max_value,
+                                   &pressureInput, &pwmOutput, &pwmFullScaleRaw,
                                    &manualPWMMode, &continousValueOutput);
   controlSystem->initializeControlSystem();
 
@@ -165,7 +161,7 @@ void setup()
 
   // Initialize PID 
   pid.SetMode(PID::Automatic);
-  pid.SetOutputLimits(0, pwm_max_value);
+  pid.SetOutputLimits(0, pwmFullScaleRaw);
   pid.SetSampleTime(settings.pid_sample_time); // Use settings value for consistency
 
   // Setup all web routes
@@ -189,7 +185,7 @@ void loop() // this runs on core 1, like the web server and command processor
   }
   
   // Small delay to prevent watchdog timeout and allow other tasks
-  vTaskDelay(pdMS_TO_TICKS(10)); // 10ms delay - serial commands don't need high frequency
+  vTaskDelay(pdMS_TO_TICKS(TaskConfig::NETWORK_TASK_DELAY_MS)); // 10ms delay - serial commands don't need high frequency
 }
 
 

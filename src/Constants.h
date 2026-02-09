@@ -14,6 +14,33 @@ namespace NetworkConfig
     
     // Maximum number of simultaneous client connections allowed to the Access Point
     constexpr int MAX_CLIENTS = 2;
+    
+    // Access Point IP address configuration (192.168.4.1)
+    constexpr uint8_t AP_IP[4] = {192, 168, 4, 1};
+    
+    // Access Point gateway address (same as IP for AP mode)
+    constexpr uint8_t AP_GATEWAY[4] = {192, 168, 4, 1};
+    
+    // Access Point subnet mask (255.255.255.0 = /24 network)
+    constexpr uint8_t AP_SUBNET[4] = {255, 255, 255, 0};
+    
+    // DNS server port for captive portal
+    constexpr int DNS_PORT = 53;
+    
+    // Captive portal domain name (redirects to AP_IP)
+    constexpr char CAPTIVE_PORTAL_DOMAIN[] = "www.ventcon.at";
+    
+    // Web server port
+    constexpr int WEB_PORT = 80;
+    
+    // File streaming chunk size in bytes
+    constexpr size_t CHUNK_SIZE = 1024;
+    
+    // WiFi channel 1 frequency (MHz) for frequency calculation
+    constexpr float WIFI_CH1_FREQ_MHZ = 2412.0f;
+    
+    // WiFi channel step (MHz between channels)
+    constexpr float WIFI_CHANNEL_STEP_MHZ = 5.0f;
 }
 
 // Hardware Configuration
@@ -27,9 +54,6 @@ namespace HardwareConfig
     
     // PWM channel assignment for MOSFET control (ESP32 has 16 PWM channels: 0-15)
     constexpr int PWM_CHANNEL_MOSFET = 0;
-    
-    // PWM channel assignment for analog pressure control (must be different from MOSFET channel)
-    constexpr int PWM_CHANNEL_ANALOG_PRESS = 1;
     
     // Fallback analog input pin using ESP32's internal ADC when primary pin fails
     constexpr int FALLBACK_ANALOG_PIN = A0;  // ESP32 internal ADC pin
@@ -60,6 +84,107 @@ namespace ValveConfig
     // Minimum PWM duty cycle percentage for valve operation (below this valve may not respond)
     constexpr float VALVE_MIN_DUTY = 50.0f;
     
-    // Maximum PWM duty cycle percentage for valve operation (above this may damage valve)
+    // Maximum PWM duty cycle percentage for valve operation 
     constexpr float VALVE_MAX_DUTY = 90.0f;
+    
+    // Hysteresis compensation range (percentage points)
+    constexpr float HYST_MIN = 0.0f;
+    constexpr float HYST_MAX = 20.0f;
+}
+
+// UART Configuration
+namespace UartConfig
+{
+    // Serial communication baud rate
+    constexpr unsigned long BAUD_RATE = 115200;
+}
+
+// Timing Configuration
+namespace TimingConfig
+{
+    // Emergency message interval in milliseconds
+    constexpr unsigned long EMERGENCY_MSG_INTERVAL_MS = 1000;
+    
+    // Serial output interval in milliseconds
+    constexpr int SERIAL_OUTPUT_INTERVAL_MS = 100;
+    
+    // Startup delay in milliseconds
+    constexpr unsigned long STARTUP_DELAY_MS = 1000;
+    
+    // WiFi peripheral reset delay in milliseconds
+    constexpr unsigned long WIFI_RESET_DELAY_MS = 100;
+    
+    // I2C initialization delay in milliseconds
+    constexpr unsigned long I2C_INIT_DELAY_MS = 100;
+}
+
+// FreeRTOS Task Configuration
+namespace TaskConfig
+{
+    // Stack size for FreeRTOS tasks in bytes
+    constexpr uint32_t STACK_SIZE = 4096;
+    
+    // Network task delay in milliseconds
+    constexpr int NETWORK_TASK_DELAY_MS = 10;
+    
+    // Network delay warning threshold in microseconds
+    constexpr unsigned long NETWORK_DELAY_WARNING_US = 20000;
+}
+
+// PWM Configuration
+namespace PwmConfig
+{
+    // Minimum PWM frequency in Hz
+    constexpr int MIN_FREQ_HZ = 100;
+    
+    // Maximum PWM frequency in Hz
+    constexpr int MAX_FREQ_HZ = 10000;
+    
+    // Minimum PWM resolution in bits
+    constexpr int MIN_RES_BITS = 1;
+    
+    // Maximum PWM resolution in bits
+    constexpr int MAX_RES_BITS = 16;
+}
+
+// Control Loop Configuration
+namespace ControlConfig
+{
+    // Minimum control loop frequency in Hz
+    constexpr int MIN_FREQ_HZ = 10;
+    
+    // Maximum control loop frequency in Hz
+    constexpr int MAX_FREQ_HZ = 1000;
+    
+    // Minimum PID sample time in milliseconds
+    constexpr int MIN_SAMPLE_TIME_MS = 1;
+    
+    // Maximum PID sample time in milliseconds
+    constexpr int MAX_SAMPLE_TIME_MS = 1000;
+}
+
+// Auto-Tuning Configuration
+namespace AutoTuneConfig
+{
+    // Minimum PWM output during auto-tuning (percentage)
+    constexpr float MIN_PWM_PERCENT = 65.0f;
+    
+    // Maximum PWM output during auto-tuning (percentage)
+    constexpr float MAX_PWM_PERCENT = 85.0f;
+    
+    // Minimum cycle time for valid oscillation detection (ms)
+    constexpr unsigned long MIN_CYCLE_TIME_MS = 100;
+    
+    // Initial max value for min tracking (sentinel value)
+    constexpr float INITIAL_MIN_PRESSURE = 999.0f;
+}
+
+// ESP32 ADC Configuration
+namespace Esp32AdcConfig
+{
+    // ESP32 internal ADC reference voltage
+    constexpr float VREF = 3.3f;
+    
+    // ESP32 12-bit ADC maximum value
+    constexpr int ADC_MAX = 4095;
 }

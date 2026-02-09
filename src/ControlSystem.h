@@ -21,7 +21,7 @@ private:
     // System state pointers
     double* pressureInput;
     double* pwmOutput;
-    int* pwm_max_value;
+    int* pwmFullScaleRaw;
     bool* manualPWMMode;
     bool* continousValueOutput;
     
@@ -29,17 +29,16 @@ private:
     float lastPressure;
     bool pressureIncreasing;
     int SERIAL_OUTPUT_INTERVAL;
-    int pwm_analog_pressure_signal_pwm_res;
     
     // Helper methods
-    uint32_t mapPwmToValve(double pidOutput, int maxPwmValue);
+    uint32_t mapPwmToValve(double pidOutput, int maxPwmFullScaleRaw);
+    void applyHysteresisCompensation(double& output);
     void handleEmergencyShutdown();
     void handleContinuousDataOutput(unsigned long taskStartTime, unsigned long lastCycleEnd);
-    void handleAnalogPressureOutput();
 
 public:
     ControlSystem(SettingsHandler* settings, SensorManager* sensorManager, AutoTuner* autoTuner,
-                 PID* pid, double* pressureInput, double* pwmOutput, int* pwm_max_value,
+                 PID* pid, double* pressureInput, double* pwmOutput, int* pwmFullScaleRaw,
                  bool* manualPWMMode, bool* continousValueOutput);
     
     void processControlLoop();

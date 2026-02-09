@@ -30,24 +30,24 @@ WebHandler::WebHandler(SettingsHandler* settings,
                        double* pressureInput,
                        double* pwmOutput,
                        bool* ads_found,
-                       int* pwm_max_value,
+                       int* pwmFullScaleRaw,
                        float* last_filtered_pressure)
-    : webServer(80),
+    : webServer(NetworkConfig::WEB_PORT),
       webDnsServer(),
       settings(settings),
       pid(pid),
       pressureInput(pressureInput),
       pwmOutput(pwmOutput),
       ads_found(ads_found),
-      pwm_max_value(pwm_max_value),
+      pwmFullScaleRaw(pwmFullScaleRaw),
       last_filtered_pressure(last_filtered_pressure),
       connectedClients(0),
       webServerEnabled(true),
       ap_ssid(NetworkConfig::AP_SSID),
       ap_password(NetworkConfig::AP_PASSWORD),
-      ap_ip(192, 168, 4, 1),
-      ap_gateway(192, 168, 4, 1),
-      ap_subnet(255, 255, 255, 0) {
+      ap_ip(NetworkConfig::AP_IP[0], NetworkConfig::AP_IP[1], NetworkConfig::AP_IP[2], NetworkConfig::AP_IP[3]),
+      ap_gateway(NetworkConfig::AP_GATEWAY[0], NetworkConfig::AP_GATEWAY[1], NetworkConfig::AP_GATEWAY[2], NetworkConfig::AP_GATEWAY[3]),
+      ap_subnet(NetworkConfig::AP_SUBNET[0], NetworkConfig::AP_SUBNET[1], NetworkConfig::AP_SUBNET[2], NetworkConfig::AP_SUBNET[3]) {
     // Set static instance for WiFi event callbacks
     instance = this;
     
@@ -142,6 +142,11 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
 
 // Initialize WiFi Access Point
 void WebHandler::initializeWiFiAP() {
+    // Force clean WiFi state - fixes issue where AP doesn't appear after flash
+    WiFi.disconnect(true, true);  // Disconnect and erase stored credentials
+    WiFi.mode(WIFI_OFF);          // Turn off WiFi completely
+    delay(TimingConfig::WIFI_RESET_DELAY_MS);                   // Allow peripheral to fully reset
+    
     // Set WiFi mode to Access Point
     WiFi.mode(WIFI_AP);
     
@@ -150,7 +155,7 @@ void WebHandler::initializeWiFiAP() {
     WiFi.softAP(ap_ssid, ap_password, 1, 0, NetworkConfig::MAX_CLIENTS);
     
     // Start DNS server for captive portal
-    webDnsServer.start(53, "*", ap_ip);
+    webDnsServer.start(NetworkConfig::DNS_PORT, "*", ap_ip);
     
     Serial.println("WiFi AP initialized:");
     Serial.printf("  SSID: %s\n", ap_ssid);
@@ -202,7 +207,7 @@ bool WebHandler::handleFileRead(String path) {
       webServer.send(200, contentType, "");
       
       // Stream file in chunks to avoid WiFi buffer issues
-      const size_t chunkSize = 1024;  // 1KB chunks
+      const size_t chunkSize = NetworkConfig::CHUNK_SIZE;  // 1KB chunks
       uint8_t buffer[chunkSize];
       size_t bytesRemaining = fileSize;
       size_t bytesSent = 0;
@@ -243,21 +248,57 @@ bool WebHandler::handleFileRead(String path) {
  * It's the core of the web-based control system, providing a complete HTML page with embedded
  * CSS and JavaScript for real-time monitoring and control.
  */
+/*
+ * handleRoot() - Memory-Efficient Main Page Handler
+ * 
+ * This function serves the main web interface using chunked streaming to minimize
+ * memory usage. Instead of building the entire ~55KB HTML page in RAM, it:
+ * 1. Streams static sections directly from PROGMEM
+ * 2. Only processes small sections (~1.5KB) that contain placeholders
+ * 
+ * Memory usage reduced from ~110KB peak to ~3KB for placeholder processing.
+ */
 void WebHandler::handleRoot() 
 {
-  String page = getFullHtmlContent();
+  // Set response headers for chunked transfer
+  webServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  webServer.send(200, "text/html", "");
   
-  // Replace placeholders with current values
-  page.replace("%SP%", String(settings->setpoint, 2));
-  page.replace("%KP%", String(settings->Kp, 2));
-  page.replace("%KI%", String(settings->Ki, 2));
-  page.replace("%KD%", String(settings->Kd, 2));
-  page.replace("%FLT%", String(settings->filter_strength, 2));
-  page.replace("%FREQ%", String(settings->pwm_freq));
-  page.replace("%RES%", String(settings->pwm_res));
-  page.replace("%VERSION%", VENTCON_VERSION);  // Add this line to replace version from Constants.h
-
-  webServer.send(200, "text/html", page);
+  // 1. Stream HTML head directly from PROGMEM
+  webServer.sendContent_P(HTML_HEAD);
+  yield();
+  
+  // 2. Stream CSS styles directly from PROGMEM
+  webServer.sendContent_P(CSS_STYLES);
+  yield();
+  
+  // 3. Stream body start directly from PROGMEM  
+  webServer.sendContent_P(HTML_BODY_START);
+  yield();
+  
+  // 4. Process HTML_INPUTS section - this is the only section with placeholders (~1.5KB)
+  String inputs = FPSTR(HTML_INPUTS);
+  inputs.replace("%SP%", String(settings->setpoint, 2));
+  inputs.replace("%KP%", String(settings->Kp, 2));
+  inputs.replace("%KI%", String(settings->Ki, 2));
+  inputs.replace("%KD%", String(settings->Kd, 2));
+  inputs.replace("%FLT%", String(settings->filter_strength, 2));
+  inputs.replace("%FREQ%", String(settings->pwm_freq));
+  inputs.replace("%RES%", String(settings->pwm_res));
+  webServer.sendContent(inputs);
+  yield();
+  
+  // 5. Process footer section - small section with version placeholder
+  String footer = FPSTR(HTML_FOOTER);
+  footer.replace("%VERSION%", VENTCON_VERSION);
+  webServer.sendContent(footer);
+  yield();
+  
+  // 6. Stream JavaScript directly from PROGMEM
+  webServer.sendContent_P(HTML_SCRIPT);
+  
+  // End chunked response
+  webServer.sendContent("");
 }
 
 /*
@@ -295,7 +336,7 @@ void WebHandler::handleSet()
     // Only process if resolution actually changed
     if (old_res != new_res) {
       // Store current duty cycle percentage before changing resolution
-      float current_duty_percent = (*pwmOutput / (float)*pwm_max_value) * 100.0;
+      float current_duty_percent = (*pwmOutput / (float)*pwmFullScaleRaw) * 100.0;
       
       // Update resolution
       settings->pwm_res = new_res;
@@ -305,8 +346,8 @@ void WebHandler::handleSet()
       *pwmOutput = (current_duty_percent / 100.0) * new_max_value;
       
       // Update max value and PID limits
-      *pwm_max_value = new_max_value;
-      pid->SetOutputLimits(0, *pwm_max_value);
+      *pwmFullScaleRaw = new_max_value;
+      pid->SetOutputLimits(0, *pwmFullScaleRaw);
       updatePWM();
     }
   }
@@ -359,7 +400,7 @@ void WebHandler::handleResetPID() {
   
   // Reset internal state (by re-initializing the PID controller)
   pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-  pid->SetOutputLimits(0, *pwm_max_value);
+  pid->SetOutputLimits(0, *pwmFullScaleRaw);
   
   // Set back to automatic mode
   pid->SetMode(PID::Automatic);
@@ -371,7 +412,7 @@ void WebHandler::handleResetPID() {
 // Setup function to register all web handlers
 void WebHandler::setupRoutes()
 {  
-  // Register main page and API endpoints using lambda functions to capture 'this'
+  // Register main page handler (memory-efficient streaming)
   webServer.on("/", [this](){
     this->handleRoot();
   });
@@ -560,7 +601,7 @@ void WebHandler::scanWiFiNetworks() {
     }
     
     // Find least congested channels
-    int minCount = 999;
+    int minCount = static_cast<int>(AutoTuneConfig::INITIAL_MIN_PRESSURE);
     String bestChannels = "";
     for (int ch = 1; ch <= 13; ch += 5) { // Check channels 1, 6, 11 (non-overlapping)
         if (channelCount[ch] < minCount) {
@@ -628,7 +669,7 @@ void WebHandler::changeWiFiChannel(int channel) {
     
     // Disconnect all clients and stop AP
     WiFi.softAPdisconnect(true);
-    delay(100); // Brief delay to ensure clean shutdown
+    delay(TimingConfig::WIFI_RESET_DELAY_MS); // Brief delay to ensure clean shutdown
     
     Serial.printf("Starting Access Point on channel %d...\n", channel);
     
@@ -651,7 +692,7 @@ void WebHandler::changeWiFiChannel(int channel) {
         Serial.println("Access Point restored to automatic channel selection");
     }
       // Restart DNS server for captive portal
-    webDnsServer.start(53, "*", WiFi.softAPIP());
+    webDnsServer.start(NetworkConfig::DNS_PORT, "*", WiFi.softAPIP());
     
     // Restart web server
     webServer.begin();
@@ -664,7 +705,7 @@ void WebHandler::changeWiFiChannel(int channel) {
     // Provide channel analysis
     Serial.println("\nChannel Information:");
     Serial.printf("  New Channel: %d\n", WiFi.channel());
-    Serial.printf("  Frequency: %.1f MHz\n", 2412.0 + (WiFi.channel() - 1) * 5.0);
+    Serial.printf("  Frequency: %.1f MHz\n", NetworkConfig::WIFI_CH1_FREQ_MHZ + (WiFi.channel() - 1) * NetworkConfig::WIFI_CHANNEL_STEP_MHZ);
     
     // Suggest monitoring
     Serial.println("\nRecommendations:");

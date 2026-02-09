@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  11 SEP 2025 13:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  6 FEB 2026 09:00
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**"k:/CNG029/02_PRODUKTENTWICKLUNG/05_GROBAUSLEGUNG/07 VENTCON Code/VentCon2/LaTeX/VentCon2_Documentation.tex"
-(k:/CNG029/02_PRODUKTENTWICKLUNG/05_GROBAUSLEGUNG/07 VENTCON Code/VentCon2/LaTeX/VentCon2_Documentation.tex
+**"k:/CNG029/02_PRODUKTENTWICKLUNG/05_GROBAUSLEGUNG/07 VENTCON/VentCon2/LaTeX/VentCon2_Documentation.tex"
+(k:/CNG029/02_PRODUKTENTWICKLUNG/05_GROBAUSLEGUNG/07 VENTCON/VentCon2/LaTeX/VentCon2_Documentation.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 (C:\Program Files\MiKTeX\tex/latex/base\article.cls
@@ -461,7 +461,9 @@ File: pgfmodulematrix.code.tex 2023-01-15 v3.1.10 (3.1.10)
 \tikz@expandcount=\count316
  (C:\Program Files\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2023-01-15 v3.1.10 (3.1.10)
-))) (C:\Program Files\MiKTeX\tex/latex/pgfplots\pgfplots.sty (C:\Program Files\MiKTeX\tex/generic/pgfplots\pgfplots.revision.tex)
+))) (C:\Program Files\MiKTeX\tex/generic/pgf/frontendlayer/tikz/libraries\tikzlibrarypositioning.code.tex
+File: tikzlibrarypositioning.code.tex 2023-01-15 v3.1.10 (3.1.10)
+) (C:\Program Files\MiKTeX\tex/latex/pgfplots\pgfplots.sty (C:\Program Files\MiKTeX\tex/generic/pgfplots\pgfplots.revision.tex)
 Package: pgfplots 2021/05/15 v1.18.1 Data Visualization (1.18.1)
  (C:\Program Files\MiKTeX\tex/generic/pgfplots\pgfplots.code.tex (C:\Program Files\MiKTeX\tex/generic/pgfplots\pgfplotscore.code.tex
 \t@pgfplots@toka=\toks39
@@ -588,24 +590,24 @@ File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
 ) (VentCon2_Documentation.aux)
 \openout1 = `VentCon2_Documentation.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 54.
-LaTeX Font Info:    ... okay on input line 54.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 55.
+LaTeX Font Info:    ... okay on input line 55.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -661,7 +663,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
 \c@lstlisting=\count341
-Package hyperref Info: Link coloring OFF on input line 54.
+Package hyperref Info: Link coloring OFF on input line 55.
  (VentCon2_Documentation.out) (VentCon2_Documentation.out)
 \@outlinefile=\write4
 \openout4 = `VentCon2_Documentation.out'.
@@ -669,11 +671,11 @@ Package hyperref Info: Link coloring OFF on input line 54.
 
 Package pgfplots notification 'compat/show suggested version=true': document has been generated with the most recent feature set (\pgfplotsset{compat=1.18}).
 
-LaTeX Font Info:    Trying to load font information for U+msa on input line 57.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 58.
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 57.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 58.
  (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (VentCon2_Documentation.toc [1
@@ -691,548 +693,6 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [2]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 95.
- (C:\Program Files\MiKTeX\tex/latex/base\t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-)
-Overfull \hbox (44.80878pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +-------------------------------------------------------------------------------+[] 
- []
-
-
-Overfull \hbox (44.80878pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 |                         VentCon2 System - UML Class Diagram                   |[] 
- []
-
-
-Overfull \hbox (44.80878pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +-------------------------------------------------------------------------------+[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+    +------------------------+    +--------------------------+[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 |     SettingsHandler      |    |     SensorManager      |    |      WebHandler          |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+    +------------------------+    +--------------------------+[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - Kp: double             |    | - ads: Adafruit_ADS1015|    | - webServer: WebServer   |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - Ki: double             |    | - ads_found: bool      |    | - dnsServer: DNSServer   |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - Kd: double             |    | - adc_value: int16_t   |    | - settings:              |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - setpoint: double       |    | - voltage: float       |    |   SettingsHandler*       |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - pwm_freq: int          |    | - raw_pressure: float  |    | - pid: PID*              |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - pwm_res: int           |    | - filtered_pressure:   |    | - pwmOutput: double*     |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - filter_strength: float |    |   float                |    | - manualPWMMode: bool*   |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - antiWindup: bool       |    | - settings:            |    | - pwmMaxValue: int*      |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - hysteresis: bool       |    |   SettingsHandler*     |    +--------------------------+[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+    +------------------------|    | + begin(): void          |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + load(): bool           |    | + initialize(): bool   |    | + handleClient(): void   |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + save(): bool           |    | + readSensor(): void   |    | + handleRoot(): void     |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + resetToDefaults(): void|    | + getPressure(): float |    | + handleValues(): void   |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + printSettings(): void  |    | + getVoltage(): float  |    | + handleSet(): void      |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+    | + isADSFound(): bool   |    | + handleReset(): void    |[] 
- []
-
-
-Overfull \hbox (100.37021pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    | + getFilteredPtr():    |    +--------------------------+[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    |   float*               |                   ^[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 v                    +------------------------+                   |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+                    |                            |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 |       AutoTuner          |                    v                            |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+    +--------------------------+                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - autoTuneRunning: bool  |    |     ControlSystem        |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - autoTuneSetpoint: float|    +--------------------------+                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - currentCycle: int      |    | - settings:              |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - cycleTimes[]: ulong    |    |   SettingsHandler*       |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - cycleAmplitudes[]:     |    | - sensorManager:         |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 |   float                  |    |   SensorManager*         |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - currentTuningRule: enum|    | - autoTuner: AutoTuner*  |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - settings:              |    | - pid: PID*              |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 |   SettingsHandler*       |    | - pressureInput: double* |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | - pid: PID*              |    | - pwmOutput: double*     |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+    | - manualPWMMode: bool*   |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + start(): void          |    | - pwmMaxValue: int*      |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + stop(): void           |    +--------------------------+                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + process(): void        |    | + initialize(): bool     |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + isRunning(): bool      |    | + processControlLoop():  |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + setTuningRule(): void  |    |   void                   |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 | + getProgress(): float   |    | + updatePWMOutput(): void|                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 +--------------------------+    | + emergencyShutdown():   |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    |   void                   |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    | + getLastCycleTime():    |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    |   float                  |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    | + handleDataOutput():    |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    |   void                   |                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                    +--------------------------+                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 |                                   |                             |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]           \T1/cmtt/m/n/12 +-------------------+---------------+                             |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                               \T1/cmtt/m/n/12 |                                             |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                               \T1/cmtt/m/n/12 v                                             |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +--------------------------+                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 |   CommandProcessor       |                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +--------------------------+                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - settings:              |                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 |   SettingsHandler*       |                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - sensorManager:         |                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 |   SensorManager*         |                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - autoTuner: AutoTuner*  |                                 |[] 
- []
-
-
-Overfull \hbox (26.2883pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - webHandler: WebHandler*|---------------------------------+[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +--------------------------+    +--------------------------+[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 |      TaskManager         |    |      Constants.h         |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +--------------------------+    +--------------------------+[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - controlSystem:         |    | NetworkConfig namespace  |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 |   ControlSystem*         |    | HardwareConfig namespace |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - webHandler: WebHandler*|    | SensorConfig namespace   |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - controlTaskHandle: Task|    | ValveConfig namespace    |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - networkTaskHandle: Task|    | - AP_SSID: constexpr     |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - taskRunning: bool      |    | - SOLENOID_PIN: constexpr|[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +--------------------------+    | - ANALOG_PRESS_PIN:      |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + createTasks(): bool    |    |   constexpr              |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + startTasks(): void     |    | - SENSOR_MIN_BAR:        |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + stopTasks(): void      |    |   constexpr              |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + getTaskStatus(): bool  |    | - SENSOR_MAX_BAR:        |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + monitorTasks(): void   |    |   constexpr              |[] 
- []
-
-
-Overfull \hbox (13.94131pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +--------------------------+    | - VALVE_MIN_DUTY:        |[] 
- []
-
-
-Overfull \hbox (20.1148pt too wide) in paragraph at lines 234--234
-[]                               \T1/cmtt/m/n/12 |                 |   constexpr              |[] 
- []
-
-
-Overfull \hbox (20.1148pt too wide) in paragraph at lines 234--234
-[]                               \T1/cmtt/m/n/12 |          +------| - VALVE_MAX_DUTY:        |[] 
- []
-
-
-Overfull \hbox (20.1148pt too wide) in paragraph at lines 234--234
-[]                               \T1/cmtt/m/n/12 |          |      |   constexpr              |[] 
- []
-
-
-Overfull \hbox (20.1148pt too wide) in paragraph at lines 234--234
-[]                               \T1/cmtt/m/n/12 v          |      +--------------------------+[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +-------------------------------------------------------------------+[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 |                        main.cpp                                   |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +-------------------------------------------------------------------+[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - settings: SettingsHandler                                       |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - sensorManager: SensorManager*                                   |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - autoTuner: AutoTuner*                                           |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - webHandler: WebHandler*                                         |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - commandProcessor: CommandProcessor*                             |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - controlSystem: ControlSystem*                                   |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - taskManager: TaskManager*                                       |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - pid: PID                                                        |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - pressureInput: double                                           |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - pwmOutput: double                                               |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - manualPWMMode: bool                                             |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | - pwmMaxValue: int                                                |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +-------------------------------------------------------------------+[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + setup(): void                                                   |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + loop(): void                                                    |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + initializeSystem(): void                                        |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + setupPWMChannels(): void                                        |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 | + showSettingsFromLittleFS(): void                                |[] 
- []
-
-
-Overfull \hbox (69.50275pt too wide) in paragraph at lines 234--234
-[]                \T1/cmtt/m/n/12 +-------------------------------------------------------------------+[] 
- []
-
-
-Overfull \hbox (32.46179pt too wide) in paragraph at lines 234--234
-[]\T1/cmtt/m/n/12 - Observer Pattern: Real-time data updates from control system to web interface[] 
- []
-
-LaTeX Font Info:    Trying to load font information for TS1+cmtt on input line 234.
-(C:\Program Files\MiKTeX\tex/latex/base\ts1cmtt.fd
-File: ts1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-)
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1241,6 +701,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [3]
+Overfull \hbox (11.27658pt too wide) in paragraph at lines 125--126
+[]\T1/cmr/bx/n/12 Filtering: \T1/cmr/m/n/12 Soft-ware low-pass fil-ter re-duces sen-sor noise (con-fig-urable, 0.0-1.0 strength) 
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1249,8 +713,9 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [4]
-Overfull \vbox (1330.52774pt too high) has occurred while \output is active []
-
+Overfull \hbox (256.60757pt too wide) in paragraph at lines 197--198
+ [][] 
+ []
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -1259,24 +724,24 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[5
+[5]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[6
 pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.237 
-      ]
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 256.
-LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 257.
-
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[6]
+l.237     \item \textbf
+                       {Flash:} 16MB with custom partition table (6.25MB app...]
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 254.
+ (C:\Program Files\MiKTeX\tex/latex/base\t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1293,57 +758,87 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [8
+pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.318 
+      ]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[9
 pdfTeX warning (ext4): destination with the same identifier (name{table.1}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.385 ...lass Key Members - Actual Implementation]
-                                                  
+l.396 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{table.2}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.385 ...lass Key Members - Actual Implementation]
-                                                  ]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[9]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[10]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[11]
-
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 14.49998pt, for example:
-(fancyhdr)                \setlength{\headheight}{14.49998pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
-
-[12
+l.396 
+      
 pdfTeX warning (ext4): destination with the same identifier (name{table.3}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.598 
+l.396 
       ]
-Overfull \hbox (19.29124pt too wide) in paragraph at lines 625--626
- []\T1/cmr/bx/n/12 Client-Side Im-ple-men-ta-tion[] \T1/cmr/m/n/12 The browser-side im-ple-men-ta-tion uses sim-ple JavaScript
- []
 
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[10
+pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.474 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.474 
+      
+pdfTeX warning (ext4): destination with the same identifier (name{table.6}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.474 
+      ]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[11
+pdfTeX warning (ext4): destination with the same identifier (name{table.7}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.513 ...lass Key Members - Actual Implementation]
+                                                  
+pdfTeX warning (ext4): destination with the same identifier (name{table.8}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.513 ...lass Key Members - Actual Implementation]
+                                                  ]
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 513.
+LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10> not available
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 514.
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[12]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1352,11 +847,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [13
-pdfTeX warning (ext4): destination with the same identifier (name{table.4}) has been already used, duplicate ignored
+pdfTeX warning (ext4): destination with the same identifier (name{table.9}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.638 //
-         Element caching for performance]
+l.619     \item $
+                 M$ = Relay amplitude]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1364,7 +859,12 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[14]
+[14
+pdfTeX warning (ext4): destination with the same identifier (name{table.10}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.678 public:
+             ]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1388,12 +888,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[17
-pdfTeX warning (ext4): destination with the same identifier (name{table.5}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.835 \end{itemize}
-                   ]
+[17]
+Overfull \hbox (1.06662pt too wide) in paragraph at lines 847--848
+\T1/cmr/m/n/12 man-ual and au-to-matic modes, which clears the ac-cu-mu-lated in-te-gral er-ror and re-initializes
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1409,17 +908,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[19
-pdfTeX warning (ext4): destination with the same identifier (name{table.6}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.929     \item S
-                 ettings loading from persistent storage
-pdfTeX warning (ext4): destination with the same identifier (name{table.7}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.929     \item S
-                 ettings loading from persistent storage]
+[19]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1427,12 +916,11 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[20
-pdfTeX warning (ext4): destination with the same identifier (name{table.8}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.977 DEFAULT_KD 
-                 = 0.0]
+[20]
+Overfull \hbox (73.63354pt too wide) in paragraph at lines 974--975
+[]\T1/cmr/bx/n/12 Valve Dead-band: \T1/cmr/m/n/12 Phys-i-cal valve dead-band (VALVE_MIN_DUTY and VALVE_MAX_DUTY)
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1440,12 +928,7 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[21
-pdfTeX warning (ext4): destination with the same identifier (name{table.9}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.1025     \item \textbf
-                        {Settling Time:} < 5 seconds for 5\% tolerance]
+[21]
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1454,6 +937,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
 [22]
+Overfull \hbox (11.12253pt too wide) in paragraph at lines 1070--1071
+ []\T1/cmr/bx/n/12 Memory-Efficient Stream-ing De-sign[] \T1/cmr/m/n/12 The web in-ter-face im-ple-ments a memory-efficient
+ []
+
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
 (fancyhdr)                Make it at least 14.49998pt, for example:
@@ -1461,26 +948,238 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
 
-[23] (VentCon2_Documentation.aux)
+[23]
+Overfull \hbox (20.86629pt too wide) in paragraph at lines 1121--1135
+ [][] 
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[24
+pdfTeX warning (ext4): destination with the same identifier (name{table.11}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1158 \end{lstlisting}
+                       
+pdfTeX warning (ext4): destination with the same identifier (name{table.12}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1158 \end{lstlisting}
+                       ]
+Overfull \hbox (3.8158pt too wide) in paragraph at lines 1161--1162
+ []\T1/cmr/bx/n/12 Streaming HTML Im-ple-men-ta-tion[] \T1/cmr/m/n/12 The han-dle-Root() func-tion uses memory-efficient
+ []
+
+
+Overfull \hbox (19.29124pt too wide) in paragraph at lines 1207--1208
+ []\T1/cmr/bx/n/12 Client-Side Im-ple-men-ta-tion[] \T1/cmr/m/n/12 The browser-side im-ple-men-ta-tion uses sim-ple JavaScript
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[25]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[26]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[27]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[28]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[29
+pdfTeX warning (ext4): destination with the same identifier (name{table.13}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1413     \item \textbf
+                        {WPA2 Encryption:} Secured WiFi access with strong p...]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[30]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[31
+pdfTeX warning (ext4): destination with the same identifier (name{table.14}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1520 \end{table}
+                  ]
+Overfull \hbox (38.35463pt too wide) in paragraph at lines 1529--1540
+ [][] 
+ []
+
+
+Overfull \hbox (63.95955pt too wide) in paragraph at lines 1550--1568
+ [][] 
+ []
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[32
+pdfTeX warning (ext4): destination with the same identifier (name{table.15}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1570 
+       
+pdfTeX warning (ext4): destination with the same identifier (name{table.16}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1570 
+       ]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[33
+pdfTeX warning (ext4): destination with the same identifier (name{table.17}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1612 
+       
+pdfTeX warning (ext4): destination with the same identifier (name{table.18}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1612 
+       ]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[34
+pdfTeX warning (ext4): destination with the same identifier (name{table.19}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1668 
+       
+pdfTeX warning (ext4): destination with the same identifier (name{table.20}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1668 
+       
+pdfTeX warning (ext4): destination with the same identifier (name{table.21}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1668 
+       ]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[35
+pdfTeX warning (ext4): destination with the same identifier (name{table.22}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1707 
+       ]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[36
+pdfTeX warning (ext4): destination with the same identifier (name{table.23}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1750 \section
+               {Performance Characteristics}]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[37
+pdfTeX warning (ext4): destination with the same identifier (name{table.24}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.1798 \end{lstlisting}
+                       ]
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 14.49998pt, for example:
+(fancyhdr)                \setlength{\headheight}{14.49998pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-2.49998pt}.
+
+[38] (VentCon2_Documentation.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
  ***********
 Package rerunfilecheck Info: File `VentCon2_Documentation.out' has not changed.
-(rerunfilecheck)             Checksum: 7F367E1C33C76B6AD3D94EBAD29964A4;8407.
+(rerunfilecheck)             Checksum: E241F5C78E1B805B6EE399628C0566C7;11869.
  ) 
 Here is how much of TeX's memory you used:
- 34243 strings out of 474486
- 769856 string characters out of 5753537
- 2151542 words of memory out of 5000000
- 55526 multiletter control sequences out of 15000+600000
- 575044 words of font info for 80 fonts, out of 8000000 for 9000
+ 34808 strings out of 474486
+ 778904 string characters out of 5753537
+ 2165542 words of memory out of 5000000
+ 55856 multiletter control sequences out of 15000+600000
+ 575431 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,12n,87p,839b,2018s stack positions out of 10000i,1000n,20000p,200000b,200000s
- <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0600.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tctt1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1440.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
-Output written on VentCon2_Documentation.pdf (23 pages, 372829 bytes).
+ 84i,12n,87p,834b,2028s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0800.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1000.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm0600.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecti1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1728.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1440.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi6.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb>
+Output written on VentCon2_Documentation.pdf (38 pages, 482387 bytes).
 PDF statistics:
- 1411 PDF objects out of 1440 (max. 8388607)
- 479 named destinations out of 1000 (max. 500000)
- 453 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1827 PDF objects out of 2073 (max. 8388607)
+ 714 named destinations out of 1000 (max. 500000)
+ 581 words of extra memory for PDF output out of 10000 (max. 10000000)
 

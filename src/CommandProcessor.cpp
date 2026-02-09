@@ -9,12 +9,12 @@
 
 CommandProcessor::CommandProcessor(SettingsHandler* settings, SensorManager* sensorManager, 
                                  AutoTuner* autoTuner, WebHandler* webHandler, PID* pid,
-                                 double* pressureInput, double* pwmOutput, int* pwm_max_value,
+                                 double* pressureInput, double* pwmOutput, int* pwmFullScaleRaw,
                                  bool* manualPWMMode, bool* continousValueOutput, 
                                  TaskManager* taskManager)
     : settings(settings), sensorManager(sensorManager), autoTuner(autoTuner), 
       webHandler(webHandler), pid(pid), pressureInput(pressureInput), 
-      pwmOutput(pwmOutput), pwm_max_value(pwm_max_value), 
+      pwmOutput(pwmOutput), pwmFullScaleRaw(pwmFullScaleRaw), 
       manualPWMMode(manualPWMMode), continousValueOutput(continousValueOutput),
       taskManager(taskManager) 
 {
@@ -105,7 +105,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
     else if (cmd.startsWith("SAMPLE ")) 
     {
         int newSampleTime = cmd.substring(7).toInt();
-        newSampleTime = constrain(newSampleTime, 1, 1000);
+        newSampleTime = constrain(newSampleTime, ControlConfig::MIN_SAMPLE_TIME_MS, ControlConfig::MAX_SAMPLE_TIME_MS);
         settings->pid_sample_time = newSampleTime;
         pid->SetSampleTime(settings->pid_sample_time);
         Serial.printf("PID sample time set to: %d ms (%.1f Hz)\n", 
@@ -146,7 +146,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         
         // Re-initialize PID with current settings
         pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-        pid->SetOutputLimits(0, *pwm_max_value);
+        pid->SetOutputLimits(0, *pwmFullScaleRaw);
         pid->SetMode(AUTOMATIC);
         
         // Reset manual mode if it was enabled
@@ -192,7 +192,7 @@ void CommandProcessor::handleSignalProcessingCommands(const String& cmd)
     else if (cmd.startsWith("HYSTAMT ")) 
     {
         settings->hystAmount = cmd.substring(8).toFloat();
-        settings->hystAmount = constrain(settings->hystAmount, 0.0, 20.0);
+        settings->hystAmount = constrain(settings->hystAmount, ValveConfig::HYST_MIN, ValveConfig::HYST_MAX);
         Serial.printf("Hysteresis compensation amount set to: %.1f%%\n", settings->hystAmount);
         settings->save();
     }
@@ -203,7 +203,7 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
     if (cmd.startsWith("FREQ ")) 
     {
         int new_freq = cmd.substring(5).toInt();
-        settings->pwm_freq = constrain(new_freq, 100, 10000);
+        settings->pwm_freq = constrain(new_freq, PwmConfig::MIN_FREQ_HZ, PwmConfig::MAX_FREQ_HZ);
         updatePWM();
         Serial.printf("PWM frequency updated to: %d Hz\n", settings->pwm_freq);
         settings->save();
@@ -212,21 +212,21 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
     {
         int new_res = cmd.substring(4).toInt();
         // Store current duty cycle percentage before changing resolution
-        float current_duty_percent = (*pwmOutput / (float)*pwm_max_value) * 100.0;
+        float current_duty_percent = (*pwmOutput / (float)*pwmFullScaleRaw) * 100.0;
         
         // Update resolution and max value
-        settings->pwm_res = constrain(new_res, 1, 16);
+        settings->pwm_res = constrain(new_res, PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS);
         int new_max_value = (1 << settings->pwm_res) - 1;
         
         // Scale pwmOutput to maintain the same duty cycle
         *pwmOutput = (current_duty_percent / 100.0) * new_max_value;
         
         // Update max value and PID limits
-        *pwm_max_value = new_max_value;
-        pid->SetOutputLimits(0, *pwm_max_value);
+        *pwmFullScaleRaw = new_max_value;
+        pid->SetOutputLimits(0, *pwmFullScaleRaw);
         updatePWM();
         
-        Serial.printf("PWM resolution updated to: %d bits (max: %d)\n", settings->pwm_res, *pwm_max_value);
+        Serial.printf("PWM resolution updated to: %d bits (max: %d)\n", settings->pwm_res, *pwmFullScaleRaw);
         Serial.printf("Duty cycle maintained at: %.1f%%\n", current_duty_percent);
         settings->save();
     }
@@ -235,13 +235,13 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
         // Force PWM duty cycle for testing (overrides PID)
         float duty_percent = cmd.substring(4).toFloat();
         duty_percent = constrain(duty_percent, 0.0, 100.0);
-        *pwmOutput = (duty_percent / 100.0) * *pwm_max_value;
+        *pwmOutput = (duty_percent / 100.0) * *pwmFullScaleRaw;
         
         // Apply PWM value directly (without mapping for manual control)
         ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, (uint32_t)*pwmOutput);
         
         Serial.printf("PWM manually set to: %.1f%% (%d/%d)\n", 
-                     duty_percent, (int)*pwmOutput, *pwm_max_value);
+                     duty_percent, (int)*pwmOutput, *pwmFullScaleRaw);
                      
         // Set manual mode flag
         *manualPWMMode = true;
@@ -257,7 +257,7 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
     else if (cmd.startsWith("CONTROL FREQ ")) 
     {
         int new_freq = cmd.substring(13).toInt();
-        settings->control_freq_hz = constrain(new_freq, 10, 1000);
+        settings->control_freq_hz = constrain(new_freq, ControlConfig::MIN_FREQ_HZ, ControlConfig::MAX_FREQ_HZ);
         Serial.printf("Control loop frequency updated to: %d Hz (period: %.1f ms)\n", 
                      settings->control_freq_hz, 1000.0/settings->control_freq_hz);
         
@@ -706,8 +706,8 @@ void CommandProcessor::showStatus()
     // PWM Output section
     Serial.println("\nPWM Output:");
     Serial.printf("  Value: %d/%d (%.3f%%)\n", 
-                 (int)*pwmOutput, *pwm_max_value, 
-                 (*pwmOutput / float(*pwm_max_value)) * 100.0);
+                 (int)*pwmOutput, *pwmFullScaleRaw, 
+                 (*pwmOutput / float(*pwmFullScaleRaw)) * 100.0);
     Serial.printf("  Resolution: %d-bit\n", settings->pwm_res);
     Serial.printf("  Frequency: %d Hz\n", settings->pwm_freq);
     Serial.printf("  Control Mode: %s\n", *manualPWMMode ? "MANUAL" : "PID");
@@ -728,7 +728,7 @@ void CommandProcessor::showStatus()
     Serial.printf("  SSID: %s\n", webHandler ? webHandler->getAPSSID() : "Not Initialized");
     Serial.printf("  IP: %s\n", webHandler ? webHandler->getAPIP().toString().c_str() : "Not Initialized");
     Serial.printf("  Channel: %d (%.1f MHz)\n", webHandler ? webHandler->getWiFiChannel() : 0, 
-                 webHandler ? 2412.0 + (webHandler->getWiFiChannel() - 1) * 5.0 : 0.0);
+                 webHandler ? NetworkConfig::WIFI_CH1_FREQ_MHZ + (webHandler->getWiFiChannel() - 1) * NetworkConfig::WIFI_CHANNEL_STEP_MHZ : 0.0);
     Serial.printf("  Connected Clients: %d/%d\n", webHandler ? webHandler->getConnectedClients() : 0, NetworkConfig::MAX_CLIENTS);
     Serial.printf("  Web Server: %s\n", webHandler ? (webHandler->isWebServerEnabled() ? "Enabled" : "Disabled") : "Not Initialized");
 }
