@@ -1,4 +1,5 @@
 #include "SensorManager.h"
+#include "Logger.h"
 #include <Arduino.h>
 #include <Wire.h>
 
@@ -16,13 +17,13 @@ SensorManager::SensorManager(SettingsHandler* settings)
 
 bool SensorManager::initialize() 
 {
-    Serial.println("Initializing SensorManager...");
+    LOG_I(CAT_SENSOR, "Initializing SensorManager...");
     
     // Try to initialize ADS1015
     if (initializeADS1015()) 
     {
         ads_found = true;
-        Serial.println("ADS1015 found and configured successfully!");
+        LOG_I(CAT_SENSOR, "ADS1015 found and configured successfully!");
         printSensorStatus();
         return true;
     }
@@ -30,7 +31,7 @@ bool SensorManager::initialize()
     // Fallback to ESP32 internal ADC
     ads_found = false;
     pinMode(FALLBACK_ANALOG_PIN, INPUT);
-    Serial.println("WARNING: ADS1015 not found! Using ESP32 internal ADC as fallback.");
+    LOG_W(CAT_SENSOR, "ADS1015 not found! Using ESP32 internal ADC as fallback.");
     printSensorStatus();
     
     return true; // Always return true since we have a fallback

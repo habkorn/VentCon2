@@ -1,6 +1,7 @@
 #include "CommandProcessor.h"
 #include "Constants.h"
 #include "TaskManager.h"
+#include "Logger.h"
 #include <LittleFS.h>
 #include <esp_system.h>
 #include <esp_heap_caps.h>
@@ -531,11 +532,13 @@ void CommandProcessor::handleDiagnosticCommands(const String& cmd)
     {
         Serial.println("Starting output for Continuous Data");
         *continousValueOutput = true;
+        Logger::setEnabled(true);  // Sync Logger with continuous output flag
     }
     else if (cmd == "STOPCD") 
     {
         Serial.println("Stopping output for Continuous Data");
         *continousValueOutput = false;
+        Logger::setEnabled(false);  // Sync Logger with continuous output flag
     }
     else if (cmd == "SENSOR") 
     {

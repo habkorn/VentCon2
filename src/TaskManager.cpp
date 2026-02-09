@@ -1,5 +1,6 @@
 #include "TaskManager.h"
 #include "Constants.h"
+#include "Logger.h"
 
 TaskManager::TaskManager(ControlSystem* controlSystem, WebHandler* webHandler)
     : controlSystem(controlSystem), webHandler(webHandler), 
@@ -50,12 +51,12 @@ bool TaskManager::createTasks()
     
     if (networkResult != pdPASS) 
     {
-        Serial.println("ERROR: Failed to create NetworkTask");
+        LOG_E(CAT_SYSTEM, "Failed to create NetworkTask");
         success = false;
     } 
     else 
     {
-        Serial.println("NetworkTask created successfully on Core 0");
+        LOG_I(CAT_SYSTEM, "NetworkTask created successfully on Core 0");
     }
 
     // Create control task on Core 1
@@ -71,12 +72,12 @@ bool TaskManager::createTasks()
     
     if (controlResult != pdPASS) 
     {
-        Serial.println("ERROR: Failed to create ControlTask");
+        LOG_E(CAT_SYSTEM, "Failed to create ControlTask");
         success = false;
     } 
     else 
     {
-        Serial.println("ControlTask created successfully on Core 1");
+        LOG_I(CAT_SYSTEM, "ControlTask created successfully on Core 1");
     }
     
     return success;

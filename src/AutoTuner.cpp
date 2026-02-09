@@ -1,4 +1,5 @@
 #include "AutoTuner.h"
+#include "Logger.h"
 #include <Arduino.h>
 
 AutoTuner::AutoTuner(SettingsHandler* settings, PID* pid, double* pressureInput, int* pwmMaxValue)
@@ -171,7 +172,7 @@ void AutoTuner::process()
                 cycleAmplitudes[currentCycle] = maxPressure - minPressure;
                 currentCycle++;
                 
-                Serial.printf("Cycle %d: Period=%.2fs, Amplitude=%.2f bar (Max=%.2f, Min=%.2f)\n", 
+                LOG_D(CAT_AUTOTUNE, "Cycle %d: Period=%.2fs, Amplitude=%.2f bar (Max=%.2f, Min=%.2f)", 
                              currentCycle, (now - lastTransitionTime)/1000.0, 
                              cycleAmplitudes[currentCycle-1], maxPressure, minPressure);
             }
@@ -344,11 +345,11 @@ bool AutoTuner::calculatePIDParameters(float& newKp, float& newKi, float& newKd)
     }
     
     // Print calculation details
-    Serial.printf("Average Period: %.2f seconds\n", avgPeriod);
-    Serial.printf("Average Amplitude: %.2f bar\n", avgAmplitude);
-    Serial.printf("Valve Range Compensation: %.2fx\n", valveRangeCompensation);
-    Serial.printf("Ultimate Gain (Ku): %.2f\n", Ku);
-    Serial.printf("Ultimate Period (Tu): %.2f s\n", Tu);
+    LOG_D(CAT_AUTOTUNE, "Average Period: %.2f seconds", avgPeriod);
+    LOG_D(CAT_AUTOTUNE, "Average Amplitude: %.2f bar", avgAmplitude);
+    LOG_D(CAT_AUTOTUNE, "Valve Range Compensation: %.2fx", valveRangeCompensation);
+    LOG_D(CAT_AUTOTUNE, "Ultimate Gain (Ku): %.2f", Ku);
+    LOG_D(CAT_AUTOTUNE, "Ultimate Period (Tu): %.2f s", Tu);
     
     return true;
 }

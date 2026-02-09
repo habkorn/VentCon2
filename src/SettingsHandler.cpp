@@ -1,4 +1,5 @@
 #include "SettingsHandler.h"
+#include "Logger.h"
 
 // Define static const members
 constexpr double SettingsHandler::DEFAULT_KP;
@@ -45,13 +46,13 @@ void SettingsHandler::resetToDefaults()
 bool SettingsHandler::load() 
 {
     if (!LittleFS.exists(SETTINGS_FILE_PATH)) {
-        Serial.println("Settings file not found, using defaults");
+        LOG_I(CAT_SYSTEM, "Settings file not found, using defaults");
         return false;
     }
     
     File file = LittleFS.open(SETTINGS_FILE_PATH, "r");
     if (!file) {
-        Serial.println("Failed to open settings file for reading");
+        LOG_E(CAT_SYSTEM, "Failed to open settings file for reading");
         return false;
     }
     
@@ -60,8 +61,7 @@ bool SettingsHandler::load()
     file.close();
     
     if (error) {
-        Serial.print("Failed to parse settings.json: ");
-        Serial.println(error.c_str());
+        LOG_E(CAT_SYSTEM, "Failed to parse settings.json: %s", error.c_str());
         return false;
     }
     
@@ -79,7 +79,7 @@ bool SettingsHandler::load()
     hysteresis = doc["hysteresis"] | DEFAULT_HYSTERESIS;
     hystAmount = doc["hystAmount"] | DEFAULT_HYST_AMOUNT;
     
-    Serial.println("Settings loaded successfully from LittleFS");
+    LOG_I(CAT_SYSTEM, "Settings loaded successfully from LittleFS");
     return true;
 }
 
@@ -87,7 +87,7 @@ bool SettingsHandler::save()
 {
     File file = LittleFS.open(SETTINGS_FILE_PATH, "w");
     if (!file) {
-        Serial.println("Failed to open settings file for writing");
+        LOG_E(CAT_SYSTEM, "Failed to open settings file for writing");
         return false;
     }
     
@@ -106,13 +106,13 @@ bool SettingsHandler::save()
     doc["hystAmount"] = hystAmount;
     
     if (serializeJson(doc, file) == 0) {
-        Serial.println("Failed to write settings to file");
+        LOG_E(CAT_SYSTEM, "Failed to write settings to file");
         file.close();
         return false;
     }
     
     file.close();
-    Serial.println("Settings saved to LittleFS");
+    LOG_I(CAT_SYSTEM, "Settings saved to LittleFS");
     return true;
 }
 

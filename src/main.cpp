@@ -17,6 +17,7 @@
 #include "CommandProcessor.h" // Add CommandProcessor include
 #include "ControlSystem.h" // Add ControlSystem include
 #include "TaskManager.h" // Add TaskManager include
+#include "Logger.h" // Add Logger include
 
 // ====== Hardware Configuration ======
 const int SOLENOID_PIN = HardwareConfig::SOLENOID_PIN;
@@ -87,6 +88,7 @@ void parseSerialCommand(String cmd)
 void setup()
 {
   Serial.begin(UartConfig::BAUD_RATE);
+  Logger::init();  // Initialize logging system
   delay(TimingConfig::STARTUP_DELAY_MS);
   Serial.println();
   Serial.println("====================================================");

@@ -1,5 +1,6 @@
 #include "ControlSystem.h"
 #include "Constants.h"
+#include "Logger.h"
 
 ControlSystem::ControlSystem(SettingsHandler* settings, SensorManager* sensorManager, 
                            AutoTuner* autoTuner, PID* pid, double* pressureInput, 
@@ -77,10 +78,11 @@ void ControlSystem::handleEmergencyShutdown()
         // Stop PWM output
         ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, 0);
         
+        // Log error (always logged, rate-limited by LOG_E behavior)
         static unsigned long lastEmergencyMsgTime = 0;
         if (millis() - lastEmergencyMsgTime >= TimingConfig::EMERGENCY_MSG_INTERVAL_MS) 
         {
-            Serial.printf("EMERGENCY SHUTDOWN! Pressure %.2f bar exceeds safe limit.\n", *pressureInput);
+            LOG_E(CAT_CONTROL, "EMERGENCY SHUTDOWN! Pressure %.2f bar exceeds safe limit", *pressureInput);
             lastEmergencyMsgTime = millis();
         }
     }
@@ -179,19 +181,14 @@ void ControlSystem::processControlLoop()
                     pid->SetMode(PID::Manual);
                     pid->SetMode(PID::Automatic);
                     
-                    // Optional debug output if continuous output is enabled
-                    static unsigned long lastDebugTime = 0;
-                    if (*continousValueOutput && (millis() - lastDebugTime >= SERIAL_OUTPUT_INTERVAL)) 
+                    // Debug output using Logger (rate-limited automatically)
+                    if (pidPercent < ValveConfig::VALVE_MIN_DUTY) 
                     {
-                        if (pidPercent < ValveConfig::VALVE_MIN_DUTY) 
-                        {
-                            Serial.println("Anti-windup: Below min duty, valve closed");
-                        } 
-                        else 
-                        {
-                            Serial.println("Anti-windup: Above max duty, valve saturated");
-                        }
-                        lastDebugTime = millis();
+                        LOG_D(CAT_CONTROL, "Anti-windup: Below min duty (%.1f%%), valve closed", pidPercent);
+                    } 
+                    else 
+                    {
+                        LOG_D(CAT_CONTROL, "Anti-windup: Above max duty (%.1f%%), valve saturated", pidPercent);
                     }
                 }
             }

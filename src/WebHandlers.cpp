@@ -3,7 +3,8 @@
 #include <DNSServer.h>
 #include <LittleFS.h>
 #include "WebContent.h"
-#include "Constants.h"  // Add this include
+#include "Constants.h"
+#include "Logger.h"
 #include "SettingsHandler.h"   // Add SettingsHandler class include
 #include "WebHandlers.h" // Include our class definition
 #include <PID_v2.h> // Changed from PID_v1 to PID_v2
@@ -97,13 +98,13 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
                 connectedMACs[connectedClients] = String(macStr);
                 connectedClients++;
                 
-                Serial.printf("Device connected to AP (%d/%d clients)\n", 
+                LOG_I(CAT_NETWORK, "Device connected to AP (%d/%d clients)", 
                               connectedClients, NetworkConfig::MAX_CLIENTS);
-                Serial.printf("MAC address: %s\n", macStr);
+                LOG_D(CAT_NETWORK, "MAC address: %s", macStr);
             } else {
                 // Too many clients, disconnect this one
-                Serial.println("Maximum client limit reached - disconnecting new client");
-                Serial.printf("MAC address: %s\n", macStr);
+                LOG_W(CAT_NETWORK, "Maximum client limit reached - disconnecting new client");
+                LOG_D(CAT_NETWORK, "MAC address: %s", macStr);
                   // Force disconnection - this requires a brief reset of the AP
                 WiFi.softAPdisconnect(false);  // Disconnect all clients but keep AP running
                 delay(10); // Brief delay
@@ -135,7 +136,7 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
                     break;
                 }
             }
-              Serial.printf("Clients remaining: %d/%d\n", connectedClients, NetworkConfig::MAX_CLIENTS);
+              LOG_I(CAT_NETWORK, "Clients remaining: %d/%d", connectedClients, NetworkConfig::MAX_CLIENTS);
             break;
     }
 }
@@ -157,11 +158,8 @@ void WebHandler::initializeWiFiAP() {
     // Start DNS server for captive portal
     webDnsServer.start(NetworkConfig::DNS_PORT, "*", ap_ip);
     
-    Serial.println("WiFi AP initialized:");
-    Serial.printf("  SSID: %s\n", ap_ssid);
-    Serial.printf("  IP: %s\n", ap_ip.toString().c_str());
-    Serial.printf("  Gateway: %s\n", ap_gateway.toString().c_str());
-    Serial.printf("  Subnet: %s\n", ap_subnet.toString().c_str());
+    LOG_I(CAT_NETWORK, "WiFi AP initialized - SSID: %s, IP: %s", ap_ssid, ap_ip.toString().c_str());
+    LOG_D(CAT_NETWORK, "Gateway: %s, Subnet: %s", ap_gateway.toString().c_str(), ap_subnet.toString().c_str());
 }
 
 void WebHandler::updatePWM() {
@@ -187,16 +185,16 @@ bool WebHandler::handleFileRead(String path) {
   if (path.endsWith("/")) path += "index.html";
   String contentType = getContentType(path);
   
-  Serial.printf("File request: %s\n", path.c_str());
+  LOG_D(CAT_NETWORK, "File request: %s", path.c_str());
   
   if (LittleFS.exists(path)) {
     File file = LittleFS.open(path, "r");
     if (file) {
       size_t fileSize = file.size();
-      Serial.printf("  Serving: %s (%d bytes, type: %s)\n", path.c_str(), fileSize, contentType.c_str());
+      LOG_D(CAT_NETWORK, "Serving: %s (%d bytes, type: %s)", path.c_str(), fileSize, contentType.c_str());
       
       if (fileSize == 0) {
-        Serial.printf("  ERROR: File is empty!\n");
+        LOG_E(CAT_NETWORK, "File is empty: %s", path.c_str());
         file.close();
         webServer.send(500, "text/plain", "File is empty");
         return true;
@@ -217,7 +215,7 @@ bool WebHandler::handleFileRead(String path) {
         size_t bytesRead = file.read(buffer, toRead);
         
         if (bytesRead == 0) {
-          Serial.printf("  ERROR: Read failed at byte %d\n", bytesSent);
+          LOG_E(CAT_NETWORK, "Read failed at byte %d for %s", bytesSent, path.c_str());
           break;
         }
         
@@ -231,13 +229,13 @@ bool WebHandler::handleFileRead(String path) {
       }
       
       file.close();
-      Serial.printf("  Sent %d/%d bytes\n", bytesSent, fileSize);
+      LOG_D(CAT_NETWORK, "Sent %d/%d bytes for %s", bytesSent, fileSize, path.c_str());
       return true;
     } else {
-      Serial.printf("  ERROR: Could not open file!\n");
+      LOG_E(CAT_NETWORK, "Could not open file: %s", path.c_str());
     }
   }
-  Serial.printf("  NOT FOUND: %s\n", path.c_str());
+  LOG_W(CAT_NETWORK, "File not found: %s", path.c_str());
   return false;
 }
 
