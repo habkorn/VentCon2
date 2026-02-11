@@ -56,6 +56,7 @@ private:
     void handleSet();
     void handleValues();
     void handleResetPID();
+    void handleSliderLimits();   // GET/POST slider limits API
 
 public:    // Constructor with dependency injection
     WebHandler(SettingsHandler* settings,

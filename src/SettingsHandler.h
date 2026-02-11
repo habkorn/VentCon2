@@ -4,6 +4,17 @@
 #include <LittleFS.h>
 
 /**
+ * SliderLimits Structure
+ * 
+ * Defines configurable min/max/step values for UI sliders.
+ */
+struct SliderLimits {
+    float min;
+    float max;
+    float step;
+};
+
+/**
  * SettingsHandler Class
  * 
  * Encapsulates all system configuration parameters for the VentCon2 system.
@@ -42,6 +53,12 @@ public:
     bool antiWindup;            // Flag to enable/disable anti-windup for deadband
     bool hysteresis;            // Flag to enable/disable hysteresis compensation
     float hystAmount;           // Amount of hysteresis compensation (percentage points)
+    
+    // Slider Limits (user-configurable min/max/step for UI)
+    SliderLimits sp_limits;     // Setpoint slider limits
+    SliderLimits kp_limits;     // Kp slider limits
+    SliderLimits ki_limits;     // Ki slider limits
+    SliderLimits kd_limits;     // Kd slider limits
     
     // Constructor with default values
     SettingsHandler();

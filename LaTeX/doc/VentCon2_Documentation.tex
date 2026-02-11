@@ -511,6 +511,13 @@ The SettingsHandler class encapsulates all system configuration parameters and p
 
 \subsubsection{Key Attributes}
 \begin{lstlisting}[caption=SettingsHandler Class Key Members - Actual Implementation]
+// SliderLimits structure for UI customization
+struct SliderLimits {
+    float min;                    // Minimum slider value
+    float max;                    // Maximum slider value
+    float step;                   // Slider step increment
+};
+
 class SettingsHandler {
 public:
     // PID Parameters
@@ -530,6 +537,12 @@ public:
     bool antiWindup;              // Anti-windup enable flag
     bool hysteresis;              // Hysteresis compensation
     float hystAmount;             // Hysteresis amount (percentage)
+    
+    // Slider Limits (user-configurable via web UI)
+    SliderLimits sp_limits;       // Setpoint slider limits
+    SliderLimits kp_limits;       // Kp slider limits
+    SliderLimits ki_limits;       // Ki slider limits
+    SliderLimits kd_limits;       // Kd slider limits
     
     // Constructor with default values
     SettingsHandler();
@@ -1045,6 +1058,7 @@ private:
     void handleSet();
     void handleValues();
     void handleResetPID();
+    void handleSliderLimits();  // GET/POST slider limits API
     
 public:
     WebHandler(SettingsHandler* settings, PID* pid, ...);
@@ -1101,8 +1115,9 @@ The web interface is implemented as a single-page application that provides real
 Pressure Gauge & Real-time pressure with trend indicator and setpoint marker \\
 PWM Output Gauge & Current valve control output with trend indicator \\
 Live Chart & Chart.js pressure/setpoint/PWM graph (toggleable) \\
-Setpoint Slider & Adjustable target pressure (0-10 bar) \\
+Setpoint Slider & Adjustable target pressure with configurable limits \\
 PID Sliders & Kp, Ki, Kd parameter adjustment with +/- buttons \\
+Slider Settings & Gear icon (\texttt{\small \symbol{"2699}}) opens modal to configure min/max/step \\
 Filter Slider & Low-pass filter strength (0-1) \\
 PWM Config & Frequency (100-10000Hz) and resolution (8-16 bit) \\
 ADC Status & External ADS1015 or internal ESP32 ADC indicator \\
@@ -1113,6 +1128,15 @@ Reset PID Button & Re-initialize PID controller \\
 \end{tabular}
 \caption{Web Interface Components}
 \end{table}
+
+\paragraph{Configurable Slider Limits}
+The Setpoint, Kp, Ki, and Kd sliders feature user-configurable limits via a settings modal. Each slider label includes a gear icon that opens a popup where users can adjust:
+\begin{itemize}
+    \item \textbf{Minimum:} Lower bound for the slider range
+    \item \textbf{Maximum:} Upper bound for the slider range
+    \item \textbf{Step:} Increment value for slider movement
+\end{itemize}
+These limits are stored in the \texttt{SliderLimits} structure within \texttt{SettingsHandler} and persist to LittleFS. The feature allows tuning the UI for specific applications without recompiling firmware.
 
 \subsubsection{HTTP Endpoints and API}
 
@@ -1126,6 +1150,8 @@ Reset PID Button & Re-initialize PID controller \\
 /set & GET & Update PID parameters and settings \\
 /values & GET & Real-time system data (JSON) \\
 /resetPID & GET & Reset PID controller state \\
+/api/slider-limits & GET & Retrieve slider min/max/step limits (JSON) \\
+/api/slider-limits & POST & Update slider limits (persists to LittleFS) \\
 /chart.min.js & GET & Chart.js library (chunked from LittleFS) \\
 /moment.min.js & GET & Moment.js library (chunked from LittleFS) \\
 /chartjs-adapter-moment.min.js & GET & Chart.js adapter (chunked from LittleFS) \\
@@ -1182,7 +1208,13 @@ void WebHandler::handleRoot() {
   String inputs = FPSTR(HTML_INPUTS);
   inputs.replace("%SP%", String(settings->setpoint, 2));
   inputs.replace("%KP%", String(settings->Kp, 2));
-  // ... other replacements
+  // ... other value replacements
+  
+  // Replace slider limit placeholders (min/max/step)
+  inputs.replace("%SP_MIN%", String(settings->sp_limits.min, 2));
+  inputs.replace("%SP_MAX%", String(settings->sp_limits.max, 2));
+  inputs.replace("%SP_STEP%", String(settings->sp_limits.step, 3));
+  // ... other limit replacements for Kp, Ki, Kd
   webServer.sendContent(inputs);
   yield();
   

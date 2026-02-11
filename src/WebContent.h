@@ -61,7 +61,7 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
 
   <main>
     <section class="card">
-      <h2 style="text-align: center;">Real Time Monitoring</h2>
+      <!-- <h2 style="text-align: center;">Real Time Monitoring</h2> -->
       
       <div class="gauge-container">
         <div class="gauge">
@@ -104,13 +104,41 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
     </section>   
    
     <section class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+      <!-- <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
         <h2 style="margin-bottom: 0;">Set Parameters</h2>
-      </div>
+      </div> -->
       
       <!-- Snackbar Apply Changes button (hidden by default) -->
       <div id="saveSnackbar" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#2563eb; color:white; padding:12px 24px; border-radius:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15); font-weight:600; z-index:1000; display:none; cursor:pointer; transition:all 0.3s ease;">
         <span id="saveSnackbarText">Apply Changes</span>
+      </div>
+      
+      <!-- Slider Settings Modal -->
+      <div id="sliderSettingsModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="modalTitle">Slider Settings</h3>
+            <button class="modal-close" onclick="closeSliderModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="modal-row">
+              <label>Minimum</label>
+              <input type="number" id="modalMin" step="any">
+            </div>
+            <div class="modal-row">
+              <label>Maximum</label>
+              <input type="number" id="modalMax" step="any">
+            </div>
+            <div class="modal-row">
+              <label>Step</label>
+              <input type="number" id="modalStep" step="any">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="modal-btn modal-btn-cancel" onclick="closeSliderModal()">Cancel</button>
+            <button class="modal-btn modal-btn-save" onclick="saveSliderSettings()">Save</button>
+          </div>
+        </div>
       </div>
 )rawliteral";
 
@@ -118,12 +146,12 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
 // This is the ONLY section that needs String processing
 const char HTML_INPUTS[] PROGMEM = R"rawliteral(
       <div class="control-row">
-        <label for="sp_slider">Setpoint Outlet Pressure in bar(g)</label>
+        <label for="sp_slider">Setpoint Outlet Pressure in bar(g)<button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits">&#9881;</button></label>
         <div class="control-slider">
           <button type="button" class="slider-btn decrement-btn" id="sp_decrement">-</button>
-          <input type="range" id="sp_slider" min="0" max="10" step="0.1" value="%SP%">
+          <input type="range" id="sp_slider" min="%SP_MIN%" max="%SP_MAX%" step="%SP_STEP%" value="%SP%">
           <button type="button" class="slider-btn increment-btn" id="sp_increment">+</button>
-          <input type="number" id="sp_text" value="%SP%" step="0.1">
+          <input type="number" id="sp_text" value="%SP%" step="%SP_STEP%">
         </div>
       </div>    
       
@@ -135,32 +163,32 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
       </div>
 
       <div class="control-row">
-        <label for="kp_slider">Proportional</label>
+        <label for="kp_slider">Proportional<button class="settings-gear" onclick="openSliderSettings('kp')" title="Configure slider limits">&#9881;</button></label>
         <div class="control-slider">
           <button type="button" class="slider-btn decrement-btn" id="kp_decrement">-</button>
-          <input type="range" id="kp_slider" min="0" max="3000" step="1" value="%KP%">
+          <input type="range" id="kp_slider" min="%KP_MIN%" max="%KP_MAX%" step="%KP_STEP%" value="%KP%">
           <button type="button" class="slider-btn increment-btn" id="kp_increment">+</button>
-          <input type="number" id="kp_text" value="%KP%" step="1">
+          <input type="number" id="kp_text" value="%KP%" step="%KP_STEP%">
         </div>
       </div>
 
       <div class="control-row">
-        <label for="ki_slider">Integral</label>
+        <label for="ki_slider">Integral<button class="settings-gear" onclick="openSliderSettings('ki')" title="Configure slider limits">&#9881;</button></label>
         <div class="control-slider">
           <button type="button" class="slider-btn decrement-btn" id="ki_decrement">-</button>
-          <input type="range" id="ki_slider" min="0" max="5000" step="1" value="%KI%">
+          <input type="range" id="ki_slider" min="%KI_MIN%" max="%KI_MAX%" step="%KI_STEP%" value="%KI%">
           <button type="button" class="slider-btn increment-btn" id="ki_increment">+</button>
-          <input type="number" id="ki_text" value="%KI%" step="1">
+          <input type="number" id="ki_text" value="%KI%" step="%KI_STEP%">
         </div>
       </div>
 
       <div class="control-row">
-        <label for="kd_slider">Derivative</label>
+        <label for="kd_slider">Derivative<button class="settings-gear" onclick="openSliderSettings('kd')" title="Configure slider limits">&#9881;</button></label>
         <div class="control-slider">
           <button type="button" class="slider-btn decrement-btn" id="kd_decrement">-</button>
-          <input type="range" id="kd_slider" min="0" max="1000" step="1" value="%KD%">
+          <input type="range" id="kd_slider" min="%KD_MIN%" max="%KD_MAX%" step="%KD_STEP%" value="%KD%">
           <button type="button" class="slider-btn increment-btn" id="kd_increment">+</button>
-          <input type="number" id="kd_text" value="%KD%" step="1">
+          <input type="number" id="kd_text" value="%KD%" step="%KD_STEP%">
         </div>
       </div>
 
@@ -201,24 +229,26 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
 
     </section>
 
-    <section class="card">
-      <h2>System Information</h2>
-      <div class="control-row">
-        <label>ADC Status</label>
-        <div class="hardware-info">
-          <span class="status-indicator" id="adc_indicator"></span>
-          <span id="adc_status" class="status-text">--</span>
-        </div>
-      </div>
+    <details class="card">
+      <summary>System Information</summary>
+      <div class="collapsible-content">
+        <!-- <div class="control-row">
+          <label>ADC Status</label>
+          <div class="hardware-info">
+            <span class="status-indicator" id="adc_indicator"></span>
+            <span id="adc_status" class="status-text">--</span>
+          </div>
+        </div> -->
 
-      <div class="control-row">
-        <label>Network Status</label>
-        <div class="hardware-info">
-          <span class="status-indicator" id="network_indicator"></span>
-          <span id="network_status" class="status-text">--</span>
+        <div class="control-row">
+          <label>Network Status</label>
+          <div class="hardware-info">
+            <span class="status-indicator" id="network_indicator"></span>
+            <span id="network_status" class="status-text">--</span>
+          </div>
         </div>
       </div>
-    </section>
+    </details>
   </main>
 )rawliteral";
 
@@ -751,14 +781,16 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       });
 
       // Setup increment/decrement buttons
+      // For sp, kp, ki, kd: use dynamic limits from slider attributes
+      // For flt, freq, res: use fixed values
       [
-        {param: 'sp', min: 0, max: 10, step: 0.1},
-        {param: 'kp', min: 0, max: 3000, step: 100},
-        {param: 'ki', min: 0, max: 5000, step: 200},
-        {param: 'kd', min: 0, max: 1000, step: 10},
-        {param: 'flt', min: 0, max: 1, step: 0.01},
-        {param: 'freq', min: 100, max: 10000, step: 100},
-        {param: 'res', min: 8, max: 16, step: 1}
+        {param: 'sp', stepMultiplier: 1},
+        {param: 'kp', stepMultiplier: 100},
+        {param: 'ki', stepMultiplier: 200},
+        {param: 'kd', stepMultiplier: 10},
+        {param: 'flt', min: 0, max: 1, step: 0.01, fixed: true},
+        {param: 'freq', min: 100, max: 10000, step: 100, fixed: true},
+        {param: 'res', min: 8, max: 16, step: 1, fixed: true}
       ].forEach(function(cfg) {
         const slider = cachedElements.sliders ? cachedElements.sliders[cfg.param] : null;
         const text = cachedElements.texts ? cachedElements.texts[cfg.param] : null;
@@ -767,15 +799,21 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         
         if (decBtn && incBtn && slider && text) {
           decBtn.addEventListener('click', function() {
+            // Get limits from slider attributes (dynamically set) or use fixed values
+            const min = cfg.fixed ? cfg.min : parseFloat(slider.min);
+            const step = cfg.fixed ? cfg.step : (parseFloat(slider.step) * (cfg.stepMultiplier || 1));
             let value = parseFloat(text.value);
-            value = Math.max(cfg.min, +(value - cfg.step).toFixed(10));
+            value = Math.max(min, +(value - step).toFixed(10));
             text.value = value;
             slider.value = value;
             showSaveSnackbar(cfg.param, value);
           });
           incBtn.addEventListener('click', function() {
+            // Get limits from slider attributes (dynamically set) or use fixed values
+            const max = cfg.fixed ? cfg.max : parseFloat(slider.max);
+            const step = cfg.fixed ? cfg.step : (parseFloat(slider.step) * (cfg.stepMultiplier || 1));
             let value = parseFloat(text.value);
-            value = Math.min(cfg.max, +(value + cfg.step).toFixed(10));
+            value = Math.min(max, +(value + step).toFixed(10));
             text.value = value;
             slider.value = value;
             showSaveSnackbar(cfg.param, value);
@@ -1223,6 +1261,150 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         });
       }
     }
+
+    // ========== Slider Settings Modal Functions ==========
+    let currentSliderParam = null;
+    let sliderLimits = {};
+    
+    // Slider names for modal title
+    const sliderNames = {
+      sp: 'Setpoint',
+      kp: 'Proportional (Kp)',
+      ki: 'Integral (Ki)',
+      kd: 'Derivative (Kd)'
+    };
+    
+    // Fetch slider limits on page load
+    function fetchSliderLimits() {
+      fetch('/api/slider-limits')
+        .then(r => r.json())
+        .then(data => {
+          sliderLimits = data;
+          applySliderLimits();
+        })
+        .catch(err => console.error('Failed to fetch slider limits:', err));
+    }
+    
+    // Apply loaded limits to sliders
+    function applySliderLimits() {
+      ['sp', 'kp', 'ki', 'kd'].forEach(param => {
+        const limits = sliderLimits[param];
+        if (limits) {
+          const slider = document.getElementById(param + '_slider');
+          const text = document.getElementById(param + '_text');
+          if (slider) {
+            slider.min = limits.min;
+            slider.max = limits.max;
+            slider.step = limits.step;
+          }
+          if (text) {
+            text.step = limits.step;
+          }
+        }
+      });
+    }
+    
+    // Open modal for a specific slider
+    function openSliderSettings(param) {
+      currentSliderParam = param;
+      const modal = document.getElementById('sliderSettingsModal');
+      const title = document.getElementById('modalTitle');
+      const minInput = document.getElementById('modalMin');
+      const maxInput = document.getElementById('modalMax');
+      const stepInput = document.getElementById('modalStep');
+      
+      if (!modal || !title || !minInput || !maxInput || !stepInput) return;
+      
+      // Set title
+      title.textContent = (sliderNames[param] || param) + ' Settings';
+      
+      // Load current values
+      const limits = sliderLimits[param] || { min: 0, max: 100, step: 1 };
+      minInput.value = limits.min;
+      maxInput.value = limits.max;
+      stepInput.value = limits.step;
+      
+      modal.style.display = 'flex';
+    }
+    
+    // Close modal
+    function closeSliderModal() {
+      const modal = document.getElementById('sliderSettingsModal');
+      if (modal) modal.style.display = 'none';
+      currentSliderParam = null;
+    }
+    
+    // Save slider settings
+    function saveSliderSettings() {
+      if (!currentSliderParam) return;
+      
+      const minInput = document.getElementById('modalMin');
+      const maxInput = document.getElementById('modalMax');
+      const stepInput = document.getElementById('modalStep');
+      
+      const newMin = parseFloat(minInput.value);
+      const newMax = parseFloat(maxInput.value);
+      const newStep = parseFloat(stepInput.value);
+      
+      // Validate
+      if (isNaN(newMin) || isNaN(newMax) || isNaN(newStep) || newMax <= newMin || newStep <= 0) {
+        alert('Invalid values. Max must be greater than Min, and Step must be positive.');
+        return;
+      }
+      
+      // Send to server
+      const formData = new URLSearchParams();
+      formData.append('param', currentSliderParam);
+      formData.append('min', newMin);
+      formData.append('max', newMax);
+      formData.append('step', newStep);
+      
+      fetch('/api/slider-limits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          // Update local cache
+          sliderLimits[currentSliderParam] = { min: newMin, max: newMax, step: newStep };
+          
+          // Apply to slider
+          const slider = document.getElementById(currentSliderParam + '_slider');
+          const text = document.getElementById(currentSliderParam + '_text');
+          if (slider) {
+            slider.min = newMin;
+            slider.max = newMax;
+            slider.step = newStep;
+            // Clamp current value if needed
+            let val = parseFloat(slider.value);
+            if (val < newMin) slider.value = newMin;
+            if (val > newMax) slider.value = newMax;
+            if (text) text.value = slider.value;
+          }
+          if (text) text.step = newStep;
+          
+          closeSliderModal();
+        } else {
+          alert('Failed to save settings');
+        }
+      })
+      .catch(err => {
+        console.error('Error saving slider limits:', err);
+        alert('Error saving settings');
+      });
+    }
+    
+    // Close modal on overlay click
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'sliderSettingsModal') {
+        closeSliderModal();
+      }
+    });
+    
+    // Fetch limits on load
+    document.addEventListener('DOMContentLoaded', fetchSliderLimits);
 
     // Setup scroll handler
     function setupScrollHandler() {

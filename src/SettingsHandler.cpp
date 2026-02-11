@@ -41,6 +41,12 @@ void SettingsHandler::resetToDefaults()
     antiWindup = DEFAULT_ANTI_WINDUP;
     hysteresis = DEFAULT_HYSTERESIS;
     hystAmount = DEFAULT_HYST_AMOUNT;
+    
+    // Default slider limits
+    sp_limits = {0.0f, 10.0f, 0.1f};
+    kp_limits = {0.0f, 3000.0f, 1.0f};
+    ki_limits = {0.0f, 5000.0f, 1.0f};
+    kd_limits = {0.0f, 1000.0f, 1.0f};
 }
 
 bool SettingsHandler::load() 
@@ -79,6 +85,27 @@ bool SettingsHandler::load()
     hysteresis = doc["hysteresis"] | DEFAULT_HYSTERESIS;
     hystAmount = doc["hystAmount"] | DEFAULT_HYST_AMOUNT;
     
+    // Load slider limits with defaults
+    JsonObject sp_lim = doc["sp_limits"];
+    sp_limits.min = sp_lim["min"] | 0.0f;
+    sp_limits.max = sp_lim["max"] | 10.0f;
+    sp_limits.step = sp_lim["step"] | 0.1f;
+    
+    JsonObject kp_lim = doc["kp_limits"];
+    kp_limits.min = kp_lim["min"] | 0.0f;
+    kp_limits.max = kp_lim["max"] | 3000.0f;
+    kp_limits.step = kp_lim["step"] | 1.0f;
+    
+    JsonObject ki_lim = doc["ki_limits"];
+    ki_limits.min = ki_lim["min"] | 0.0f;
+    ki_limits.max = ki_lim["max"] | 5000.0f;
+    ki_limits.step = ki_lim["step"] | 1.0f;
+    
+    JsonObject kd_lim = doc["kd_limits"];
+    kd_limits.min = kd_lim["min"] | 0.0f;
+    kd_limits.max = kd_lim["max"] | 1000.0f;
+    kd_limits.step = kd_lim["step"] | 1.0f;
+    
     LOG_I(CAT_SYSTEM, "Settings loaded successfully from LittleFS");
     return true;
 }
@@ -104,6 +131,27 @@ bool SettingsHandler::save()
     doc["antiWindup"] = antiWindup;
     doc["hysteresis"] = hysteresis;
     doc["hystAmount"] = hystAmount;
+    
+    // Save slider limits as nested objects
+    JsonObject sp_lim = doc["sp_limits"].to<JsonObject>();
+    sp_lim["min"] = sp_limits.min;
+    sp_lim["max"] = sp_limits.max;
+    sp_lim["step"] = sp_limits.step;
+    
+    JsonObject kp_lim = doc["kp_limits"].to<JsonObject>();
+    kp_lim["min"] = kp_limits.min;
+    kp_lim["max"] = kp_limits.max;
+    kp_lim["step"] = kp_limits.step;
+    
+    JsonObject ki_lim = doc["ki_limits"].to<JsonObject>();
+    ki_lim["min"] = ki_limits.min;
+    ki_lim["max"] = ki_limits.max;
+    ki_lim["step"] = ki_limits.step;
+    
+    JsonObject kd_lim = doc["kd_limits"].to<JsonObject>();
+    kd_lim["min"] = kd_limits.min;
+    kd_lim["max"] = kd_limits.max;
+    kd_lim["step"] = kd_limits.step;
     
     if (serializeJson(doc, file) == 0) {
         LOG_E(CAT_SYSTEM, "Failed to write settings to file");

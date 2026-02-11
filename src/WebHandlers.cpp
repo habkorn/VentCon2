@@ -177,6 +177,7 @@ String WebHandler::getContentType(String filename) {
   else if (filename.endsWith(".png")) return "image/png";
   else if (filename.endsWith(".jpg")) return "image/jpeg";
   else if (filename.endsWith(".ico")) return "image/x-icon";
+  else if (filename.endsWith(".pdf")) return "application/pdf";
   return "text/plain";
 }
 
@@ -283,6 +284,21 @@ void WebHandler::handleRoot()
   inputs.replace("%FLT%", String(settings->filter_strength, 2));
   inputs.replace("%FREQ%", String(settings->pwm_freq));
   inputs.replace("%RES%", String(settings->pwm_res));
+  
+  // Replace slider limit placeholders
+  inputs.replace("%SP_MIN%", String(settings->sp_limits.min, 2));
+  inputs.replace("%SP_MAX%", String(settings->sp_limits.max, 2));
+  inputs.replace("%SP_STEP%", String(settings->sp_limits.step, 3));
+  inputs.replace("%KP_MIN%", String(settings->kp_limits.min, 2));
+  inputs.replace("%KP_MAX%", String(settings->kp_limits.max, 2));
+  inputs.replace("%KP_STEP%", String(settings->kp_limits.step, 3));
+  inputs.replace("%KI_MIN%", String(settings->ki_limits.min, 2));
+  inputs.replace("%KI_MAX%", String(settings->ki_limits.max, 2));
+  inputs.replace("%KI_STEP%", String(settings->ki_limits.step, 3));
+  inputs.replace("%KD_MIN%", String(settings->kd_limits.min, 2));
+  inputs.replace("%KD_MAX%", String(settings->kd_limits.max, 2));
+  inputs.replace("%KD_STEP%", String(settings->kd_limits.step, 3));
+  
   webServer.sendContent(inputs);
   yield();
   
@@ -407,6 +423,53 @@ void WebHandler::handleResetPID() {
   webServer.send(200, "application/json", "{\"success\":true,\"message\":\"PID controller reset successfully\"}");
 }
 
+// Handler for slider limits API (GET/POST)
+void WebHandler::handleSliderLimits() {
+  if (webServer.method() == HTTP_GET) {
+    // Return current slider limits as JSON
+    char json[400];
+    snprintf(json, sizeof(json),
+      "{\"sp\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f},"
+      "\"kp\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f},"
+      "\"ki\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f},"
+      "\"kd\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f}}",
+      settings->sp_limits.min, settings->sp_limits.max, settings->sp_limits.step,
+      settings->kp_limits.min, settings->kp_limits.max, settings->kp_limits.step,
+      settings->ki_limits.min, settings->ki_limits.max, settings->ki_limits.step,
+      settings->kd_limits.min, settings->kd_limits.max, settings->kd_limits.step
+    );
+    webServer.send(200, "application/json", json);
+  } else if (webServer.method() == HTTP_POST) {
+    // Update slider limits from POST parameters
+    String param = webServer.arg("param");
+    
+    if (param == "sp") {
+      if (webServer.hasArg("min")) settings->sp_limits.min = webServer.arg("min").toFloat();
+      if (webServer.hasArg("max")) settings->sp_limits.max = webServer.arg("max").toFloat();
+      if (webServer.hasArg("step")) settings->sp_limits.step = webServer.arg("step").toFloat();
+    } else if (param == "kp") {
+      if (webServer.hasArg("min")) settings->kp_limits.min = webServer.arg("min").toFloat();
+      if (webServer.hasArg("max")) settings->kp_limits.max = webServer.arg("max").toFloat();
+      if (webServer.hasArg("step")) settings->kp_limits.step = webServer.arg("step").toFloat();
+    } else if (param == "ki") {
+      if (webServer.hasArg("min")) settings->ki_limits.min = webServer.arg("min").toFloat();
+      if (webServer.hasArg("max")) settings->ki_limits.max = webServer.arg("max").toFloat();
+      if (webServer.hasArg("step")) settings->ki_limits.step = webServer.arg("step").toFloat();
+    } else if (param == "kd") {
+      if (webServer.hasArg("min")) settings->kd_limits.min = webServer.arg("min").toFloat();
+      if (webServer.hasArg("max")) settings->kd_limits.max = webServer.arg("max").toFloat();
+      if (webServer.hasArg("step")) settings->kd_limits.step = webServer.arg("step").toFloat();
+    } else {
+      webServer.send(400, "application/json", "{\"success\":false,\"message\":\"Invalid param\"}");
+      return;
+    }
+    
+    // Save to LittleFS
+    settings->save();
+    webServer.send(200, "application/json", "{\"success\":true}");
+  }
+}
+
 // Setup function to register all web handlers
 void WebHandler::setupRoutes()
 {  
@@ -425,6 +488,14 @@ void WebHandler::setupRoutes()
   
   webServer.on("/resetPID", [this](){
     this->handleResetPID();
+  });
+  
+  webServer.on("/api/slider-limits", HTTP_GET, [this](){
+    this->handleSliderLimits();
+  });
+  
+  webServer.on("/api/slider-limits", HTTP_POST, [this](){
+    this->handleSliderLimits();
   });
   
   // Register handlers for JavaScript files at root level
