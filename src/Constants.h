@@ -1,7 +1,7 @@
 #pragma once
 
 // System version string including build timestamp for identification and debugging
-#define VENTCON_VERSION "2.1.6 (Build: " __DATE__ " " __TIME__ ")"
+#define VENTCON_VERSION "2.2.0 (Build: " __DATE__ " " __TIME__ ")"
 
 // Network Configuration
 namespace NetworkConfig 
@@ -187,4 +187,28 @@ namespace Esp32AdcConfig
     
     // ESP32 12-bit ADC maximum value
     constexpr int ADC_MAX = 4095;
+}
+
+// Slider Limits Defaults (for web UI)
+namespace SliderDefaults
+{
+    // Setpoint slider limits (bar)
+    constexpr float SP_MIN = 0.0f;
+    constexpr float SP_MAX = 10.0f;
+    constexpr float SP_STEP = 0.1f;
+    
+    // Proportional gain slider limits
+    constexpr float KP_MIN = 0.0f;
+    constexpr float KP_MAX = 3000.0f;
+    constexpr float KP_STEP = 1.0f;
+    
+    // Integral gain slider limits
+    constexpr float KI_MIN = 0.0f;
+    constexpr float KI_MAX = 5000.0f;
+    constexpr float KI_STEP = 1.0f;
+    
+    // Derivative gain slider limits
+    constexpr float KD_MIN = 0.0f;
+    constexpr float KD_MAX = 1000.0f;
+    constexpr float KD_STEP = 1.0f;
 }

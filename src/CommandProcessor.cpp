@@ -678,7 +678,8 @@ void CommandProcessor::showStatus()
     Serial.printf("  Setpoint: %.2f bar\n", settings->setpoint);
     Serial.printf("  Control Loop Freq: %d Hz (period: %.1f ms)\n", 
                  settings->control_freq_hz, 1000.0/settings->control_freq_hz);
-    if (autoTuner) {
+    if (autoTuner)
+    {
         Serial.printf("  Auto-Tune Test Setpoint: %.2f bar\n", autoTuner->getTestSetpoint());
         Serial.printf("  Auto-Tune PWM Range: %.1f%% - %.1f%% (amplitude: %.1f%%)\n", 
                      autoTuner->getMinPWM(), autoTuner->getMaxPWM(), autoTuner->getEffectiveAmplitude());
@@ -687,13 +688,17 @@ void CommandProcessor::showStatus()
     
     // Sensor Information section
     Serial.println("\nSensor Information:");
-    if (sensorManager) {
+    if (sensorManager)
+    {
         Serial.printf("  ADC Source: %s\n", sensorManager->isADSFound() ? "ADS1015" : "ESP32 Internal");
-        if (sensorManager->isADSFound()) {
+        if (sensorManager->isADSFound())
+        {
             Serial.printf("  ADS1015 Address: 0x48\n");
             Serial.printf("  ADS1015 Channel: %d\n", SensorConfig::ADC_CHANNEL);
             Serial.printf("  Gain Setting: GAIN_TWOTHIRDS (+/-6.144V)\n");
-        } else {
+        }
+        else
+        {
             Serial.printf("  Fallback Pin: %d\n", HardwareConfig::FALLBACK_ANALOG_PIN);
         }
         Serial.printf("  Raw ADC Value: %d\n", sensorManager->getADCValue());

@@ -1,13 +1,18 @@
 {
-  "kp": 0.0,
-  "ki": 0.0,
-  "kd": 0.0,
-  "flt": 0.0,
-  "sp": 3.0,
-  "freq": 2000,
-  "res": 14,
+  "Kp": 0.0,
+  "Ki": 0.0,
+  "Kd": 0.0,
+  "filter_strength": 0.0,
+  "setpoint": 3.0,
+  "pwm_freq": 2000,
+  "pwm_res": 14,
   "pid_sample_time": 10,
-  "aw": false,
-  "hyst": false,
-  "hystamt": 5.0
+  "control_freq_hz": 1000,
+  "antiWindup": false,
+  "hysteresis": false,
+  "hystAmount": 5.0,
+  "sp_limits": { "min": 0.0, "max": 10.0, "step": 0.1 },
+  "kp_limits": { "min": 0.0, "max": 3000.0, "step": 1.0 },
+  "ki_limits": { "min": 0.0, "max": 5000.0, "step": 1.0 },
+  "kd_limits": { "min": 0.0, "max": 1000.0, "step": 1.0 }
 }

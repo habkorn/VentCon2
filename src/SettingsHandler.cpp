@@ -1,5 +1,6 @@
 #include "SettingsHandler.h"
 #include "Logger.h"
+#include "Constants.h"
 
 // Define static const members
 constexpr double SettingsHandler::DEFAULT_KP;
@@ -42,22 +43,24 @@ void SettingsHandler::resetToDefaults()
     hysteresis = DEFAULT_HYSTERESIS;
     hystAmount = DEFAULT_HYST_AMOUNT;
     
-    // Default slider limits
-    sp_limits = {0.0f, 10.0f, 0.1f};
-    kp_limits = {0.0f, 3000.0f, 1.0f};
-    ki_limits = {0.0f, 5000.0f, 1.0f};
-    kd_limits = {0.0f, 1000.0f, 1.0f};
+    // Default slider limits (from Constants.h)
+    sp_limits = {SliderDefaults::SP_MIN, SliderDefaults::SP_MAX, SliderDefaults::SP_STEP};
+    kp_limits = {SliderDefaults::KP_MIN, SliderDefaults::KP_MAX, SliderDefaults::KP_STEP};
+    ki_limits = {SliderDefaults::KI_MIN, SliderDefaults::KI_MAX, SliderDefaults::KI_STEP};
+    kd_limits = {SliderDefaults::KD_MIN, SliderDefaults::KD_MAX, SliderDefaults::KD_STEP};
 }
 
 bool SettingsHandler::load() 
 {
-    if (!LittleFS.exists(SETTINGS_FILE_PATH)) {
+    if (!LittleFS.exists(SETTINGS_FILE_PATH))
+    {
         LOG_I(CAT_SYSTEM, "Settings file not found, using defaults");
         return false;
     }
     
     File file = LittleFS.open(SETTINGS_FILE_PATH, "r");
-    if (!file) {
+    if (!file)
+    {
         LOG_E(CAT_SYSTEM, "Failed to open settings file for reading");
         return false;
     }
@@ -66,7 +69,8 @@ bool SettingsHandler::load()
     DeserializationError error = deserializeJson(doc, file);
     file.close();
     
-    if (error) {
+    if (error)
+    {
         LOG_E(CAT_SYSTEM, "Failed to parse settings.json: %s", error.c_str());
         return false;
     }
@@ -85,26 +89,26 @@ bool SettingsHandler::load()
     hysteresis = doc["hysteresis"] | DEFAULT_HYSTERESIS;
     hystAmount = doc["hystAmount"] | DEFAULT_HYST_AMOUNT;
     
-    // Load slider limits with defaults
+    // Load slider limits with defaults from Constants.h
     JsonObject sp_lim = doc["sp_limits"];
-    sp_limits.min = sp_lim["min"] | 0.0f;
-    sp_limits.max = sp_lim["max"] | 10.0f;
-    sp_limits.step = sp_lim["step"] | 0.1f;
+    sp_limits.min = sp_lim["min"] | SliderDefaults::SP_MIN;
+    sp_limits.max = sp_lim["max"] | SliderDefaults::SP_MAX;
+    sp_limits.step = sp_lim["step"] | SliderDefaults::SP_STEP;
     
     JsonObject kp_lim = doc["kp_limits"];
-    kp_limits.min = kp_lim["min"] | 0.0f;
-    kp_limits.max = kp_lim["max"] | 3000.0f;
-    kp_limits.step = kp_lim["step"] | 1.0f;
+    kp_limits.min = kp_lim["min"] | SliderDefaults::KP_MIN;
+    kp_limits.max = kp_lim["max"] | SliderDefaults::KP_MAX;
+    kp_limits.step = kp_lim["step"] | SliderDefaults::KP_STEP;
     
     JsonObject ki_lim = doc["ki_limits"];
-    ki_limits.min = ki_lim["min"] | 0.0f;
-    ki_limits.max = ki_lim["max"] | 5000.0f;
-    ki_limits.step = ki_lim["step"] | 1.0f;
+    ki_limits.min = ki_lim["min"] | SliderDefaults::KI_MIN;
+    ki_limits.max = ki_lim["max"] | SliderDefaults::KI_MAX;
+    ki_limits.step = ki_lim["step"] | SliderDefaults::KI_STEP;
     
     JsonObject kd_lim = doc["kd_limits"];
-    kd_limits.min = kd_lim["min"] | 0.0f;
-    kd_limits.max = kd_lim["max"] | 1000.0f;
-    kd_limits.step = kd_lim["step"] | 1.0f;
+    kd_limits.min = kd_lim["min"] | SliderDefaults::KD_MIN;
+    kd_limits.max = kd_lim["max"] | SliderDefaults::KD_MAX;
+    kd_limits.step = kd_lim["step"] | SliderDefaults::KD_STEP;
     
     LOG_I(CAT_SYSTEM, "Settings loaded successfully from LittleFS");
     return true;
@@ -113,7 +117,8 @@ bool SettingsHandler::load()
 bool SettingsHandler::save() 
 {
     File file = LittleFS.open(SETTINGS_FILE_PATH, "w");
-    if (!file) {
+    if (!file)
+    {
         LOG_E(CAT_SYSTEM, "Failed to open settings file for writing");
         return false;
     }
@@ -153,7 +158,8 @@ bool SettingsHandler::save()
     kd_lim["max"] = kd_limits.max;
     kd_lim["step"] = kd_limits.step;
     
-    if (serializeJson(doc, file) == 0) {
+    if (serializeJson(doc, file) == 0)
+    {
         LOG_E(CAT_SYSTEM, "Failed to write settings to file");
         file.close();
         return false;
@@ -181,13 +187,15 @@ void SettingsHandler::printSettings()
 
 void SettingsHandler::printStoredSettings() 
 {
-    if (!LittleFS.exists(SETTINGS_FILE_PATH)) {
+    if (!LittleFS.exists(SETTINGS_FILE_PATH))
+    {
         Serial.println("No settings file found in LittleFS");
         return;
     }
     
     File file = LittleFS.open(SETTINGS_FILE_PATH, "r");
-    if (!file) {
+    if (!file)
+    {
         Serial.println("Failed to open settings file for reading");
         return;
     }
@@ -196,7 +204,8 @@ void SettingsHandler::printStoredSettings()
     DeserializationError error = deserializeJson(doc, file);
     file.close();
     
-    if (error) {
+    if (error)
+    {
         Serial.println("\n=== Error Reading Settings File ===");
         Serial.printf("deserializeJson() failed: %s\n", error.c_str());
         return;

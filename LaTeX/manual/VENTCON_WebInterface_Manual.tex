@@ -1,0 +1,312 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{float}
+
+% Page geometry
+\geometry{margin=2.5cm}
+
+% Colors
+\definecolor{ventrexblue}{RGB}{0,47,135}
+\definecolor{ventrexgreen}{RGB}{50,192,157}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=ventrexblue,
+    urlcolor=ventrexblue
+}
+
+% Header/Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{ventrexblue}{VENTCON Web Interface Manual}}
+\fancyhead[R]{\textcolor{ventrexblue}{v1.0}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Title formatting
+\titleformat{\section}{\Large\bfseries\color{ventrexblue}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{ventrexblue}}{\thesubsection}{1em}{}
+
+\begin{document}
+
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Huge\bfseries\textcolor{ventrexblue}{VENTCON}\par}
+    \vspace{0.5cm}
+    {\LARGE\textcolor{ventrexgreen}{Pressure Control System}\par}
+    \vspace{2cm}
+    
+    {\Large Web Interface User Manual\par}
+    \vspace{1cm}
+    
+    \includegraphics[width=0.4\textwidth]{Top_Web interface.jpg}
+    
+    \vfill
+    
+    {\large Version 1.0\par}
+    {\large \today\par}
+    
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{Getting Started}
+% ============================================================================
+
+\subsection{Connecting to the Device}
+
+The VENTCON system creates its own WiFi access point for configuration and monitoring.
+
+\begin{enumerate}
+    \item \textbf{Power on} the VENTCON device
+    \item On your smartphone or computer, open \textbf{WiFi settings}
+    \item Connect to the network: \texttt{VENTCON\_AP}
+    \item Enter the password: \texttt{ventcon12!} (default)
+    \item Open a web browser and navigate to: \textbf{http://192.168.4.1}
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Setting} & \textbf{Value} \\
+\midrule
+Network Name (SSID) & \texttt{VENTCON\_AP} \\
+Password & \texttt{ventcon12!} \\
+IP Address & \texttt{192.168.4.1} \\
+\bottomrule
+\end{tabular}
+\caption{Default WiFi Connection Settings}
+\end{table}
+
+\subsection{Browser Compatibility}
+
+The web interface works best with modern browsers:
+\begin{itemize}
+    \item Google Chrome (recommended)
+    \item Safari (iOS/macOS)
+    \item Firefox
+    \item Microsoft Edge
+\end{itemize}
+
+% ============================================================================
+\section{Web Interface Overview}
+% ============================================================================
+
+The web interface is divided into several collapsible sections. Tap any section header to expand or collapse it. The main sections are:
+\begin{itemize}
+    \item \textbf{Real-Time Monitoring} -- Pressure and PWM gauges with live chart (always visible)
+    \item \textbf{Control Parameters} -- Setpoint and PID tuning (expanded by default)
+    \item \textbf{Auxiliary Settings} -- Filter, PWM frequency/resolution (collapsed by default)
+    \item \textbf{System Information} -- Network status (collapsed by default)
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Top_Web interface.jpg}
+    \caption{Top portion of the web interface showing real-time monitoring}
+    \label{fig:top-interface}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{Bottom_Web interface.jpg}
+    \caption{Bottom portion showing parameter controls}
+    \label{fig:bottom-interface}
+\end{figure}
+
+% ============================================================================
+\section{Real-Time Monitoring}
+% ============================================================================
+
+\subsection{Pressure Gauge}
+
+The \textbf{Outlet Pressure} gauge displays:
+\begin{itemize}
+    \item Current pressure value in \textbf{bar(g)}
+    \item Horizontal bar showing pressure relative to full scale (0--10 bar)
+    \item \textbf{Target marker} (vertical line) indicating the setpoint position
+    \item \textbf{Trend indicator} ($\blacktriangle$) showing if pressure is rising, falling, or stable
+\end{itemize}
+
+\subsection{PWM Output Gauge}
+
+The \textbf{PWM Output} gauge shows:
+\begin{itemize}
+    \item Current valve control output as a \textbf{percentage} (0--100\%)
+    \item Green-colored value for easy identification
+    \item Trend indicator showing output direction
+\end{itemize}
+
+\subsection{Live Chart}
+
+The live chart provides a time-series visualization of:
+\begin{itemize}
+    \item \textbf{Blue line}: Actual pressure
+    \item \textbf{Red dashed line}: Setpoint (target pressure)
+    \item \textbf{Green line}: PWM output percentage
+\end{itemize}
+
+\noindent\textbf{Toggle the chart:} Use the ``Show Chart'' checkbox to hide/show the chart. Hiding the chart can improve performance on slower devices.
+
+% ============================================================================
+\section{Parameter Controls}
+% ============================================================================
+
+\subsection{Adjusting Setpoint}
+
+The \textbf{Setpoint} slider controls the target outlet pressure:
+
+\begin{enumerate}
+    \item Drag the slider left/right to change the value
+    \item Use the \textbf{--} and \textbf{+} buttons for fine adjustment
+    \item Or type a value directly in the number input field
+    \item A blue \textbf{``Apply Changes''} button appears at the bottom
+    \item Tap ``Apply Changes'' to send the new value to the device
+\end{enumerate}
+
+\subsection{PID Parameters}
+
+The PID controller can be tuned using three sliders:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Parameter} & \textbf{Effect} \\
+\midrule
+\textbf{Proportional (Kp)} & Controls response strength. Higher values = faster response but may cause overshoot \\
+\textbf{Integral (Ki)} & Eliminates steady-state error. Higher values = faster error correction but may cause oscillation \\
+\textbf{Derivative (Kd)} & Dampens oscillations. Higher values = more damping but may slow response \\
+\bottomrule
+\end{tabular}
+\caption{PID Parameter Effects}
+\end{table}
+
+\noindent\textbf{Reset PID Button:} Tap this button to re-initialize the PID controller with current settings. Useful after making significant parameter changes.
+
+\subsection{Configuring Slider Limits}
+
+Each slider (Setpoint, Kp, Ki, Kd) has a \textbf{gear icon} (\symbol{"2699}) next to its label. Tapping this icon opens a settings popup where you can customize:
+
+\begin{itemize}
+    \item \textbf{Minimum}: The lowest value the slider can reach
+    \item \textbf{Maximum}: The highest value the slider can reach
+    \item \textbf{Step}: The increment size when using +/-- buttons
+\end{itemize}
+
+\noindent This feature allows you to narrow the slider range for finer control, or expand it for wider adjustment ranges. Settings are saved automatically and persist across power cycles.
+
+\subsection{System Parameters}
+
+\subsubsection{Low Pass Filter (α)}
+Controls noise filtering on the pressure sensor:
+\begin{itemize}
+    \item \textbf{0}: No filtering (raw sensor data)
+    \item \textbf{1}: Maximum filtering (very smooth but slower response)
+    \item Recommended: \textbf{0.1--0.3} for most applications
+\end{itemize}
+
+\subsubsection{PWM Frequency}
+Sets the pulse-width modulation frequency for the valve driver:
+\begin{itemize}
+    \item Range: 100--10,000 Hz
+    \item Higher frequencies reduce audible noise
+    \item Default: 2000 Hz
+\end{itemize}
+
+\subsubsection{PWM Resolution}
+Sets the PWM resolution in bits:
+\begin{itemize}
+    \item Range: 8--16 bits
+    \item Higher resolution = finer control
+    \item Default: 14 bits (16,384 levels)
+\end{itemize}
+
+% ============================================================================
+\section{System Information}
+% ============================================================================
+
+The \textbf{System Information} section displays:
+
+\begin{itemize}
+    \item \textbf{Network Status}: Connection indicator and WiFi information
+\end{itemize}
+
+% ============================================================================
+\section{Applying Changes}
+% ============================================================================
+
+\textbf{Important:} Changes to parameters are not applied immediately. After adjusting any slider:
+
+\begin{enumerate}
+    \item A blue floating button labeled ``\textbf{Apply Changes}'' appears at the bottom of the screen
+    \item Review your changes
+    \item Tap the button to send all pending changes to the device
+    \item The button disappears once changes are applied
+\end{enumerate}
+
+\noindent To save settings permanently (so they persist after power cycling), use the serial command interface with the \texttt{save} command.
+
+% ============================================================================
+\section{Troubleshooting}
+% ============================================================================
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}p{5cm}p{8cm}@{}}
+\toprule
+\textbf{Problem} & \textbf{Solution} \\
+\midrule
+Cannot find WiFi network & Ensure device is powered on. Wait 10 seconds after power-up. \\
+Page loads slowly & Hide the live chart. Reduce polling in congested WiFi areas. \\
+Sliders not responding & Ensure you're connected to VENTCON\_AP, not your regular WiFi. \\
+Changes not taking effect & Tap the ``Apply Changes'' button after adjusting parameters. \\
+Settings lost after restart & Use the \texttt{save} serial command to persist settings. \\
+\bottomrule
+\end{tabular}
+\caption{Common Issues and Solutions}
+\end{table}
+
+% ============================================================================
+\section{Quick Reference}
+% ============================================================================
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Action} & \textbf{How To} \\
+\midrule
+Connect to device & WiFi: \texttt{VENTCON\_AP} / Password: \texttt{ventcon12!} \\
+Open web interface & Browser: \texttt{http://192.168.4.1} \\
+Expand/collapse sections & Tap section header \\
+Adjust setpoint & Drag slider or use +/-- buttons \\
+Fine-tune PID & Adjust Kp, Ki, Kd sliders \\
+Customize slider range & Tap gear icon (\symbol{"2699}) next to label \\
+Apply changes & Tap blue ``Apply Changes'' button \\
+Reset PID controller & Tap ``Reset PID'' button \\
+Toggle live chart & Use ``Show Chart'' checkbox \\
+\bottomrule
+\end{tabular}
+\caption{Quick Reference Guide}
+\end{table}
+
+\end{document}

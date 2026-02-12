@@ -1,0 +1,1095 @@
+#pragma once
+#include <Arduino.h>
+
+// ============================================================================
+// Section 5: JavaScript and closing HTML tags (static, ~25KB)
+// ============================================================================
+
+const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
+  <script defer>
+    // Cached DOM elements
+    let cachedElements = {};
+    
+    // Slider parameter constants
+    const SLIDER_PARAMS = ['sp', 'kp', 'ki', 'kd', 'flt', 'freq', 'res'];
+    const CONFIGURABLE_SLIDERS = ['sp', 'kp', 'ki', 'kd'];
+    
+    // Cache DOM elements on load
+    function cacheElements()
+    {
+      cachedElements = {
+        loader: document.getElementById('loader'),
+        pressure: document.getElementById('pressure'),
+        pressureFill: document.getElementById('pressure-fill'),
+        pressureTarget: document.getElementById('pressure-target'),
+        pressureTrend: document.getElementById('pressure-trend'),
+        pwm: document.getElementById('pwm'),
+        pwmFill: document.getElementById('pwm-fill'),
+        pwmTrend: document.getElementById('pwm-trend'),
+        networkIndicator: document.getElementById('network_indicator'),
+        networkStatus: document.getElementById('network_status'),
+        chartToggle: document.getElementById('chartToggle'),
+        chartContainer: document.getElementById('chartContainer'),
+        saveSnackbar: document.getElementById('saveSnackbar'),
+        saveSnackbarText: document.getElementById('saveSnackbarText'),
+        // Cache modal elements
+        modal: document.getElementById('sliderSettingsModal'),
+        modalTitle: document.getElementById('modalTitle'),
+        modalMin: document.getElementById('modalMin'),
+        modalMax: document.getElementById('modalMax'),
+        modalStep: document.getElementById('modalStep'),
+        // Cache all slider and text elements
+        sliders: {
+          sp: document.getElementById('sp_slider'),
+          kp: document.getElementById('kp_slider'),
+          ki: document.getElementById('ki_slider'),
+          kd: document.getElementById('kd_slider'),
+          flt: document.getElementById('flt_slider'),
+          freq: document.getElementById('freq_slider'),
+          res: document.getElementById('res_slider')
+        },
+        texts: {
+          sp: document.getElementById('sp_text'),
+          kp: document.getElementById('kp_text'),
+          ki: document.getElementById('ki_text'),
+          kd: document.getElementById('kd_text'),
+          flt: document.getElementById('flt_text'),
+          freq: document.getElementById('freq_text'),
+          res: document.getElementById('res_text')
+        }
+      };
+    }
+
+    // Wait for all deferred scripts to load before initializing
+    let initAttempts = 0;
+    const MAX_INIT_ATTEMPTS = 100; // 5 seconds max wait (100 * 50ms)
+    
+    // Initialize chart update tracking variables globally
+    window.lastChartUpdate = 0;
+    window.chartUpdateInterval = 200;
+    
+    function initializeApp()
+    {
+      initAttempts++;
+      
+      // Check if Chart.js is available
+      if (typeof Chart === 'undefined')
+      {
+        if (initAttempts < MAX_INIT_ATTEMPTS)
+        {
+          setTimeout(initializeApp, 50);
+          return;
+        }
+        else
+        {
+          // Chart.js failed to load, proceed without chart
+          console.error('Chart.js failed to load after 5 seconds');
+          cacheElements();
+          if(cachedElements.loader) cachedElements.loader.style.display = 'none';
+          if(cachedElements.chartContainer) cachedElements.chartContainer.style.display = 'none';
+          setupEventListeners();
+          startDataUpdates();
+          return;
+        }
+      }
+      
+      cacheElements();
+      if(cachedElements.loader) cachedElements.loader.style.display = 'none';
+      
+      // Initialize the chart after Chart.js is loaded
+      initializeChart();
+      
+      // Setup all other functionality
+      setupEventListeners();
+      startDataUpdates();
+    }
+    
+    // Initialize chart in separate function
+    function initializeChart()
+    {
+      const ctx = document.getElementById('pressureChart');
+      if (!ctx) return;
+      
+      const chartCtx = ctx.getContext('2d');
+      
+      // Efficient circular buffer implementation
+      const BUFFER_SIZE = 60; // Increased for better smoothing
+      const DISPLAY_SIZE = 30; // Points to display on chart
+      
+      // Create circular buffers with object pooling
+      window.chartData = {
+        pressure: new Array(BUFFER_SIZE),
+        setpoint: new Array(BUFFER_SIZE),
+        pwm: new Array(BUFFER_SIZE),
+        currentIndex: 0,
+        count: 0,
+        
+        // Object pool for data points to reduce GC pressure
+        pointPool: [],
+        poolIndex: 0,
+        
+        // Get a pooled point object
+        getPoint: function(x, y)
+        {
+          if (this.poolIndex >= this.pointPool.length)
+          {
+            this.pointPool.push({ x: null, y: null });
+          }
+          const point = this.pointPool[this.poolIndex++];
+          point.x = x;
+          point.y = y;
+          return point;
+        },
+        
+        // Reset pool for reuse
+        resetPool: function()
+        {
+          this.poolIndex = 0;
+        },
+        
+        // Add data point efficiently
+        addData: function(pressure, setpoint, pwm)
+        {
+          this.pressure[this.currentIndex] = pressure;
+          this.setpoint[this.currentIndex] = setpoint;
+          this.pwm[this.currentIndex] = pwm;
+          
+          this.currentIndex = (this.currentIndex + 1) % BUFFER_SIZE;
+          if (this.count < BUFFER_SIZE) this.count++;
+        },
+        
+        // Get display data with decimation
+        getDisplayData: function()
+        {
+          this.resetPool();
+          
+          const displayCount = Math.min(this.count, DISPLAY_SIZE);
+          
+          const now = new Date();
+          const timeStep = 250; // 250ms between data points
+          
+          const pressureData = [];
+          const setpointData = [];
+          const pwmData = [];
+          
+          for (let i = 0; i < displayCount; i++)
+          {
+            const bufferIndex = (this.currentIndex - displayCount + i + BUFFER_SIZE) % BUFFER_SIZE;
+            const timestamp = new Date(now.getTime() - (displayCount - i - 1) * timeStep);
+            
+            pressureData.push(this.getPoint(timestamp, this.pressure[bufferIndex]));
+            setpointData.push(this.getPoint(timestamp, this.setpoint[bufferIndex]));
+            pwmData.push(this.getPoint(timestamp, this.pwm[bufferIndex]));
+          }
+          
+          return { pressureData, setpointData, pwmData };
+        }
+      };
+      
+      // Create chart instance with optimized configuration
+      window.pressureChart = new Chart(chartCtx, 
+      {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Outlet',
+              data: [],
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              tension: 0.3,
+              borderWidth: 2,
+              pointRadius: 1,
+              pointHoverRadius: 4,
+              pointBorderWidth: 1,
+              pointStyle: 'circle',
+              yAxisID: 'y'
+            },
+            {
+              label: 'Setpoint',
+              data: [],
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderDash: [5, 5],
+              tension: 0.1,
+              borderWidth: 2,
+              pointRadius: 0,
+              pointHoverRadius: 3,
+              yAxisID: 'y'
+            },
+            {
+              label: 'PWM Output',
+              data: [],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.3,
+              borderWidth: 2,
+              pointRadius: 1,
+              pointHoverRadius: 3,
+              pointBorderWidth: 1,
+              pointStyle: 'circle',
+              yAxisID: 'pwm'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false, // Disable animations for better performance
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          elements: {
+            point: {
+              radius: 0 // Hide points by default for better performance
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              min: 0,
+              max: 10,
+              position: 'left',
+              title: {
+                display: true,
+                text: 'Pressure in bar(g)'
+              },
+              ticks: {
+                color: '#2563eb',  // Match the color of the Pressure line
+                stepSize: 2,
+                autoSkip: false
+              },
+              grid: {
+                display: true
+              }
+            },
+            pwm: {
+              beginAtZero: true,
+              min: 0,
+              max: 100,
+              position: 'right',
+              title: {
+                display: true,
+                text: 'PWM (%)'
+              },
+              ticks: {
+                color: '#10b981',  // Match the color of the PWM line
+                stepSize: 20,
+                autoSkip: false
+              },
+              grid: {
+                display: false  // Don't show grid lines for secondary axis
+              }
+            },
+            x: {
+              type: 'time',
+              time: {
+                unit: 'second',
+                displayFormats: {
+                  second: 'HH:mm:ss'
+                },
+                tooltipFormat: 'HH:mm:ss'
+              },
+              title: {
+                display: true,
+                text: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+                font: {
+                  size: 8,
+                  family: 'courier, monospace',
+                  weight: 'bold'
+                }
+              },
+              ticks: {
+                color: '#1e293b',  // Dark color for x-axis labels
+                autoSkip: true,
+                maxTicksLimit: 10,
+                font: {
+                  size: 8,
+                  family: 'courier, monospace',
+                  weight: 'bold'
+                },
+                maxRotation: 45,  // Prevent label rotation
+                minRotation: 45   // Prevent label rotation
+              },
+
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                boxWidth: 25,
+                usePointStyle: false,
+                generateLabels: function(chart)
+                {
+                  // Get the default labels
+                  const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                  
+                  // Apply custom styling for lines instead of points
+                  original.forEach(label =>
+                  {
+                    // For the setpoint dataset (which has dashed style)
+                    if (label.text === 'Setpoint')
+                    {
+                      label.lineDash = [5, 5]; // Match the graph's dashed style
+                    }
+                  });
+                  
+                  return original;
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              titleColor: '#1e293b',
+              bodyColor: '#1e293b',
+              borderColor: '#e2e8f0',
+              borderWidth: 1,
+              cornerRadius: 6,
+              displayColors: true,
+              callbacks: {
+                label: function(context)
+                {
+                  const label = context.dataset.label;
+                  const value = context.parsed.y.toFixed(3);
+                  if (label === 'PWM Output')
+                  {
+                    return label + ': ' + value + '%';
+                  }
+                  return label + ': ' + value + ' bar';
+                }
+              }
+            }
+          }
+        }
+      });
+      
+      // Chart update tracking already initialized globally
+    }
+    
+    // Setup all event listeners
+    function setupEventListeners()
+    {
+      // Chart toggle functionality
+      if (cachedElements.chartToggle && cachedElements.chartContainer)
+      {
+        cachedElements.chartToggle.addEventListener('change', function()
+        {
+          if (!cachedElements.chartContainer || !window.pressureChart) return;
+          
+          if (this.checked)
+          {
+            cachedElements.chartContainer.style.display = 'block';
+            
+            // Force immediate update when showing chart
+            if (window.chartData)
+            {
+              const displayData = window.chartData.getDisplayData();
+              window.pressureChart.data.datasets[0].data = displayData.pressureData;
+              window.pressureChart.data.datasets[1].data = displayData.setpointData;
+              window.pressureChart.data.datasets[2].data = displayData.pwmData;
+              window.pressureChart.update('none');
+              window.lastChartUpdate = Date.now();
+            }
+          }
+          else
+          {
+            cachedElements.chartContainer.style.display = 'none';
+          }
+        });
+      }
+        // Setup slider and text input synchronization
+      SLIDER_PARAMS.forEach(function(param)
+      {
+        const slider = cachedElements.sliders ? cachedElements.sliders[param] : null;
+        const text = cachedElements.texts ? cachedElements.texts[param] : null;
+        
+        if (slider && text)
+        {
+          slider.addEventListener('input', function()
+          {
+            text.value = slider.value;
+            showSaveSnackbar(param, slider.value);
+          });
+
+          text.addEventListener('input', function()
+          {
+            slider.value = text.value;
+            showSaveSnackbar(param, text.value);
+          });
+        }
+      });
+
+      // Setup increment/decrement buttons
+      // For sp, kp, ki, kd: use dynamic limits from slider attributes
+      // For flt, freq, res: use fixed values
+      [
+        {param: 'sp', stepMultiplier: 1},
+        {param: 'kp', stepMultiplier: 100},
+        {param: 'ki', stepMultiplier: 200},
+        {param: 'kd', stepMultiplier: 10},
+        {param: 'flt', min: 0, max: 1, step: 0.01, fixed: true},
+        {param: 'freq', min: 100, max: 10000, step: 100, fixed: true},
+        {param: 'res', min: 8, max: 16, step: 1, fixed: true}
+      ].forEach(function(cfg)
+      {
+        const slider = cachedElements.sliders ? cachedElements.sliders[cfg.param] : null;
+        const text = cachedElements.texts ? cachedElements.texts[cfg.param] : null;
+        const decBtn = document.getElementById(cfg.param + '_decrement');
+        const incBtn = document.getElementById(cfg.param + '_increment');
+        
+        if (decBtn && incBtn && slider && text)
+        {
+          decBtn.addEventListener('click', function()
+          {
+            // Get limits from slider attributes (dynamically set) or use fixed values
+            const min = cfg.fixed ? cfg.min : parseFloat(slider.min);
+            const step = cfg.fixed ? cfg.step : (parseFloat(slider.step) * (cfg.stepMultiplier || 1));
+            let value = parseFloat(text.value);
+            value = Math.max(min, +(value - step).toFixed(10));
+            text.value = value;
+            slider.value = value;
+            showSaveSnackbar(cfg.param, value);
+          });
+          incBtn.addEventListener('click', function()
+          {
+            // Get limits from slider attributes (dynamically set) or use fixed values
+            const max = cfg.fixed ? cfg.max : parseFloat(slider.max);
+            const step = cfg.fixed ? cfg.step : (parseFloat(slider.step) * (cfg.stepMultiplier || 1));
+            let value = parseFloat(text.value);
+            value = Math.min(max, +(value + step).toFixed(10));
+            text.value = value;
+            slider.value = value;
+            showSaveSnackbar(cfg.param, value);
+          });
+        }
+      });
+      
+      // Setup save snackbar click handler
+      if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText)
+      {
+        cachedElements.saveSnackbar.addEventListener('click', handleSaveClick);
+      }
+      
+      // Setup PID reset button
+      const resetBtn = document.getElementById('resetPidBtn');
+      if (resetBtn)
+      {
+        resetBtn.addEventListener('click', handlePidReset);
+      }
+      
+      // Setup Easter egg
+      setupEasterEgg();
+      
+      // Setup scroll handler
+      setupScrollHandler();
+    }
+    
+    // Start periodic data updates
+    function startDataUpdates()
+    {
+      setInterval(updateData, 100);
+    }
+
+    // Data update function
+    function updateData()
+    {
+      fetch('/values')
+        .then(r => r.json())
+        .then(data =>
+        {
+          // Update pressure display with cached elements
+          if (typeof data.pressure !== "undefined")
+          {
+            const pressureVal = data.pressure;
+            if (cachedElements.pressure)
+            {
+              cachedElements.pressure.textContent = pressureVal.toFixed(2);
+            }
+            
+            // Update pressure fill and calculate percentage (0-10 bar range)
+            const pressurePercent = (pressureVal / 10) * 100;
+            if (cachedElements.pressureFill)
+            {
+              cachedElements.pressureFill.style.width = `${pressurePercent}%`;
+            }
+            
+            // Update setpoint target marker
+            const setpointPercent = (data.sp / 10) * 100;
+            if (cachedElements.pressureTarget)
+            {
+              cachedElements.pressureTarget.style.left = `${setpointPercent}%`;
+            }
+            
+            // Update trend indicator
+            updateTrend('pressure', pressureVal);
+            
+            // Get PWM value for chart
+            const pwmVal = (data.pwm !== undefined) ? data.pwm : 0;
+            
+            // Always call updateChart, it will handle visibility internally
+            updateChart(pressureVal, data.sp, pwmVal);
+          }
+          else
+          {
+            if (cachedElements.pressure) cachedElements.pressure.textContent = "--";
+            if (cachedElements.pressureFill) cachedElements.pressureFill.style.width = "0%";
+          }
+          
+          // Update PWM output with cached elements
+          if (data.pwm !== undefined)
+          {
+            const pwmVal = parseFloat(data.pwm);
+            if (cachedElements.pwm)
+            {
+              cachedElements.pwm.textContent = pwmVal.toFixed(3);
+            }
+            if (cachedElements.pwmFill)
+            {
+              cachedElements.pwmFill.style.width = `${pwmVal}%`;
+            }
+            
+            // Update PWM trend indicator
+            updateTrend('pwm', pwmVal);
+          }
+          else
+          {
+            if (cachedElements.pwm) cachedElements.pwm.textContent = "--";
+            if (cachedElements.pwmFill) cachedElements.pwmFill.style.width = "0%";
+          }
+          
+          // Update Network status with cached elements
+          if (cachedElements.networkIndicator && cachedElements.networkStatus)
+          {
+            cachedElements.networkStatus.textContent = "VENTCON_AP, IP: 192.168.4.1";
+            cachedElements.networkIndicator.style.backgroundColor = 'var(--success)';
+          }
+          
+          // Only update UI controls if no unsaved changes (saveSnackbar is hidden)
+          if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.style.display === 'none')
+          {
+            // Update all sliders and inputs with current values from server using cached elements
+            SLIDER_PARAMS.forEach(param =>
+            {
+              if (typeof data[param] !== "undefined")
+              {
+                if (cachedElements.sliders && cachedElements.sliders[param])
+                {
+                  cachedElements.sliders[param].value = data[param];
+                }
+                if (cachedElements.texts && cachedElements.texts[param])
+                {
+                  cachedElements.texts[param].value = data[param];
+                }
+              }
+            });
+          }
+        })
+        .catch(err =>
+        {
+          console.error("Error fetching values:", err);
+        });
+    }
+
+    // Hide loader as soon as DOM is interactive
+    document.addEventListener('DOMContentLoaded', initializeApp);
+
+    // Function to add data to the chart (optimized)
+    function updateChart(pressure, setpoint, pwm)
+    {
+      if (!window.pressureChart || !window.chartData) return;
+      
+      const now = Date.now();
+      
+      // Always collect data in efficient circular buffer
+      window.chartData.addData(pressure, setpoint, pwm);
+      
+      // Only update chart display if visible and enough time has passed
+      if (cachedElements.chartToggle && cachedElements.chartToggle.checked)
+      {
+        if (now - window.lastChartUpdate >= window.chartUpdateInterval)
+        {
+          // Get optimized display data
+          const displayData = window.chartData.getDisplayData();
+          
+          // Update chart datasets efficiently
+          window.pressureChart.data.datasets[0].data = displayData.pressureData;
+          window.pressureChart.data.datasets[1].data = displayData.setpointData;
+          window.pressureChart.data.datasets[2].data = displayData.pwmData;
+          
+          // Use 'none' mode for no animations - fastest update
+          window.pressureChart.update('none');
+          window.lastChartUpdate = now;
+        }
+      }
+    }
+
+    // Unified trend tracker for pressure and PWM
+    const trendTracker = {
+      pressure: { values: [], trend: 0, threshold: 0.05 },
+      pwm: { values: [], trend: 0, threshold: 0.5 }
+    };
+    
+    // Update trend indicator for any metric
+    function updateTrend(type, newValue)
+    {
+      const tracker = trendTracker[type];
+      const element = type === 'pressure' ? cachedElements.pressureTrend : cachedElements.pwmTrend;
+      if (!tracker || !element) return;
+      
+      // Keep last 3 values for trend calculation
+      if (tracker.values.length >= 3) tracker.values.shift();
+      tracker.values.push(newValue);
+      
+      // Calculate trend only when we have enough values
+      if (tracker.values.length >= 3)
+      {
+        const diff = tracker.values[tracker.values.length - 1] - tracker.values[0];
+        
+        if (diff > tracker.threshold)
+        {
+          tracker.trend = 1;
+          element.className = 'trend-indicator trend-up';
+        }
+        else if (diff < -tracker.threshold)
+        {
+          tracker.trend = -1;
+          element.className = 'trend-indicator trend-down';
+        }
+        else
+        {
+          tracker.trend = 0;
+          element.className = 'trend-indicator trend-stable';
+        }
+      }
+    }
+
+    // Track changes to show the save snackbar
+    let pendingChanges = {};
+    let changeTimeout;
+    
+    // Reusable snackbar fade-out animation
+    function fadeOutSnackbar(callback)
+    {
+      if (!cachedElements.saveSnackbar) return;
+      if (cachedElements.saveSnackbar.animate)
+      {
+        cachedElements.saveSnackbar.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, easing: 'ease-out' });
+        setTimeout(() =>
+        {
+          if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.display = 'none';
+          if (callback) callback();
+        }, 300);
+      }
+      else
+      {
+        cachedElements.saveSnackbar.style.display = 'none';
+        if (callback) callback();
+      }
+    }
+    
+    // Reset snackbar to default state
+    function resetSnackbar()
+    {
+      if (cachedElements.saveSnackbar)
+      {
+        cachedElements.saveSnackbar.style.background = '#2563eb';
+        cachedElements.saveSnackbar.style.pointerEvents = 'auto';
+      }
+      if (cachedElements.saveSnackbarText)
+      {
+        cachedElements.saveSnackbarText.textContent = 'Apply Changes';
+      }
+    }
+
+    // Snackbar management functions
+    function showSaveSnackbar(param, value)
+    {
+      if (!cachedElements.saveSnackbar) return;
+      
+      // Store the changed parameter
+      pendingChanges[param] = value;
+      
+      // Show the save snackbar
+      cachedElements.saveSnackbar.style.display = 'block';
+      
+      // Add animation for a subtle bounce effect with null check
+      if (cachedElements.saveSnackbar.animate)
+      {
+        cachedElements.saveSnackbar.animate([
+          { transform: 'translateX(-50%) scale(0.95)' },
+          { transform: 'translateX(-50%) scale(1.02)' },
+          { transform: 'translateX(-50%) scale(1)' }
+        ], { duration: 300, easing: 'ease-out' });
+      }
+      
+      // Auto-hide after 8 seconds of inactivity
+      clearTimeout(changeTimeout);
+      changeTimeout = setTimeout(() => fadeOutSnackbar(), 8000);
+    }
+    
+    // Handle save button click
+    function handleSaveClick()
+    {
+      if (!cachedElements.saveSnackbarText) return;
+      
+      cachedElements.saveSnackbarText.textContent = "Saving...";
+      cachedElements.saveSnackbar.style.pointerEvents = 'none';
+      
+      // Build parameters string from pending changes
+      const params = Object.entries(pendingChanges).map(([param, value]) => 
+        param + "=" + encodeURIComponent(value)
+      ).join("&");
+
+      fetch("/set?" + params)
+        .then(() =>
+        {
+          if (cachedElements.saveSnackbarText && cachedElements.saveSnackbar)
+          {
+            cachedElements.saveSnackbarText.textContent = "Settings Updated";
+            cachedElements.saveSnackbar.style.background = '#10b981'; // Success green
+            
+            // Clear pending changes
+            pendingChanges = {};
+            
+            // Hide snackbar after a short delay
+            setTimeout(() => fadeOutSnackbar(resetSnackbar), 1000);
+          }
+        })
+        .catch(err =>
+        {
+          if (cachedElements.saveSnackbarText && cachedElements.saveSnackbar)
+          {
+            cachedElements.saveSnackbarText.textContent = "Try Again";
+            cachedElements.saveSnackbar.style.background = '#dc2626'; // Error red
+            cachedElements.saveSnackbar.style.pointerEvents = 'auto';
+          }
+          console.error("Failed to save settings:", err);
+        });
+    }
+
+    // Handle PID reset
+    function handlePidReset()
+    {
+      const btn = this;
+      const originalText = btn.textContent;
+      btn.textContent = "Resetting...";
+      btn.style.backgroundColor = "#60a5fa"; // Lighter blue during reset
+      
+      // Call the reset endpoint
+      fetch('/resetPID')
+        .then(response => response.json())
+        .then(data =>
+        {
+          if (data.success)
+          {
+            btn.textContent = "Reset!";
+            btn.style.backgroundColor = "#10b981"; // Success green
+            
+            // Display a notification using the save snackbar
+            if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText)
+            {
+              cachedElements.saveSnackbar.style.display = 'block';
+              cachedElements.saveSnackbar.style.background = '#10b981';
+              cachedElements.saveSnackbarText.textContent = 'PID Controller Reset';
+              
+              // Hide snackbar after 2 seconds
+              setTimeout(() => fadeOutSnackbar(resetSnackbar), 2000);
+            }
+            
+            // Reset button after 1 second
+            setTimeout(() =>
+            {
+              btn.textContent = originalText;
+              btn.style.backgroundColor = "#f59e0b"; // Back to original color
+            }, 1000);
+          }
+          else
+          {
+            btn.textContent = "Error";
+            btn.style.backgroundColor = "#ef4444"; // Error red
+            setTimeout(() =>
+            {
+              btn.textContent = originalText;
+              btn.style.backgroundColor = "#f59e0b";
+            }, 1500);
+          }
+        })
+        .catch(error =>
+        {
+          console.error('Error resetting PID:', error);
+          btn.textContent = "Error";
+          btn.style.backgroundColor = "#ef4444"; // Error red
+          setTimeout(() =>
+          {
+            btn.textContent = originalText;
+            btn.style.backgroundColor = "#f59e0b";
+          }, 1500);
+        });
+    }
+
+    // Setup Easter egg
+    function setupEasterEgg()
+    {
+      const logo = document.getElementById('ventrexLogo');
+      const easterEgg = document.getElementById('easterEgg');
+      const devInfo = document.getElementById('devInfo');
+      
+      if (logo && easterEgg && devInfo)
+      {
+        let clickCount = 0;
+        let clickTimer;
+        
+        logo.addEventListener('click', function()
+        {
+          clickCount++;
+          
+          // Reset click count after 2 seconds of inactivity
+          clearTimeout(clickTimer);
+          clickTimer = setTimeout(() => { clickCount = 0; }, 2000);
+          
+          // Activate Easter egg after 5 clicks
+          if (clickCount >= 5)
+          {
+            if (easterEgg.style.display === 'none')
+            {
+              // Show Easter egg and populate with system info
+              easterEgg.style.display = 'block';
+              devInfo.innerHTML = 
+                `<div class="dev-info">
+                   <div>Memory: ${performance?.memory?.usedJSHeapSize ? 
+                     (performance.memory.usedJSHeapSize/1048576).toFixed(2) + ' MB' : 'N/A'}</div>
+                   <div>Chart Points: ${window.chartData ? window.chartData.count : 0}</div>
+                   <div>Time: ${new Date().toLocaleTimeString()}</div>
+                   <div>Language: ${navigator.language}</div>
+                   <div>Resolution: ${window.screen.width}x${window.screen.height}</div>
+                   <div>Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}</div>
+                 </div>
+                 <div class="dev-info-footer">
+                   Platform: ${navigator.platform || 'Unknown'}<br>
+                   User Agent: ${navigator.userAgent.substring(0, 80)}...
+                 </div>`;
+              
+              // Add a small animation to the logo
+              logo.style.transition = 'transform 1s';
+              logo.style.transform = 'rotate(360deg)';
+              setTimeout(() => { logo.style.transform = 'rotate(0deg)'; }, 1000);
+            }
+            else
+            {
+              // Hide Easter egg
+              easterEgg.style.display = 'none';
+            }
+            
+            clickCount = 0;
+          }
+        });
+      }
+    }
+
+    // ========== Slider Settings Modal Functions ==========
+    let currentSliderParam = null;
+    let sliderLimits = {};
+    
+    // Slider names for modal title
+    const sliderNames = {
+      sp: 'Setpoint',
+      kp: 'Proportional (Kp)',
+      ki: 'Integral (Ki)',
+      kd: 'Derivative (Kd)'
+    };
+    
+    // Fetch slider limits on page load
+    function fetchSliderLimits()
+    {
+      fetch('/api/slider-limits')
+        .then(r => r.json())
+        .then(data =>
+        {
+          sliderLimits = data;
+          applySliderLimits();
+        })
+        .catch(err => console.error('Failed to fetch slider limits:', err));
+    }
+    
+    // Apply loaded limits to sliders
+    function applySliderLimits()
+    {
+      CONFIGURABLE_SLIDERS.forEach(param =>
+      {
+        const limits = sliderLimits[param];
+        if (limits)
+        {
+          const slider = cachedElements.sliders[param];
+          const text = cachedElements.texts[param];
+          if (slider)
+          {
+            slider.min = limits.min;
+            slider.max = limits.max;
+            slider.step = limits.step;
+          }
+          if (text)
+          {
+            text.step = limits.step;
+          }
+        }
+      });
+    }
+    
+    // Open modal for a specific slider
+    function openSliderSettings(param)
+    {
+      currentSliderParam = param;
+      
+      if (!cachedElements.modal || !cachedElements.modalTitle || 
+          !cachedElements.modalMin || !cachedElements.modalMax || !cachedElements.modalStep) return;
+      
+      // Set title
+      cachedElements.modalTitle.textContent = (sliderNames[param] || param) + ' Settings';
+      
+      // Load current values
+      const limits = sliderLimits[param] || { min: 0, max: 100, step: 1 };
+      cachedElements.modalMin.value = limits.min;
+      cachedElements.modalMax.value = limits.max;
+      cachedElements.modalStep.value = limits.step;
+      
+      cachedElements.modal.style.display = 'flex';
+    }
+    
+    // Close modal
+    function closeSliderModal()
+    {
+      if (cachedElements.modal) cachedElements.modal.style.display = 'none';
+      currentSliderParam = null;
+    }
+    
+    // Save slider settings
+    function saveSliderSettings()
+    {
+      if (!currentSliderParam) return;
+      
+      const newMin = parseFloat(cachedElements.modalMin.value);
+      const newMax = parseFloat(cachedElements.modalMax.value);
+      const newStep = parseFloat(cachedElements.modalStep.value);
+      
+      // Validate
+      if (isNaN(newMin) || isNaN(newMax) || isNaN(newStep) || newMax <= newMin || newStep <= 0)
+      {
+        alert('Invalid values. Max must be greater than Min, and Step must be positive.');
+        return;
+      }
+      
+      // Send to server
+      const formData = new URLSearchParams();
+      formData.append('param', currentSliderParam);
+      formData.append('min', newMin);
+      formData.append('max', newMax);
+      formData.append('step', newStep);
+      
+      fetch('/api/slider-limits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+      })
+      .then(r => r.json())
+      .then(data =>
+      {
+        if (data.success)
+        {
+          // Update local cache
+          sliderLimits[currentSliderParam] = { min: newMin, max: newMax, step: newStep };
+          
+          // Apply to slider
+          const slider = cachedElements.sliders[currentSliderParam];
+          const text = cachedElements.texts[currentSliderParam];
+          if (slider)
+          {
+            slider.min = newMin;
+            slider.max = newMax;
+            slider.step = newStep;
+            // Clamp current value if needed
+            let val = parseFloat(slider.value);
+            if (val < newMin) slider.value = newMin;
+            if (val > newMax) slider.value = newMax;
+            if (text) text.value = slider.value;
+          }
+          if (text) text.step = newStep;
+          
+          closeSliderModal();
+        }
+        else
+        {
+          alert('Failed to save settings');
+        }
+      })
+      .catch(err =>
+      {
+        console.error('Error saving slider limits:', err);
+        alert('Error saving settings');
+      });
+    }
+    
+    // Close modal on overlay click
+    document.addEventListener('click', function(e)
+    {
+      if (e.target && e.target.id === 'sliderSettingsModal')
+      {
+        closeSliderModal();
+      }
+    });
+    
+    // Fetch limits on load
+    document.addEventListener('DOMContentLoaded', fetchSliderLimits);
+
+    // Setup scroll handler
+    function setupScrollHandler()
+    {
+      const sliders = document.querySelectorAll('input[type="range"]');
+      if (sliders && sliders.length > 0)
+      {
+        let scrollTimeout;
+        
+        // Add a class to disable sliders during scroll
+        function disableSliders()
+        {
+          sliders.forEach(slider =>
+          {
+            if (slider && slider.classList)
+            {
+              slider.classList.add('scrolling');
+            }
+          });
+        }
+        
+        // Remove the class with a small delay after scrolling stops
+        function enableSliders()
+        {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() =>
+          {
+            sliders.forEach(slider =>
+            {
+              if (slider && slider.classList)
+              {
+                slider.classList.remove('scrolling');
+              }
+            });
+          }, 250); // Wait 250ms after scrolling stops before re-enabling
+        }
+        
+        // Attach scroll event listener
+        if (window.addEventListener)
+        {
+          window.addEventListener('scroll', () =>
+          {
+            disableSliders();
+            enableSliders();
+          }, { passive: true });
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+)rawliteral";

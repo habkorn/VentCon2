@@ -112,7 +112,8 @@ public:
     /**
      * Reset sensor filter state (useful for PID reset operations)
      */
-    void resetFilterState() { 
+    void resetFilterState()
+    { 
         last_filtered_pressure = 0.0f; 
         filtered_pressure = 0.0f;
     }

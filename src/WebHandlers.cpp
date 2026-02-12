@@ -48,42 +48,51 @@ WebHandler::WebHandler(SettingsHandler* settings,
       ap_password(NetworkConfig::AP_PASSWORD),
       ap_ip(NetworkConfig::AP_IP[0], NetworkConfig::AP_IP[1], NetworkConfig::AP_IP[2], NetworkConfig::AP_IP[3]),
       ap_gateway(NetworkConfig::AP_GATEWAY[0], NetworkConfig::AP_GATEWAY[1], NetworkConfig::AP_GATEWAY[2], NetworkConfig::AP_GATEWAY[3]),
-      ap_subnet(NetworkConfig::AP_SUBNET[0], NetworkConfig::AP_SUBNET[1], NetworkConfig::AP_SUBNET[2], NetworkConfig::AP_SUBNET[3]) {
+      ap_subnet(NetworkConfig::AP_SUBNET[0], NetworkConfig::AP_SUBNET[1], NetworkConfig::AP_SUBNET[2], NetworkConfig::AP_SUBNET[3])
+{
     // Set static instance for WiFi event callbacks
     instance = this;
     
     // Initialize connected MACs array
-    for (int i = 0; i < NetworkConfig::MAX_CLIENTS; i++) {
+    for (int i = 0; i < NetworkConfig::MAX_CLIENTS; i++)
+    {
         connectedMACs[i] = "";
     }
 }
 
-WebHandler::~WebHandler() {
+WebHandler::~WebHandler()
+{
     // Clear static instance
-    if (instance == this) {
+    if (instance == this)
+    {
         instance = nullptr;
     }
 }
 
 // WiFi Event Handler Methods
-void WebHandler::setupWiFiEvents() {
+void WebHandler::setupWiFiEvents()
+{
     WiFi.onEvent(onWiFiEventWrapper);
 }
 
 // Static wrapper function for WiFi event callback
-void WebHandler::onWiFiEventWrapper(WiFiEvent_t event, WiFiEventInfo_t info) {
-    if (instance != nullptr) {
+void WebHandler::onWiFiEventWrapper(WiFiEvent_t event, WiFiEventInfo_t info)
+{
+    if (instance != nullptr)
+    {
         instance->onWiFiEvent(event, info);
     }
 }
 
 // WiFi event handler instance method
-void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
+void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
+{
     char macStr[18];
     
     // Serial.printf("WiFi event: %d\n", event); // Debug output to see which events are actually firing
     
-    switch(event) {
+    switch(event)
+    {
         case ARDUINO_EVENT_WIFI_AP_STACONNECTED: // Updated event name for newer ESP32 cores
             // A device has connected to the AP
             snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
@@ -93,7 +102,8 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
             
             // Serial.println("AP client connect event triggered!");
             
-            if (connectedClients < NetworkConfig::MAX_CLIENTS) {
+            if (connectedClients < NetworkConfig::MAX_CLIENTS)
+            {
                 // We have room for this client
                 connectedMACs[connectedClients] = String(macStr);
                 connectedClients++;
@@ -125,10 +135,13 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
             // Serial.println("AP client disconnect event triggered!");
             // Find and remove the client from our list
             String disconnectedMAC = String(macStr);
-            for (int i = 0; i < NetworkConfig::MAX_CLIENTS; i++) {
-                if (connectedMACs[i] == disconnectedMAC) {
+            for (int i = 0; i < NetworkConfig::MAX_CLIENTS; i++)
+            {
+                if (connectedMACs[i] == disconnectedMAC)
+                {
                     // Shift remaining clients down
-                    for (int j = i; j < NetworkConfig::MAX_CLIENTS - 1; j++) {
+                    for (int j = i; j < NetworkConfig::MAX_CLIENTS - 1; j++)
+                    {
                         connectedMACs[j] = connectedMACs[j + 1];
                     }
                     connectedMACs[NetworkConfig::MAX_CLIENTS - 1] = ""; // Clear the last slot
@@ -142,7 +155,8 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
 }
 
 // Initialize WiFi Access Point
-void WebHandler::initializeWiFiAP() {
+void WebHandler::initializeWiFiAP()
+{
     // Force clean WiFi state - fixes issue where AP doesn't appear after flash
     WiFi.disconnect(true, true);  // Disconnect and erase stored credentials
     WiFi.mode(WIFI_OFF);          // Turn off WiFi completely
@@ -162,13 +176,15 @@ void WebHandler::initializeWiFiAP() {
     LOG_D(CAT_NETWORK, "Gateway: %s, Subnet: %s", ap_gateway.toString().c_str(), ap_subnet.toString().c_str());
 }
 
-void WebHandler::updatePWM() {
+void WebHandler::updatePWM()
+{
     ledcSetup(HardwareConfig::PWM_CHANNEL_MOSFET, settings->pwm_freq, settings->pwm_res);
     ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *pwmOutput);
 }
 
 // Helper function to get content type based on file extension
-String WebHandler::getContentType(String filename) {
+String WebHandler::getContentType(String filename)
+{
   if (filename.endsWith(".html")) return "text/html";
   else if (filename.endsWith(".css")) return "text/css";
   else if (filename.endsWith(".js")) return "application/javascript";
@@ -182,19 +198,23 @@ String WebHandler::getContentType(String filename) {
 }
 
 // Handler for serving files from LittleFS with chunked transfer for large files
-bool WebHandler::handleFileRead(String path) {
+bool WebHandler::handleFileRead(String path)
+{
   if (path.endsWith("/")) path += "index.html";
   String contentType = getContentType(path);
   
   LOG_D(CAT_NETWORK, "File request: %s", path.c_str());
   
-  if (LittleFS.exists(path)) {
+  if (LittleFS.exists(path))
+  {
     File file = LittleFS.open(path, "r");
-    if (file) {
+    if (file)
+    {
       size_t fileSize = file.size();
       LOG_D(CAT_NETWORK, "Serving: %s (%d bytes, type: %s)", path.c_str(), fileSize, contentType.c_str());
       
-      if (fileSize == 0) {
+      if (fileSize == 0)
+      {
         LOG_E(CAT_NETWORK, "File is empty: %s", path.c_str());
         file.close();
         webServer.send(500, "text/plain", "File is empty");
@@ -211,11 +231,13 @@ bool WebHandler::handleFileRead(String path) {
       size_t bytesRemaining = fileSize;
       size_t bytesSent = 0;
       
-      while (bytesRemaining > 0) {
+      while (bytesRemaining > 0)
+      {
         size_t toRead = (bytesRemaining < chunkSize) ? bytesRemaining : chunkSize;
         size_t bytesRead = file.read(buffer, toRead);
         
-        if (bytesRead == 0) {
+        if (bytesRead == 0)
+        {
           LOG_E(CAT_NETWORK, "Read failed at byte %d for %s", bytesSent, path.c_str());
           break;
         }
@@ -348,7 +370,8 @@ void WebHandler::handleSet()
     int new_res = webServer.arg("res").toInt();
     
     // Only process if resolution actually changed
-    if (old_res != new_res) {
+    if (old_res != new_res)
+    {
       // Store current duty cycle percentage before changing resolution
       float current_duty_percent = (*pwmOutput / (float)*pwmFullScaleRaw) * 100.0;
       
@@ -403,7 +426,8 @@ void WebHandler::handleValues() // Send current values as JSON
 }
 
 // Handler for PID controller reset
-void WebHandler::handleResetPID() {
+void WebHandler::handleResetPID()
+{
   // Temporarily set to manual mode
   pid->SetMode(PID::Manual);
   *pwmOutput = 0;
@@ -424,8 +448,10 @@ void WebHandler::handleResetPID() {
 }
 
 // Handler for slider limits API (GET/POST)
-void WebHandler::handleSliderLimits() {
-  if (webServer.method() == HTTP_GET) {
+void WebHandler::handleSliderLimits()
+{
+  if (webServer.method() == HTTP_GET)
+  {
     // Return current slider limits as JSON
     char json[400];
     snprintf(json, sizeof(json),
@@ -439,23 +465,32 @@ void WebHandler::handleSliderLimits() {
       settings->kd_limits.min, settings->kd_limits.max, settings->kd_limits.step
     );
     webServer.send(200, "application/json", json);
-  } else if (webServer.method() == HTTP_POST) {
+  }
+  else if (webServer.method() == HTTP_POST)
+  {
     // Update slider limits from POST parameters
     String param = webServer.arg("param");
     
-    if (param == "sp") {
+    if (param == "sp")
+    {
       if (webServer.hasArg("min")) settings->sp_limits.min = webServer.arg("min").toFloat();
       if (webServer.hasArg("max")) settings->sp_limits.max = webServer.arg("max").toFloat();
       if (webServer.hasArg("step")) settings->sp_limits.step = webServer.arg("step").toFloat();
-    } else if (param == "kp") {
+    }
+    else if (param == "kp")
+    {
       if (webServer.hasArg("min")) settings->kp_limits.min = webServer.arg("min").toFloat();
       if (webServer.hasArg("max")) settings->kp_limits.max = webServer.arg("max").toFloat();
       if (webServer.hasArg("step")) settings->kp_limits.step = webServer.arg("step").toFloat();
-    } else if (param == "ki") {
+    }
+    else if (param == "ki")
+    {
       if (webServer.hasArg("min")) settings->ki_limits.min = webServer.arg("min").toFloat();
       if (webServer.hasArg("max")) settings->ki_limits.max = webServer.arg("max").toFloat();
       if (webServer.hasArg("step")) settings->ki_limits.step = webServer.arg("step").toFloat();
-    } else if (param == "kd") {
+    }
+    else if (param == "kd")
+    {
       if (webServer.hasArg("min")) settings->kd_limits.min = webServer.arg("min").toFloat();
       if (webServer.hasArg("max")) settings->kd_limits.max = webServer.arg("max").toFloat();
       if (webServer.hasArg("step")) settings->kd_limits.step = webServer.arg("step").toFloat();
@@ -470,7 +505,39 @@ void WebHandler::handleSliderLimits() {
   }
 }
 
-// Setup function to register all web handlers
+// ============================================================================
+// setupRoutes() - Web Server Route Configuration
+// ============================================================================
+//
+// HOW WEB SERVERS WORK:
+// A web server listens for HTTP requests from browsers. When you type a URL
+// like "http://192.168.4.1/values", the browser sends an HTTP request to the
+// ESP32. The server must know what to do for each URL path.
+//
+// WHAT ARE ROUTES?
+// Routes are URL-to-function mappings. Each webServer.on() call says:
+// "When someone requests THIS path, call THIS function."
+//
+// Example:  webServer.on("/values", [this](){ this->handleValues(); });
+//           └── path ──┘           └──── function to call ────────┘
+//
+// WHAT IS A LAMBDA?
+// The [this](){ ... } syntax is a "lambda" - an inline anonymous function.
+// [this] captures the class instance so we can call this->handleValues().
+// It's shorthand for creating a separate callback function.
+//
+// HTTP METHODS (GET vs POST):
+// - GET: Retrieve data (e.g., load a page, fetch sensor values)
+// - POST: Send data to server (e.g., submit form, change settings)
+// If not specified, the route accepts any method.
+//
+// SPECIAL ROUTES:
+// - "/" is the root/home page (what loads when you first connect)
+// - onNotFound() catches any URL not explicitly registered
+// - webServer.begin() starts the server after all routes are defined
+//
+// ============================================================================
+
 void WebHandler::setupRoutes()
 {  
   // Register main page handler (memory-efficient streaming)
@@ -517,8 +584,10 @@ void WebHandler::setupRoutes()
   });
   
   // Fallback handler for other static files
-  webServer.onNotFound([this]() {
-    if (!this->handleFileRead(webServer.uri())) {
+  webServer.onNotFound([this]()
+  {
+    if (!this->handleFileRead(webServer.uri()))
+    {
       webServer.send(404, "text/plain", "404: Not Found");
     }
   });
@@ -543,14 +612,16 @@ void WebHandler::setupRoutes()
  * - Signal quality indicators: Excellent (>-50), Good (-50 to -60), Fair (-60 to -70), Poor (<-70)
  * - Channel distribution summary to help identify interference
  */
-void WebHandler::scanWiFiNetworks() {
+void WebHandler::scanWiFiNetworks()
+{
     Serial.println("\n=== WiFi Network Scan ===");
     Serial.println("Scanning for available networks...");
     
     // Perform WiFi scan
     int networkCount = WiFi.scanNetworks();
     
-    if (networkCount == 0) {
+    if (networkCount == 0)
+    {
         Serial.println("No networks found.");
         return;
     }
@@ -564,7 +635,8 @@ void WebHandler::scanWiFiNetworks() {
     int signalQuality[4] = {0}; // Excellent, Good, Fair, Poor
     
     // Display networks sorted by signal strength (WiFi.scanNetworks() already sorts by RSSI)
-    for (int i = 0; i < networkCount; i++) {
+    for (int i = 0; i < networkCount; i++)
+    {
         String ssid = WiFi.SSID(i);
         int32_t rssi = WiFi.RSSI(i);
         wifi_auth_mode_t encryption = WiFi.encryptionType(i);
@@ -573,29 +645,38 @@ void WebHandler::scanWiFiNetworks() {
         // Determine signal quality
         String quality;
         int qualityIndex;
-        if (rssi > -50) {
+        if (rssi > -50)
+        {
             quality = "Excellent";
             qualityIndex = 0;
-        } else if (rssi > -60) {
+        }
+        else if (rssi > -60)
+        {
             quality = "Good     ";
             qualityIndex = 1;
-        } else if (rssi > -70) {
+        }
+        else if (rssi > -70)
+        {
             quality = "Fair     ";
             qualityIndex = 2;
-        } else {
+        }
+        else
+        {
             quality = "Poor     ";
             qualityIndex = 3;
         }
         signalQuality[qualityIndex];
         
         // Count channel usage
-        if (channel >= 1 && channel <= 13) {
+        if (channel >= 1 && channel <= 13)
+        {
             channelCount[channel]++;
         }
         
         // Determine encryption type
         String encType;
-        switch (encryption) {
+        switch (encryption)
+        {
             case WIFI_AUTH_OPEN:
                 encType = "Open    ";
                 break;
@@ -623,7 +704,8 @@ void WebHandler::scanWiFiNetworks() {
         }
         
         // Truncate long SSIDs for formatting
-        if (ssid.length() > 28) {
+        if (ssid.length() > 28)
+        {
             ssid = ssid.substring(0, 25) + "...";
         }
         
@@ -643,16 +725,23 @@ void WebHandler::scanWiFiNetworks() {
     Serial.printf("  Poor (<-70 dBm): %d networks\n", signalQuality[3]);
     
     Serial.println("\nChannel Usage (2.4GHz):");
-    for (int ch = 1; ch <= 13; ch++) {
-        if (channelCount[ch] > 0) {
+    for (int ch = 1; ch <= 13; ch++)
+    {
+        if (channelCount[ch] > 0)
+        {
             Serial.printf("  Channel %2d: %d network(s)", ch, channelCount[ch]);
             
             // Add interference warning for overlapping channels
-            if (ch >= 1 && ch <= 3 && (channelCount[1] + channelCount[2] + channelCount[3]) > 3) {
+            if (ch >= 1 && ch <= 3 && (channelCount[1] + channelCount[2] + channelCount[3]) > 3)
+            {
                 Serial.print(" [High interference area]");
-            } else if (ch >= 6 && ch <= 8 && (channelCount[6] + channelCount[7] + channelCount[8]) > 3) {
+            }
+            else if (ch >= 6 && ch <= 8 && (channelCount[6] + channelCount[7] + channelCount[8]) > 3)
+            {
                 Serial.print(" [High interference area]");
-            } else if (ch >= 11 && ch <= 13 && (channelCount[11] + channelCount[12] + channelCount[13]) > 3) {
+            }
+            else if (ch >= 11 && ch <= 13 && (channelCount[11] + channelCount[12] + channelCount[13]) > 3)
+            {
                 Serial.print(" [High interference area]");
             }
             Serial.println();
@@ -661,9 +750,12 @@ void WebHandler::scanWiFiNetworks() {
     
     // Provide recommendations
     Serial.println("\nRecommendations:");
-    if (signalQuality[0] + signalQuality[1] > networkCount * 0.7) {
+    if (signalQuality[0] + signalQuality[1] > networkCount * 0.7)
+    {
         Serial.println("  • RF environment: Good - Multiple strong signals available");
-    } else if (signalQuality[2] + signalQuality[3] > networkCount * 0.7) {
+    }
+    else if (signalQuality[2] + signalQuality[3] > networkCount * 0.7)
+    {
         Serial.println("  • RF environment: Poor - Consider relocating for better reception");
     } else {
         Serial.println("  • RF environment: Mixed - Adequate for most applications");
@@ -673,15 +765,19 @@ void WebHandler::scanWiFiNetworks() {
     int minCount = static_cast<int>(AutoTuneConfig::INITIAL_MIN_PRESSURE);
     String bestChannels = "";
     for (int ch = 1; ch <= 13; ch += 5) { // Check channels 1, 6, 11 (non-overlapping)
-        if (channelCount[ch] < minCount) {
+        if (channelCount[ch] < minCount)
+        {
             minCount = channelCount[ch];
             bestChannels = "Channel " + String(ch);
-        } else if (channelCount[ch] == minCount && minCount < 3) {
+        }
+        else if (channelCount[ch] == minCount && minCount < 3)
+        {
             bestChannels += ", " + String(ch);
         }
     }
     
-    if (minCount < 3) {
+    if (minCount < 3)
+    {
         Serial.printf("  • Least congested channels: %s (%d networks)\n", bestChannels.c_str(), minCount);
     } else {
         Serial.println("  • All standard channels (1, 6, 11) are congested");
@@ -714,9 +810,11 @@ void WebHandler::scanWiFiNetworks() {
  * - Channel change takes effect immediately
  * - Use SCAN WIFI first to identify the best channel
  */
-void WebHandler::changeWiFiChannel(int channel) {
+void WebHandler::changeWiFiChannel(int channel)
+{
     // Validate channel range (2.4GHz channels 1-13)
-    if (channel < 1 || channel > 13) {
+    if (channel < 1 || channel > 13)
+    {
         Serial.printf("Error: Invalid channel %d. Valid range: 1-13\n", channel);
         return;
     }    Serial.printf("\n=== Changing WiFi Channel to %d ===\n", channel);
@@ -746,7 +844,8 @@ void WebHandler::changeWiFiChannel(int channel) {
     WiFi.softAPConfig(currentIP, currentGateway, currentSubnet);
     
     // Start AP on new channel - the channel parameter is the 4th argument
-    if (WiFi.softAP(currentSSID.c_str(), currentPassword.c_str(), channel)) {
+    if (WiFi.softAP(currentSSID.c_str(), currentPassword.c_str(), channel))
+    {
         Serial.printf("✓ Access Point started successfully on channel %d\n", channel);
         Serial.printf("  SSID: %s\n", currentSSID.c_str());
         Serial.printf("  Channel: %d\n", WiFi.channel());
@@ -782,7 +881,8 @@ void WebHandler::changeWiFiChannel(int channel) {
     Serial.println("  • Use 'SCAN WIFI' to verify reduced interference");
     Serial.println("  • Use 'STATUS' to check connected client count");
     
-    if (channel == 1 || channel == 6 || channel == 11) {
+    if (channel == 1 || channel == 6 || channel == 11)
+    {
         Serial.printf("  • Channel %d is a standard non-overlapping channel (good choice)\n", channel);
     } else {
         Serial.printf("  • Channel %d may overlap with adjacent channels - monitor for interference\n", channel);

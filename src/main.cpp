@@ -96,13 +96,17 @@ void setup()
   Serial.println("====================================================");
   
   // Initialize LittleFS for settings storage
-  if (!LittleFS.begin(true)) {
+  if (!LittleFS.begin(true))
+  {
     Serial.println("LittleFS error!");
-  } else {
+  }
+  else
+  {
     Serial.println("LittleFS mounted. Files:");
     File root = LittleFS.open("/");
     File file = root.openNextFile();
-    while(file) {
+    while(file)
+    {
       Serial.printf("  /%s (%d bytes)\n", file.name(), file.size());
       file = root.openNextFile();
     }

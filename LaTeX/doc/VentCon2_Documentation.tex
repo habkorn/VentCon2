@@ -1161,6 +1161,38 @@ These limits are stored in the \texttt{SliderLimits} structure within \texttt{Se
 \caption{Web Interface Endpoints}
 \end{table}
 
+\paragraph{Route Configuration (setupRoutes)}
+The \texttt{setupRoutes()} function maps URL paths to handler functions. Understanding this is fundamental to web development:
+
+\subparagraph{How Web Servers Work}
+A web server listens for HTTP requests from browsers. When a user enters a URL like \texttt{http://192.168.4.1/values}, the browser sends an HTTP request to the ESP32. The server must know what function to call for each URL path.
+
+\subparagraph{What Are Routes?}
+Routes are URL-to-function mappings. Each \texttt{webServer.on()} call defines: ``When someone requests THIS path, call THIS function.''
+
+\begin{lstlisting}[caption=Route Registration Example]
+// Route mapping: path -> handler function
+webServer.on("/values", [this]() { this->handleValues(); });
+//           ^path^     ^-------- lambda function --------^
+\end{lstlisting}
+
+\subparagraph{Lambda Functions}
+The \texttt{[this]()\{ ... \}} syntax is a ``lambda'' -- an inline anonymous function. The \texttt{[this]} captures the class instance so we can call member functions like \texttt{this->handleValues()}. It's shorthand for creating a separate callback function.
+
+\subparagraph{HTTP Methods (GET vs POST)}
+\begin{itemize}
+    \item \textbf{GET:} Retrieve data (e.g., load a page, fetch sensor values)
+    \item \textbf{POST:} Send data to server (e.g., submit form, change settings)
+\end{itemize}
+If no method is specified, the route accepts any HTTP method.
+
+\subparagraph{Special Routes}
+\begin{itemize}
+    \item \textbf{``/''} -- The root/home page (what loads when you first connect)
+    \item \textbf{onNotFound()} -- Fallback handler for any URL not explicitly registered
+    \item \textbf{webServer.begin()} -- Starts the server after all routes are defined
+\end{itemize}
+
 \subsubsection{Data Exchange Process}
 
 \paragraph{Client-Server Communication Flow}
