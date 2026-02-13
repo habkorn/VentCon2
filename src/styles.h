@@ -222,8 +222,9 @@ details.card .collapsible-content
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
-  padding: 2px 6px;
-  margin-left: 6px;
+  padding: 2px 2px;
+  margin-left: 0;
+  flex-shrink: 0;
   color: var(--text-light);
   opacity: 0.6;
   transition: opacity 0.2s;
@@ -330,7 +331,9 @@ h3
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 640px)
@@ -352,6 +355,7 @@ h3
 .control-slider
 {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -452,7 +456,7 @@ input[type="range"]::-ms-thumb
   border: none;
 }
 
-input[type="number"]
+input[type="text"][inputmode]
 {
   width: 4rem;
   padding: 0.25rem;

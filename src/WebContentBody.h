@@ -55,7 +55,7 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         </div>
         
         <div class="gauge">
-          <div class="gauge-title">PWM Output</div>
+          <div class="gauge-title">Valve Duty Cycle</div>
           <div class="gauge-value">
             <span id="pwm" style="color: #10b981;">--</span>
             <small>%</small>
@@ -95,15 +95,15 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         <div class="modal-body">
           <div class="modal-row">
             <label>Minimum</label>
-            <input type="number" id="modalMin" step="any">
+            <input type="text" inputmode="decimal" id="modalMin" step="any">
           </div>
           <div class="modal-row">
             <label>Maximum</label>
-            <input type="number" id="modalMax" step="any">
+            <input type="text" inputmode="decimal" id="modalMax" step="any">
           </div>
           <div class="modal-row">
             <label>Step</label>
-            <input type="number" id="modalStep" step="any">
+            <input type="text" inputmode="decimal" id="modalStep" step="any">
           </div>
         </div>
         <div class="modal-footer">

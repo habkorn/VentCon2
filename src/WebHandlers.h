@@ -2,6 +2,7 @@
 
 #include <WebServer.h>
 #include <DNSServer.h>
+#include <ESPmDNS.h>
 #include <WiFi.h>
 #include <PID_v2.h>
 #include "SettingsHandler.h"
@@ -28,7 +29,8 @@ private:
     PID* pid;
       // References to system variables
     double* pressureInput;
-    double* pwmOutput;
+    double* pwmPIDoutput;
+    uint32_t* actualPwm;  // Mapped valve PWM value (from ControlSystem)
     bool* ads_found;
     int* pwmFullScaleRaw;
     float* last_filtered_pressure;
@@ -62,7 +64,8 @@ public:    // Constructor with dependency injection
     WebHandler(SettingsHandler* settings,
                PID* pid,
                double* pressureInput,
-               double* pwmOutput,
+               double* pwmPIDoutput,
+               uint32_t* actualPwm,
                bool* ads_found,
                int* pwmFullScaleRaw,
                float* last_filtered_pressure);

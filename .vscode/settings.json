@@ -2,5 +2,19 @@
     "files.associations": {
         "fstream": "cpp",
         "typeinfo": "cpp"
+    },
+    "chat.tools.terminal.autoApprove": {
+        "/^C:\\\\Users\\\\thomas\\.haberkorn\\\\\\.platformio\\\\penv\\\\Scripts\\\\platformio\\.exe run 2>&1$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^C:\\\\Users\\\\thomas\\.haberkorn\\\\\\.platformio\\\\penv\\\\Scripts\\\\platformio\\.exe run 2>&1 \\| Out-String$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^C:\\\\Users\\\\thomas\\.haberkorn\\\\\\.platformio\\\\penv\\\\Scripts\\\\platformio\\.exe run 2>&1 \\| Tee-Object -Variable buildOutput; \\$buildOutput$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

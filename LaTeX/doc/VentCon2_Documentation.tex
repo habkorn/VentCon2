@@ -380,7 +380,7 @@ void & scanWiFiNetworks() & Return JSON network list \\
 \hline
 PID* & pid & PID controller instance \\
 double* & pressureInput & Pointer to sensor reading \\
-double* & pwmOutput & Pointer to valve output \\
+double* & pwmPIDoutput & Pointer to valve output \\
 bool* & manualPWMMode & Manual override flag \\
 \hline
 \multicolumn{3}{|c|}{\textit{Methods}} \\
@@ -753,20 +753,20 @@ void ControlSystem::processControlLoop() {
         // PID calculation and PWM output (only if not in auto-tune mode)
         else if (!*manualPWMMode) {
             // Store previous output for anti-windup check
-            double previousOutput = *pwmOutput;
+            double previousOutput = *pwmPIDoutput;
             
             // Constrain output to valid range
-            *pwmOutput = constrain(*pwmOutput, 0, *pwmFullScaleRaw); 
+            *pwmPIDoutput = constrain(*pwmPIDoutput, 0, *pwmFullScaleRaw); 
 
             // Compute PID output
             pid->Compute();
             
             // Anti-windup for deadband and saturation
             if (settings->antiWindup) {
-                float pidPercent = (*pwmOutput / *pwmFullScaleRaw) * 100.0;
+                float pidPercent = (*pwmPIDoutput / *pwmFullScaleRaw) * 100.0;
                 
-                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput < previousOutput) ||
-                    (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmOutput > previousOutput)) {
+                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmPIDoutput < previousOutput) ||
+                    (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmPIDoutput > previousOutput)) {
                     // Reset the PID to prevent integral accumulation
                     pid->SetMode(PID::Manual);
                     pid->SetMode(PID::Automatic);
@@ -789,12 +789,97 @@ void ControlSystem::processControlLoop() {
 }
 \end{lstlisting}
 
-\subsubsection{PWM Valve Control}
-The system maps PID output to valve PWM duty cycle with configurable limits:
+\subsubsection{PWM Valve Control and Output Mapping}
+\label{sec:valve-mapping}
+
+\paragraph{Physical Valve Characteristics}
+The solenoid valve used in the VentCon2 system does not respond linearly across the full 0--100\% PWM duty cycle range. Two physical constraints define the valve's effective operating region:
+
+\begin{itemize}
+    \item \textbf{Below $\sim$50\% duty cycle:} The solenoid coil does not generate sufficient electromagnetic force to overcome the return spring and internal friction. PWM energy in this range is dissipated as heat without producing valve movement.
+    \item \textbf{Above $\sim$90\% duty cycle:} The valve plunger is fully retracted and the flow path is completely open. Additional current produces no further displacement and only generates excess heat in the coil.
+\end{itemize}
+
+These limits are defined in \texttt{Constants.h}:
+
+\begin{lstlisting}[caption=Valve Operating Range Constants]
+namespace ValveConfig {
+    constexpr float PID_MIN_OUTPUT_PERCENT = 1.0f;  // Dead zone threshold
+    constexpr float VALVE_MIN_DUTY = 50.0f;         // Minimum effective duty cycle
+    constexpr float VALVE_MAX_DUTY = 90.0f;         // Maximum useful duty cycle
+}
+\end{lstlisting}
+
+\paragraph{Output Mapping Function}
+To ensure the PID controller has full resolution over the valve's useful range, the system maps the PID's logical 0--100\% output to the valve's physical 50--90\% operating range. This mapping is performed by the \texttt{mapPIDoutputToPwmValve()} function in \texttt{ControlSystem.cpp}:
+
+\begin{lstlisting}[caption=PID Output to Valve PWM Mapping Function]
+uint32_t ControlSystem::mapPIDoutputToPwmValve(double pidOutput, int maxPwmFullScaleRaw) {
+    // Convert PID output to percentage (0-100%)
+    float pidPercent = (pidOutput / maxPwmFullScaleRaw) * 100.0;
+    
+    // If below minimum threshold, keep valve closed
+    if (pidPercent < ValveConfig::PID_MIN_OUTPUT_PERCENT) {
+        return 0;
+    }
+    
+    // Map PID's 0-100% to valve's effective range
+    float mappedPercent = ValveConfig::VALVE_MIN_DUTY + (pidPercent / 100.0) * 
+                         (ValveConfig::VALVE_MAX_DUTY - ValveConfig::VALVE_MIN_DUTY);
+    
+    // Constrain to valid range
+    mappedPercent = constrain(mappedPercent, 0.0, 100.0);
+    
+    // Convert percentage back to absolute PWM value
+    return (uint32_t)((mappedPercent / 100.0) * maxPwmFullScaleRaw);
+}
+\end{lstlisting}
+
+The mapping follows this equation:
 
 \begin{equation}
-PWM_{valve} = PWM_{min} + \frac{PID_{output}}{PWM_{max}} \cdot (PWM_{valve\_max} - PWM_{valve\_min})
+D_{valve} = D_{min} + \frac{PID_{\%}}{100} \cdot (D_{max} - D_{min})
 \end{equation}
+
+where $D_{valve}$ is the actual valve duty cycle, $D_{min} = 50\%$, $D_{max} = 90\%$, and $PID_{\%}$ is the PID output as a percentage of full scale. For 14-bit PWM resolution ($PWM_{fullscale} = 16383$), the final raw PWM value is:
+
+\begin{equation}
+PWM_{raw} = \frac{D_{valve}}{100} \cdot PWM_{fullscale}
+\end{equation}
+
+\paragraph{Mapping Table}
+The following table illustrates representative mapping values for 14-bit resolution:
+
+\begin{center}
+\begin{tabular}{r r r r}
+\hline
+\textbf{PID Output (\%)} & \textbf{PID Raw Value} & \textbf{Valve Duty (\%)} & \textbf{PWM Raw Value} \\
+\hline
+$<$ 1\% & $<$ 164 & 0\% & 0 (closed) \\
+1\% & 164 & 50.4\% & 8\,257 \\
+25\% & 4\,096 & 60\% & 9\,830 \\
+50\% & 8\,192 & 70\% & 11\,468 \\
+75\% & 12\,287 & 80\% & 13\,106 \\
+100\% & 16\,383 & 90\% & 14\,745 \\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{Dead Zone Threshold Design}
+A critical design decision is the choice of the dead zone threshold at 1\% (\texttt{PID\_MIN\_OUTPUT\_PERCENT}) rather than at the 50\% valve minimum. This threshold determines when the valve transitions from fully closed (0\% duty) to minimum opening (50\% duty). The 1\% value is chosen deliberately for control-theoretic reasons:
+
+\begin{itemize}
+    \item \textbf{Minimized dead time:} When the PID controller determines that the valve should open (output $>$ 0), it only needs to cross the 1\% threshold before the valve responds at 50\% duty. If the threshold were set at 50\%, the PID would need to ramp its output through the entire 0--50\% range---a region where the valve is physically unresponsive. During this ramp, the PID receives no pressure feedback, causing the integral term to accumulate unchecked.
+    
+    \item \textbf{Reduced integral windup:} With a 50\% threshold, the PID integral would grow continuously while the output traverses the 0--50\% dead zone. Even with anti-windup protection resetting the integrator at the boundaries, there is a timing window where the PID crosses the threshold with significant accumulated momentum, leading to overshoot when the valve finally opens.
+    
+    \item \textbf{Immediate feedback:} The 1\% threshold ensures that the transition from ``valve closed'' to ``valve open'' occurs almost as soon as the PID requests any output. The valve immediately jumps to 50\% duty---the minimum at which it physically responds---and the PID receives pressure feedback within one control cycle. This tight feedback loop enables precise regulation from the moment the valve opens.
+    
+    \item \textbf{Intentional discontinuity:} The mapping creates a deliberate step from 0\% to 50\% duty at the 1\% threshold. This discontinuity mirrors the physical reality of the solenoid: there is no useful intermediate state between ``energized below opening force'' and ``energized at minimum opening force.'' The mapping makes the control signal match the actuator's actual behavior.
+\end{itemize}
+
+\paragraph{Interaction with Anti-Windup}
+The valve mapping and anti-windup mechanisms work together to maintain control stability. The anti-windup logic in the control loop checks whether the PID output percentage falls below \texttt{VALVE\_MIN\_DUTY} (50\%) or above \texttt{VALVE\_MAX\_DUTY} (90\%). When the output is in these saturation regions and moving further into saturation, the PID integrator is reset to prevent windup. The mapping function then translates the constrained PID output into the appropriate PWM value. This two-stage approach---first limiting integral accumulation, then mapping to the physical range---ensures robust control across the entire operating envelope.
 
 \subsubsection{Control System Enhancements: Anti-Windup}
 
@@ -838,11 +923,11 @@ The anti-windup mechanism works as follows:
 \begin{lstlisting}[caption=Anti-Windup Logic from ControlSystem.cpp]
 // Anti-windup for deadband and saturation
 if (settings->antiWindup) {
-    float pidPercent = (*pwmOutput / *pwmFullScaleRaw) * 100.0;
+    float pidPercent = (*pwmPIDoutput / *pwmFullScaleRaw) * 100.0;
     
     // Check if output is saturating
-    if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput < previousOutput) ||
-        (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmOutput > previousOutput)) {
+    if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmPIDoutput < previousOutput) ||
+        (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmPIDoutput > previousOutput)) {
         // Reset the PID to prevent integral accumulation
         pid->SetMode(PID::Manual);
         pid->SetMode(PID::Automatic);
@@ -1032,7 +1117,7 @@ private:
     SettingsHandler* settings;
     PID* pid;
     double* pressureInput;
-    double* pwmOutput;
+    double* pwmPIDoutput;
     bool* ads_found;
     int* pwmFullScaleRaw;
     float* last_filtered_pressure;

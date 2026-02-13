@@ -199,10 +199,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               backgroundColor: 'rgba(37, 99, 235, 0.1)',
               tension: 0.3,
               borderWidth: 2,
-              pointRadius: 1,
-              pointHoverRadius: 4,
-              pointBorderWidth: 1,
-              pointStyle: 'circle',
+              pointRadius: 0,
               yAxisID: 'y'
             },
             {
@@ -218,16 +215,13 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               yAxisID: 'y'
             },
             {
-              label: 'PWM Output',
+              label: 'Valve Duty Cycle',
               data: [],
               borderColor: '#10b981',
               backgroundColor: 'rgba(16, 185, 129, 0.1)',
               tension: 0.3,
               borderWidth: 2,
-              pointRadius: 1,
-              pointHoverRadius: 3,
-              pointBorderWidth: 1,
-              pointStyle: 'circle',
+              pointRadius: 0,
               yAxisID: 'pwm'
             }
           ]
@@ -271,10 +265,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               position: 'right',
               title: {
                 display: true,
-                text: 'PWM (%)'
+                text: 'Valve Duty Cycle (%)'
               },
               ticks: {
-                color: '#10b981',  // Match the color of the PWM line
+                color: '#10b981',  // Match the color of the Valve Duty Cycle line
                 stepSize: 20,
                 autoSkip: false
               },
@@ -341,6 +335,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               }
             },
             tooltip: {
+              enabled: false, // Disable built-in tooltips for better performance
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
               titleColor: '#1e293b',
               bodyColor: '#1e293b',
@@ -353,7 +348,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
                 {
                   const label = context.dataset.label;
                   const value = context.parsed.y.toFixed(3);
-                  if (label === 'PWM Output')
+                  if (label === 'Valve Duty Cycle')
                   {
                     return label + ': ' + value + '%';
                   }

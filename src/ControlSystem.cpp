@@ -4,23 +4,23 @@
 
 ControlSystem::ControlSystem(SettingsHandler* settings, SensorManager* sensorManager, 
                            AutoTuner* autoTuner, PID* pid, double* pressureInput, 
-                           double* pwmOutput, int* pwmFullScaleRaw, bool* manualPWMMode,
+                           double* pwmPIDoutput, uint32_t* actualPwm, int* pwmFullScaleRaw, bool* manualPWMMode,
                            bool* continousValueOutput)
     : settings(settings), sensorManager(sensorManager), autoTuner(autoTuner), 
-      pid(pid), pressureInput(pressureInput), pwmOutput(pwmOutput), 
-      pwmFullScaleRaw(pwmFullScaleRaw), manualPWMMode(manualPWMMode),
+      pid(pid), pressureInput(pressureInput), pwmPIDoutput(pwmPIDoutput), 
+      actualPwm(actualPwm), pwmFullScaleRaw(pwmFullScaleRaw), manualPWMMode(manualPWMMode),
       continousValueOutput(continousValueOutput), lastPressure(0.0), 
       pressureIncreasing(false), SERIAL_OUTPUT_INTERVAL(TimingConfig::SERIAL_OUTPUT_INTERVAL_MS) 
 {
 }
 
-uint32_t ControlSystem::mapPwmToValve(double pidOutput, int maxPwmFullScaleRaw) 
+uint32_t ControlSystem::mapPIDoutputToPwmValve(double pidOutput, int maxPwmFullScaleRaw) 
 {
     // Convert PID output to percentage (0-100%)
     float pidPercent = (pidOutput / maxPwmFullScaleRaw) * 100.0;
     
     // If below minimum threshold, keep valve closed
-    if (pidPercent < 1.0) 
+    if (pidPercent < ValveConfig::PID_MIN_OUTPUT_PERCENT) 
     {
         return 0;
     }
@@ -113,7 +113,7 @@ void ControlSystem::handleContinuousDataOutput(unsigned long taskStartTime, unsi
           settings->setpoint - *pressureInput,
           *pressureInput,
           settings->setpoint,
-          (autoTuner && autoTuner->isRunning() ? autoTuner->getOutputValue() : (*pwmOutput / *pwmFullScaleRaw) * 100.0),
+          (autoTuner && autoTuner->isRunning() ? autoTuner->getOutputValue() : (*pwmPIDoutput / *pwmFullScaleRaw) * 100.0),
           xTaskGetTickCount() * portTICK_PERIOD_MS / 1000.0, // Convert ticks to seconds
           taskExecTime, // Task execution time in microseconds
           totalCycleTime, // Total cycle time in microseconds (execution + wait)
@@ -159,23 +159,23 @@ void ControlSystem::processControlLoop()
         else if (!*manualPWMMode) 
         {
             // Store previous output for anti-windup check
-            double previousOutput = *pwmOutput;
+            double previousOutput = *pwmPIDoutput;
 
             // Compute PID output
             pid->Compute();
             
             // Constrain output to valid range (safety check, SetOutputLimits should handle this)
-            *pwmOutput = constrain(*pwmOutput, 0, *pwmFullScaleRaw);
+            *pwmPIDoutput = constrain(*pwmPIDoutput, 0, *pwmFullScaleRaw);
             
             // Anti-windup for deadband and saturation
             if (settings->antiWindup) 
             {
-                float pidPercent = (*pwmOutput / *pwmFullScaleRaw) * 100.0;
+                float pidPercent = (*pwmPIDoutput / *pwmFullScaleRaw) * 100.0;
                 
                 // Below dead zone and trying to decrease further (valve already closed)
                 // Above saturation and trying to increase further (valve already fully open)
-                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmOutput < previousOutput) ||
-                    (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmOutput > previousOutput)) 
+                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmPIDoutput < previousOutput) ||
+                    (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmPIDoutput > previousOutput)) 
                 {
                     // Reset the PID to prevent integral accumulation
                     pid->SetMode(PID::Manual);
@@ -194,11 +194,14 @@ void ControlSystem::processControlLoop()
             }
 
             // Apply hysteresis compensation to PID output
-            applyHysteresisCompensation(*pwmOutput);
+            applyHysteresisCompensation(*pwmPIDoutput);
 
             // Use the mapping function to get actual PWM value to apply
-            uint32_t actualPwm = mapPwmToValve(*pwmOutput, *pwmFullScaleRaw);
-            ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, actualPwm);
+            // *actualPwm range: 0 to pwmFullScaleRaw (e.g., 0-16383 for 14-bit)
+            // This is the mapped value: PID 0-100% → valve 50-90% duty cycle
+            *actualPwm = mapPIDoutputToPwmValve(*pwmPIDoutput, *pwmFullScaleRaw);
+
+            ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *actualPwm);
         }
         
         // ====== Emergency Shutdown ======

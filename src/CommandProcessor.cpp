@@ -10,12 +10,12 @@
 
 CommandProcessor::CommandProcessor(SettingsHandler* settings, SensorManager* sensorManager, 
                                  AutoTuner* autoTuner, WebHandler* webHandler, PID* pid,
-                                 double* pressureInput, double* pwmOutput, int* pwmFullScaleRaw,
-                                 bool* manualPWMMode, bool* continousValueOutput, 
+                                 double* pressureInput, double* pwmPIDoutput, uint32_t* actualPwm,
+                                 int* pwmFullScaleRaw, bool* manualPWMMode, bool* continousValueOutput, 
                                  TaskManager* taskManager)
     : settings(settings), sensorManager(sensorManager), autoTuner(autoTuner), 
       webHandler(webHandler), pid(pid), pressureInput(pressureInput), 
-      pwmOutput(pwmOutput), pwmFullScaleRaw(pwmFullScaleRaw), 
+      pwmPIDoutput(pwmPIDoutput), actualPwm(actualPwm), pwmFullScaleRaw(pwmFullScaleRaw), 
       manualPWMMode(manualPWMMode), continousValueOutput(continousValueOutput),
       taskManager(taskManager) 
 {
@@ -136,7 +136,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         Serial.println("Resetting PID controller...");
         
         pid->SetMode(MANUAL);
-        *pwmOutput = 0;
+        *pwmPIDoutput = 0;
         ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, 0);
         
         // Reset SensorManager filter state
@@ -213,14 +213,14 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
     {
         int new_res = cmd.substring(4).toInt();
         // Store current duty cycle percentage before changing resolution
-        float current_duty_percent = (*pwmOutput / (float)*pwmFullScaleRaw) * 100.0;
+        float current_duty_percent = (*pwmPIDoutput / (float)*pwmFullScaleRaw) * 100.0;
         
         // Update resolution and max value
         settings->pwm_res = constrain(new_res, PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS);
         int new_max_value = (1 << settings->pwm_res) - 1;
         
-        // Scale pwmOutput to maintain the same duty cycle
-        *pwmOutput = (current_duty_percent / 100.0) * new_max_value;
+        // Scale pwmPIDoutput to maintain the same duty cycle
+        *pwmPIDoutput = (current_duty_percent / 100.0) * new_max_value;
         
         // Update max value and PID limits
         *pwmFullScaleRaw = new_max_value;
@@ -236,13 +236,13 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
         // Force PWM duty cycle for testing (overrides PID)
         float duty_percent = cmd.substring(4).toFloat();
         duty_percent = constrain(duty_percent, 0.0, 100.0);
-        *pwmOutput = (duty_percent / 100.0) * *pwmFullScaleRaw;
+        *pwmPIDoutput = (duty_percent / 100.0) * *pwmFullScaleRaw;
         
         // Apply PWM value directly (without mapping for manual control)
-        ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, (uint32_t)*pwmOutput);
+        ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, (uint32_t)*pwmPIDoutput);
         
         Serial.printf("PWM manually set to: %.1f%% (%d/%d)\n", 
-                     duty_percent, (int)*pwmOutput, *pwmFullScaleRaw);
+                     duty_percent, (int)*pwmPIDoutput, *pwmFullScaleRaw);
                      
         // Set manual mode flag
         *manualPWMMode = true;
@@ -586,7 +586,7 @@ void CommandProcessor::handleFileSystemCommands(const String& cmd)
 void CommandProcessor::updatePWM() 
 {
     ledcSetup(HardwareConfig::PWM_CHANNEL_MOSFET, settings->pwm_freq, settings->pwm_res);
-    ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *pwmOutput);
+    ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *actualPwm);
 }
 
 void CommandProcessor::showHelp() 
@@ -714,8 +714,8 @@ void CommandProcessor::showStatus()
     // PWM Output section
     Serial.println("\nPWM Output:");
     Serial.printf("  Value: %d/%d (%.3f%%)\n", 
-                 (int)*pwmOutput, *pwmFullScaleRaw, 
-                 (*pwmOutput / float(*pwmFullScaleRaw)) * 100.0);
+                 (int)*pwmPIDoutput, *pwmFullScaleRaw, 
+                 (*pwmPIDoutput / float(*pwmFullScaleRaw)) * 100.0);
     Serial.printf("  Resolution: %d-bit\n", settings->pwm_res);
     Serial.printf("  Frequency: %d Hz\n", settings->pwm_freq);
     Serial.printf("  Control Mode: %s\n", *manualPWMMode ? "MANUAL" : "PID");

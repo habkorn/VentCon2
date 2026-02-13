@@ -34,8 +34,9 @@ const float VALVE_MIN_DUTY = ValveConfig::VALVE_MIN_DUTY;
 const float VALVE_MAX_DUTY = ValveConfig::VALVE_MAX_DUTY;
 
 // ====== PID and Control Variables ======
-double pressureInput, pwmOutput; // PID input (pressure) and output (PWM)
-PID pid(&pressureInput, &pwmOutput, &settings.setpoint, settings.Kp, settings.Ki, settings.Kd, DIRECT);
+double pressureInput, pwmPIDoutput; // PID input (pressure) and output (PWM)
+uint32_t actualPwm = 0; // Mapped valve PWM value (after PID→valve mapping), shared with WebHandler
+PID pid(&pressureInput, &pwmPIDoutput, &settings.setpoint, settings.Kp, settings.Ki, settings.Kd, DIRECT);
 
 // ====== System Management Instances ======
 // Will be initialized in setup() after all dependencies are ready
@@ -129,8 +130,8 @@ void setup()
   Serial.println("AutoTuner initialized successfully!");
   // Initialize CommandProcessor (now with TaskManager reference)
   commandProcessor = new CommandProcessor(&settings, sensorManager, autoTuner, 
-                                        webHandler, &pid, &pressureInput, &pwmOutput,
-                                        &pwmFullScaleRaw, &manualPWMMode, &continousValueOutput,
+                                        webHandler, &pid, &pressureInput, &pwmPIDoutput,
+                                        &actualPwm, &pwmFullScaleRaw, &manualPWMMode, &continousValueOutput,
                                         taskManager);
   Serial.println("CommandProcessor initialized successfully!");
 
@@ -142,7 +143,7 @@ void setup()
   // Note: We need to create a persistent bool pointer for ads_found status
   static bool ads_found_status = sensorManager->isADSFound();
   webHandler = new WebHandler(&settings, &pid, 
-                             &pressureInput, &pwmOutput, &ads_found_status, 
+                             &pressureInput, &pwmPIDoutput, &actualPwm, &ads_found_status, 
                              &pwmFullScaleRaw, sensorManager->getLastFilteredPressurePtr());
   
   // Initialize WiFi AP and DNS server
@@ -152,7 +153,7 @@ void setup()
   webHandler->setupWiFiEvents();
   // Initialize ControlSystem
   controlSystem = new ControlSystem(&settings, sensorManager, autoTuner, &pid,
-                                   &pressureInput, &pwmOutput, &pwmFullScaleRaw,
+                                   &pressureInput, &pwmPIDoutput, &actualPwm, &pwmFullScaleRaw,
                                    &manualPWMMode, &continousValueOutput);
   controlSystem->initializeControlSystem();
 

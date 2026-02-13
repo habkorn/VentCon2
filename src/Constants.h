@@ -30,6 +30,9 @@ namespace NetworkConfig
     // Captive portal domain name (redirects to AP_IP)
     constexpr char CAPTIVE_PORTAL_DOMAIN[] = "www.ventcon.at";
     
+    // mDNS hostname (accessible as http://ventcon.local)
+    constexpr char MDNS_HOSTNAME[] = "ventcon";
+    
     // Web server port
     constexpr int WEB_PORT = 80;
     
@@ -79,15 +82,36 @@ namespace SensorConfig
 }
 
 // Valve Configuration
+// The solenoid valve has a non-linear response: it doesn't move at low duty cycles
+// and saturates before 100%. These constants define the effective operating range.
+//
+// NOTE: Web interface displays UNMAPPED PID output (0-100%), not the actual valve
+// duty cycle. Example: Web shows 50% → actual valve receives 70% duty cycle.
+// See WebHandlers.cpp handleValues() for the displayed calculation.
 namespace ValveConfig 
 {
-    // Minimum PWM duty cycle percentage for valve operation (below this valve may not respond)
+    // Minimum PID output percentage threshold - below this, valve stays closed.
+    // Prevents tiny PID outputs from wastefully energizing the valve coil.
+    // Used in: mapPwmToValve() to return 0 when output is negligible.
+    constexpr float PID_MIN_OUTPUT_PERCENT = 1.0f;
+    
+    // Minimum PWM duty cycle where valve physically begins to respond.
+    // Below ~50%, the solenoid doesn't generate enough force to move.
+    // PID's 0-100% output is mapped to this as the lower bound.
+    // Example: PID 0% → Valve 50%, PID 50% → Valve 70%
+    // Used in: mapPwmToValve() for range mapping, anti-windup detection,
+    //          and AutoTuner for gain compensation.
     constexpr float VALVE_MIN_DUTY = 50.0f;
     
-    // Maximum PWM duty cycle percentage for valve operation 
+    // Maximum PWM duty cycle for valve operation.
+    // Above ~90%, additional current generates heat without more force.
+    // PID's 0-100% output is mapped to this as the upper bound.
+    // Example: PID 100% → Valve 90%
+    // Used in: mapPwmToValve() for range mapping and AutoTuner.
     constexpr float VALVE_MAX_DUTY = 90.0f;
     
-    // Hysteresis compensation range (percentage points)
+    // Hysteresis compensation range (percentage points).
+    // Compensates for mechanical friction causing different open/close thresholds.
     constexpr float HYST_MIN = 0.0f;
     constexpr float HYST_MAX = 20.0f;
 }

@@ -29,7 +29,8 @@ WebHandler* WebHandler::instance = nullptr;
 WebHandler::WebHandler(SettingsHandler* settings,
                        PID* pid,
                        double* pressureInput,
-                       double* pwmOutput,
+                       double* pwmPIDoutput,
+                       uint32_t* actualPwm,
                        bool* ads_found,
                        int* pwmFullScaleRaw,
                        float* last_filtered_pressure)
@@ -38,7 +39,8 @@ WebHandler::WebHandler(SettingsHandler* settings,
       settings(settings),
       pid(pid),
       pressureInput(pressureInput),
-      pwmOutput(pwmOutput),
+      pwmPIDoutput(pwmPIDoutput),
+      actualPwm(actualPwm),
       ads_found(ads_found),
       pwmFullScaleRaw(pwmFullScaleRaw),
       last_filtered_pressure(last_filtered_pressure),
@@ -172,6 +174,17 @@ void WebHandler::initializeWiFiAP()
     // Start DNS server for captive portal
     webDnsServer.start(NetworkConfig::DNS_PORT, "*", ap_ip);
     
+    // Start mDNS responder (accessible as http://ventcon.local)
+    if (MDNS.begin(NetworkConfig::MDNS_HOSTNAME))
+    {
+        MDNS.addService("http", "tcp", NetworkConfig::WEB_PORT);
+        LOG_I(CAT_NETWORK, "mDNS started - http://%s.local", NetworkConfig::MDNS_HOSTNAME);
+    }
+    else
+    {
+        LOG_E(CAT_NETWORK, "mDNS failed to start");
+    }
+    
     LOG_I(CAT_NETWORK, "WiFi AP initialized - SSID: %s, IP: %s", ap_ssid, ap_ip.toString().c_str());
     LOG_D(CAT_NETWORK, "Gateway: %s, Subnet: %s", ap_gateway.toString().c_str(), ap_subnet.toString().c_str());
 }
@@ -179,7 +192,7 @@ void WebHandler::initializeWiFiAP()
 void WebHandler::updatePWM()
 {
     ledcSetup(HardwareConfig::PWM_CHANNEL_MOSFET, settings->pwm_freq, settings->pwm_res);
-    ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *pwmOutput);
+    ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *pwmPIDoutput);
 }
 
 // Helper function to get content type based on file extension
@@ -373,14 +386,14 @@ void WebHandler::handleSet()
     if (old_res != new_res)
     {
       // Store current duty cycle percentage before changing resolution
-      float current_duty_percent = (*pwmOutput / (float)*pwmFullScaleRaw) * 100.0;
+      float current_duty_percent = (*pwmPIDoutput / (float)*pwmFullScaleRaw) * 100.0;
       
       // Update resolution
       settings->pwm_res = new_res;
       int new_max_value = (1 << settings->pwm_res) - 1;
       
-      // Scale pwmOutput to maintain the same duty cycle
-      *pwmOutput = (current_duty_percent / 100.0) * new_max_value;
+      // Scale pwmPIDoutput to maintain the same duty cycle
+      *pwmPIDoutput = (current_duty_percent / 100.0) * new_max_value;
       
       // Update max value and PID limits
       *pwmFullScaleRaw = new_max_value;
@@ -402,8 +415,11 @@ void WebHandler::handleSet()
  */
 void WebHandler::handleValues() // Send current values as JSON  
 {
-  const int max_pwm = (1 << settings->pwm_res) - 1;
-  const float pwm_percent = max_pwm > 0 ? (*pwmOutput / max_pwm) * 100.0 : 0;
+  // Calculate maximum PWM value based on resolution (e.g., 16383 for 14-bit: 2^14 - 1)
+  const int max_output_pwm = (1 << settings->pwm_res) - 1; 
+
+  // Calculate actual valve duty cycle percentage from the mapped PWM value
+  const float pwm_actual_percent = max_output_pwm > 0 ? (*actualPwm / (float)max_output_pwm) * 100.0 : 0;
   const char* adc_status = *ads_found ? "100" : "000";
   
   char json[200]; 
@@ -419,7 +435,7 @@ void WebHandler::handleValues() // Send current values as JSON
     settings->pwm_freq,
     settings->pwm_res,
     *pressureInput,
-    pwm_percent,
+    pwm_actual_percent,
     adc_status
   );
   webServer.send(200, "application/json", json); // why 200? Because this is a successful response
@@ -430,7 +446,7 @@ void WebHandler::handleResetPID()
 {
   // Temporarily set to manual mode
   pid->SetMode(PID::Manual);
-  *pwmOutput = 0;
+  *pwmPIDoutput = 0;
   ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, 0);
   
   // Clear any internal state
@@ -879,6 +895,14 @@ void WebHandler::changeWiFiChannel(int channel)
     }
       // Restart DNS server for captive portal
     webDnsServer.start(NetworkConfig::DNS_PORT, "*", WiFi.softAPIP());
+    
+    // Restart mDNS responder
+    MDNS.end();
+    if (MDNS.begin(NetworkConfig::MDNS_HOSTNAME))
+    {
+        MDNS.addService("http", "tcp", NetworkConfig::WEB_PORT);
+        Serial.printf("mDNS restarted - http://%s.local\n", NetworkConfig::MDNS_HOSTNAME);
+    }
     
     // Restart web server
     webServer.begin();
