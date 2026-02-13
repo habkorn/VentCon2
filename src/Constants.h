@@ -63,7 +63,7 @@ namespace HardwareConfig
 namespace SensorConfig 
 {
     // ADC channel number for pressure sensor readings (ESP32 ADC1 channels: 0-7)
-    constexpr int ADC_CHANNEL = 0;
+    constexpr int ADC_CHANNEL_PRESS_SENS = 0;
     
     // Minimum voltage output from pressure sensor (corresponds to minimum pressure)
     constexpr float MIN_VOLTAGE = 0.5f;

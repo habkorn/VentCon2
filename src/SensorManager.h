@@ -32,7 +32,7 @@ private:
     SettingsHandler* settings;
     
     // Constants from configuration
-    static constexpr int ADC_CHANNEL = SensorConfig::ADC_CHANNEL;
+    static constexpr int ADC_CHANNEL = SensorConfig::ADC_CHANNEL_PRESS_SENS;
     static constexpr float MIN_VOLTAGE = SensorConfig::MIN_VOLTAGE;
     static constexpr float MAX_VOLTAGE = SensorConfig::MAX_VOLTAGE;
     static constexpr float SENSOR_MIN_BAR = SensorConfig::SENSOR_MIN_BAR;

@@ -536,6 +536,24 @@ void WebHandler::handleSliderLimits()
 // - onNotFound() catches any URL not explicitly registered
 // - webServer.begin() starts the server after all routes are defined
 //
+// EXAMPLE: HOW /set IS TRIGGERED
+// 1. User adjusts slider in browser → JavaScript stores new value
+//    → See WebContentScript.h showSaveSnackbar(): pendingChanges[param] = value
+// 2. User clicks "Apply Changes" button
+//    → See WebContentScript.h handleSaveClick()
+// 3. JavaScript builds URL: "/set?sp=5.0&kp=1.2&ki=0.5&kd=0.1"
+//    → See WebContentScript.h: Object.entries(pendingChanges).map(...)
+// 4. Browser sends HTTP GET request to ESP32 with that URL
+//    → See WebContentScript.h: fetch("/set?" + params)
+// 5. ESP32 web server receives request, sees path "/set"
+//    → Internal to WebServer library (handles TCP/HTTP parsing)
+// 6. Server looks up "/set" in route table → finds handleSet()
+//    → See setupRoutes() below: webServer.on("/set", ...)
+// 7. handleSet() parses URL parameters (?sp=5.0&kp=...) and updates settings
+//    → See handleSet() in this file: webServer.arg("sp").toFloat()
+// 8. Server sends response back to browser (success/error)
+//    → See handleSet(): webServer.send(200, "text/plain", "OK")
+//
 // ============================================================================
 
 void WebHandler::setupRoutes()

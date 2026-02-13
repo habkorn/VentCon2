@@ -694,7 +694,7 @@ void CommandProcessor::showStatus()
         if (sensorManager->isADSFound())
         {
             Serial.printf("  ADS1015 Address: 0x48\n");
-            Serial.printf("  ADS1015 Channel: %d\n", SensorConfig::ADC_CHANNEL);
+            Serial.printf("  ADS1015 Channel: %d\n", SensorConfig::ADC_CHANNEL_PRESS_SENS);
             Serial.printf("  Gain Setting: GAIN_TWOTHIRDS (+/-6.144V)\n");
         }
         else
