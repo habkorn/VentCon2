@@ -25,7 +25,8 @@
 \hypersetup{
     colorlinks=true,
     linkcolor=ventrexblue,
-    urlcolor=ventrexblue
+    urlcolor=ventrexblue,
+    hypertexnames=false
 }
 
 % Header/Footer
@@ -65,6 +66,7 @@
     
 \end{titlepage}
 
+\pagenumbering{arabic}
 \tableofcontents
 \newpage
 
@@ -221,7 +223,7 @@ Each control parameter slider (Setpoint, Kp, Ki, Kd) has a \textbf{gear icon} ne
 
 \subsection{System Parameters}
 
-\subsubsection{Low Pass Filter Strength on Pressure Sensor ($\alpha$)}
+\subsubsection[Low Pass Filter Strength on Pressure Sensor (alpha)]{Low Pass Filter Strength on Pressure Sensor ($\alpha$)}
 Controls noise filtering on the pressure sensor:
 \begin{itemize}
     \item \textbf{0}: No filtering (raw sensor data)
