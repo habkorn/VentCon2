@@ -34,7 +34,7 @@ const float VALVE_MIN_DUTY = ValveConfig::VALVE_MIN_DUTY;
 const float VALVE_MAX_DUTY = ValveConfig::VALVE_MAX_DUTY;
 
 // ====== PID and Control Variables ======
-double pressureInput, pwmPIDoutput; // PID input (pressure) and output (PWM)
+double pressureInput = 0, pwmPIDoutput = 0; // PID input (pressure) and output (PWM), zero-initialized for safe PID startup
 uint32_t actualPwm = 0; // Mapped valve PWM value (after PID→valve mapping), shared with WebHandler
 PID pid(&pressureInput, &pwmPIDoutput, &settings.setpoint, settings.Kp, settings.Ki, settings.Kd, DIRECT);
 
@@ -157,6 +157,21 @@ void setup()
                                    &manualPWMMode, &continousValueOutput);
   controlSystem->initializeControlSystem();
 
+  // Initialize PID fully BEFORE starting tasks to prevent race condition.
+  // Order matters: SetOutputLimits and SetSampleTime must precede SetMode(Automatic)
+  // because SetMode triggers Initialize() which clamps outputSum to current limits,
+  // and SetTunings scales gains by the current sample time.
+  pid.SetOutputLimits(0, pwmFullScaleRaw);
+  pid.SetSampleTime(settings.pid_sample_time);
+  pid.SetTunings(settings.Kp, settings.Ki, settings.Kd); // Apply gains loaded from flash (constructor used pre-load defaults)
+
+  // Read sensor once so Initialize() captures real pressure in lastInput,
+  // preventing a derivative kick on the first Compute() cycle.
+  sensorManager->readSensor();
+  pressureInput = sensorManager->getPressure();
+
+  pid.SetMode(PID::Automatic);
+
   // Initialize TaskManager
   taskManager = new TaskManager(controlSystem, webHandler);
   
@@ -165,11 +180,6 @@ void setup()
   {
     Serial.println("ERROR: Failed to create one or more tasks!");
   }
-
-  // Initialize PID 
-  pid.SetMode(PID::Automatic);
-  pid.SetOutputLimits(0, pwmFullScaleRaw);
-  pid.SetSampleTime(settings.pid_sample_time); // Use settings value for consistency
 
   // Setup all web routes
   webHandler->setupRoutes();

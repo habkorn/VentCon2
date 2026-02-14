@@ -128,7 +128,9 @@ void AutoTuner::stop(bool calculateParameters)
     // Reset state
     autoTuneRunning = false;
     
-    // Reset PID controller
+    // Reset PID controller — force Manual→Automatic transition so
+    // Initialize() runs and clears stale outputSum from tuning.
+    pid->SetMode(PID::Manual);
     pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
     pid->SetMode(PID::Automatic);
 }
