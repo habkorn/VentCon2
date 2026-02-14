@@ -1,0 +1,221 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Executive Summary}{4}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Key Features}{4}{subsection.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}System Overview}{4}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Introduction}{4}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}System Purpose and Application}{4}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Closed-Loop Control Architecture}{5}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}System Overview Illustration}{5}{subsection.2.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces VentCon2 closed-loop control overview}}{5}{figure.1}\protected@file@percent }
+\newlabel{fig:system-overall}{{1}{5}{VentCon2 closed-loop control overview}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Signal Conditioning and Processing Chain}{5}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}External Interfaces}{6}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Hardware Platform}{6}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Solenoid Valve}{6}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Pressure Sensor}{7}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Microcontroller and Processing Unit}{7}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Hardware Summary}{8}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Control Theory and Algorithms}{8}{section.4}\protected@file@percent }
+\newlabel{sec:control-theory}{{4}{8}{Control Theory and Algorithms}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}PID Controller Theory}{8}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:pid-theory}{{4.1}{8}{PID Controller Theory}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}The PID Control Law}{8}{subsubsection.4.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Parallel (Independent) Form}{8}{subsubsection.4.1.2}\protected@file@percent }
+\newlabel{sec:parallel-form}{{4.1.2}{8}{Parallel (Independent) Form}{subsubsection.4.1.2}{}}
+\newlabel{eq:pid-parallel}{{3}{8}{Parallel (Independent) Form}{equation.4.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Parallel-form PID parameters and their units}}{9}{table.1}\protected@file@percent }
+\newlabel{tab:pid-parallel-params}{{1}{9}{Parallel-form PID parameters and their units}{table.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Advantages of the parallel form:}{9}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Disadvantage:}{9}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Standard (ISA / Dependent) Form}{9}{subsubsection.4.1.3}\protected@file@percent }
+\newlabel{eq:pid-standard}{{4}{9}{Standard (ISA / Dependent) Form}{equation.4.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Conversion between the two forms.}{9}{section*.4}\protected@file@percent }
+\newlabel{eq:form-conversion}{{5}{9}{Conversion between the two forms}{equation.4.5}{}}
+\newlabel{eq:form-conversion-inv}{{6}{9}{Conversion between the two forms}{equation.4.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Comparison of standard vs.\ parallel form}}{10}{table.2}\protected@file@percent }
+\newlabel{tab:form-comparison}{{2}{10}{Comparison of standard vs.\ parallel form}{table.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Practical Meaning of the Time Constants}{10}{subsubsection.4.1.4}\protected@file@percent }
+\newlabel{sec:time-constants-practical}{{4.1.4}{10}{Practical Meaning of the Time Constants}{subsubsection.4.1.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Integral Time $T_i$ (Reset Time)}{10}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Derivative Time $T_d$ (Rate Time)}{10}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Numerical Example (VentCon2 context)}{11}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.5}Discrete-Time Implementation in VentCon2}{11}{subsubsection.4.1.5}\protected@file@percent }
+\newlabel{sec:pid-discrete}{{4.1.5}{11}{Discrete-Time Implementation in VentCon2}{subsubsection.4.1.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Gain pre-scaling.}{11}{section*.8}\protected@file@percent }
+\newlabel{eq:kp-internal}{{9}{11}{Gain pre-scaling}{equation.4.9}{}}
+\newlabel{eq:ki-internal}{{10}{11}{Gain pre-scaling}{equation.4.10}{}}
+\newlabel{eq:kd-internal}{{11}{11}{Gain pre-scaling}{equation.4.11}{}}
+\@writefile{toc}{\contentsline {paragraph}{Compute algorithm.}{12}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.6}Initialization and Startup Behaviour}{12}{subsubsection.4.1.6}\protected@file@percent }
+\newlabel{sec:pid-init}{{4.1.6}{12}{Initialization and Startup Behaviour}{subsubsection.4.1.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.7}Summary: Choosing Between Forms}{13}{subsubsection.4.1.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}PWM Valve Control and Output Mapping}{13}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:valve-mapping}{{4.2}{13}{PWM Valve Control and Output Mapping}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Physical Valve Characteristics}{13}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}Valve Operating Range Constants}{13}{lstlisting.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Output Mapping Function}{14}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}PID Output to Valve PWM Mapping Function}{14}{lstlisting.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Mapping Table}{14}{subsubsection.4.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.4}Dead Zone Threshold Design}{15}{subsubsection.4.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.5}Interaction with Anti-Windup}{15}{subsubsection.4.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Anti-Windup Protection}{15}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:anti-windup}{{4.3}{15}{Anti-Windup Protection}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}The Integral Windup Problem}{15}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}Anti-Windup Implementation in VentCon2}{16}{subsubsection.4.3.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {3}Anti-Windup Logic from ControlSystem.cpp}{16}{lstlisting.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3}Configuration and Tuning}{17}{subsubsection.4.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Hysteresis Compensation}{17}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:hysteresis}{{4.4}{17}{Hysteresis Compensation}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1}The Hysteresis Problem}{17}{subsubsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2}Hysteresis Compensation Strategy}{18}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {4}Hysteresis Compensation Mechanism}{18}{lstlisting.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.3}Configuration and Tuning}{19}{subsubsection.4.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.4}Tuning Guidelines}{19}{subsubsection.4.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.5}Interaction with Other Control Parameters}{20}{subsubsection.4.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Relay-Based Auto-Tuning}{20}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:auto-tuning}{{4.5}{20}{Relay-Based Auto-Tuning}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.1}Tuning Algorithm}{20}{subsubsection.4.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.2}Tuning Rules}{21}{subsubsection.4.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Auto-Tuning Rules Implemented}}{21}{table.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Software Architecture}{21}{section.5}\protected@file@percent }
+\newlabel{sec:software-arch}{{5}{21}{Software Architecture}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}System Architecture Diagram}{21}{subsection.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces VentCon2 System Architecture Overview}}{22}{figure.2}\protected@file@percent }
+\newlabel{fig:system-overview}{{2}{22}{VentCon2 System Architecture Overview}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Design Patterns}{22}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}FreeRTOS Task Distribution}{22}{subsection.5.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces FreeRTOS Task Assignment}}{22}{table.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Class Reference}{23}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Class Summary Tables}{23}{subsection.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces SettingsHandler Class}}{23}{table.5}\protected@file@percent }
+\newlabel{tab:settings-handler}{{5}{23}{SettingsHandler Class}{table.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces SensorManager Class}}{23}{table.6}\protected@file@percent }
+\newlabel{tab:sensor-manager}{{6}{23}{SensorManager Class}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces WebHandler Class}}{24}{table.7}\protected@file@percent }
+\newlabel{tab:web-handler}{{7}{24}{WebHandler Class}{table.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces ControlSystem Class}}{24}{table.8}\protected@file@percent }
+\newlabel{tab:control-system}{{8}{24}{ControlSystem Class}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces AutoTuner Class}}{24}{table.9}\protected@file@percent }
+\newlabel{tab:auto-tuner}{{9}{24}{AutoTuner Class}{table.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces CommandProcessor Class}}{25}{table.10}\protected@file@percent }
+\newlabel{tab:command-processor}{{10}{25}{CommandProcessor Class}{table.10}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces TaskManager Class}}{25}{table.11}\protected@file@percent }
+\newlabel{tab:task-manager}{{11}{25}{TaskManager Class}{table.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Constants.h Namespaces}}{25}{table.12}\protected@file@percent }
+\newlabel{tab:constants}{{12}{25}{Constants.h Namespaces}{table.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}SettingsHandler Class}{25}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.2.1}Purpose}{25}{subsubsection.6.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.2.2}Key Responsibilities}{26}{subsubsection.6.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.2.3}Key Attributes}{26}{subsubsection.6.2.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {5}SettingsHandler Class Key Members - Actual Implementation}{26}{lstlisting.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}SensorManager Class}{27}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.1}Purpose}{27}{subsubsection.6.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.2}Key Responsibilities}{27}{subsubsection.6.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.3}Key Attributes}{27}{subsubsection.6.3.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {6}SensorManager Class Structure}{27}{lstlisting.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.4}Sensor Specifications}{28}{subsubsection.6.3.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Sensor Configuration Parameters}}{28}{table.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}AutoTuner Class}{28}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.4.1}Purpose}{28}{subsubsection.6.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.4.2}Class Structure}{28}{subsubsection.6.4.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {7}AutoTuner Class Key Members - Actual Implementation}{28}{lstlisting.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}ControlSystem Class}{29}{subsection.6.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.5.1}Purpose}{29}{subsubsection.6.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.5.2}Control Loop Structure}{29}{subsubsection.6.5.2}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {8}Control Loop Implementation - Actual Code from ControlSystem.cpp}{29}{lstlisting.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6}WebHandler Class}{31}{subsection.6.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.6.1}Purpose}{31}{subsubsection.6.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.6.2}Network Configuration}{31}{subsubsection.6.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.6.3}Class Structure}{31}{subsubsection.6.6.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {9}WebHandler Class - Actual Implementation}{31}{lstlisting.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.7}CommandProcessor Class}{32}{subsection.6.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.7.1}Purpose}{32}{subsubsection.6.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.8}TaskManager Class}{32}{subsection.6.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.8.1}Purpose}{32}{subsubsection.6.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Communication Interfaces}{33}{section.7}\protected@file@percent }
+\newlabel{sec:communication}{{7}{33}{Communication Interfaces}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Web Interface}{33}{subsection.7.1}\protected@file@percent }
+\newlabel{sec:web-interface}{{7.1}{33}{Web Interface}{subsection.7.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.1}Architecture}{33}{subsubsection.7.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Memory-Efficient Streaming Design}{33}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Single Page Application (SPA) Design}{33}{section*.11}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Web Interface Components}}{34}{table.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{User Interface Components}{34}{table.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Configurable Slider Limits}{34}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.2}HTTP Endpoints and API}{34}{subsubsection.7.1.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Web Interface Endpoints}}{34}{table.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Route Configuration (setupRoutes)}{35}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{How Web Servers Work}{35}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{What Are Routes?}{35}{section*.16}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {10}Route Registration Example}{35}{lstlisting.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Lambda Functions}{35}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{HTTP Methods (GET vs POST)}{35}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Special Routes}{35}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.3}Data Exchange Process}{35}{subsubsection.7.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Client-Server Communication Flow}{35}{section*.20}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {11}Data Exchange Sequence}{35}{lstlisting.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Streaming HTML Implementation}{36}{section*.21}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {12}handleRoot() Streaming Implementation}{36}{lstlisting.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Real-time Data Loop Implementation}{37}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Client-Side Implementation}{37}{section*.23}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {13}Actual JavaScript Implementation from WebContent.h}{37}{lstlisting.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Server-Side Data Processing}{38}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{UI Update Process}{38}{section*.25}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {14}Actual UI Update Functions from WebContent.h}{38}{lstlisting.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Performance Optimization Strategies}{39}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Error Recovery and Resilience}{39}{section*.27}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {15}Actual JavaScript Implementation - Real-time Data Loop}{39}{lstlisting.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Data Loop Performance Metrics}{40}{section*.28}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Real-time Data Loop Performance Metrics}}{40}{table.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Real-time Data Structure}{40}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Parameter Update Protocol}{40}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Parameter Update Process}{40}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Error Handling and Recovery}{40}{section*.32}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.4}Security and Access Control}{41}{subsubsection.7.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Network Security}{41}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Application Security}{41}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.1.5}Performance Optimization}{41}{subsubsection.7.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Network Performance}{41}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Memory Management}{41}{section*.36}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {16}Chunked File Serving for Large Assets}{42}{lstlisting.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{File Serving Implementation}{42}{lstlisting.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Serial Command Interface}{42}{subsection.7.2}\protected@file@percent }
+\newlabel{sec:serial-commands}{{7.2}{42}{Serial Command Interface}{subsection.7.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.1}PID Control Commands}{42}{subsubsection.7.2.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces PID Control Commands}}{42}{table.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.2}Signal Processing Commands}{43}{subsubsection.7.2.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {18}{\ignorespaces Signal Processing Commands}}{43}{table.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.3}PWM and Valve Control Commands}{43}{subsubsection.7.2.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {19}{\ignorespaces PWM and Valve Control Commands}}{43}{table.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.4}Auto-Tuning Commands}{43}{subsubsection.7.2.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {20}{\ignorespaces Auto-Tuning Commands}}{44}{table.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.5}Network and WiFi Commands}{44}{subsubsection.7.2.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {21}{\ignorespaces Network and WiFi Commands}}{44}{table.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.6}Data Monitoring and Diagnostics Commands}{44}{subsubsection.7.2.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {22}{\ignorespaces Data Monitoring and Diagnostics Commands}}{45}{table.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.7}File System and Settings Commands}{45}{subsubsection.7.2.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {23}{\ignorespaces File System and Settings Commands}}{45}{table.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {7.2.8}Help and Reference}{45}{subsubsection.7.2.8}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {24}{\ignorespaces Help Command}}{45}{table.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}System Integration and Data Flow}{46}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Initialization Sequence}{46}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Real-time Operation}{46}{subsection.8.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {25}{\ignorespaces System Timing Requirements}}{46}{table.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Safety Mechanisms}{46}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Configuration and Deployment}{47}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Default Parameters}{47}{subsection.9.1}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {17}System Default Configuration}{47}{lstlisting.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Persistent Storage}{47}{subsection.9.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}Build Configuration}{47}{subsection.9.3}\protected@file@percent }
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {18}PlatformIO Configuration}{47}{lstlisting.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}Testing Strategy}{48}{subsection.9.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10}Performance Characteristics}{48}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}System Metrics}{48}{subsection.10.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {26}{\ignorespaces System Performance Metrics}}{48}{table.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2}Stability Analysis}{48}{subsection.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {11}Conclusion}{48}{section.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {11.1}Future Enhancements}{49}{subsection.11.1}\protected@file@percent }
+\gdef \@abspage@last{49}

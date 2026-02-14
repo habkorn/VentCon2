@@ -1,0 +1,20 @@
+\contentsline {section}{\numberline {1}Getting Started}{}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Connecting to the Device}{}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Browser Compatibility}{}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Web Interface Overview}{}{section.2}%
+\contentsline {section}{\numberline {3}Real-Time Monitoring}{}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Pressure Gauge}{}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Valve Duty Cycle Gauge}{}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Live Chart}{}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Parameter Controls}{}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Adjusting Setpoint}{}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}PID Parameters}{}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Configuring Slider Limits}{}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}System Parameters}{}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}Low Pass Filter Strength on Pressure Sensor ($\alpha $)}{}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Actuator PWM Frequency}{}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}Actuator PWM Resolution}{}{subsubsection.4.4.3}%
+\contentsline {section}{\numberline {5}System Information}{}{section.5}%
+\contentsline {section}{\numberline {6}Applying Changes}{}{section.6}%
+\contentsline {section}{\numberline {7}Troubleshooting}{}{section.7}%
+\contentsline {section}{\numberline {8}Quick Reference}{}{section.8}%
