@@ -9,6 +9,16 @@
 #include "WebHandlers.h" // Include our class definition
 #include <PID_v2.h> // Changed from PID_v1 to PID_v2
 
+// Helper: derive number of decimal places from a step value
+static int decimalsFromStep(float step) {
+  if (step <= 0) return 2;
+  int d = 0;
+  // Multiply by 10 repeatedly until the fractional part vanishes (max 6)
+  float v = step;
+  while (d < 6 && (v - (int)v) > 0.0001f) { v *= 10.0f; d++; }
+  return d;
+}
+
 /*
  * ====== VentCon2 Web Server Implementation ======
  *
@@ -312,27 +322,27 @@ void WebHandler::handleRoot()
   
   // 4. Process HTML_INPUTS section - this is the only section with placeholders (~1.5KB)
   String inputs = FPSTR(HTML_INPUTS);
-  inputs.replace("%SP%", String(settings->setpoint, 2));
-  inputs.replace("%KP%", String(settings->Kp, 2));
-  inputs.replace("%KI%", String(settings->Ki, 2));
-  inputs.replace("%KD%", String(settings->Kd, 2));
+  inputs.replace("%SP%", String(settings->setpoint, decimalsFromStep(settings->sp_limits.step)));
+  inputs.replace("%KP%", String(settings->Kp, decimalsFromStep(settings->kp_limits.step)));
+  inputs.replace("%KI%", String(settings->Ki, decimalsFromStep(settings->ki_limits.step)));
+  inputs.replace("%KD%", String(settings->Kd, decimalsFromStep(settings->kd_limits.step)));
   inputs.replace("%FLT%", String(settings->filter_strength, 2));
   inputs.replace("%FREQ%", String(settings->pwm_freq));
   inputs.replace("%RES%", String(settings->pwm_res));
   
   // Replace slider limit placeholders
-  inputs.replace("%SP_MIN%", String(settings->sp_limits.min, 2));
-  inputs.replace("%SP_MAX%", String(settings->sp_limits.max, 2));
-  inputs.replace("%SP_STEP%", String(settings->sp_limits.step, 3));
-  inputs.replace("%KP_MIN%", String(settings->kp_limits.min, 2));
-  inputs.replace("%KP_MAX%", String(settings->kp_limits.max, 2));
-  inputs.replace("%KP_STEP%", String(settings->kp_limits.step, 3));
-  inputs.replace("%KI_MIN%", String(settings->ki_limits.min, 2));
-  inputs.replace("%KI_MAX%", String(settings->ki_limits.max, 2));
-  inputs.replace("%KI_STEP%", String(settings->ki_limits.step, 3));
-  inputs.replace("%KD_MIN%", String(settings->kd_limits.min, 2));
-  inputs.replace("%KD_MAX%", String(settings->kd_limits.max, 2));
-  inputs.replace("%KD_STEP%", String(settings->kd_limits.step, 3));
+  inputs.replace("%SP_MIN%", String(settings->sp_limits.min, decimalsFromStep(settings->sp_limits.step)));
+  inputs.replace("%SP_MAX%", String(settings->sp_limits.max, decimalsFromStep(settings->sp_limits.step)));
+  inputs.replace("%SP_STEP%", String(settings->sp_limits.step, decimalsFromStep(settings->sp_limits.step)));
+  inputs.replace("%KP_MIN%", String(settings->kp_limits.min, decimalsFromStep(settings->kp_limits.step)));
+  inputs.replace("%KP_MAX%", String(settings->kp_limits.max, decimalsFromStep(settings->kp_limits.step)));
+  inputs.replace("%KP_STEP%", String(settings->kp_limits.step, decimalsFromStep(settings->kp_limits.step)));
+  inputs.replace("%KI_MIN%", String(settings->ki_limits.min, decimalsFromStep(settings->ki_limits.step)));
+  inputs.replace("%KI_MAX%", String(settings->ki_limits.max, decimalsFromStep(settings->ki_limits.step)));
+  inputs.replace("%KI_STEP%", String(settings->ki_limits.step, decimalsFromStep(settings->ki_limits.step)));
+  inputs.replace("%KD_MIN%", String(settings->kd_limits.min, decimalsFromStep(settings->kd_limits.step)));
+  inputs.replace("%KD_MAX%", String(settings->kd_limits.max, decimalsFromStep(settings->kd_limits.step)));
+  inputs.replace("%KD_STEP%", String(settings->kd_limits.step, decimalsFromStep(settings->kd_limits.step)));
   
   webServer.sendContent(inputs);
   yield();
@@ -405,7 +415,7 @@ void WebHandler::handleSet()
 
 
   // Update PID and save settings
-  pid->SetTunings(settings->Kp, settings->Ki, settings->Kd); // Updated for PID_v2
+  pid->SetTunings(settings->Kp, settings->Ki, settings->Kd); // Updated for PID_v2 
   settings->save();
   webServer.send(200, "text/plain", "OK");
 }

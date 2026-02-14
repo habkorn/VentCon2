@@ -56,7 +56,9 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           flt: document.getElementById('flt_text'),
           freq: document.getElementById('freq_text'),
           res: document.getElementById('res_text')
-        }
+        },
+        tiDisplay: document.getElementById('ti_display'),
+        tdDisplay: document.getElementById('td_display')
       };
     }
 
@@ -101,6 +103,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       
       // Setup all other functionality
       setupEventListeners();
+      updateTimeConstants();
       startDataUpdates();
     }
     
@@ -247,7 +250,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               position: 'left',
               title: {
                 display: true,
-                text: 'Pressure in bar(g)'
+                text: 'Outlet Pressure in bar(g)'
               },
               ticks: {
                 color: '#2563eb',  // Match the color of the Pressure line
@@ -395,35 +398,39 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         });
       }
         // Setup slider and text input synchronization
+      const PID_PARAMS = ['kp', 'ki', 'kd'];
       SLIDER_PARAMS.forEach(function(param)
       {
         const slider = cachedElements.sliders ? cachedElements.sliders[param] : null;
         const text = cachedElements.texts ? cachedElements.texts[param] : null;
+        const isPid = PID_PARAMS.indexOf(param) !== -1;
         
         if (slider && text)
         {
           slider.addEventListener('input', function()
           {
             text.value = slider.value;
+            if (isPid) updateTimeConstants();
             showSaveSnackbar(param, slider.value);
           });
 
           text.addEventListener('input', function()
           {
             slider.value = text.value;
+            if (isPid) updateTimeConstants();
             showSaveSnackbar(param, text.value);
           });
         }
       });
 
       // Setup increment/decrement buttons
-      // For sp, kp, ki, kd: use dynamic limits from slider attributes
+      // For sp, kp, ki, kd: use dynamic limits from slider attributes (step is user-configurable)
       // For flt, freq, res: use fixed values
       [
-        {param: 'sp', stepMultiplier: 1},
-        {param: 'kp', stepMultiplier: 100},
-        {param: 'ki', stepMultiplier: 200},
-        {param: 'kd', stepMultiplier: 10},
+        {param: 'sp'},
+        {param: 'kp'},
+        {param: 'ki'},
+        {param: 'kd'},
         {param: 'flt', min: 0, max: 1, step: 0.01, fixed: true},
         {param: 'freq', min: 100, max: 10000, step: 100, fixed: true},
         {param: 'res', min: 8, max: 16, step: 1, fixed: true}
@@ -440,22 +447,24 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           {
             // Get limits from slider attributes (dynamically set) or use fixed values
             const min = cfg.fixed ? cfg.min : parseFloat(slider.min);
-            const step = cfg.fixed ? cfg.step : (parseFloat(slider.step) * (cfg.stepMultiplier || 1));
+            const step = cfg.fixed ? cfg.step : parseFloat(slider.step);
             let value = parseFloat(text.value);
             value = Math.max(min, +(value - step).toFixed(10));
             text.value = value;
             slider.value = value;
+            if (PID_PARAMS.indexOf(cfg.param) !== -1) updateTimeConstants();
             showSaveSnackbar(cfg.param, value);
           });
           incBtn.addEventListener('click', function()
           {
             // Get limits from slider attributes (dynamically set) or use fixed values
             const max = cfg.fixed ? cfg.max : parseFloat(slider.max);
-            const step = cfg.fixed ? cfg.step : (parseFloat(slider.step) * (cfg.stepMultiplier || 1));
+            const step = cfg.fixed ? cfg.step : parseFloat(slider.step);
             let value = parseFloat(text.value);
             value = Math.min(max, +(value + step).toFixed(10));
             text.value = value;
             slider.value = value;
+            if (PID_PARAMS.indexOf(cfg.param) !== -1) updateTimeConstants();
             showSaveSnackbar(cfg.param, value);
           });
         }
@@ -695,6 +704,33 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       if (cachedElements.saveSnackbarText)
       {
         cachedElements.saveSnackbarText.textContent = 'Apply Changes';
+      }
+    }
+
+    // Format time constant with appropriate unit (s or ms)
+    function formatTimeConst(seconds)
+    {
+      if (!isFinite(seconds) || seconds <= 0) return '';
+      if (seconds < 1) return  (seconds * 1000).toFixed(1) + ' ms';
+      return  seconds.toFixed(3) + ' s';
+    }
+
+    // Update Ti and Td displays from current Kp, Ki, Kd values
+    function updateTimeConstants()
+    {
+      const kp = parseFloat(cachedElements.texts.kp.value) || 0;
+      const ki = parseFloat(cachedElements.texts.ki.value) || 0;
+      const kd = parseFloat(cachedElements.texts.kd.value) || 0;
+
+      if (cachedElements.tiDisplay)
+      {
+        cachedElements.tiDisplay.textContent = (ki > 0 && kp > 0)
+          ? '(Ti=' + formatTimeConst(kp / ki) + ')' : '';
+      }
+      if (cachedElements.tdDisplay)
+      {
+        cachedElements.tdDisplay.textContent = (kp > 0 && kd > 0)
+          ? '(Td=' + formatTimeConst(kd / kp) + ')' : '';
       }
     }
 

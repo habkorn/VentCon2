@@ -15,6 +15,11 @@
         "/^C:\\\\Users\\\\thomas\\.haberkorn\\\\\\.platformio\\\\penv\\\\Scripts\\\\platformio\\.exe run 2>&1 \\| Tee-Object -Variable buildOutput; \\$buildOutput$/": {
             "approve": true,
             "matchCommandLine": true
-        }
+        },
+        "/^cd \"C:\\\\Users\\\\thomas\\.haberkorn\\\\OneDrive - VENTREX\\\\Desktop\\\\VentCon2\"; C:\\\\Users\\\\thomas\\.haberkorn\\\\\\.platformio\\\\penv\\\\Scripts\\\\platformio\\.exe run --target upload$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "mode": true
     }
 }

@@ -45,7 +45,7 @@ header
 /* Collapsible card styling */
 details.card
 {
-  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 details.card summary
@@ -222,8 +222,11 @@ details.card .collapsible-content
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
-  padding: 2px 2px;
-  margin-left: 0;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  min-width: 0;
+  line-height: 1;
   flex-shrink: 0;
   color: var(--text-light);
   opacity: 0.6;
@@ -352,13 +355,22 @@ h3
   font-size: 0.875rem;
 }
 
+.time-const
+{
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  white-space: nowrap;
+}
+
 .control-slider
 {
   flex: 1;
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  overflow: hidden;
 }
 
 .slider-btn 
