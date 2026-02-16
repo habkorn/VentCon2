@@ -228,13 +228,23 @@ bool WebHandler::handleFileRead(String path)
   
   LOG_D(CAT_NETWORK, "File request: %s", path.c_str());
   
+  // Check if a gzipped version exists and serve it transparently
+  bool isGzipped = false;
+  String gzPath = path + ".gz";
+  if (LittleFS.exists(gzPath))
+  {
+    path = gzPath;
+    isGzipped = true;
+    LOG_D(CAT_NETWORK, "Using gzipped version: %s", gzPath.c_str());
+  }
+
   if (LittleFS.exists(path))
   {
     File file = LittleFS.open(path, "r");
     if (file)
     {
       size_t fileSize = file.size();
-      LOG_D(CAT_NETWORK, "Serving: %s (%d bytes, type: %s)", path.c_str(), fileSize, contentType.c_str());
+      LOG_D(CAT_NETWORK, "Serving: %s (%d bytes, type: %s, gzip: %s)", path.c_str(), fileSize, contentType.c_str(), isGzipped ? "yes" : "no");
       
       if (fileSize == 0)
       {
@@ -244,7 +254,18 @@ bool WebHandler::handleFileRead(String path)
         return true;
       }
       
-      // Send headers with content length
+      // Cache static assets (JS libraries, images) for 1 week; skip for dynamic content like JSON
+      if (contentType == "application/javascript" || contentType == "image/svg+xml" || 
+          contentType == "image/png" || contentType == "image/jpeg")
+      {
+        webServer.sendHeader("Cache-Control", "public, max-age=604800, immutable");
+      }
+      
+      // Send headers with content length and gzip encoding if applicable
+      if (isGzipped)
+      {
+        webServer.sendHeader("Content-Encoding", "gzip");
+      }
       webServer.setContentLength(fileSize);
       webServer.send(200, contentType, "");
       

@@ -137,6 +137,20 @@ void setup()
 
   // Setup PWM for solenoid valve control
   ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
+  // ledcAttachPin(pin, channel): Assigns the defined PWM channel to the output GPIO pin
+  // 
+  // 1. PIN (SOLENOID_PIN):
+  //    - On ESP32-S3, the GPIO Matrix allows mapping PWM signal to almost any output GPIO.
+  //    - Restrictions: Do not use input-only GPIOS or strapping pins during boot.
+  //
+  // 2. CHANNEL (PWM_CHANNEL_MOSFET):
+  //    - ESP32-S3 has 8 LEDC channels (0-7), unlike original ESP32's 16.
+  //    - Features: Hardware-controlled duty cycle, automatic fading support.
+  //    - Limitations:
+  //      a) Resolution trade-off: Higher frequencies reduce max available resolution (bits).
+  //         Formula: Max_Freq = APB_CLK (80MHz) / 2^Resolution_Bits (approx).
+  //      b) Timer sharing: 4 hardware timers exist. Multiple channels can share a timer,
+  //         but all channels sharing a timer must use the same frequency.
   ledcAttachPin(SOLENOID_PIN, PWM_CHANNEL_MOSFET);
   
   // Initialize WebHandler with dependency injection

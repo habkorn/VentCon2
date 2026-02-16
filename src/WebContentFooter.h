@@ -7,7 +7,17 @@
 
 const char HTML_FOOTER[] PROGMEM = R"rawliteral(
   <footer>
-    <p>VENTCON Control System v%VERSION% by HAB</p>
+
+    <div class="logo-container">
+      <img src="/Logo.svg" alt="VENTREX" class="logo" id="ventrexLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
+    </div>
+    <h1>
+      <span class="brand-title" aria-label="VENTCON Pressure Control System">
+        VENTCON Pressure Control System
+      </span>
+    </h1>
+
+    <p>v%VERSION% by HAB</p>
     <!-- Hidden Easter egg panel -->
     <div id="easterEgg" class="easter-egg">
       <h3>Developer Mode Activated! 🚀</h3>

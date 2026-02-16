@@ -19,22 +19,19 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
 <body>
   <div class="loader" id="loader">
     <div class="loader-content">
-      <img src="/Logo.svg" alt="VENTREX Logo" class="loader-logo">
+      <div class="logo-container">
+        <img src="/Logo.svg" alt="VENTREX" class="logo" id="ventrexLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
+      </div>
+      <h1>
+        <span class="brand-title" aria-label="VENTCON Pressure Control System">
+          VENTCON Pressure Control System
+        </span>
+      </h1>
       <div class="loader-spinner"></div>
       <span class="loader-text">Loading...</span>
     </div>
   </div>
 
-  <header>
-    <div class="logo-container">
-      <img src="/Logo.svg" alt="VENTREX Logo" class="logo" id="ventrexLogo">
-    </div>
-    <h1>
-      <span class="brand-title" aria-label="VENTCON Pressure Control System">
-        VENTCON Pressure Control System
-      </span>
-    </h1>
-  </header>
 
   <main>
     <section class="card">
@@ -112,4 +109,5 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         </div>
       </div>
     </div>
+
 )rawliteral";

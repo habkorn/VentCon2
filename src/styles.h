@@ -35,6 +35,14 @@ body
   max-width: 1000px;
   margin: 0 auto;
   padding: 0 0.5rem 0.5rem 0.5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main
+{
+  flex: 1;
 }
 
 header
@@ -520,9 +528,9 @@ progress
 
 .chart-container
 {
-  height: 260px;
+  height: 200px;
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: 0.0rem;
 }
 
 .chart-header
@@ -576,7 +584,7 @@ input[type="checkbox"]
 footer
 {
   text-align: center;
-  margin-top: 0.75rem;
+  margin-top: auto;
   font-size: 0.75rem;
   color: var(--secondary);
   padding-bottom: 0.5rem;
@@ -704,6 +712,17 @@ span
   max-width: 100%;
 }
 
+.logo-fallback
+{
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 0.1em;
+  display: inline-block;
+  height: 60px;
+  line-height: 60px;
+}
+
 @keyframes spin
 {
   0% { transform: rotate(0deg); }
@@ -743,6 +762,37 @@ span
   background-color: #d97706;
 }
 
+/* Reset to Default button */
+.reset-defaults-container
+{
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.reset-defaults-btn
+{
+  background-color: #64748b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reset-defaults-btn:hover
+{
+  background-color: #475569;
+}
+
+.reset-defaults-btn:disabled
+{
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Loader overlay */
 .loader
 {
@@ -769,6 +819,18 @@ span
 {
   height: 30px;
   margin-bottom: 16px;
+}
+
+.loader-title
+{
+  font-size: 1.5rem;
+  font-weight: 1000;
+  margin-bottom: 16px;
+  text-align: center;
+  background: linear-gradient(90deg, #002f87 0%, #32c09d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .loader-spinner

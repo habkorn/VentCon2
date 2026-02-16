@@ -110,5 +110,10 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
         </div>
       </div>
     </details>
+
+    <div class="reset-defaults-container">
+      <button id="resetDefaultsBtn" class="reset-defaults-btn" title="Load default values from settings.json and reset PID">Reset to Default</button>
+    </div>
+
   </main>
 )rawliteral";

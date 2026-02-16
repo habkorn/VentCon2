@@ -65,6 +65,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     // Wait for all deferred scripts to load before initializing
     let initAttempts = 0;
     const MAX_INIT_ATTEMPTS = 100; // 5 seconds max wait (100 * 50ms)
+
+    // Track loader display time for minimum duration
+    const MIN_LOADER_TIME = 3000; // ms
+    let loaderShownAt = Date.now();
     
     // Initialize chart update tracking variables globally
     window.lastChartUpdate = 0;
@@ -87,24 +91,38 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           // Chart.js failed to load, proceed without chart
           console.error('Chart.js failed to load after 5 seconds');
           cacheElements();
-          if(cachedElements.loader) cachedElements.loader.style.display = 'none';
+          hideLoaderAndContinue();
           if(cachedElements.chartContainer) cachedElements.chartContainer.style.display = 'none';
           setupEventListeners();
           startDataUpdates();
           return;
         }
       }
-      
+
       cacheElements();
-      if(cachedElements.loader) cachedElements.loader.style.display = 'none';
-      
+      hideLoaderAndContinue();
+
       // Initialize the chart after Chart.js is loaded
       initializeChart();
-      
+
       // Setup all other functionality
       setupEventListeners();
       updateTimeConstants();
       startDataUpdates();
+
+    }
+
+    // Hide loader after minimum display time
+    function hideLoaderAndContinue() {
+      const elapsed = Date.now() - loaderShownAt;
+      const remaining = MIN_LOADER_TIME - elapsed;
+      if (remaining > 0) {
+        setTimeout(() => {
+          if (cachedElements.loader) cachedElements.loader.style.display = 'none';
+        }, remaining);
+      } else {
+        if (cachedElements.loader) cachedElements.loader.style.display = 'none';
+      }
     }
     
     // Initialize chart in separate function
@@ -116,8 +134,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       const chartCtx = ctx.getContext('2d');
       
       // Efficient circular buffer implementation
-      const BUFFER_SIZE = 60; // Increased for better smoothing
-      const DISPLAY_SIZE = 30; // Points to display on chart
+      const BUFFER_SIZE = 64; // Increased for better smoothing
+      const DISPLAY_SIZE = 32; // Points to display on chart (8s / 0.25s)
       
       // Create circular buffers with object pooling
       window.chartData = {
@@ -161,15 +179,14 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           if (this.count < BUFFER_SIZE) this.count++;
         },
         
-        // Get display data with decimation
+        // Get display data with elapsed time (0 = now, negative = past)
         getDisplayData: function()
         {
           this.resetPool();
           
           const displayCount = Math.min(this.count, DISPLAY_SIZE);
           
-          const now = new Date();
-          const timeStep = 250; // 250ms between data points
+          const timeStep = 0.25; // 250ms between data points, in seconds
           
           const pressureData = [];
           const setpointData = [];
@@ -178,11 +195,11 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           for (let i = 0; i < displayCount; i++)
           {
             const bufferIndex = (this.currentIndex - displayCount + i + BUFFER_SIZE) % BUFFER_SIZE;
-            const timestamp = new Date(now.getTime() - (displayCount - i - 1) * timeStep);
+            const elapsed = -(displayCount - i - 1) * timeStep; // seconds ago (negative)
             
-            pressureData.push(this.getPoint(timestamp, this.pressure[bufferIndex]));
-            setpointData.push(this.getPoint(timestamp, this.setpoint[bufferIndex]));
-            pwmData.push(this.getPoint(timestamp, this.pwm[bufferIndex]));
+            pressureData.push(this.getPoint(elapsed, this.pressure[bufferIndex]));
+            setpointData.push(this.getPoint(elapsed, this.setpoint[bufferIndex]));
+            pwmData.push(this.getPoint(elapsed, this.pwm[bufferIndex]));
           }
           
           return { pressureData, setpointData, pwmData };
@@ -214,7 +231,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               tension: 0.1,
               borderWidth: 2,
               pointRadius: 0,
-              pointHoverRadius: 3,
               yAxisID: 'y'
             },
             {
@@ -233,6 +249,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           responsive: true,
           maintainAspectRatio: false,
           animation: false, // Disable animations for better performance
+          events: [], // Disable all built-in events for better performance (no tooltips, hover, etc.)
           interaction: {
             intersect: false,
             mode: 'index'
@@ -250,7 +267,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               position: 'left',
               title: {
                 display: true,
-                text: 'Outlet Pressure in bar(g)'
+                text: 'Outlet Pressure in bar(g)',
+                color: '#2563eb'
               },
               ticks: {
                 color: '#2563eb',  // Match the color of the Pressure line
@@ -268,7 +286,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               position: 'right',
               title: {
                 display: true,
-                text: 'Valve Duty Cycle (%)'
+                text: 'Valve Duty Cycle (%)',
+                color: '#10b981'
               },
               ticks: {
                 color: '#10b981',  // Match the color of the Valve Duty Cycle line
@@ -280,17 +299,12 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               }
             },
             x: {
-              type: 'time',
-              time: {
-                unit: 'second',
-                displayFormats: {
-                  second: 'HH:mm:ss'
-                },
-                tooltipFormat: 'HH:mm:ss'
-              },
+              type: 'linear',
+              min: -8,  // 32 points × 0.25s = 8s window
+              max: 0,
               title: {
-                display: true,
-                text: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+                display: false,
+                text: 'Elapsed Time (s)',
                 font: {
                   size: 8,
                   family: 'courier, monospace',
@@ -298,25 +312,33 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
                 }
               },
               ticks: {
-                color: '#1e293b',  // Dark color for x-axis labels
-                autoSkip: true,
-                maxTicksLimit: 10,
+                color: '#1e293b',
+                stepSize: 1,
+                autoSkip: false,
                 font: {
                   size: 8,
                   family: 'courier, monospace',
                   weight: 'bold'
                 },
-                maxRotation: 45,  // Prevent label rotation
-                minRotation: 45   // Prevent label rotation
+                maxRotation: 0,
+                minRotation: 0,
+                callback: function(value) {
+                  return value === 0 ? 'now' : value + 's';
+                }
               },
-
+              grid: {
+                display: true
+              }
             }
           },
           plugins: {
-            legend: {
+            legend: 
+            {
+              display: false, // Hide legend for cleaner look (can be enabled if needed)
               position: 'top',
               labels: {
                 boxWidth: 25,
+                boxHeight:0,
                 usePointStyle: false,
                 generateLabels: function(chart)
                 {
@@ -481,6 +503,13 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       if (resetBtn)
       {
         resetBtn.addEventListener('click', handlePidReset);
+      }
+      
+      // Setup Reset to Default button
+      const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+      if (resetDefaultsBtn)
+      {
+        resetDefaultsBtn.addEventListener('click', handleResetToDefaults);
       }
       
       // Setup Easter egg
@@ -856,6 +885,75 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           {
             btn.textContent = originalText;
             btn.style.backgroundColor = "#f59e0b";
+          }, 1500);
+        });
+    }
+
+    // Handle Reset to Default: load values from settings.json and apply them
+    function handleResetToDefaults()
+    {
+      if (!confirm('Are you sure you want to reset all settings to their default values?')) return;
+
+      const btn = document.getElementById('resetDefaultsBtn');
+      if (!btn) return;
+      const originalText = btn.textContent;
+      btn.textContent = 'Loading...';
+      btn.disabled = true;
+
+      // Mapping from settings.json keys to /set URL parameters
+      const keyMap = {
+        'Kp': 'kp',
+        'Ki': 'ki',
+        'Kd': 'kd',
+        'setpoint': 'sp',
+        'filter_strength': 'flt',
+        'pwm_freq': 'freq',
+        'pwm_res': 'res'
+      };
+
+      fetch('/settings.json')
+        .then(r => r.json())
+        .then(defaults =>
+        {
+          // Build /set query string from default values
+          const params = Object.entries(keyMap)
+            .filter(([jsonKey]) => defaults[jsonKey] !== undefined)
+            .map(([jsonKey, urlParam]) => urlParam + '=' + encodeURIComponent(defaults[jsonKey]))
+            .join('&');
+
+          return fetch('/set?' + params);
+        })
+        .then(() =>
+        {
+          // Also reset the PID controller
+          return fetch('/resetPID');
+        })
+        .then(r => r.json())
+        .then(data =>
+        {
+          // Clear any pending changes
+          pendingChanges = {};
+          if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.display = 'none';
+
+          btn.textContent = 'Defaults Restored!';
+          btn.style.backgroundColor = '#10b981';
+          setTimeout(() =>
+          {
+            btn.textContent = originalText;
+            btn.style.backgroundColor = '';
+            btn.disabled = false;
+          }, 1500);
+        })
+        .catch(err =>
+        {
+          console.error('Error resetting to defaults:', err);
+          btn.textContent = 'Error';
+          btn.style.backgroundColor = '#ef4444';
+          setTimeout(() =>
+          {
+            btn.textContent = originalText;
+            btn.style.backgroundColor = '';
+            btn.disabled = false;
           }, 1500);
         });
     }
