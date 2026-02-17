@@ -10,9 +10,22 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     // Cached DOM elements
     let cachedElements = {};
     
-    // Slider parameter constants
-    const SLIDER_PARAMS = ['sp', 'kp', 'ki', 'kd', 'flt', 'freq', 'res'];
+    // Centralized parameter configuration: URL param name → JSON key in default.json
+    const PARAM_CONFIG = {
+      sp:   { jsonKey: 'setpoint' },
+      kp:   { jsonKey: 'Kp' },
+      ki:   { jsonKey: 'Ki' },
+      kd:   { jsonKey: 'Kd' },
+      flt:  { jsonKey: 'filter_strength' },
+      freq: { jsonKey: 'pwm_freq' },
+      res:  { jsonKey: 'pwm_res' }
+    };
+    const SLIDER_PARAMS = Object.keys(PARAM_CONFIG);
     const CONFIGURABLE_SLIDERS = ['sp', 'kp', 'ki', 'kd'];
+    
+    // Timing constants (shared between chart and data polling)
+    const POLLING_INTERVAL_MS = 100;  // Data fetch interval
+    const DISPLAY_WINDOW_S = 8;       // Seconds of chart history to display
     
     // Cache DOM elements on load
     function cacheElements()
@@ -134,8 +147,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       const chartCtx = ctx.getContext('2d');
       
       // Efficient circular buffer implementation
-      const BUFFER_SIZE = 64; // Increased for better smoothing
-      const DISPLAY_SIZE = 32; // Points to display on chart (8s / 0.25s)
+      const BUFFER_SIZE = 128;         // Power of 2 >= DISPLAY_SIZE
+      const DISPLAY_SIZE = Math.round(DISPLAY_WINDOW_S / (POLLING_INTERVAL_MS / 1000)); // 80 points
       
       // Create circular buffers with object pooling
       window.chartData = {
@@ -186,7 +199,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           
           const displayCount = Math.min(this.count, DISPLAY_SIZE);
           
-          const timeStep = 0.25; // 250ms between data points, in seconds
+          const timeStep = POLLING_INTERVAL_MS / 1000; // Derive from polling interval
           
           const pressureData = [];
           const setpointData = [];
@@ -263,7 +276,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             y: {
               beginAtZero: true,
               min: 0,
-              max: 10,
+              max: CFG.maxBar,
               position: 'left',
               title: {
                 display: true,
@@ -300,7 +313,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             },
             x: {
               type: 'linear',
-              min: -8,  // 32 points × 0.25s = 8s window
+              min: -DISPLAY_WINDOW_S,  // Derived from constants
               max: 0,
               title: {
                 display: false,
@@ -448,47 +461,43 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       // Setup increment/decrement buttons
       // For sp, kp, ki, kd: use dynamic limits from slider attributes (step is user-configurable)
       // For flt, freq, res: use fixed values
+      function adjustValue(cfg, direction)
+      {
+        const slider = cachedElements.sliders ? cachedElements.sliders[cfg.param] : null;
+        const text = cachedElements.texts ? cachedElements.texts[cfg.param] : null;
+        if (!slider || !text) return;
+
+        const limit = cfg.fixed
+          ? (direction > 0 ? cfg.max : cfg.min)
+          : parseFloat(direction > 0 ? slider.max : slider.min);
+        const step = cfg.fixed ? cfg.step : parseFloat(slider.step);
+        let value = parseFloat(text.value);
+        value = direction > 0
+          ? Math.min(limit, +(value + step).toFixed(10))
+          : Math.max(limit, +(value - step).toFixed(10));
+        text.value = value;
+        slider.value = value;
+        if (PID_PARAMS.indexOf(cfg.param) !== -1) updateTimeConstants();
+        showSaveSnackbar(cfg.param, value);
+      }
+
       [
         {param: 'sp'},
         {param: 'kp'},
         {param: 'ki'},
         {param: 'kd'},
-        {param: 'flt', min: 0, max: 1, step: 0.01, fixed: true},
-        {param: 'freq', min: 100, max: 10000, step: 100, fixed: true},
-        {param: 'res', min: 8, max: 16, step: 1, fixed: true}
+        {param: 'flt', min: CFG.flt.min, max: CFG.flt.max, step: CFG.flt.step, fixed: true},
+        {param: 'freq', min: CFG.freq.min, max: CFG.freq.max, step: CFG.freq.step, fixed: true},
+        {param: 'res', min: CFG.res.min, max: CFG.res.max, step: CFG.res.step, fixed: true}
       ].forEach(function(cfg)
       {
-        const slider = cachedElements.sliders ? cachedElements.sliders[cfg.param] : null;
-        const text = cachedElements.texts ? cachedElements.texts[cfg.param] : null;
         const decBtn = document.getElementById(cfg.param + '_decrement');
         const incBtn = document.getElementById(cfg.param + '_increment');
         
-        if (decBtn && incBtn && slider && text)
+        if (decBtn && incBtn)
         {
-          decBtn.addEventListener('click', function()
-          {
-            // Get limits from slider attributes (dynamically set) or use fixed values
-            const min = cfg.fixed ? cfg.min : parseFloat(slider.min);
-            const step = cfg.fixed ? cfg.step : parseFloat(slider.step);
-            let value = parseFloat(text.value);
-            value = Math.max(min, +(value - step).toFixed(10));
-            text.value = value;
-            slider.value = value;
-            if (PID_PARAMS.indexOf(cfg.param) !== -1) updateTimeConstants();
-            showSaveSnackbar(cfg.param, value);
-          });
-          incBtn.addEventListener('click', function()
-          {
-            // Get limits from slider attributes (dynamically set) or use fixed values
-            const max = cfg.fixed ? cfg.max : parseFloat(slider.max);
-            const step = cfg.fixed ? cfg.step : parseFloat(slider.step);
-            let value = parseFloat(text.value);
-            value = Math.min(max, +(value + step).toFixed(10));
-            text.value = value;
-            slider.value = value;
-            if (PID_PARAMS.indexOf(cfg.param) !== -1) updateTimeConstants();
-            showSaveSnackbar(cfg.param, value);
-          });
+          decBtn.addEventListener('click', function() { adjustValue(cfg, -1); });
+          incBtn.addEventListener('click', function() { adjustValue(cfg, 1); });
         }
       });
       
@@ -519,19 +528,44 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       setupScrollHandler();
     }
     
-    // Start periodic data updates
+    // Connection tracking for disconnect detection
+    let fetchInFlight = false;
+    let consecutiveFailures = 0;
+    const MAX_FAILURES_BEFORE_DISCONNECT = 5;
+
+    // Start periodic data updates using setTimeout chaining to prevent request pileup
     function startDataUpdates()
     {
-      setInterval(updateData, 100);
+      scheduleNextUpdate();
+    }
+
+    function scheduleNextUpdate()
+    {
+      setTimeout(updateData, POLLING_INTERVAL_MS);
     }
 
     // Data update function
     function updateData()
     {
+      if (fetchInFlight) { scheduleNextUpdate(); return; }
+      fetchInFlight = true;
+
       fetch('/values')
         .then(r => r.json())
         .then(data =>
         {
+          fetchInFlight = false;
+          consecutiveFailures = 0;
+
+          // Show connected status
+          if (cachedElements.networkIndicator)
+          {
+            cachedElements.networkIndicator.style.backgroundColor = 'var(--success)';
+          }
+          if (cachedElements.networkStatus)
+          {
+            cachedElements.networkStatus.textContent = CFG.ssid + ', IP: ' + CFG.ip;
+          }
           // Update pressure display with cached elements
           if (typeof data.pressure !== "undefined")
           {
@@ -541,15 +575,15 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               cachedElements.pressure.textContent = pressureVal.toFixed(2);
             }
             
-            // Update pressure fill and calculate percentage (0-10 bar range)
-            const pressurePercent = (pressureVal / 10) * 100;
+            // Update pressure fill and calculate percentage (0-maxBar range)
+            const pressurePercent = (pressureVal / CFG.maxBar) * 100;
             if (cachedElements.pressureFill)
             {
               cachedElements.pressureFill.style.width = `${pressurePercent}%`;
             }
             
             // Update setpoint target marker
-            const setpointPercent = (data.sp / 10) * 100;
+            const setpointPercent = (data.sp / CFG.maxBar) * 100;
             if (cachedElements.pressureTarget)
             {
               cachedElements.pressureTarget.style.left = `${setpointPercent}%`;
@@ -593,11 +627,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           }
           
           // Update Network status with cached elements
-          if (cachedElements.networkIndicator && cachedElements.networkStatus)
-          {
-            cachedElements.networkStatus.textContent = "VENTCON_AP, IP: 192.168.4.1";
-            cachedElements.networkIndicator.style.backgroundColor = 'var(--success)';
-          }
+          // (handled above in connection tracking)
           
           // Only update UI controls if no unsaved changes (saveSnackbar is hidden)
           if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.style.display === 'none')
@@ -618,10 +648,29 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               }
             });
           }
+
+          scheduleNextUpdate();
         })
         .catch(err =>
         {
+          fetchInFlight = false;
+          consecutiveFailures++;
           console.error("Error fetching values:", err);
+
+          // Show disconnected status after repeated failures
+          if (consecutiveFailures >= MAX_FAILURES_BEFORE_DISCONNECT)
+          {
+            if (cachedElements.networkIndicator)
+            {
+              cachedElements.networkIndicator.style.backgroundColor = 'var(--danger, #ef4444)';
+            }
+            if (cachedElements.networkStatus)
+            {
+              cachedElements.networkStatus.textContent = 'Disconnected';
+            }
+          }
+
+          scheduleNextUpdate();
         });
     }
 
@@ -702,6 +751,19 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     let pendingChanges = {};
     let changeTimeout;
     
+    // Reusable button feedback helper: shows temporary text/color then reverts
+    function showButtonFeedback(btn, text, color, revertDelay, originalText, originalColor, onRevert)
+    {
+      btn.textContent = text;
+      btn.style.backgroundColor = color;
+      setTimeout(() =>
+      {
+        btn.textContent = originalText;
+        btn.style.backgroundColor = originalColor || '';
+        if (onRevert) onRevert();
+      }, revertDelay);
+    }
+
     // Reusable snackbar fade-out animation
     function fadeOutSnackbar(callback)
     {
@@ -844,9 +906,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         {
           if (data.success)
           {
-            btn.textContent = "Reset!";
-            btn.style.backgroundColor = "#10b981"; // Success green
-            
             // Display a notification using the save snackbar
             if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText)
             {
@@ -858,34 +917,17 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               setTimeout(() => fadeOutSnackbar(resetSnackbar), 2000);
             }
             
-            // Reset button after 1 second
-            setTimeout(() =>
-            {
-              btn.textContent = originalText;
-              btn.style.backgroundColor = "#f59e0b"; // Back to original color
-            }, 1000);
+            showButtonFeedback(btn, 'Reset!', '#10b981', 1000, originalText, '#f59e0b');
           }
           else
           {
-            btn.textContent = "Error";
-            btn.style.backgroundColor = "#ef4444"; // Error red
-            setTimeout(() =>
-            {
-              btn.textContent = originalText;
-              btn.style.backgroundColor = "#f59e0b";
-            }, 1500);
+            showButtonFeedback(btn, 'Error', '#ef4444', 1500, originalText, '#f59e0b');
           }
         })
         .catch(error =>
         {
           console.error('Error resetting PID:', error);
-          btn.textContent = "Error";
-          btn.style.backgroundColor = "#ef4444"; // Error red
-          setTimeout(() =>
-          {
-            btn.textContent = originalText;
-            btn.style.backgroundColor = "#f59e0b";
-          }, 1500);
+          showButtonFeedback(btn, 'Error', '#ef4444', 1500, originalText, '#f59e0b');
         });
     }
 
@@ -900,25 +942,14 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       btn.textContent = 'Loading...';
       btn.disabled = true;
 
-      // Mapping from settings.json keys to /set URL parameters
-      const keyMap = {
-        'Kp': 'kp',
-        'Ki': 'ki',
-        'Kd': 'kd',
-        'setpoint': 'sp',
-        'filter_strength': 'flt',
-        'pwm_freq': 'freq',
-        'pwm_res': 'res'
-      };
-
-      fetch('/settings.json')
+      fetch('/default.json')
         .then(r => r.json())
         .then(defaults =>
         {
-          // Build /set query string from default values
-          const params = Object.entries(keyMap)
-            .filter(([jsonKey]) => defaults[jsonKey] !== undefined)
-            .map(([jsonKey, urlParam]) => urlParam + '=' + encodeURIComponent(defaults[jsonKey]))
+          // Build /set query string using centralized PARAM_CONFIG
+          const params = SLIDER_PARAMS
+            .filter(param => defaults[PARAM_CONFIG[param].jsonKey] !== undefined)
+            .map(param => param + '=' + encodeURIComponent(defaults[PARAM_CONFIG[param].jsonKey]))
             .join('&');
 
           return fetch('/set?' + params);
@@ -935,26 +966,12 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           pendingChanges = {};
           if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.display = 'none';
 
-          btn.textContent = 'Defaults Restored!';
-          btn.style.backgroundColor = '#10b981';
-          setTimeout(() =>
-          {
-            btn.textContent = originalText;
-            btn.style.backgroundColor = '';
-            btn.disabled = false;
-          }, 1500);
+          showButtonFeedback(btn, 'Defaults Restored!', '#10b981', 1500, originalText, '', () => { btn.disabled = false; });
         })
         .catch(err =>
         {
           console.error('Error resetting to defaults:', err);
-          btn.textContent = 'Error';
-          btn.style.backgroundColor = '#ef4444';
-          setTimeout(() =>
-          {
-            btn.textContent = originalText;
-            btn.style.backgroundColor = '';
-            btn.disabled = false;
-          }, 1500);
+          showButtonFeedback(btn, 'Error', '#ef4444', 1500, originalText, '', () => { btn.disabled = false; });
         });
     }
 

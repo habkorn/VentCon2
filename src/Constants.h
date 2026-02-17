@@ -164,11 +164,30 @@ namespace PwmConfig
     // Maximum PWM frequency in Hz
     constexpr int MAX_FREQ_HZ = 10000;
     
-    // Minimum PWM resolution in bits
-    constexpr int MIN_RES_BITS = 1;
+    // PWM frequency slider step size in Hz
+    constexpr int FREQ_STEP_HZ = 100;
+    
+    // Minimum PWM resolution in bits (ESP32 PWM < 8 bits is impractical)
+    constexpr int MIN_RES_BITS = 8;
     
     // Maximum PWM resolution in bits
     constexpr int MAX_RES_BITS = 16;
+    
+    // PWM resolution slider step size in bits
+    constexpr int RES_STEP_BITS = 1;
+}
+
+// Filter Configuration
+namespace FilterConfig
+{
+    // Minimum low-pass filter strength (no filtering)
+    constexpr float MIN_STRENGTH = 0.0f;
+    
+    // Maximum low-pass filter strength (maximum smoothing)
+    constexpr float MAX_STRENGTH = 1.0f;
+    
+    // Filter strength slider step size
+    constexpr float STRENGTH_STEP = 0.01f;
 }
 
 // Control Loop Configuration
@@ -201,6 +220,28 @@ namespace AutoTuneConfig
     
     // Initial max value for min tracking (sentinel value)
     constexpr float INITIAL_MIN_PRESSURE = 999.0f;
+    
+    // Default test setpoint for auto-tuning (bar)
+    constexpr float DEFAULT_TEST_SETPOINT = 5.0f;
+    
+    // Test setpoint range limits (bar)
+    constexpr float MIN_TEST_SETPOINT = 0.5f;
+    constexpr float MAX_TEST_SETPOINT = 10.0f;
+    
+    // Tuning aggressiveness defaults and range
+    constexpr float DEFAULT_AGGRESSIVENESS = 2.0f;
+    constexpr float MIN_AGGRESSIVENESS = 0.5f;
+    constexpr float MAX_AGGRESSIVENESS = 2.0f;
+    
+    // Minimum cycle time range for setMinCycleTime() (ms)
+    constexpr unsigned long CYCLE_TIME_LOWER_BOUND = 50UL;
+    constexpr unsigned long CYCLE_TIME_UPPER_BOUND = 2000UL;
+    
+    // Auto-tune timeout (ms) - 3 minutes
+    constexpr unsigned long TIMEOUT_MS = 180000UL;
+    
+    // Deadband around setpoint (bar)
+    constexpr float NOISE_BAND = 0.1f;
 }
 
 // ESP32 ADC Configuration

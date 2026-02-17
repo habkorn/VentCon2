@@ -343,27 +343,44 @@ void WebHandler::handleRoot()
   
   // 4. Process HTML_INPUTS section - this is the only section with placeholders (~1.5KB)
   String inputs = FPSTR(HTML_INPUTS);
-  inputs.replace("%SP%", String(settings->setpoint, decimalsFromStep(settings->sp_limits.step)));
-  inputs.replace("%KP%", String(settings->Kp, decimalsFromStep(settings->kp_limits.step)));
-  inputs.replace("%KI%", String(settings->Ki, decimalsFromStep(settings->ki_limits.step)));
-  inputs.replace("%KD%", String(settings->Kd, decimalsFromStep(settings->kd_limits.step)));
-  inputs.replace("%FLT%", String(settings->filter_strength, 2));
-  inputs.replace("%FREQ%", String(settings->pwm_freq));
-  inputs.replace("%RES%", String(settings->pwm_res));
   
-  // Replace slider limit placeholders
-  inputs.replace("%SP_MIN%", String(settings->sp_limits.min, decimalsFromStep(settings->sp_limits.step)));
-  inputs.replace("%SP_MAX%", String(settings->sp_limits.max, decimalsFromStep(settings->sp_limits.step)));
-  inputs.replace("%SP_STEP%", String(settings->sp_limits.step, decimalsFromStep(settings->sp_limits.step)));
-  inputs.replace("%KP_MIN%", String(settings->kp_limits.min, decimalsFromStep(settings->kp_limits.step)));
-  inputs.replace("%KP_MAX%", String(settings->kp_limits.max, decimalsFromStep(settings->kp_limits.step)));
-  inputs.replace("%KP_STEP%", String(settings->kp_limits.step, decimalsFromStep(settings->kp_limits.step)));
-  inputs.replace("%KI_MIN%", String(settings->ki_limits.min, decimalsFromStep(settings->ki_limits.step)));
-  inputs.replace("%KI_MAX%", String(settings->ki_limits.max, decimalsFromStep(settings->ki_limits.step)));
-  inputs.replace("%KI_STEP%", String(settings->ki_limits.step, decimalsFromStep(settings->ki_limits.step)));
-  inputs.replace("%KD_MIN%", String(settings->kd_limits.min, decimalsFromStep(settings->kd_limits.step)));
-  inputs.replace("%KD_MAX%", String(settings->kd_limits.max, decimalsFromStep(settings->kd_limits.step)));
-  inputs.replace("%KD_STEP%", String(settings->kd_limits.step, decimalsFromStep(settings->kd_limits.step)));
+  // Replace value placeholders using a data-driven approach
+  struct { const char* placeholder; String value; } valueReplacements[] = {
+    {"%SP%",   String(settings->setpoint, decimalsFromStep(settings->sp_limits.step))},
+    {"%KP%",   String(settings->Kp, decimalsFromStep(settings->kp_limits.step))},
+    {"%KI%",   String(settings->Ki, decimalsFromStep(settings->ki_limits.step))},
+    {"%KD%",   String(settings->Kd, decimalsFromStep(settings->kd_limits.step))},
+    {"%FLT%",  String(settings->filter_strength, 2)},
+    {"%FREQ%", String(settings->pwm_freq)},
+    {"%RES%",  String(settings->pwm_res)}
+  };
+  for (auto& r : valueReplacements) inputs.replace(r.placeholder, r.value);
+  
+  // Replace slider limit placeholders using a data-driven approach
+  struct { const char* prefix; SliderLimits& limits; } sliderReplacements[] = {
+    {"SP", settings->sp_limits},
+    {"KP", settings->kp_limits},
+    {"KI", settings->ki_limits},
+    {"KD", settings->kd_limits}
+  };
+  for (auto& s : sliderReplacements)
+  {
+    int dec = decimalsFromStep(s.limits.step);
+    inputs.replace(String("%") + s.prefix + "_MIN%", String(s.limits.min, dec));
+    inputs.replace(String("%") + s.prefix + "_MAX%", String(s.limits.max, dec));
+    inputs.replace(String("%") + s.prefix + "_STEP%", String(s.limits.step, dec));
+  }
+  
+  // Replace fixed-range slider placeholders (flt, freq, res) from Constants.h
+  inputs.replace("%FLT_MIN%",  String(FilterConfig::MIN_STRENGTH, 2));
+  inputs.replace("%FLT_MAX%",  String(FilterConfig::MAX_STRENGTH, 2));
+  inputs.replace("%FLT_STEP%", String(FilterConfig::STRENGTH_STEP, 2));
+  inputs.replace("%FREQ_MIN%",  String(PwmConfig::MIN_FREQ_HZ));
+  inputs.replace("%FREQ_MAX%",  String(PwmConfig::MAX_FREQ_HZ));
+  inputs.replace("%FREQ_STEP%", String(PwmConfig::FREQ_STEP_HZ));
+  inputs.replace("%RES_MIN%",  String(PwmConfig::MIN_RES_BITS));
+  inputs.replace("%RES_MAX%",  String(PwmConfig::MAX_RES_BITS));
+  inputs.replace("%RES_STEP%", String(PwmConfig::RES_STEP_BITS));
   
   webServer.sendContent(inputs);
   yield();
@@ -374,7 +391,32 @@ void WebHandler::handleRoot()
   webServer.sendContent(footer);
   yield();
   
-  // 6. Stream JavaScript directly from PROGMEM
+  // 6. Inject server-rendered configuration constants for JavaScript
+  // These values are defined in Constants.h and injected here so the JS
+  // doesn't hardcode values that could drift out of sync with the firmware.
+  char configScript[256];
+  snprintf(configScript, sizeof(configScript),
+    "<script>"
+    "var CFG={"
+    "maxBar:%.1f,"
+    "ssid:'%s',"
+    "ip:'%d.%d.%d.%d',"
+    "flt:{min:%.2f,max:%.2f,step:%.2f},"
+    "freq:{min:%d,max:%d,step:%d},"
+    "res:{min:%d,max:%d,step:%d}"
+    "};"
+    "</script>",
+    SensorConfig::SENSOR_MAX_BAR,
+    NetworkConfig::AP_SSID,
+    NetworkConfig::AP_IP[0], NetworkConfig::AP_IP[1],
+    NetworkConfig::AP_IP[2], NetworkConfig::AP_IP[3],
+    FilterConfig::MIN_STRENGTH, FilterConfig::MAX_STRENGTH, FilterConfig::STRENGTH_STEP,
+    PwmConfig::MIN_FREQ_HZ, PwmConfig::MAX_FREQ_HZ, PwmConfig::FREQ_STEP_HZ,
+    PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS, PwmConfig::RES_STEP_BITS
+  );
+  webServer.sendContent(configScript);
+  
+  // 7. Stream JavaScript directly from PROGMEM
   webServer.sendContent_P(HTML_SCRIPT);
   
   // End chunked response
@@ -386,50 +428,74 @@ void WebHandler::handleRoot()
  */
 void WebHandler::handleSet() 
 {
-  // Process parameter updates
-  if (webServer.hasArg("sp")) 
-    settings->setpoint = webServer.arg("sp").toFloat();
-  
-  if (webServer.hasArg("kp")) 
-    settings->Kp = webServer.arg("kp").toFloat();
-  
-  if (webServer.hasArg("ki")) 
-    settings->Ki = webServer.arg("ki").toFloat();
-  
-  if (webServer.hasArg("kd")) 
-    settings->Kd = webServer.arg("kd").toFloat();
-  
-  if (webServer.hasArg("flt")) 
-    settings->filter_strength = webServer.arg("flt").toFloat();
-  
-  if (webServer.hasArg("freq")) 
+  // Process parameter updates with validation
+  if (webServer.hasArg("sp"))
   {
-    settings->pwm_freq = webServer.arg("freq").toInt();
-    updatePWM();
+    float val = webServer.arg("sp").toFloat();
+    if (val >= 0 && val <= SensorConfig::SENSOR_MAX_BAR)
+      settings->setpoint = val;
   }
   
-  if (webServer.hasArg("res")) 
+  if (webServer.hasArg("kp"))
   {
-    int old_res = settings->pwm_res;
-    int new_res = webServer.arg("res").toInt();
-    
-    // Only process if resolution actually changed
-    if (old_res != new_res)
+    float val = webServer.arg("kp").toFloat();
+    if (val >= 0) settings->Kp = val;
+  }
+  
+  if (webServer.hasArg("ki"))
+  {
+    float val = webServer.arg("ki").toFloat();
+    if (val >= 0) settings->Ki = val;
+  }
+  
+  if (webServer.hasArg("kd"))
+  {
+    float val = webServer.arg("kd").toFloat();
+    if (val >= 0) settings->Kd = val;
+  }
+  
+  if (webServer.hasArg("flt"))
+  {
+    float val = webServer.arg("flt").toFloat();
+    if (val >= FilterConfig::MIN_STRENGTH && val <= FilterConfig::MAX_STRENGTH)
+      settings->filter_strength = val;
+  }
+  
+  if (webServer.hasArg("freq"))
+  {
+    int val = webServer.arg("freq").toInt();
+    if (val >= PwmConfig::MIN_FREQ_HZ && val <= PwmConfig::MAX_FREQ_HZ)
     {
-      // Store current duty cycle percentage before changing resolution
-      float current_duty_percent = (*pwmPIDoutput / (float)*pwmFullScaleRaw) * 100.0;
-      
-      // Update resolution
-      settings->pwm_res = new_res;
-      int new_max_value = (1 << settings->pwm_res) - 1;
-      
-      // Scale pwmPIDoutput to maintain the same duty cycle
-      *pwmPIDoutput = (current_duty_percent / 100.0) * new_max_value;
-      
-      // Update max value and PID limits
-      *pwmFullScaleRaw = new_max_value;
-      pid->SetOutputLimits(0, *pwmFullScaleRaw);
+      settings->pwm_freq = val;
       updatePWM();
+    }
+  }
+  
+  if (webServer.hasArg("res"))
+  {
+    int new_res = webServer.arg("res").toInt();
+    if (new_res >= PwmConfig::MIN_RES_BITS && new_res <= PwmConfig::MAX_RES_BITS)
+    {
+      int old_res = settings->pwm_res;
+      
+      // Only process if resolution actually changed
+      if (old_res != new_res)
+      {
+        // Store current duty cycle percentage before changing resolution
+        float current_duty_percent = (*pwmPIDoutput / (float)*pwmFullScaleRaw) * 100.0;
+        
+        // Update resolution
+        settings->pwm_res = new_res;
+        int new_max_value = (1 << settings->pwm_res) - 1;
+        
+        // Scale pwmPIDoutput to maintain the same duty cycle
+        *pwmPIDoutput = (current_duty_percent / 100.0) * new_max_value;
+        
+        // Update max value and PID limits
+        *pwmFullScaleRaw = new_max_value;
+        pid->SetOutputLimits(0, *pwmFullScaleRaw);
+        updatePWM();
+      }
     }
   }
   
@@ -515,36 +581,25 @@ void WebHandler::handleSliderLimits()
   }
   else if (webServer.method() == HTTP_POST)
   {
-    // Update slider limits from POST parameters
+    // Update slider limits from POST parameters using lookup map
     String param = webServer.arg("param");
     
-    if (param == "sp")
+    // Map param name to its SliderLimits struct
+    SliderLimits* target = nullptr;
+    if      (param == "sp") target = &settings->sp_limits;
+    else if (param == "kp") target = &settings->kp_limits;
+    else if (param == "ki") target = &settings->ki_limits;
+    else if (param == "kd") target = &settings->kd_limits;
+    
+    if (!target)
     {
-      if (webServer.hasArg("min")) settings->sp_limits.min = webServer.arg("min").toFloat();
-      if (webServer.hasArg("max")) settings->sp_limits.max = webServer.arg("max").toFloat();
-      if (webServer.hasArg("step")) settings->sp_limits.step = webServer.arg("step").toFloat();
-    }
-    else if (param == "kp")
-    {
-      if (webServer.hasArg("min")) settings->kp_limits.min = webServer.arg("min").toFloat();
-      if (webServer.hasArg("max")) settings->kp_limits.max = webServer.arg("max").toFloat();
-      if (webServer.hasArg("step")) settings->kp_limits.step = webServer.arg("step").toFloat();
-    }
-    else if (param == "ki")
-    {
-      if (webServer.hasArg("min")) settings->ki_limits.min = webServer.arg("min").toFloat();
-      if (webServer.hasArg("max")) settings->ki_limits.max = webServer.arg("max").toFloat();
-      if (webServer.hasArg("step")) settings->ki_limits.step = webServer.arg("step").toFloat();
-    }
-    else if (param == "kd")
-    {
-      if (webServer.hasArg("min")) settings->kd_limits.min = webServer.arg("min").toFloat();
-      if (webServer.hasArg("max")) settings->kd_limits.max = webServer.arg("max").toFloat();
-      if (webServer.hasArg("step")) settings->kd_limits.step = webServer.arg("step").toFloat();
-    } else {
       webServer.send(400, "application/json", "{\"success\":false,\"message\":\"Invalid param\"}");
       return;
     }
+    
+    if (webServer.hasArg("min"))  target->min  = webServer.arg("min").toFloat();
+    if (webServer.hasArg("max"))  target->max  = webServer.arg("max").toFloat();
+    if (webServer.hasArg("step")) target->step = webServer.arg("step").toFloat();
     
     // Save to LittleFS
     settings->save();
@@ -730,7 +785,7 @@ void WebHandler::scanWiFiNetworks()
             quality = "Poor     ";
             qualityIndex = 3;
         }
-        signalQuality[qualityIndex];
+        signalQuality[qualityIndex]++;
         
         // Count channel usage
         if (channel >= 1 && channel <= 13)
@@ -827,7 +882,7 @@ void WebHandler::scanWiFiNetworks()
     }
     
     // Find least congested channels
-    int minCount = static_cast<int>(AutoTuneConfig::INITIAL_MIN_PRESSURE);
+    int minCount = INT_MAX; // Sentinel: any real count will be less
     String bestChannels = "";
     for (int ch = 1; ch <= 13; ch += 5) { // Check channels 1, 6, 11 (non-overlapping)
         if (channelCount[ch] < minCount)

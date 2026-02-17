@@ -69,9 +69,9 @@ private:
     double* pressureInput;
     int* pwmMaxValue;
     
-    // Constants
-    static constexpr unsigned long AUTO_TUNE_TIMEOUT = 180000; // 3 minutes
-    static constexpr float AUTOTUNE_NOISE_BAND = 0.1f; // Deadband around setpoint
+    // Constants (consolidated in Constants.h AutoTuneConfig namespace)
+    static constexpr unsigned long AUTO_TUNE_TIMEOUT = AutoTuneConfig::TIMEOUT_MS;
+    static constexpr float AUTOTUNE_NOISE_BAND = AutoTuneConfig::NOISE_BAND;
     
 public:
     /**

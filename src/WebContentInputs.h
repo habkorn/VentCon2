@@ -70,9 +70,9 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
           <label for="flt_slider">Low Pass Filter Strength on Pressure Sensor (α)</label>
           <div class="control-slider">
             <button type="button" class="slider-btn decrement-btn" id="flt_decrement">-</button>
-            <input type="range" id="flt_slider" min="0" max="1" step="0.01" value="%FLT%">
+            <input type="range" id="flt_slider" min="%FLT_MIN%" max="%FLT_MAX%" step="%FLT_STEP%" value="%FLT%">
             <button type="button" class="slider-btn increment-btn" id="flt_increment">+</button>
-            <input type="text" inputmode="decimal" id="flt_text" value="%FLT%" step="0.01">
+            <input type="text" inputmode="decimal" id="flt_text" value="%FLT%" step="%FLT_STEP%">
           </div>
         </div>
 
@@ -80,9 +80,9 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
           <label for="freq_slider">Actuator PWM Frequency in Hz</label>
           <div class="control-slider">
             <button type="button" class="slider-btn decrement-btn" id="freq_decrement">-</button>
-            <input type="range" id="freq_slider" min="100" max="10000" step="100" value="%FREQ%">
+            <input type="range" id="freq_slider" min="%FREQ_MIN%" max="%FREQ_MAX%" step="%FREQ_STEP%" value="%FREQ%">
             <button type="button" class="slider-btn increment-btn" id="freq_increment">+</button>
-            <input type="text" inputmode="numeric" id="freq_text" value="%FREQ%" step="100">
+            <input type="text" inputmode="numeric" id="freq_text" value="%FREQ%" step="%FREQ_STEP%">
           </div>
         </div>
 
@@ -90,9 +90,9 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
           <label for="res_slider">Actuator PWM Resolution in bits</label>
           <div class="control-slider">
             <button type="button" class="slider-btn decrement-btn" id="res_decrement">-</button>
-            <input type="range" id="res_slider" min="8" max="16" step="1" value="%RES%">
+            <input type="range" id="res_slider" min="%RES_MIN%" max="%RES_MAX%" step="%RES_STEP%" value="%RES%">
             <button type="button" class="slider-btn increment-btn" id="res_increment">+</button>
-            <input type="text" inputmode="numeric" id="res_text" value="%RES%" step="1">
+            <input type="text" inputmode="numeric" id="res_text" value="%RES%" step="%RES_STEP%">
           </div>
         </div>
       </div>

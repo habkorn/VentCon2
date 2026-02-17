@@ -1,6 +1,7 @@
 #include "AutoTuner.h"
 #include "Logger.h"
 #include <Arduino.h>
+#include <cmath> // for M_PI
 
 AutoTuner::AutoTuner(SettingsHandler* settings, PID* pid, double* pressureInput, int* pwmMaxValue)
     : autoTuneRunning(false),
@@ -13,12 +14,12 @@ AutoTuner::AutoTuner(SettingsHandler* settings, PID* pid, double* pressureInput,
       maxPressure(0.0f),
       minPressure(AutoTuneConfig::INITIAL_MIN_PRESSURE),
       firstCycleComplete(false),
-      testSetpoint(5.0f),
+      testSetpoint(AutoTuneConfig::DEFAULT_TEST_SETPOINT),
       minPwmValue(AutoTuneConfig::MIN_PWM_PERCENT),
       maxPwmValue(AutoTuneConfig::MAX_PWM_PERCENT),
       minCycleTime(AutoTuneConfig::MIN_CYCLE_TIME_MS),
       currentTuningRule(ZIEGLER_NICHOLS_AGGRESSIVE),
-      tuningAggressiveness(2.0f),
+      tuningAggressiveness(AutoTuneConfig::DEFAULT_AGGRESSIVENESS),
       settings(settings),
       pid(pid),
       pressureInput(pressureInput),
@@ -227,7 +228,7 @@ void AutoTuner::rejectParameters()
 
 void AutoTuner::setTestSetpoint(float setpoint) 
 {
-    testSetpoint = constrain(setpoint, 0.5f, 10.0f);
+    testSetpoint = constrain(setpoint, AutoTuneConfig::MIN_TEST_SETPOINT, AutoTuneConfig::MAX_TEST_SETPOINT);
     Serial.printf("Auto-tuning test setpoint set to: %.1f bar\n", testSetpoint);
 }
 
@@ -240,7 +241,7 @@ void AutoTuner::setTuningRule(TuningRule rule)
 
 void AutoTuner::setAggressiveness(float aggr) 
 {
-    tuningAggressiveness = constrain(aggr, 0.5f, 2.0f);
+    tuningAggressiveness = constrain(aggr, AutoTuneConfig::MIN_AGGRESSIVENESS, AutoTuneConfig::MAX_AGGRESSIVENESS);
     Serial.printf("Tuning aggressiveness set to: %.1f\n", tuningAggressiveness);
 }
 
@@ -254,7 +255,7 @@ void AutoTuner::setMinMaxPWM(float minPwm, float maxPwm)
 
 void AutoTuner::setMinCycleTime(unsigned long cycleTime) 
 {
-    minCycleTime = constrain(cycleTime, 50UL, 2000UL);
+    minCycleTime = constrain(cycleTime, AutoTuneConfig::CYCLE_TIME_LOWER_BOUND, AutoTuneConfig::CYCLE_TIME_UPPER_BOUND);
     Serial.printf("Auto-tuning minimum cycle time set to: %lu ms\n", minCycleTime);
     Serial.printf("This prevents noise-triggered transitions during auto-tuning\n");
 }
@@ -305,7 +306,7 @@ bool AutoTuner::calculatePIDParameters(float& newKp, float& newKi, float& newKd)
     
     // Calculate ultimate gain Ku and period Tu
     float effectiveAmplitude = getEffectiveAmplitude();
-    float Ku = (4.0f * effectiveAmplitude) / (3.141592f * avgAmplitude);
+    float Ku = (4.0f * effectiveAmplitude) / (static_cast<float>(M_PI) * avgAmplitude);
     float Tu = avgPeriod;
     
     // Apply a scaling factor to compensate for limited valve range
