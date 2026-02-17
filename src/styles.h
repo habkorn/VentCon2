@@ -381,6 +381,81 @@ h3
   overflow: hidden;
 }
 
+/* Sensor settings: two-column grid with input+unit groups */
+.sensor-grid
+{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px)
+{
+  .sensor-grid { grid-template-columns: 1fr; }
+}
+
+.sensor-group label
+{
+  display: block;
+  font-weight: 500;
+  font-size: 0.8rem;
+  margin-bottom: 0.2rem;
+  color: var(--text);
+}
+
+.input-with-unit
+{
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.input-with-unit input
+{
+  width: 5.5rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem 0 0 0.25rem;
+  font-size: 0.85rem;
+  text-align: right;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-with-unit input:focus
+{
+  border-color: var(--primary);
+}
+
+.input-with-unit .unit
+{
+  padding: 0.3rem 0.45rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 0.25rem 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.sensor-section-title
+{
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary, #6b7280);
+  margin-bottom: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+.sensor-section-title:not(:first-child)
+{
+  margin-top: 0.85rem;
+}
+
 .slider-btn 
 {
   width: 20px;
@@ -484,6 +559,27 @@ input[type="text"][inputmode]
   border-radius: 0.25rem;
   font-size: 0.8rem;
   text-align: right;
+}
+
+/* Validation error state for any input */
+.input-error
+{
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 2px rgba(239,68,68,0.2);
+}
+
+/* Validation error tooltip shown below input */
+.input-error-msg
+{
+  color: var(--danger);
+  font-size: 0.7rem;
+  margin-top: 2px;
+  display: none;
+}
+
+.input-error-msg.visible
+{
+  display: block;
 }
 
 .button-container
@@ -867,6 +963,7 @@ span
 {
   position: fixed;
   bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   background: var(--primary);

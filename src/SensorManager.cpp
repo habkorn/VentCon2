@@ -99,17 +99,23 @@ float SensorManager::lowPassFilter(float measurement)
 
 float SensorManager::calculatePressure(float voltage) 
 {
+    // Read calibration from settings (runtime-configurable)
+    const float minV = settings->sensor_min_voltage;
+    const float maxV = settings->sensor_max_voltage;
+    const float minP = settings->sensor_min_pressure;
+    const float maxP = settings->sensor_max_pressure;
+    
     // Handle invalid voltages
-    if (voltage < MIN_VOLTAGE) 
+    if (voltage < minV) 
     {
         return 0.0;
     }
     
     // Linear interpolation: pressure = (voltage - min_voltage) * scale + min_pressure
-    float voltage_range = MAX_VOLTAGE - MIN_VOLTAGE;
-    float pressure_range = SENSOR_MAX_BAR - SENSOR_MIN_BAR;
+    float voltage_range = maxV - minV;
+    float pressure_range = maxP - minP;
     
-    return SENSOR_MIN_BAR + (pressure_range / voltage_range) * (voltage - MIN_VOLTAGE);
+    return minP + (pressure_range / voltage_range) * (voltage - minV);
 }
 
 void SensorManager::printSensorStatus() const 
@@ -146,13 +152,13 @@ void SensorManager::printSensorStatus() const
     Serial.printf("Filter Strength: %.2f\n", settings->filter_strength);
     
     Serial.println("\n=== Pressure Sensor Configuration ===");
-    Serial.printf("Voltage Range: %.1fV - %.1fV\n", MIN_VOLTAGE, MAX_VOLTAGE);
-    Serial.printf("Pressure Range: %.1f - %.1f bar\n", SENSOR_MIN_BAR, SENSOR_MAX_BAR);
+    Serial.printf("Voltage Range: %.1fV - %.1fV\n", settings->sensor_min_voltage, settings->sensor_max_voltage);
+    Serial.printf("Pressure Range: %.1f - %.1f bar\n", settings->sensor_min_pressure, settings->sensor_max_pressure);
     Serial.println("=============================");
 }
 
 bool SensorManager::isPressureSafe() const 
 {
     // Check if pressure exceeds safe limit (10% above max rated pressure)
-    return filtered_pressure <= (SENSOR_MAX_BAR * 1.1f);
+    return filtered_pressure <= (settings->sensor_max_pressure * 1.1f);
 }

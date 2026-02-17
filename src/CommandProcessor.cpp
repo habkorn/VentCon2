@@ -56,7 +56,8 @@ void CommandProcessor::processCommand(const String& cmd)
         handleNetworkCommands(trimmedCmd);
     }
     else if (trimmedCmd == "STATUS" || trimmedCmd == "MEM" || trimmedCmd == "VER" ||
-             trimmedCmd == "STARTCD" || trimmedCmd == "STOPCD" || trimmedCmd == "SENSOR") 
+             trimmedCmd == "STARTCD" || trimmedCmd == "STOPCD" || trimmedCmd == "SENSOR" ||
+             trimmedCmd.startsWith("SENSOR ")) 
     {
         handleDiagnosticCommands(trimmedCmd);
     }
@@ -99,9 +100,17 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
     }
     else if (cmd.startsWith("SP ")) 
     {
-        settings->setpoint = cmd.substring(3).toFloat();
-        Serial.printf("Setpoint updated to: %.2f bar\n", settings->setpoint);
-        settings->save();
+        float val = cmd.substring(3).toFloat();
+        if (val >= 0 && val <= settings->sensor_max_pressure)
+        {
+            settings->setpoint = val;
+            Serial.printf("Setpoint updated to: %.2f bar\n", settings->setpoint);
+            settings->save();
+        }
+        else
+        {
+            Serial.printf("ERROR: Setpoint must be 0 - %.1f bar\n", settings->sensor_max_pressure);
+        }
     }
     else if (cmd.startsWith("SAMPLE ")) 
     {
@@ -162,7 +171,7 @@ void CommandProcessor::handleSignalProcessingCommands(const String& cmd)
     if (cmd.startsWith("FLT ")) 
     {
         float new_flt = cmd.substring(4).toFloat();
-        settings->filter_strength = constrain(new_flt, 0.0, 1.0);
+        settings->filter_strength = constrain(new_flt, FilterConfig::MIN_STRENGTH, FilterConfig::MAX_STRENGTH);
         Serial.printf("Filter strength set to: %.2f\n", settings->filter_strength);
         settings->save();
     }
@@ -540,16 +549,55 @@ void CommandProcessor::handleDiagnosticCommands(const String& cmd)
         *continousValueOutput = false;
         Logger::setEnabled(false);  // Sync Logger with continuous output flag
     }
+    else if (cmd.startsWith("SENSOR MINP ") || cmd.startsWith("SENSOR MAXP ") ||
+             cmd.startsWith("SENSOR MINV ") || cmd.startsWith("SENSOR MAXV "))
+    {
+        // Sensor calibration sub-commands: SENSOR MINP/MAXP/MINV/MAXV <value>
+        String param = cmd.substring(7, 11);  // "MINP", "MAXP", "MINV", or "MAXV"
+        float val = cmd.substring(12).toFloat();
+
+        if (param == "MINP") {
+            if (val >= settings->sensor_max_pressure) {
+                Serial.printf("ERROR: Min pressure (%.2f) must be less than max pressure (%.2f)\n", val, settings->sensor_max_pressure);
+            } else {
+                settings->sensor_min_pressure = val;
+                Serial.printf("Sensor min pressure set to: %.2f bar\n", val);
+                settings->save();
+            }
+        } else if (param == "MAXP") {
+            if (val <= settings->sensor_min_pressure) {
+                Serial.printf("ERROR: Max pressure (%.2f) must be greater than min pressure (%.2f)\n", val, settings->sensor_min_pressure);
+            } else {
+                settings->sensor_max_pressure = val;
+                Serial.printf("Sensor max pressure set to: %.2f bar\n", val);
+                settings->save();
+            }
+        } else if (param == "MINV") {
+            if (val < 0 || val >= settings->sensor_max_voltage) {
+                Serial.printf("ERROR: Min voltage (%.3f) must be >= 0 and less than max voltage (%.3f)\n", val, settings->sensor_max_voltage);
+            } else {
+                settings->sensor_min_voltage = val;
+                Serial.printf("Sensor min voltage set to: %.3f V\n", val);
+                settings->save();
+            }
+        } else if (param == "MAXV") {
+            if (val <= settings->sensor_min_voltage || val > 5.0f) {
+                Serial.printf("ERROR: Max voltage (%.3f) must be > min voltage (%.3f) and <= 5.0V\n", val, settings->sensor_min_voltage);
+            } else {
+                settings->sensor_max_voltage = val;
+                Serial.printf("Sensor max voltage set to: %.3f V\n", val);
+                settings->save();
+            }
+        }
+    }
     else if (cmd == "SENSOR") 
     {
-        // Test SensorManager functionality
+        // Test SensorManager functionality — display last readings (no direct readSensor call
+        // to avoid race conditions with the control loop)
         if (sensorManager) 
         {
             Serial.println("\n=== SensorManager Test ===");
             sensorManager->printSensorStatus();
-            
-            // Take a fresh reading
-            sensorManager->readSensor();
             
             Serial.println("\nCurrent Readings:");
             Serial.printf("  ADC Value: %d\n", sensorManager->getADCValue());
@@ -615,7 +663,7 @@ void CommandProcessor::showHelp()
       "\n"
       "\n┌─ PWM & VALVE CONTROL ─────────────────────────────────────────────────────────┐"
       "\n│ FREQ <hz>       │ Set PWM frequency, 100-10000Hz (e.g., FREQ 1000)            │"
-      "\n│ RES <bits>      │ Set PWM resolution, 1-16 bits (e.g., RES 8)                 │"
+      "\n│ RES <bits>      │ Set PWM resolution, 8-16 bits (e.g., RES 14)                │"
       "\n│ PWM <percent>   │ Force PWM duty cycle, 0-100% (e.g., PWM 25)                 │"
       "\n│ RESUME          │ Resume normal PID control after manual PWM                  │"
       "\n│ CONTROL FREQ <> │ Set control loop frequency, 10-1000Hz                       │"
@@ -628,7 +676,7 @@ void CommandProcessor::showHelp()
       "\n│ TUNE REJECT     │ Reject and keep current PID parameters                      │"
       "\n│ TUNE SP <bar>   │ Set auto-tune test setpoint, 0.5-10.0 bar                   │"
       "\n│ TUNE MIN <pct>  │ Set auto-tune minimum PWM, 50-90%                           │"
-      "\n│ TUNE MAX <pct>  │ Set auto-tune maximum PWM, 60-95%                           │"
+      "\n│ TUNE MAX <pct>  │ Set auto-tune maximum PWM, 50-90%                           │"
       "\n│ TUNE CYCLE <ms> │ Set min cycle time, 50-2000ms                               │"
       "\n│ TUNE RULE <0-3> │ Select tuning rule (see TUNE RULES)                         │"
       "\n│ TUNE AGGR <val> │ Set aggressiveness factor, 0.5-2.0                          │"
@@ -642,7 +690,11 @@ void CommandProcessor::showHelp()
       "\n└───────────────────────────────────────────────────────────────────────────────┘"
       "\n"      "\n┌─ DATA & MONITORING ───────────────────────────────────────────────────────────┐"
       "\n│ STATUS          │ Show comprehensive system status                            │"
-      "\n│ SENSOR          │ Test SensorManager and show detailed sensor readings       │"
+      "\n│ SENSOR          │ Show current sensor readings and status                     │"
+      "\n│ SENSOR MINP <v> │ Set sensor min pressure in bar (e.g., SENSOR MINP 0)       │"
+      "\n│ SENSOR MAXP <v> │ Set sensor max pressure in bar (e.g., SENSOR MAXP 10)      │"
+      "\n│ SENSOR MINV <v> │ Set sensor min voltage in V (e.g., SENSOR MINV 0.5)        │"
+      "\n│ SENSOR MAXV <v> │ Set sensor max voltage in V (e.g., SENSOR MAXV 4.5)        │"
       "\n│ STARTCD         │ Start continuous data output for plotting                   │"
       "\n│ STOPCD          │ Stop continuous data output                                 │"
       "\n│ MEM             │ Show memory usage and system information                    │"
@@ -694,7 +746,7 @@ void CommandProcessor::showStatus()
         if (sensorManager->isADSFound())
         {
             Serial.printf("  ADS1015 Address: 0x48\n");
-            Serial.printf("  ADS1015 Channel: %d\n", SensorConfig::ADC_CHANNEL_PRESS_SENS);
+            Serial.printf("  ADS1015 Channel: %d\n", SensorConfigDefaults::ADC_CHANNEL_PRESS_SENS);
             Serial.printf("  Gain Setting: GAIN_TWOTHIRDS (+/-6.144V)\n");
         }
         else
@@ -705,8 +757,10 @@ void CommandProcessor::showStatus()
         Serial.printf("  Voltage: %.3f V\n", sensorManager->getVoltage());
         Serial.printf("  Raw Pressure: %.3f bar\n", sensorManager->getRawPressure());
         Serial.printf("  Filtered Pressure: %.3f bar\n", sensorManager->getPressure());
-        Serial.printf("  Voltage Range: %.1fV - %.1fV\n", SensorConfig::MIN_VOLTAGE, SensorConfig::MAX_VOLTAGE);
-        Serial.printf("  Pressure Range: %.1f - %.1f bar\n", SensorConfig::SENSOR_MIN_BAR, SensorConfig::SENSOR_MAX_BAR);
+        Serial.printf("  Active Voltage Range: %.2fV - %.2fV\n", settings->sensor_min_voltage, settings->sensor_max_voltage);
+        Serial.printf("  Active Pressure Range: %.1f - %.1f bar\n", settings->sensor_min_pressure, settings->sensor_max_pressure);
+        Serial.printf("  Factory Voltage Range: %.2fV - %.2fV\n", SensorConfigDefaults::SENSOR_MIN_VOLTAGE, SensorConfigDefaults::SENSOR_MAX_VOLTAGE);
+        Serial.printf("  Factory Pressure Range: %.1f - %.1f bar\n", SensorConfigDefaults::SENSOR_MIN_BAR, SensorConfigDefaults::SENSOR_MAX_BAR);
     } else {
         Serial.println("  ERROR: SensorManager not initialized");
     }
@@ -835,7 +889,7 @@ void CommandProcessor::listFiles()
 const char* CommandProcessor::getVersionString() 
 {
     static char versionString[50];
-    sprintf(versionString, VENTCON_VERSION);
+    snprintf(versionString, sizeof(versionString), VENTCON_VERSION);
     return versionString;
 }
 

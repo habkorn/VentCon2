@@ -99,6 +99,47 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
     </details>
 
     <details class="card">
+      <summary>Outlet Pressure Sensor Settings</summary>
+      <div class="collapsible-content">
+        <div class="sensor-section-title">Pressure Range</div>
+        <div class="sensor-grid">
+          <div class="sensor-group">
+            <label for="sensor_minP">Min</label>
+            <div class="input-with-unit">
+              <input type="number" id="sensor_minP" step="0.1" value="%SENSOR_MINP%">
+              <span class="unit">bar(g)</span>
+            </div>
+          </div>
+          <div class="sensor-group">
+            <label for="sensor_maxP">Max</label>
+            <div class="input-with-unit">
+              <input type="number" id="sensor_maxP" step="0.1" value="%SENSOR_MAXP%">
+              <span class="unit">bar(g)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sensor-section-title">Voltage Range</div>
+        <div class="sensor-grid">
+          <div class="sensor-group">
+            <label for="sensor_minV">Min</label>
+            <div class="input-with-unit">
+              <input type="number" id="sensor_minV" step="0.01" value="%SENSOR_MINV%">
+              <span class="unit">V</span>
+            </div>
+          </div>
+          <div class="sensor-group">
+            <label for="sensor_maxV">Max</label>
+            <div class="input-with-unit">
+              <input type="number" id="sensor_maxV" step="0.01" value="%SENSOR_MAXV%">
+              <span class="unit">V</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
       <summary>System Information</summary>
       <div class="collapsible-content">
         <div class="control-row">

@@ -32,11 +32,7 @@ private:
     SettingsHandler* settings;
     
     // Constants from configuration
-    static constexpr int ADC_CHANNEL = SensorConfig::ADC_CHANNEL_PRESS_SENS;
-    static constexpr float MIN_VOLTAGE = SensorConfig::MIN_VOLTAGE;
-    static constexpr float MAX_VOLTAGE = SensorConfig::MAX_VOLTAGE;
-    static constexpr float SENSOR_MIN_BAR = SensorConfig::SENSOR_MIN_BAR;
-    static constexpr float SENSOR_MAX_BAR = SensorConfig::SENSOR_MAX_BAR;
+    static constexpr int ADC_CHANNEL = SensorConfigDefaults::ADC_CHANNEL_PRESS_SENS;
     static constexpr int FALLBACK_ANALOG_PIN = HardwareConfig::FALLBACK_ANALOG_PIN;
     static constexpr uint8_t ADS1015_I2C_ADDRESS = 0x48;
     static constexpr adsGain_t ADS1015_GAIN = GAIN_TWOTHIRDS;

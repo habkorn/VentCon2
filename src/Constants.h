@@ -62,17 +62,22 @@ namespace HardwareConfig
     constexpr int FALLBACK_ANALOG_PIN = A0;  // ESP32 internal ADC pin
 }
 
-// Sensor Configuration
-namespace SensorConfig 
+// Sensor Configuration — Factory Defaults
+// These values are compile-time fallbacks used when settings.json is missing or
+// corrupt (e.g. first boot, flash erase). At runtime, the actual sensor
+// calibration is read from SettingsHandler (loaded from settings.json).
+// To change defaults for the web UI "Reset to Default" button, also update
+// data/default.json to keep both sources in sync.
+namespace SensorConfigDefaults 
 {
     // ADC channel number for pressure sensor readings (ESP32 ADC1 channels: 0-7)
     constexpr int ADC_CHANNEL_PRESS_SENS = 0;
     
     // Minimum voltage output from pressure sensor (corresponds to minimum pressure)
-    constexpr float MIN_VOLTAGE = 0.5f;
+    constexpr float SENSOR_MIN_VOLTAGE = 0.5f;
     
     // Maximum voltage output from pressure sensor (corresponds to maximum pressure)
-    constexpr float MAX_VOLTAGE = 4.50f;
+    constexpr float SENSOR_MAX_VOLTAGE = 4.50f;
     
     // Minimum pressure reading in bar that the sensor can measure
     constexpr float SENSOR_MIN_BAR = 0.0f;
@@ -226,7 +231,7 @@ namespace AutoTuneConfig
     
     // Test setpoint range limits (bar)
     constexpr float MIN_TEST_SETPOINT = 0.5f;
-    constexpr float MAX_TEST_SETPOINT = 10.0f;
+    constexpr float MAX_TEST_SETPOINT = SensorConfigDefaults::SENSOR_MAX_BAR;
     
     // Tuning aggressiveness defaults and range
     constexpr float DEFAULT_AGGRESSIVENESS = 2.0f;
@@ -258,8 +263,8 @@ namespace Esp32AdcConfig
 namespace SliderDefaults
 {
     // Setpoint slider limits (bar)
-    constexpr float SP_MIN = 0.0f;
-    constexpr float SP_MAX = 10.0f;
+    constexpr float SP_MIN = SensorConfigDefaults::SENSOR_MIN_BAR;
+    constexpr float SP_MAX = SensorConfigDefaults::SENSOR_MAX_BAR;
     constexpr float SP_STEP = 0.1f;
     
     // Proportional gain slider limits

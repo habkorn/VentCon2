@@ -54,7 +54,7 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         <div class="gauge">
           <div class="gauge-title">Valve Duty Cycle</div>
           <div class="gauge-value">
-            <span id="pwm" style="color: #10b981;">--</span>
+            <span id="pwm" style="color: var(--success);">--</span>
             <small>%</small>
             <span id="pwm-trend" class="trend-indicator trend-stable">▲</span>
           </div>
@@ -99,7 +99,7 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
             <input type="text" inputmode="decimal" id="modalMax" step="any">
           </div>
           <div class="modal-row">
-            <label>Step</label>
+            <label>Step for +/- Buttons</label>
             <input type="text" inputmode="decimal" id="modalStep" step="any">
           </div>
         </div>

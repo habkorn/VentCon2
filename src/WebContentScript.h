@@ -26,6 +26,22 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     // Timing constants (shared between chart and data polling)
     const POLLING_INTERVAL_MS = 100;  // Data fetch interval
     const DISPLAY_WINDOW_S = 8;       // Seconds of chart history to display
+
+    // Helper to get CSS variable value (as rgb hex)
+    function getCssVar(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+    // Helper to get rgba from CSS var and alpha
+    function cssVarRgba(name, alpha) {
+      const hex = getCssVar(name).replace('#', '');
+      if (hex.length === 6) {
+        const r = parseInt(hex.substring(0,2), 16);
+        const g = parseInt(hex.substring(2,4), 16);
+        const b = parseInt(hex.substring(4,6), 16);
+        return `rgba(${r},${g},${b},${alpha})`;
+      }
+      return getCssVar(name);
+    }
     
     // Cache DOM elements on load
     function cacheElements()
@@ -71,7 +87,14 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           res: document.getElementById('res_text')
         },
         tiDisplay: document.getElementById('ti_display'),
-        tdDisplay: document.getElementById('td_display')
+        tdDisplay: document.getElementById('td_display'),
+        // Cache sensor calibration inputs
+        sensorInputs: {
+          sensor_minP: document.getElementById('sensor_minP'),
+          sensor_maxP: document.getElementById('sensor_maxP'),
+          sensor_minV: document.getElementById('sensor_minV'),
+          sensor_maxV: document.getElementById('sensor_maxV')
+        }
       };
     }
 
@@ -220,16 +243,15 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       };
       
       // Create chart instance with optimized configuration
-      window.pressureChart = new Chart(chartCtx, 
-      {
+      window.pressureChart = new Chart(chartCtx, {
         type: 'line',
         data: {
           datasets: [
             {
               label: 'Outlet',
               data: [],
-              borderColor: '#2563eb',
-              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              borderColor: getCssVar('--primary'),
+              backgroundColor: cssVarRgba('--primary', 0.1),
               tension: 0.3,
               borderWidth: 2,
               pointRadius: 0,
@@ -238,8 +260,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             {
               label: 'Setpoint',
               data: [],
-              borderColor: '#f59e0b',
-              backgroundColor: 'rgba(245, 158, 11, 0.1)',
+              borderColor: getCssVar('--accent'),
+              backgroundColor: cssVarRgba('--accent', 0.1),
               borderDash: [5, 5],
               tension: 0.1,
               borderWidth: 2,
@@ -249,8 +271,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             {
               label: 'Valve Duty Cycle',
               data: [],
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              borderColor: getCssVar('--success'),
+              backgroundColor: cssVarRgba('--success', 0.1),
               tension: 0.3,
               borderWidth: 2,
               pointRadius: 0,
@@ -261,15 +283,15 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          animation: false, // Disable animations for better performance
-          events: [], // Disable all built-in events for better performance (no tooltips, hover, etc.)
+          animation: false,
+          events: [],
           interaction: {
             intersect: false,
             mode: 'index'
           },
           elements: {
             point: {
-              radius: 0 // Hide points by default for better performance
+              radius: 0
             }
           },
           scales: {
@@ -281,10 +303,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               title: {
                 display: true,
                 text: 'Outlet Pressure in bar(g)',
-                color: '#2563eb'
+                color: getCssVar('--primary')
               },
               ticks: {
-                color: '#2563eb',  // Match the color of the Pressure line
+                color: getCssVar('--primary'),
                 stepSize: 2,
                 autoSkip: false
               },
@@ -300,20 +322,20 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               title: {
                 display: true,
                 text: 'Valve Duty Cycle (%)',
-                color: '#10b981'
+                color: getCssVar('--success')
               },
               ticks: {
-                color: '#10b981',  // Match the color of the Valve Duty Cycle line
+                color: getCssVar('--success'),
                 stepSize: 20,
                 autoSkip: false
               },
               grid: {
-                display: false  // Don't show grid lines for secondary axis
+                display: false
               }
             },
             x: {
               type: 'linear',
-              min: -DISPLAY_WINDOW_S,  // Derived from constants
+              min: -DISPLAY_WINDOW_S,
               max: 0,
               title: {
                 display: false,
@@ -325,7 +347,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
                 }
               },
               ticks: {
-                color: '#1e293b',
+                color: getCssVar('--text'),
                 stepSize: 1,
                 autoSkip: false,
                 font: {
@@ -345,39 +367,30 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             }
           },
           plugins: {
-            legend: 
-            {
-              display: false, // Hide legend for cleaner look (can be enabled if needed)
+            legend: {
+              display: false,
               position: 'top',
               labels: {
                 boxWidth: 25,
                 boxHeight:0,
                 usePointStyle: false,
-                generateLabels: function(chart)
-                {
-                  // Get the default labels
+                generateLabels: function(chart) {
                   const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                  
-                  // Apply custom styling for lines instead of points
-                  original.forEach(label =>
-                  {
-                    // For the setpoint dataset (which has dashed style)
-                    if (label.text === 'Setpoint')
-                    {
-                      label.lineDash = [5, 5]; // Match the graph's dashed style
+                  original.forEach(label => {
+                    if (label.text === 'Setpoint') {
+                      label.lineDash = [5, 5];
                     }
                   });
-                  
                   return original;
                 }
               }
             },
             tooltip: {
-              enabled: false, // Disable built-in tooltips for better performance
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              titleColor: '#1e293b',
-              bodyColor: '#1e293b',
-              borderColor: '#e2e8f0',
+              enabled: false,
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              titleColor: getCssVar('--text'),
+              bodyColor: getCssVar('--text'),
+              borderColor: getCssVar('--border'),
               borderWidth: 1,
               cornerRadius: 6,
               displayColors: true,
@@ -451,9 +464,29 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
 
           text.addEventListener('input', function()
           {
-            slider.value = text.value;
+            const val = parseFloat(text.value);
+            const lo = parseFloat(slider.min);
+            const hi = parseFloat(slider.max);
+            if (!isNaN(val) && val >= lo && val <= hi)
+            {
+              setInputError(text, null);
+              slider.value = val;
+            }
+            else
+            {
+              setInputError(text, isNaN(val) ? 'Enter a number' : 'Range: ' + lo + ' – ' + hi);
+            }
             if (isPid) updateTimeConstants();
-            showSaveSnackbar(param, text.value);
+            validationOk = !text.classList.contains('input-error');
+            if (validationOk) showSaveSnackbar(param, text.value);
+          });
+
+          // On blur: clamp value to slider range and clear any error
+          text.addEventListener('blur', function()
+          {
+            clampTextToSlider(text, slider);
+            if (isPid) updateTimeConstants();
+            validationOk = true;
           });
         }
       });
@@ -501,6 +534,22 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         }
       });
       
+      // Setup sensor calibration input change listeners with cross-validation
+      const SENSOR_PARAMS = ['sensor_minP', 'sensor_maxP', 'sensor_minV', 'sensor_maxV'];
+      SENSOR_PARAMS.forEach(function(param)
+      {
+        const input = cachedElements.sensorInputs ? cachedElements.sensorInputs[param] : null;
+        if (input)
+        {
+          input.addEventListener('input', function()
+          {
+            const sensorValid = validateSensorInputs();
+            validationOk = sensorValid;
+            if (sensorValid) showSaveSnackbar(param, input.value);
+          });
+        }
+      });
+      
       // Setup save snackbar click handler
       if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText)
       {
@@ -521,6 +570,21 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         resetDefaultsBtn.addEventListener('click', handleResetToDefaults);
       }
       
+      // Keep snackbar visible when mobile keyboard / address bar changes viewport
+      if (window.visualViewport && cachedElements.saveSnackbar)
+      {
+        window.visualViewport.addEventListener('resize', function()
+        {
+          const offset = window.innerHeight - window.visualViewport.height + window.visualViewport.offsetTop;
+          cachedElements.saveSnackbar.style.bottom = (24 + offset) + 'px';
+        });
+        window.visualViewport.addEventListener('scroll', function()
+        {
+          const offset = window.innerHeight - window.visualViewport.height + window.visualViewport.offsetTop;
+          cachedElements.saveSnackbar.style.bottom = (24 + offset) + 'px';
+        });
+      }
+
       // Setup Easter egg
       setupEasterEgg();
       
@@ -662,7 +726,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           {
             if (cachedElements.networkIndicator)
             {
-              cachedElements.networkIndicator.style.backgroundColor = 'var(--danger, #ef4444)';
+              cachedElements.networkIndicator.style.backgroundColor = getCssVar('--danger') || '#ef4444';
             }
             if (cachedElements.networkStatus)
             {
@@ -789,13 +853,89 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     {
       if (cachedElements.saveSnackbar)
       {
-        cachedElements.saveSnackbar.style.background = '#2563eb';
+        cachedElements.saveSnackbar.style.background = getCssVar('--primary');
         cachedElements.saveSnackbar.style.pointerEvents = 'auto';
       }
       if (cachedElements.saveSnackbarText)
       {
         cachedElements.saveSnackbarText.textContent = 'Apply Changes';
       }
+    }
+
+    // ── Input Validation Helpers ──────────────────────────────────────────
+    // Track whether all pending changes are valid (blocks save when false)
+    let validationOk = true;
+
+    // Set or clear error state on a single input element
+    function setInputError(input, errorMsg)
+    {
+      if (!input) return;
+      if (errorMsg)
+      {
+        input.classList.add('input-error');
+        input.title = errorMsg;
+      }
+      else
+      {
+        input.classList.remove('input-error');
+        input.title = '';
+      }
+    }
+
+    // Cross-validate all four sensor calibration inputs.
+    // Returns true when every field is valid.
+    function validateSensorInputs()
+    {
+      if (!cachedElements.sensorInputs) return true;
+      const si = cachedElements.sensorInputs;
+      const minP = parseFloat(si.sensor_minP.value);
+      const maxP = parseFloat(si.sensor_maxP.value);
+      const minV = parseFloat(si.sensor_minV.value);
+      const maxV = parseFloat(si.sensor_maxV.value);
+      let ok = true;
+
+      // Min pressure must be a number and < max pressure
+      if (isNaN(minP))            { setInputError(si.sensor_minP, 'Enter a valid number');           ok = false; }
+      else if (minP >= maxP)      { setInputError(si.sensor_minP, 'Must be less than Max Pressure'); ok = false; }
+      else                        { setInputError(si.sensor_minP, null); }
+
+      // Max pressure must be a number and > min pressure
+      if (isNaN(maxP))            { setInputError(si.sensor_maxP, 'Enter a valid number');              ok = false; }
+      else if (maxP <= minP)      { setInputError(si.sensor_maxP, 'Must be greater than Min Pressure'); ok = false; }
+      else                        { setInputError(si.sensor_maxP, null); }
+
+      // Min voltage must be >= 0 and < max voltage
+      if (isNaN(minV))            { setInputError(si.sensor_minV, 'Enter a valid number');           ok = false; }
+      else if (minV < 0)          { setInputError(si.sensor_minV, 'Cannot be negative');             ok = false; }
+      else if (minV >= maxV)      { setInputError(si.sensor_minV, 'Must be less than Max Voltage');  ok = false; }
+      else                        { setInputError(si.sensor_minV, null); }
+
+      // Max voltage must be > min voltage and <= 5.0V (ADC limit)
+      if (isNaN(maxV))            { setInputError(si.sensor_maxV, 'Enter a valid number');              ok = false; }
+      else if (maxV <= minV)      { setInputError(si.sensor_maxV, 'Must be greater than Min Voltage');  ok = false; }
+      else if (maxV > 5.0)        { setInputError(si.sensor_maxV, 'Cannot exceed 5.0 V (ADC limit)');   ok = false; }
+      else                        { setInputError(si.sensor_maxV, null); }
+
+      return ok;
+    }
+
+    // Clamp a slider text input value to its slider's min/max on blur.
+    // Also rejects non-numeric input by reverting to the slider's current value.
+    function clampTextToSlider(text, slider)
+    {
+      let val = parseFloat(text.value);
+      if (isNaN(val))
+      {
+        text.value = slider.value;
+        setInputError(text, null);
+        return;
+      }
+      const lo = parseFloat(slider.min);
+      const hi = parseFloat(slider.max);
+      val = Math.max(lo, Math.min(hi, val));
+      text.value = val;
+      slider.value = val;
+      setInputError(text, null);
     }
 
     // Format time constant with appropriate unit (s or ms)
@@ -855,6 +995,15 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     function handleSaveClick()
     {
       if (!cachedElements.saveSnackbarText) return;
+
+      // Block save if any input has a validation error
+      if (!validationOk)
+      {
+        cachedElements.saveSnackbarText.textContent = "Fix errors first";
+        cachedElements.saveSnackbar.style.background = getCssVar('--danger');
+        setTimeout(() => resetSnackbar(), 1500);
+        return;
+      }
       
       cachedElements.saveSnackbarText.textContent = "Saving...";
       cachedElements.saveSnackbar.style.pointerEvents = 'none';
@@ -870,7 +1019,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           if (cachedElements.saveSnackbarText && cachedElements.saveSnackbar)
           {
             cachedElements.saveSnackbarText.textContent = "Settings Updated";
-            cachedElements.saveSnackbar.style.background = '#10b981'; // Success green
+            cachedElements.saveSnackbar.style.background = getCssVar('--success'); // Success green
             
             // Clear pending changes
             pendingChanges = {};
@@ -884,7 +1033,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           if (cachedElements.saveSnackbarText && cachedElements.saveSnackbar)
           {
             cachedElements.saveSnackbarText.textContent = "Try Again";
-            cachedElements.saveSnackbar.style.background = '#dc2626'; // Error red
+            cachedElements.saveSnackbar.style.background = getCssVar('--danger'); // Error red
             cachedElements.saveSnackbar.style.pointerEvents = 'auto';
           }
           console.error("Failed to save settings:", err);
@@ -897,7 +1046,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       const btn = this;
       const originalText = btn.textContent;
       btn.textContent = "Resetting...";
-      btn.style.backgroundColor = "#60a5fa"; // Lighter blue during reset
+      btn.style.backgroundColor = getCssVar('--accent'); // Use accent color during reset
       
       // Call the reset endpoint
       fetch('/resetPID')
@@ -910,24 +1059,24 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText)
             {
               cachedElements.saveSnackbar.style.display = 'block';
-              cachedElements.saveSnackbar.style.background = '#10b981';
+              cachedElements.saveSnackbar.style.background = getCssVar('--success');
               cachedElements.saveSnackbarText.textContent = 'PID Controller Reset';
               
               // Hide snackbar after 2 seconds
               setTimeout(() => fadeOutSnackbar(resetSnackbar), 2000);
             }
             
-            showButtonFeedback(btn, 'Reset!', '#10b981', 1000, originalText, '#f59e0b');
+            showButtonFeedback(btn, 'Reset!', getCssVar('--success'), 1000, originalText, getCssVar('--accent'));
           }
           else
           {
-            showButtonFeedback(btn, 'Error', '#ef4444', 1500, originalText, '#f59e0b');
+            showButtonFeedback(btn, 'Error', getCssVar('--danger'), 1500, originalText, getCssVar('--accent'));
           }
         })
         .catch(error =>
         {
           console.error('Error resetting PID:', error);
-          showButtonFeedback(btn, 'Error', '#ef4444', 1500, originalText, '#f59e0b');
+          showButtonFeedback(btn, 'Error', getCssVar('--danger'), 1500, originalText, getCssVar('--accent'));
         });
     }
 
@@ -947,16 +1096,35 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         .then(defaults =>
         {
           // Build /set query string using centralized PARAM_CONFIG
-          const params = SLIDER_PARAMS
+          let params = SLIDER_PARAMS
             .filter(param => defaults[PARAM_CONFIG[param].jsonKey] !== undefined)
             .map(param => param + '=' + encodeURIComponent(defaults[PARAM_CONFIG[param].jsonKey]))
             .join('&');
 
-          return fetch('/set?' + params);
+          // Include sensor calibration defaults
+          if (defaults.sensor_limits)
+          {
+            const sl = defaults.sensor_limits;
+            if (sl.minP !== undefined) params += '&sensor_minP=' + encodeURIComponent(sl.minP);
+            if (sl.maxP !== undefined) params += '&sensor_maxP=' + encodeURIComponent(sl.maxP);
+            if (sl.minV !== undefined) params += '&sensor_minV=' + encodeURIComponent(sl.minV);
+            if (sl.maxV !== undefined) params += '&sensor_maxV=' + encodeURIComponent(sl.maxV);
+          }
+
+          return fetch('/set?' + params).then(() => defaults);
         })
-        .then(() =>
+        .then(defaults =>
         {
           // Also reset the PID controller
+          // Update sensor inputs in the UI from defaults
+          if (defaults.sensor_limits && cachedElements.sensorInputs)
+          {
+            const sl = defaults.sensor_limits;
+            if (cachedElements.sensorInputs.sensor_minP && sl.minP !== undefined) cachedElements.sensorInputs.sensor_minP.value = sl.minP;
+            if (cachedElements.sensorInputs.sensor_maxP && sl.maxP !== undefined) cachedElements.sensorInputs.sensor_maxP.value = sl.maxP;
+            if (cachedElements.sensorInputs.sensor_minV && sl.minV !== undefined) cachedElements.sensorInputs.sensor_minV.value = sl.minV;
+            if (cachedElements.sensorInputs.sensor_maxV && sl.maxV !== undefined) cachedElements.sensorInputs.sensor_maxV.value = sl.maxV;
+          }
           return fetch('/resetPID');
         })
         .then(r => r.json())
@@ -966,12 +1134,12 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           pendingChanges = {};
           if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.display = 'none';
 
-          showButtonFeedback(btn, 'Defaults Restored!', '#10b981', 1500, originalText, '', () => { btn.disabled = false; });
+          showButtonFeedback(btn, 'Defaults Restored!', getCssVar('--success'), 1500, originalText, '', () => { btn.disabled = false; });
         })
         .catch(err =>
         {
           console.error('Error resetting to defaults:', err);
-          showButtonFeedback(btn, 'Error', '#ef4444', 1500, originalText, '', () => { btn.disabled = false; });
+          showButtonFeedback(btn, 'Error', getCssVar('--danger'), 1500, originalText, '', () => { btn.disabled = false; });
         });
     }
 
@@ -1038,6 +1206,16 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     let currentSliderParam = null;
     let sliderLimits = {};
     
+    // Update chart primary Y-axis max to match setpoint slider max
+    function updateChartYAxisMax(maxVal)
+    {
+      if (window.pressureChart && window.pressureChart.options.scales.y)
+      {
+        window.pressureChart.options.scales.y.max = maxVal;
+        window.pressureChart.update('none');
+      }
+    }
+    
     // Slider names for modal title
     const sliderNames = {
       sp: 'Setpoint',
@@ -1055,6 +1233,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         {
           sliderLimits = data;
           applySliderLimits();
+          // Sync chart Y-axis with setpoint max from saved settings
+          if (data.sp && typeof data.sp.max === 'number') updateChartYAxisMax(data.sp.max);
         })
         .catch(err => console.error('Failed to fetch slider limits:', err));
     }
@@ -1161,6 +1341,9 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (text) text.value = slider.value;
           }
           if (text) text.step = newStep;
+          
+          // If setpoint max changed, update chart Y-axis
+          if (currentSliderParam === 'sp') updateChartYAxisMax(newMax);
           
           closeSliderModal();
         }

@@ -15,6 +15,10 @@ constexpr int SettingsHandler::DEFAULT_CONTROL_FREQ_HZ;
 constexpr bool SettingsHandler::DEFAULT_ANTI_WINDUP;
 constexpr bool SettingsHandler::DEFAULT_HYSTERESIS;
 constexpr float SettingsHandler::DEFAULT_HYST_AMOUNT;
+constexpr float SettingsHandler::DEFAULT_SENSOR_MIN_PRESSURE;
+constexpr float SettingsHandler::DEFAULT_SENSOR_MAX_PRESSURE;
+constexpr float SettingsHandler::DEFAULT_SENSOR_MIN_VOLTAGE;
+constexpr float SettingsHandler::DEFAULT_SENSOR_MAX_VOLTAGE;
 
 const char* SettingsHandler::SETTINGS_FILE_PATH = "/settings.json";
 
@@ -48,6 +52,12 @@ void SettingsHandler::resetToDefaults()
     kp_limits = {SliderDefaults::KP_MIN, SliderDefaults::KP_MAX, SliderDefaults::KP_STEP};
     ki_limits = {SliderDefaults::KI_MIN, SliderDefaults::KI_MAX, SliderDefaults::KI_STEP};
     kd_limits = {SliderDefaults::KD_MIN, SliderDefaults::KD_MAX, SliderDefaults::KD_STEP};
+    
+    // Default sensor calibration (from Constants.h)
+    sensor_min_pressure = DEFAULT_SENSOR_MIN_PRESSURE;
+    sensor_max_pressure = DEFAULT_SENSOR_MAX_PRESSURE;
+    sensor_min_voltage = DEFAULT_SENSOR_MIN_VOLTAGE;
+    sensor_max_voltage = DEFAULT_SENSOR_MAX_VOLTAGE;
 }
 
 bool SettingsHandler::load() 
@@ -110,6 +120,13 @@ bool SettingsHandler::load()
     kd_limits.max = kd_lim["max"] | SliderDefaults::KD_MAX;
     kd_limits.step = kd_lim["step"] | SliderDefaults::KD_STEP;
     
+    // Load sensor calibration with defaults from Constants.h
+    JsonObject sensor_lim = doc["sensor_limits"];
+    sensor_min_pressure = sensor_lim["minP"] | DEFAULT_SENSOR_MIN_PRESSURE;
+    sensor_max_pressure = sensor_lim["maxP"] | DEFAULT_SENSOR_MAX_PRESSURE;
+    sensor_min_voltage  = sensor_lim["minV"] | DEFAULT_SENSOR_MIN_VOLTAGE;
+    sensor_max_voltage  = sensor_lim["maxV"] | DEFAULT_SENSOR_MAX_VOLTAGE;
+    
     LOG_I(CAT_SYSTEM, "Settings loaded successfully from LittleFS");
     return true;
 }
@@ -158,6 +175,13 @@ bool SettingsHandler::save()
     kd_lim["max"] = kd_limits.max;
     kd_lim["step"] = kd_limits.step;
     
+    // Save sensor calibration as nested object
+    JsonObject sensor_lim = doc["sensor_limits"].to<JsonObject>();
+    sensor_lim["minP"] = sensor_min_pressure;
+    sensor_lim["maxP"] = sensor_max_pressure;
+    sensor_lim["minV"] = sensor_min_voltage;
+    sensor_lim["maxV"] = sensor_max_voltage;
+    
     if (serializeJson(doc, file) == 0)
     {
         LOG_E(CAT_SYSTEM, "Failed to write settings to file");
@@ -183,6 +207,8 @@ void SettingsHandler::printSettings()
     Serial.printf("Anti-Windup:       %s\n", antiWindup ? "Enabled" : "Disabled");
     Serial.printf("Hysteresis Comp:   %s (%.1f%%)\n", 
                  hysteresis ? "Enabled" : "Disabled", hystAmount);
+    Serial.printf("Sensor Pressure:   %.1f - %.1f bar\n", sensor_min_pressure, sensor_max_pressure);
+    Serial.printf("Sensor Voltage:    %.2f - %.2f V\n", sensor_min_voltage, sensor_max_voltage);
 }
 
 void SettingsHandler::printStoredSettings() 

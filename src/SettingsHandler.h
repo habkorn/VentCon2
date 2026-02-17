@@ -2,6 +2,7 @@
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>
+#include "Constants.h"
 
 /**
  * SliderLimits Structure
@@ -60,6 +61,12 @@ public:
     SliderLimits ki_limits;     // Ki slider limits
     SliderLimits kd_limits;     // Kd slider limits
     
+    // Sensor Calibration (user-configurable pressure/voltage mapping)
+    float sensor_min_pressure;  // Minimum pressure reading (bar)
+    float sensor_max_pressure;  // Maximum pressure reading (bar)
+    float sensor_min_voltage;   // Sensor output at min pressure (V)
+    float sensor_max_voltage;   // Sensor output at max pressure (V)
+    
     // Constructor with default values
     SettingsHandler();
     
@@ -95,6 +102,12 @@ private:
     static constexpr bool DEFAULT_ANTI_WINDUP = false;
     static constexpr bool DEFAULT_HYSTERESIS = false;
     static constexpr float DEFAULT_HYST_AMOUNT = 5.0;
+    
+    // Default sensor calibration values (from Constants.h)
+    static constexpr float DEFAULT_SENSOR_MIN_PRESSURE = SensorConfigDefaults::SENSOR_MIN_BAR;
+    static constexpr float DEFAULT_SENSOR_MAX_PRESSURE = SensorConfigDefaults::SENSOR_MAX_BAR;
+    static constexpr float DEFAULT_SENSOR_MIN_VOLTAGE = SensorConfigDefaults::SENSOR_MIN_VOLTAGE;
+    static constexpr float DEFAULT_SENSOR_MAX_VOLTAGE = SensorConfigDefaults::SENSOR_MAX_VOLTAGE;
     
     static const char* SETTINGS_FILE_PATH;
 };

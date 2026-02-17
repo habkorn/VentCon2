@@ -382,6 +382,12 @@ void WebHandler::handleRoot()
   inputs.replace("%RES_MAX%",  String(PwmConfig::MAX_RES_BITS));
   inputs.replace("%RES_STEP%", String(PwmConfig::RES_STEP_BITS));
   
+  // Replace sensor calibration placeholders
+  inputs.replace("%SENSOR_MINP%", String(settings->sensor_min_pressure, 1));
+  inputs.replace("%SENSOR_MAXP%", String(settings->sensor_max_pressure, 1));
+  inputs.replace("%SENSOR_MINV%", String(settings->sensor_min_voltage, 2));
+  inputs.replace("%SENSOR_MAXV%", String(settings->sensor_max_voltage, 2));
+  
   webServer.sendContent(inputs);
   yield();
   
@@ -406,7 +412,7 @@ void WebHandler::handleRoot()
     "res:{min:%d,max:%d,step:%d}"
     "};"
     "</script>",
-    SensorConfig::SENSOR_MAX_BAR,
+    settings->sensor_max_pressure,
     NetworkConfig::AP_SSID,
     NetworkConfig::AP_IP[0], NetworkConfig::AP_IP[1],
     NetworkConfig::AP_IP[2], NetworkConfig::AP_IP[3],
@@ -432,7 +438,7 @@ void WebHandler::handleSet()
   if (webServer.hasArg("sp"))
   {
     float val = webServer.arg("sp").toFloat();
-    if (val >= 0 && val <= SensorConfig::SENSOR_MAX_BAR)
+    if (val >= 0 && val <= settings->sensor_max_pressure)
       settings->setpoint = val;
   }
   
@@ -496,6 +502,26 @@ void WebHandler::handleSet()
         pid->SetOutputLimits(0, *pwmFullScaleRaw);
         updatePWM();
       }
+    }
+  }
+  
+  // Process sensor calibration parameters
+  // Read all incoming values first, falling back to current settings
+  if (webServer.hasArg("sensor_minP") || webServer.hasArg("sensor_maxP") ||
+      webServer.hasArg("sensor_minV") || webServer.hasArg("sensor_maxV"))
+  {
+    float newMinP = webServer.hasArg("sensor_minP") ? webServer.arg("sensor_minP").toFloat() : settings->sensor_min_pressure;
+    float newMaxP = webServer.hasArg("sensor_maxP") ? webServer.arg("sensor_maxP").toFloat() : settings->sensor_max_pressure;
+    float newMinV = webServer.hasArg("sensor_minV") ? webServer.arg("sensor_minV").toFloat() : settings->sensor_min_voltage;
+    float newMaxV = webServer.hasArg("sensor_maxV") ? webServer.arg("sensor_maxV").toFloat() : settings->sensor_max_voltage;
+
+    // Validate: minP < maxP, minV >= 0, minV < maxV, maxV <= 5.0V (ADC limit)
+    if (newMinP < newMaxP && newMinV >= 0.0f && newMinV < newMaxV && newMaxV <= 5.0f)
+    {
+      settings->sensor_min_pressure = newMinP;
+      settings->sensor_max_pressure = newMaxP;
+      settings->sensor_min_voltage  = newMinV;
+      settings->sensor_max_voltage  = newMaxV;
     }
   }
   
