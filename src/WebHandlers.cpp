@@ -181,8 +181,10 @@ void WebHandler::initializeWiFiAP()
     WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
     WiFi.softAP(ap_ssid, ap_password, 1, 0, NetworkConfig::MAX_CLIENTS);
     
-    // Start DNS server for captive portal
-    webDnsServer.start(NetworkConfig::DNS_PORT, "*", ap_ip);
+    // Start DNS server — resolve only the portal domain (not wildcard "*")
+    // so that OS captive-portal probe domains are NOT answered and the
+    // "Sign in to network" popup is never triggered.
+    webDnsServer.start(NetworkConfig::DNS_PORT, NetworkConfig::CAPTIVE_PORTAL_DOMAIN, ap_ip);
     
     // Start mDNS responder (accessible as http://ventcon.local)
     if (MDNS.begin(NetworkConfig::MDNS_HOSTNAME))
@@ -202,7 +204,7 @@ void WebHandler::initializeWiFiAP()
 void WebHandler::updatePWM()
 {
     ledcSetup(HardwareConfig::PWM_CHANNEL_MOSFET, settings->pwm_freq, settings->pwm_res);
-    ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *pwmPIDoutput);
+    // Don't write PWM directly — let the control loop apply valve mapping on the next cycle
 }
 
 // Helper function to get content type based on file extension
@@ -434,51 +436,67 @@ void WebHandler::handleRoot()
  */
 void WebHandler::handleSet() 
 {
+  bool changed = false;
+  bool pidChanged = false;  // Track if PID gains specifically changed
+  bool requested = false;   // Track if any known param was present
+
   // Process parameter updates with validation
   if (webServer.hasArg("sp"))
   {
+    requested = true;
     float val = webServer.arg("sp").toFloat();
-    if (val >= 0 && val <= settings->sensor_max_pressure)
-      settings->setpoint = val;
+    float spMax = min(settings->sp_limits.max, settings->sensor_max_pressure);
+    if (val >= settings->sp_limits.min && val <= spMax)
+    { settings->setpoint = val; changed = true; }
   }
   
   if (webServer.hasArg("kp"))
   {
+    requested = true;
     float val = webServer.arg("kp").toFloat();
-    if (val >= 0) settings->Kp = val;
+    if (val >= settings->kp_limits.min && val <= settings->kp_limits.max)
+    { settings->Kp = val; changed = true; pidChanged = true; }
   }
   
   if (webServer.hasArg("ki"))
   {
+    requested = true;
     float val = webServer.arg("ki").toFloat();
-    if (val >= 0) settings->Ki = val;
+    if (val >= settings->ki_limits.min && val <= settings->ki_limits.max)
+    { settings->Ki = val; changed = true; pidChanged = true; }
   }
   
   if (webServer.hasArg("kd"))
   {
+    requested = true;
     float val = webServer.arg("kd").toFloat();
-    if (val >= 0) settings->Kd = val;
+    if (val >= settings->kd_limits.min && val <= settings->kd_limits.max)
+    { settings->Kd = val; changed = true; pidChanged = true; }
   }
   
   if (webServer.hasArg("flt"))
   {
+    requested = true;
     float val = webServer.arg("flt").toFloat();
     if (val >= FilterConfig::MIN_STRENGTH && val <= FilterConfig::MAX_STRENGTH)
-      settings->filter_strength = val;
+    { settings->filter_strength = val; changed = true; }
   }
   
   if (webServer.hasArg("freq"))
   {
+    requested = true;
     int val = webServer.arg("freq").toInt();
     if (val >= PwmConfig::MIN_FREQ_HZ && val <= PwmConfig::MAX_FREQ_HZ)
     {
       settings->pwm_freq = val;
       updatePWM();
+      changed = true;
     }
   }
   
   if (webServer.hasArg("res"))
   {
+    requested = true;
     int new_res = webServer.arg("res").toInt();
     if (new_res >= PwmConfig::MIN_RES_BITS && new_res <= PwmConfig::MAX_RES_BITS)
     {
@@ -501,6 +519,7 @@ void WebHandler::handleSet()
         *pwmFullScaleRaw = new_max_value;
         pid->SetOutputLimits(0, *pwmFullScaleRaw);
         updatePWM();
+        changed = true;
       }
     }
   }
@@ -510,6 +529,7 @@ void WebHandler::handleSet()
   if (webServer.hasArg("sensor_minP") || webServer.hasArg("sensor_maxP") ||
       webServer.hasArg("sensor_minV") || webServer.hasArg("sensor_maxV"))
   {
+    requested = true;
     float newMinP = webServer.hasArg("sensor_minP") ? webServer.arg("sensor_minP").toFloat() : settings->sensor_min_pressure;
     float newMaxP = webServer.hasArg("sensor_maxP") ? webServer.arg("sensor_maxP").toFloat() : settings->sensor_max_pressure;
     float newMinV = webServer.hasArg("sensor_minV") ? webServer.arg("sensor_minV").toFloat() : settings->sensor_min_voltage;
@@ -522,15 +542,24 @@ void WebHandler::handleSet()
       settings->sensor_max_pressure = newMaxP;
       settings->sensor_min_voltage  = newMinV;
       settings->sensor_max_voltage  = newMaxV;
+      changed = true;
     }
   }
   
 
 
-  // Update PID and save settings
-  pid->SetTunings(settings->Kp, settings->Ki, settings->Kd); // Updated for PID_v2 
-  settings->save();
-  webServer.send(200, "text/plain", "OK");
+  // Update PID tunings only if gains changed; save settings if anything changed
+  if (changed)
+  {
+    if (pidChanged) pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+    settings->save();
+  }
+
+  // Return 400 if params were sent but all failed validation
+  if (requested && !changed)
+    webServer.send(400, "text/plain", "Validation failed");
+  else
+    webServer.send(200, "text/plain", "OK");
 }
 
 /*
@@ -545,11 +574,12 @@ void WebHandler::handleValues() // Send current values as JSON
   const float pwm_actual_percent = max_output_pwm > 0 ? (*actualPwm / (float)max_output_pwm) * 100.0 : 0;
   const char* adc_status = *ads_found ? "100" : "000";
   
-  char json[200]; 
+  char json[448]; 
   snprintf(json, sizeof(json),
-    "{\"sp\":%.2f,\"kp\":%.2f,\"ki\":%.2f,\"kd\":%.2f,\"flt\":%.2f,"
+    "{\"sp\":%.4f,\"kp\":%.4f,\"ki\":%.4f,\"kd\":%.4f,\"flt\":%.4f,"
     "\"freq\":%d,\"res\":%d,"
-    "\"pressure\":%.2f,\"pwm\":%.3f,\"adc_status\":\"%s\"}",
+    "\"pressure\":%.2f,\"pwm\":%.3f,\"adc_status\":\"%s\","
+    "\"sensor_minP\":%.4f,\"sensor_maxP\":%.4f,\"sensor_minV\":%.4f,\"sensor_maxV\":%.4f}",
     settings->setpoint,
     settings->Kp,
     settings->Ki,
@@ -559,7 +589,11 @@ void WebHandler::handleValues() // Send current values as JSON
     settings->pwm_res,
     *pressureInput,
     pwm_actual_percent,
-    adc_status
+    adc_status,
+    settings->sensor_min_pressure,
+    settings->sensor_max_pressure,
+    settings->sensor_min_voltage,
+    settings->sensor_max_voltage
   );
   webServer.send(200, "application/json", json); // why 200? Because this is a successful response
 }
@@ -572,8 +606,8 @@ void WebHandler::handleResetPID()
   *pwmPIDoutput = 0;
   ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, 0);
   
-  // Clear any internal state
-  *last_filtered_pressure = 0;
+  // Reset filter state to current reading to avoid transient ramp
+  *last_filtered_pressure = *pressureInput;
   
   // Reset internal state (by re-initializing the PID controller)
   pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
@@ -592,12 +626,12 @@ void WebHandler::handleSliderLimits()
   if (webServer.method() == HTTP_GET)
   {
     // Return current slider limits as JSON
-    char json[400];
+    char json[512];
     snprintf(json, sizeof(json),
-      "{\"sp\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f},"
-      "\"kp\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f},"
-      "\"ki\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f},"
-      "\"kd\":{\"min\":%.2f,\"max\":%.2f,\"step\":%.3f}}",
+      "{\"sp\":{\"min\":%.4f,\"max\":%.4f,\"step\":%.4f},"
+      "\"kp\":{\"min\":%.4f,\"max\":%.4f,\"step\":%.4f},"
+      "\"ki\":{\"min\":%.4f,\"max\":%.4f,\"step\":%.4f},"
+      "\"kd\":{\"min\":%.4f,\"max\":%.4f,\"step\":%.4f}}",
       settings->sp_limits.min, settings->sp_limits.max, settings->sp_limits.step,
       settings->kp_limits.min, settings->kp_limits.max, settings->kp_limits.step,
       settings->ki_limits.min, settings->ki_limits.max, settings->ki_limits.step,
@@ -623,9 +657,21 @@ void WebHandler::handleSliderLimits()
       return;
     }
     
-    if (webServer.hasArg("min"))  target->min  = webServer.arg("min").toFloat();
-    if (webServer.hasArg("max"))  target->max  = webServer.arg("max").toFloat();
-    if (webServer.hasArg("step")) target->step = webServer.arg("step").toFloat();
+    // Read new values, falling back to current values if not provided
+    float newMin  = webServer.hasArg("min")  ? webServer.arg("min").toFloat()  : target->min;
+    float newMax  = webServer.hasArg("max")  ? webServer.arg("max").toFloat()  : target->max;
+    float newStep = webServer.hasArg("step") ? webServer.arg("step").toFloat() : target->step;
+
+    // Validate: max must be greater than min, step must be positive
+    if (newMax <= newMin || newStep <= 0)
+    {
+      webServer.send(400, "application/json", "{\"success\":false,\"message\":\"Invalid limits: max must be > min, step must be > 0\"}");
+      return;
+    }
+
+    target->min  = newMin;
+    target->max  = newMax;
+    target->step = newStep;
     
     // Save to LittleFS
     settings->save();
@@ -684,6 +730,20 @@ void WebHandler::handleSliderLimits()
 //
 // ============================================================================
 
+/**
+ * redirectToCaptivePortal() - Send a 302 redirect to the AP root page.
+ *
+ * Used by captive-portal probe handlers and the onNotFound fallback
+ * to guide devices/browsers to the main VentCon UI.
+ */
+void WebHandler::redirectToCaptivePortal()
+{
+    String url = "http://" + ap_ip.toString();
+    webServer.sendHeader("Location", url, true);
+    webServer.send(302, "text/html",
+        "<!DOCTYPE html><html><body><a href='" + url + "'>VentCon Portal</a></body></html>");
+}
+
 void WebHandler::setupRoutes()
 {  
   // Register main page handler (memory-efficient streaming)
@@ -716,22 +776,35 @@ void WebHandler::setupRoutes()
     this->handleFileRead("/chart.min.js");
   });
   
-  webServer.on("/moment.min.js", [this](){
-    this->handleFileRead("/moment.min.js");
-  });
-  
-  webServer.on("/chartjs-adapter-moment.min.js", [this](){
-    this->handleFileRead("/chartjs-adapter-moment.min.js");
-  });
-  
   // Add handler for the SVG logo
   webServer.on("/Logo.svg", [this](){
     this->handleFileRead("/Logo.svg");
   });
-  
-  // Fallback handler for other static files
+
+  // ---- Captive-portal probe suppression ----
+  // Reply with the exact "success" responses that each OS expects so
+  // the device believes it has normal internet and never shows the
+  // "Sign in to network" popup.
+  webServer.on("/generate_204",      [this](){ webServer.send(204, "", ""); });                     // Android / Chrome OS
+  webServer.on("/hotspot-detect.html",[this](){ webServer.send(200, "text/html", "<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"); }); // iOS / macOS
+  webServer.on("/connecttest.txt",   [this](){ webServer.send(200, "text/plain", "Microsoft Connect Test"); }); // Windows NCSI
+  webServer.on("/ncsi.txt",          [this](){ webServer.send(200, "text/plain", "Microsoft NCSI"); });         // Windows NCSI alt
+  webServer.on("/redirect",          [this](){ webServer.send(200, "text/plain", ""); });           // Generic
+  webServer.on("/canonical.html",    [this](){ webServer.send(200, "text/html", "<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"); }); // Firefox
+  webServer.on("/success.txt",       [this](){ webServer.send(200, "text/plain", "success"); });    // Android variants
+
+  // Fallback: redirect requests for unknown hosts; serve files for AP-IP requests
   webServer.onNotFound([this]()
   {
+    // If the Host header does not match the AP IP, the client is trying to
+    // reach an external site — redirect to the captive portal root page.
+    String host = webServer.hostHeader();
+    if (host.length() > 0 && host != ap_ip.toString())
+    {
+      this->redirectToCaptivePortal();
+      return;
+    }
+    // Normal file-serving fallback for AP-IP requests
     if (!this->handleFileRead(webServer.uri()))
     {
       webServer.send(404, "text/plain", "404: Not Found");
@@ -1005,8 +1078,8 @@ void WebHandler::changeWiFiChannel(int channel)
         WiFi.softAP(currentSSID.c_str(), currentPassword.c_str());
         Serial.println("Access Point restored to automatic channel selection");
     }
-      // Restart DNS server for captive portal
-    webDnsServer.start(NetworkConfig::DNS_PORT, "*", WiFi.softAPIP());
+      // Restart DNS server for captive portal (domain-specific, not wildcard)
+    webDnsServer.start(NetworkConfig::DNS_PORT, NetworkConfig::CAPTIVE_PORTAL_DOMAIN, WiFi.softAPIP());
     
     // Restart mDNS responder
     MDNS.end();

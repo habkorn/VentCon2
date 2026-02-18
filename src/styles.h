@@ -17,6 +17,9 @@ const char CSS_STYLES[] PROGMEM = R"rawliteral(
   --text: #1e293b;
   --border: #e2e8f0;
   --shadow: rgba(0, 0, 0, 0.05);
+  --text-light: #64748b;
+  --text-secondary: #6b7280;
+  --background-alt: #f1f5f9;
 }
 
 * 
@@ -251,7 +254,6 @@ h1, h2, h3, h4
   font-weight: 600;
   line-height: 1.2;
   margin-bottom: 0.5rem;
-  font-size: 0.5rem;
 }
 
 h1
@@ -273,6 +275,13 @@ h2
 h3
 {
   font-size: 1rem;
+  color: var(--secondary);
+  margin-bottom: 0.25rem;
+}
+
+h4
+{
+  font-size: 0.875rem;
   color: var(--secondary);
   margin-bottom: 0.25rem;
 }
@@ -381,17 +390,23 @@ h3
   overflow: hidden;
 }
 
-/* Sensor settings: two-column grid with input+unit groups */
-.sensor-grid
+/* Sensor settings: Pressure & Voltage blocks always side by side */
+.sensor-columns
 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: nowrap;
 }
 
-@media (max-width: 640px)
+.sensor-block
 {
-  .sensor-grid { grid-template-columns: 1fr; }
+  flex: 1;
+  min-width: 0;
+}
+
+.sensor-group
+{
+  margin-bottom: 0.5rem;
 }
 
 .sensor-group label
@@ -449,11 +464,6 @@ h3
   color: var(--text-secondary, #6b7280);
   margin-bottom: 0.35rem;
   margin-top: 0.25rem;
-}
-
-.sensor-section-title:not(:first-child)
-{
-  margin-top: 0.85rem;
 }
 
 .slider-btn 
@@ -551,7 +561,7 @@ input[type="range"]::-ms-thumb
   border: none;
 }
 
-input[type="text"][inputmode]
+.control-slider input[type="text"]
 {
   width: 4rem;
   padding: 0.25rem;
@@ -686,7 +696,8 @@ footer
   padding-bottom: 0.5rem;
 }
 
-span
+.control-row span,
+.gauge-container span
 {
   font-size: 0.875rem;
 }
@@ -909,24 +920,6 @@ span
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.loader-logo
-{
-  height: 30px;
-  margin-bottom: 16px;
-}
-
-.loader-title
-{
-  font-size: 1.5rem;
-  font-weight: 1000;
-  margin-bottom: 16px;
-  text-align: center;
-  background: linear-gradient(90deg, #002f87 0%, #32c09d 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 .loader-spinner

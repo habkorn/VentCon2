@@ -173,16 +173,16 @@ void ControlSystem::processControlLoop()
                 float pidPercent = (*pwmPIDoutput / *pwmFullScaleRaw) * 100.0;
                 
                 // Below dead zone and trying to decrease further (valve already closed)
-                // Above saturation and trying to increase further (valve already fully open)
-                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmPIDoutput < previousOutput) ||
-                    (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmPIDoutput > previousOutput)) 
+                // Above full scale and trying to increase further (valve already at max duty)
+                if ((pidPercent < ValveConfig::PID_MIN_OUTPUT_PERCENT && *pwmPIDoutput < previousOutput) ||
+                    (pidPercent >= 100.0f && *pwmPIDoutput > previousOutput)) 
                 {
                     // Reset the PID to prevent integral accumulation
                     pid->SetMode(PID::Manual);
                     pid->SetMode(PID::Automatic);
                     
                     // Debug output using Logger (rate-limited automatically)
-                    if (pidPercent < ValveConfig::VALVE_MIN_DUTY) 
+                    if (pidPercent < ValveConfig::PID_MIN_OUTPUT_PERCENT) 
                     {
                         LOG_D(CAT_CONTROL, "Anti-windup: Below min duty (%.1f%%), valve closed", pidPercent);
                     } 

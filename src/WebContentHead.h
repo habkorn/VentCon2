@@ -28,7 +28,5 @@ const char HTML_HEAD[] PROGMEM = R"rawliteral(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Load JS libraries from LittleFS root with deferred loading.-->
   <script src="/chart.min.js" defer></script>
-  <script src="/moment.min.js" defer></script>
-  <script src="/chartjs-adapter-moment.min.js" defer></script>
 
 )rawliteral";

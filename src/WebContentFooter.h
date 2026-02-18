@@ -152,4 +152,10 @@ const char HTML_FOOTER[] PROGMEM = R"rawliteral(
       </div>
     </div>
   </footer>
+
+
+  <div class="reset-defaults-container">
+    <button id="resetDefaultsBtn" class="reset-defaults-btn" title="Load default values from settings.json and reset PID">Reset to Default</button>
+  </div>
+
 )rawliteral";

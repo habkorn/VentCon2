@@ -10,15 +10,7 @@ Before running compression, download these files:
    - Download from: https://cdn.jsdelivr.net/npm/chart.js
    - Save as: `chart.min.js`
 
-2. **Moment.js** (latest version)  
-   - Download from: https://cdn.jsdelivr.net/npm/moment
-   - Save as: `moment.min.js`
-
-3. **Chart.js Moment Adapter**
-   - Download from: https://cdn.jsdelivr.net/npm/chartjs-adapter-moment
-   - Save as: `chartjs-adapter-moment.min.js`
-
-4. **Logo.svg** 
+2. **Logo.svg** 
    - Use your existing VENTREX logo file
 
 ## Compression Process
@@ -31,8 +23,6 @@ python compress_resources.py
 ### Option 2: Manual using gzip command line
 ```bash
 gzip -9 -k chart.min.js
-gzip -9 -k moment.min.js  
-gzip -9 -k chartjs-adapter-moment.min.js
 gzip -9 -k Logo.svg
 ```
 
@@ -41,8 +31,6 @@ gzip -9 -k Logo.svg
 | File | Original Size | Compressed Size | Savings |
 |------|---------------|-----------------|---------|
 | chart.min.js | ~200KB | ~60KB | ~70% |
-| moment.min.js | ~60KB | ~20KB | ~67% |
-| chartjs-adapter-moment.min.js | ~15KB | ~5KB | ~67% |
 | Logo.svg | Variable | Variable | ~60-80% |
 
 ## Upload to ESP32

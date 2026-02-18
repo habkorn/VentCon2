@@ -29,10 +29,6 @@ SettingsHandler settings; // Use SettingsHandler class instance
 SensorManager* sensorManager = nullptr; // Will be initialized in setup()
 AutoTuner* autoTuner = nullptr; // Will be initialized in setup()
 
-// ====== Valve Configuration ======
-const float VALVE_MIN_DUTY = ValveConfig::VALVE_MIN_DUTY; 
-const float VALVE_MAX_DUTY = ValveConfig::VALVE_MAX_DUTY;
-
 // ====== PID and Control Variables ======
 double pressureInput = 0, pwmPIDoutput = 0; // PID input (pressure) and output (PWM), zero-initialized for safe PID startup
 uint32_t actualPwm = 0; // Mapped valve PWM value (after PID→valve mapping), shared with WebHandler
@@ -58,31 +54,6 @@ void showSettingsFromLittleFS()
     // Use the SettingsHandler class method to display stored settings
     settings.printStoredSettings();
 }
-
-
-// ====== Version Information ======
-const char* getVersionString() 
-{
-  static char versionString[50];
-  sprintf(versionString, VENTCON_VERSION);
-  return versionString;
-}
-
-
-
-// ====== Serial Command Parser ======
-void parseSerialCommand(String cmd)
-{
-  if (commandProcessor) 
-  {
-    commandProcessor->processCommand(cmd);
-  } 
-  else 
-  {
-    Serial.println("ERROR: CommandProcessor not initialized");
-  }
-}
-
 
 
 // ====== Arduino Setup Function ======
@@ -128,12 +99,6 @@ void setup()
   // Initialize AutoTuner
   autoTuner = new AutoTuner(&settings, &pid, &pressureInput, &pwmFullScaleRaw);
   Serial.println("AutoTuner initialized successfully!");
-  // Initialize CommandProcessor (now with TaskManager reference)
-  commandProcessor = new CommandProcessor(&settings, sensorManager, autoTuner, 
-                                        webHandler, &pid, &pressureInput, &pwmPIDoutput,
-                                        &actualPwm, &pwmFullScaleRaw, &manualPWMMode, &continousValueOutput,
-                                        taskManager);
-  Serial.println("CommandProcessor initialized successfully!");
 
   // Setup PWM for solenoid valve control
   ledcSetup(PWM_CHANNEL_MOSFET, settings.pwm_freq, settings.pwm_res);
@@ -189,6 +154,13 @@ void setup()
   // Initialize TaskManager
   taskManager = new TaskManager(controlSystem, webHandler);
   
+  // Initialize CommandProcessor (after webHandler and taskManager are ready)
+  commandProcessor = new CommandProcessor(&settings, sensorManager, autoTuner, 
+                                        webHandler, &pid, &pressureInput, &pwmPIDoutput,
+                                        &actualPwm, &pwmFullScaleRaw, &manualPWMMode, &continousValueOutput,
+                                        taskManager);
+  Serial.println("CommandProcessor initialized successfully!");
+
   // Create and start tasks
   if (!taskManager->createTasks()) 
   {

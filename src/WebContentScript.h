@@ -6,7 +6,7 @@
 // ============================================================================
 
 const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
-  <script defer>
+  <script>
     // Cached DOM elements
     let cachedElements = {};
     
@@ -22,6 +22,15 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     };
     const SLIDER_PARAMS = Object.keys(PARAM_CONFIG);
     const CONFIGURABLE_SLIDERS = ['sp', 'kp', 'ki', 'kd'];
+
+    // Return number of decimal places implied by a step value (mirrors server-side decimalsFromStep)
+    function decimalsFromStep(step)
+    {
+      if (step <= 0) return 2;
+      var d = 0, v = step;
+      while (d < 6 && Math.abs(v - Math.round(v)) > 0.0001) { v *= 10; d++; }
+      return d;
+    }
     
     // Timing constants (shared between chart and data polling)
     const POLLING_INTERVAL_MS = 100;  // Data fetch interval
@@ -130,12 +139,14 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           hideLoaderAndContinue();
           if(cachedElements.chartContainer) cachedElements.chartContainer.style.display = 'none';
           setupEventListeners();
+          captureAllInputs();
           startDataUpdates();
           return;
         }
       }
 
       cacheElements();
+      if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.display = 'none';
       hideLoaderAndContinue();
 
       // Initialize the chart after Chart.js is loaded
@@ -143,6 +154,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
 
       // Setup all other functionality
       setupEventListeners();
+      captureAllInputs();
       updateTimeConstants();
       startDataUpdates();
 
@@ -368,44 +380,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           },
           plugins: {
             legend: {
-              display: false,
-              position: 'top',
-              labels: {
-                boxWidth: 25,
-                boxHeight:0,
-                usePointStyle: false,
-                generateLabels: function(chart) {
-                  const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                  original.forEach(label => {
-                    if (label.text === 'Setpoint') {
-                      label.lineDash = [5, 5];
-                    }
-                  });
-                  return original;
-                }
-              }
+              display: false
             },
             tooltip: {
-              enabled: false,
-              backgroundColor: 'rgba(255,255,255,0.9)',
-              titleColor: getCssVar('--text'),
-              bodyColor: getCssVar('--text'),
-              borderColor: getCssVar('--border'),
-              borderWidth: 1,
-              cornerRadius: 6,
-              displayColors: true,
-              callbacks: {
-                label: function(context)
-                {
-                  const label = context.dataset.label;
-                  const value = context.parsed.y.toFixed(3);
-                  if (label === 'Valve Duty Cycle')
-                  {
-                    return label + ': ' + value + '%';
-                  }
-                  return label + ': ' + value + ' bar';
-                }
-              }
+              enabled: false
             }
           }
         }
@@ -464,7 +442,15 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
 
           text.addEventListener('input', function()
           {
-            const val = parseFloat(text.value);
+            const raw = text.value.trim();
+            // Allow empty or partial input (e.g. deleting before typing new value)
+            if (raw === '' || raw === '-' || raw === '.')
+            {
+              setInputError(text, null);
+              validationOk = true;
+              return;
+            }
+            const val = parseFloat(raw);
             const lo = parseFloat(slider.min);
             const hi = parseFloat(slider.max);
             if (!isNaN(val) && val >= lo && val <= hi)
@@ -487,6 +473,11 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             clampTextToSlider(text, slider);
             if (isPid) updateTimeConstants();
             validationOk = true;
+            // If clamped value differs from saved snapshot, register as pending change
+            if (savedSnapshot[param] !== undefined && String(text.value) !== String(savedSnapshot[param]))
+            {
+              showSaveSnackbar(param, text.value);
+            }
           });
         }
       });
@@ -547,6 +538,33 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             validationOk = sensorValid;
             if (sensorValid) showSaveSnackbar(param, input.value);
           });
+
+          // On blur: revert empty field to its snapshot value and clear errors
+          input.addEventListener('blur', function()
+          {
+            const raw = input.value.trim();
+            if (raw === '' || raw === '-' || raw === '.' || isNaN(parseFloat(raw)))
+            {
+              // Revert to last saved snapshot value
+              if (savedSnapshot && savedSnapshot[param] !== undefined)
+                input.value = savedSnapshot[param];
+              setInputError(input, null);
+              validationOk = true;
+            }
+          });
+
+          // On focus: scroll the sensor card to the top so it stays visible above the keyboard
+          input.addEventListener('focus', function()
+          {
+            const card = input.closest('details.card');
+            if (card)
+            {
+              // Short delay lets the keyboard open first so scroll target is correct
+              setTimeout(function() {
+                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 300);
+            }
+          });
         }
       });
       
@@ -570,18 +588,43 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         resetDefaultsBtn.addEventListener('click', handleResetToDefaults);
       }
       
-      // Keep snackbar visible when mobile keyboard / address bar changes viewport
+      // Keep snackbar above the on-screen keyboard using requestAnimationFrame.
+      // Runs only while an input has focus, so there is no idle cost.
       if (window.visualViewport && cachedElements.saveSnackbar)
       {
-        window.visualViewport.addEventListener('resize', function()
+        let snackbarRafId = null;
+
+        function repositionSnackbar()
         {
-          const offset = window.innerHeight - window.visualViewport.height + window.visualViewport.offsetTop;
-          cachedElements.saveSnackbar.style.bottom = (24 + offset) + 'px';
+          if (cachedElements.saveSnackbar)
+          {
+            const vv = window.visualViewport;
+            const offset = window.innerHeight - vv.height - vv.offsetTop;
+            cachedElements.saveSnackbar.style.bottom = Math.max(24, 24 + offset) + 'px';
+          }
+          snackbarRafId = requestAnimationFrame(repositionSnackbar);
+        }
+
+        // Start loop when any input/text field gains focus
+        document.addEventListener('focusin', function(e)
+        {
+          if (e.target.matches('input, textarea') && !snackbarRafId)
+          {
+            snackbarRafId = requestAnimationFrame(repositionSnackbar);
+          }
         });
-        window.visualViewport.addEventListener('scroll', function()
+
+        // Stop loop when focus leaves input fields
+        document.addEventListener('focusout', function(e)
         {
-          const offset = window.innerHeight - window.visualViewport.height + window.visualViewport.offsetTop;
-          cachedElements.saveSnackbar.style.bottom = (24 + offset) + 'px';
+          if (e.target.matches('input, textarea'))
+          {
+            if (snackbarRafId) { cancelAnimationFrame(snackbarRafId); snackbarRafId = null; }
+            // Reset to default position after keyboard closes
+            setTimeout(function() {
+              if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.bottom = '24px';
+            }, 300);
+          }
         });
       }
 
@@ -639,6 +682,13 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               cachedElements.pressure.textContent = pressureVal.toFixed(2);
             }
             
+            // Sync CFG.maxBar if sensor max pressure changed on server
+            if (typeof data.sensor_maxP !== 'undefined' && data.sensor_maxP !== CFG.maxBar)
+            {
+              CFG.maxBar = data.sensor_maxP;
+              updateChartYAxisMax(data.sensor_maxP);
+            }
+
             // Update pressure fill and calculate percentage (0-maxBar range)
             const pressurePercent = (pressureVal / CFG.maxBar) * 100;
             if (cachedElements.pressureFill)
@@ -696,6 +746,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           // Only update UI controls if no unsaved changes (saveSnackbar is hidden)
           if (cachedElements.saveSnackbar && cachedElements.saveSnackbar.style.display === 'none')
           {
+            const activeEl = document.activeElement;
             // Update all sliders and inputs with current values from server using cached elements
             SLIDER_PARAMS.forEach(param =>
             {
@@ -705,12 +756,28 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
                 {
                   cachedElements.sliders[param].value = data[param];
                 }
-                if (cachedElements.texts && cachedElements.texts[param])
+                // Skip overwriting a text field that the user is currently editing
+                if (cachedElements.texts && cachedElements.texts[param] && cachedElements.texts[param] !== activeEl)
                 {
-                  cachedElements.texts[param].value = data[param];
+                  const step = parseFloat(cachedElements.texts[param].step || cachedElements.sliders[param].step);
+                  const dec = step > 0 ? decimalsFromStep(step) : 4;
+                  cachedElements.texts[param].value = parseFloat(data[param]).toFixed(dec);
                 }
               }
             });
+
+            // Sync sensor calibration values from server
+            if (cachedElements.sensorInputs)
+            {
+              const SENSOR_KEYS = ['sensor_minP', 'sensor_maxP', 'sensor_minV', 'sensor_maxV'];
+              SENSOR_KEYS.forEach(key =>
+              {
+                if (typeof data[key] !== 'undefined' && cachedElements.sensorInputs[key] && cachedElements.sensorInputs[key] !== activeEl)
+                {
+                  cachedElements.sensorInputs[key].value = data[key];
+                }
+              });
+            }
           }
 
           scheduleNextUpdate();
@@ -814,6 +881,21 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     // Track changes to show the save snackbar
     let pendingChanges = {};
     let changeTimeout;
+    let saveFadeTimeout;
+    // Snapshot of ALL input values — taken on page load and after each save.
+    // Used to revert inputs to their last-saved state when the snackbar times out.
+    let savedSnapshot = {};
+
+    // Capture every editable input's current value into savedSnapshot.
+    // Call on page load and after each successful save or reset-to-defaults.
+    function captureAllInputs()
+    {
+      savedSnapshot = {};
+      const txt = cachedElements.texts;
+      const si = cachedElements.sensorInputs;
+      if (txt) { Object.keys(txt).forEach(function(k) { if (txt[k]) savedSnapshot[k] = txt[k].value; }); }
+      if (si)  { Object.keys(si).forEach(function(k)  { if (si[k])  savedSnapshot[k] = si[k].value;  }); }
+    }
     
     // Reusable button feedback helper: shows temporary text/color then reverts
     function showButtonFeedback(btn, text, color, revertDelay, originalText, originalColor, onRevert)
@@ -888,6 +970,20 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     {
       if (!cachedElements.sensorInputs) return true;
       const si = cachedElements.sensorInputs;
+
+      // Check which fields are in a partial/intermediate state (e.g. user is deleting to retype)
+      const fields = [si.sensor_minP, si.sensor_maxP, si.sensor_minV, si.sensor_maxV];
+      const partial = fields.map(f => { const v = f.value.trim(); return v === '' || v === '-' || v === '.'; });
+
+      // If any field is partial, clear its error and skip full cross-validation
+      // (user is mid-edit; blocking would prevent typing)
+      if (partial.some(Boolean))
+      {
+        fields.forEach((f, i) => { if (partial[i]) setInputError(f, null); });
+        // Don't allow save while any field is still partial
+        return false;
+      }
+
       const minP = parseFloat(si.sensor_minP.value);
       const maxP = parseFloat(si.sensor_maxP.value);
       const minV = parseFloat(si.sensor_minV.value);
@@ -969,7 +1065,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     function showSaveSnackbar(param, value)
     {
       if (!cachedElements.saveSnackbar) return;
-      
+
       // Store the changed parameter
       pendingChanges[param] = value;
       
@@ -986,9 +1082,42 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         ], { duration: 300, easing: 'ease-out' });
       }
       
-      // Auto-hide after 8 seconds of inactivity
+      // Cancel any pending fade-out from a previous save success
+      clearTimeout(saveFadeTimeout);
+      // Auto-hide after 8 seconds of inactivity — revert unsaved changes
       clearTimeout(changeTimeout);
-      changeTimeout = setTimeout(() => fadeOutSnackbar(), 8000);
+      changeTimeout = setTimeout(() => fadeOutSnackbar(revertUnsavedChanges), 8000);
+    }
+
+    // Revert all unsaved input values to their last-saved state
+    function revertUnsavedChanges()
+    {
+      const si = cachedElements.sensorInputs;
+      const txt = cachedElements.texts;
+      const sl = cachedElements.sliders;
+
+      // Only revert params that were actually edited
+      Object.keys(pendingChanges).forEach(function(param)
+      {
+        const oldVal = savedSnapshot[param];
+        if (oldVal === undefined) return;
+
+        if (si && si[param])
+        {
+          si[param].value = oldVal;
+          setInputError(si[param], null);
+        }
+        else if (txt && txt[param])
+        {
+          txt[param].value = oldVal;
+          if (sl && sl[param]) sl[param].value = oldVal;
+          setInputError(txt[param], null);
+        }
+      });
+
+      pendingChanges = {};
+      validationOk = true;
+      resetSnackbar();
     }
     
     // Handle save button click
@@ -1014,18 +1143,22 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       ).join("&");
 
       fetch("/set?" + params)
-        .then(() =>
+        .then(r =>
         {
+          if (!r.ok) throw new Error('Server returned ' + r.status);
           if (cachedElements.saveSnackbarText && cachedElements.saveSnackbar)
           {
             cachedElements.saveSnackbarText.textContent = "Settings Updated";
             cachedElements.saveSnackbar.style.background = getCssVar('--success'); // Success green
             
-            // Clear pending changes
+            // Clear pending changes — save succeeded; re-snapshot current values as new baseline
             pendingChanges = {};
+            captureAllInputs();
             
-            // Hide snackbar after a short delay
-            setTimeout(() => fadeOutSnackbar(resetSnackbar), 1000);
+            // Cancel the 8-second auto-revert timer
+            clearTimeout(changeTimeout);
+            // Hide snackbar after a short delay (tracked so new changes can cancel it)
+            saveFadeTimeout = setTimeout(() => fadeOutSnackbar(resetSnackbar), 1000);
           }
         })
         .catch(err =>
@@ -1080,11 +1213,9 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         });
     }
 
-    // Handle Reset to Default: load values from settings.json and apply them
+    // Handle Reset to Default: load values from default.json and apply them
     function handleResetToDefaults()
     {
-      if (!confirm('Are you sure you want to reset all settings to their default values?')) return;
-
       const btn = document.getElementById('resetDefaultsBtn');
       if (!btn) return;
       const originalText = btn.textContent;
@@ -1095,7 +1226,64 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         .then(r => r.json())
         .then(defaults =>
         {
-          // Build /set query string using centralized PARAM_CONFIG
+          // Build a human-readable summary of default values
+          // Calculate raw PWM full-scale counts from resolution
+          const maxPwmCount = (1 << defaults.pwm_res) - 1;
+          const lines = [
+            'Setpoint: ' + defaults.setpoint + ' bar(g)',
+            'PWM Res: ' + defaults.pwm_res + ' bit',
+            '--> Max. PWM Count: ' + maxPwmCount,
+            'Kp: ' + defaults.Kp + ' PWM_counts / bar',
+            'Ki: ' + defaults.Ki + ' PWM_counts / (bar·s)',
+            'Kd: ' + defaults.Kd + ' PWM_counts·s / bar',
+            'Filter: ' + defaults.filter_strength,
+            'PWM Freq: ' + defaults.pwm_freq + ' Hz'
+          ];
+          if (defaults.sensor_limits)
+          {
+            const sl = defaults.sensor_limits;
+            lines.push('Sensor: ' + sl.minP + '-' + sl.maxP + ' bar, ' + sl.minV + '-' + sl.maxV + ' V');
+          }
+
+          if (!confirm('Reset all settings to defaults?\n\n' + lines.join('\n')))
+          {
+            btn.textContent = originalText;
+            btn.disabled = false;
+            throw new Error('__cancelled__');
+          }
+          // Step 1: Reset slider limits FIRST so /set validation uses the restored ranges
+          const limitsPromises = CONFIGURABLE_SLIDERS
+            .filter(param => defaults[param + '_limits'])
+            .map(param =>
+            {
+              const lim = defaults[param + '_limits'];
+              const formData = new URLSearchParams();
+              formData.append('param', param);
+              formData.append('min', lim.min);
+              formData.append('max', lim.max);
+              formData.append('step', lim.step);
+              return fetch('/api/slider-limits', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+              }).then(() =>
+              {
+                sliderLimits[param] = { min: lim.min, max: lim.max, step: lim.step };
+              });
+            });
+
+          return Promise.all(limitsPromises).then(() =>
+          {
+            applySliderLimits();
+            // Update chart Y-axis if setpoint max changed
+            if (defaults.sp_limits && typeof defaults.sp_limits.max === 'number')
+              updateChartYAxisMax(defaults.sp_limits.max);
+            return defaults;
+          });
+        })
+        .then(defaults =>
+        {
+          // Step 2: Now send default values to /set (validated against the restored limits)
           let params = SLIDER_PARAMS
             .filter(param => defaults[PARAM_CONFIG[param].jsonKey] !== undefined)
             .map(param => param + '=' + encodeURIComponent(defaults[PARAM_CONFIG[param].jsonKey]))
@@ -1111,12 +1299,11 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (sl.maxV !== undefined) params += '&sensor_maxV=' + encodeURIComponent(sl.maxV);
           }
 
-          return fetch('/set?' + params).then(() => defaults);
+          return fetch('/set?' + params).then(r => { if (!r.ok) throw new Error('Server rejected settings'); return defaults; });
         })
         .then(defaults =>
         {
-          // Also reset the PID controller
-          // Update sensor inputs in the UI from defaults
+          // Step 3: Update sensor inputs in the UI from defaults
           if (defaults.sensor_limits && cachedElements.sensorInputs)
           {
             const sl = defaults.sensor_limits;
@@ -1125,19 +1312,24 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (cachedElements.sensorInputs.sensor_minV && sl.minV !== undefined) cachedElements.sensorInputs.sensor_minV.value = sl.minV;
             if (cachedElements.sensorInputs.sensor_maxV && sl.maxV !== undefined) cachedElements.sensorInputs.sensor_maxV.value = sl.maxV;
           }
+
+          // Step 4: Reset PID controller
           return fetch('/resetPID');
         })
-        .then(r => r.json())
+        .then(r => { if (!r.ok) throw new Error('PID reset failed'); return r.json(); })
         .then(data =>
         {
-          // Clear any pending changes
+          // Clear any pending changes; defer snapshot so next poll captures fresh values
           pendingChanges = {};
           if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.display = 'none';
+          // Snapshot after a short delay to let polling update inputs with new server values
+          setTimeout(() => captureAllInputs(), 300);
 
           showButtonFeedback(btn, 'Defaults Restored!', getCssVar('--success'), 1500, originalText, '', () => { btn.disabled = false; });
         })
         .catch(err =>
         {
+          if (err && err.message === '__cancelled__') return; // User cancelled
           console.error('Error resetting to defaults:', err);
           showButtonFeedback(btn, 'Error', getCssVar('--danger'), 1500, originalText, '', () => { btn.disabled = false; });
         });
@@ -1166,7 +1358,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           // Activate Easter egg after 5 clicks
           if (clickCount >= 5)
           {
-            if (easterEgg.style.display === 'none')
+            if (getComputedStyle(easterEgg).display === 'none')
             {
               // Show Easter egg and populate with system info
               easterEgg.style.display = 'block';
@@ -1334,11 +1526,13 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             slider.min = newMin;
             slider.max = newMax;
             slider.step = newStep;
-            // Clamp current value if needed
+            // Clamp current value if needed and sync to server
             let val = parseFloat(slider.value);
-            if (val < newMin) slider.value = newMin;
-            if (val > newMax) slider.value = newMax;
+            let clamped = false;
+            if (val < newMin) { slider.value = newMin; clamped = true; }
+            if (val > newMax) { slider.value = newMax; clamped = true; }
             if (text) text.value = slider.value;
+            if (clamped) showSaveSnackbar(currentSliderParam, slider.value);
           }
           if (text) text.step = newStep;
           

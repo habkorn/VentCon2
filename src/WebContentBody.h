@@ -20,7 +20,7 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
   <div class="loader" id="loader">
     <div class="loader-content">
       <div class="logo-container">
-        <img src="/Logo.svg" alt="VENTREX" class="logo" id="ventrexLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
+        <img src="/Logo.svg" alt="VENTREX" class="logo" id="loaderLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
       </div>
       <h1>
         <span class="brand-title" aria-label="VENTCON Pressure Control System">
@@ -91,11 +91,11 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         </div>
         <div class="modal-body">
           <div class="modal-row">
-            <label>Minimum</label>
+            <label>Minimum value for slider</label>
             <input type="text" inputmode="decimal" id="modalMin" step="any">
           </div>
           <div class="modal-row">
-            <label>Maximum</label>
+            <label>Maximum value for slider</label>
             <input type="text" inputmode="decimal" id="modalMax" step="any">
           </div>
           <div class="modal-row">

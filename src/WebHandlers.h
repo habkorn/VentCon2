@@ -59,6 +59,7 @@ private:
     void handleValues();
     void handleResetPID();
     void handleSliderLimits();   // GET/POST slider limits API
+    void redirectToCaptivePortal(); // 302 redirect to AP root page
 
 public:    // Constructor with dependency injection
     WebHandler(SettingsHandler* settings,

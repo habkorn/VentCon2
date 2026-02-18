@@ -79,29 +79,44 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
 {
     if (cmd.startsWith("KP ")) 
     {
-        settings->Kp = cmd.substring(3).toFloat();
-        pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-        Serial.printf("Proportional gain set to: %.2f\n", settings->Kp);
-        settings->save();
+        float val = cmd.substring(3).toFloat();
+        if (val >= settings->kp_limits.min && val <= settings->kp_limits.max)
+        {
+            settings->Kp = val;
+            pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+            Serial.printf("Proportional gain set to: %.2f\n", settings->Kp);
+            settings->save();
+        }
+        else { Serial.printf("KP out of range (%.2f - %.2f)\n", settings->kp_limits.min, settings->kp_limits.max); }
     }
     else if (cmd.startsWith("KI ")) 
     {
-        settings->Ki = cmd.substring(3).toFloat();
-        pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-        Serial.printf("Integral gain set to: %.2f\n", settings->Ki);
-        settings->save();
+        float val = cmd.substring(3).toFloat();
+        if (val >= settings->ki_limits.min && val <= settings->ki_limits.max)
+        {
+            settings->Ki = val;
+            pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+            Serial.printf("Integral gain set to: %.2f\n", settings->Ki);
+            settings->save();
+        }
+        else { Serial.printf("KI out of range (%.2f - %.2f)\n", settings->ki_limits.min, settings->ki_limits.max); }
     }
     else if (cmd.startsWith("KD ")) 
     {
-        settings->Kd = cmd.substring(3).toFloat();
-        pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-        Serial.printf("Derivative gain set to: %.2f\n", settings->Kd);
-        settings->save();
+        float val = cmd.substring(3).toFloat();
+        if (val >= settings->kd_limits.min && val <= settings->kd_limits.max)
+        {
+            settings->Kd = val;
+            pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+            Serial.printf("Derivative gain set to: %.2f\n", settings->Kd);
+            settings->save();
+        }
+        else { Serial.printf("KD out of range (%.2f - %.2f)\n", settings->kd_limits.min, settings->kd_limits.max); }
     }
     else if (cmd.startsWith("SP ")) 
     {
         float val = cmd.substring(3).toFloat();
-        if (val >= 0 && val <= settings->sensor_max_pressure)
+        if (val >= settings->sp_limits.min && val <= settings->sensor_max_pressure)
         {
             settings->setpoint = val;
             Serial.printf("Setpoint updated to: %.2f bar\n", settings->setpoint);
@@ -109,7 +124,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         }
         else
         {
-            Serial.printf("ERROR: Setpoint must be 0 - %.1f bar\n", settings->sensor_max_pressure);
+            Serial.printf("ERROR: Setpoint must be %.1f - %.1f bar\n", settings->sp_limits.min, settings->sensor_max_pressure);
         }
     }
     else if (cmd.startsWith("SAMPLE ")) 
@@ -144,7 +159,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         // Reset PID controller
         Serial.println("Resetting PID controller...");
         
-        pid->SetMode(MANUAL);
+        pid->SetMode(PID::Manual);
         *pwmPIDoutput = 0;
         ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, 0);
         
@@ -157,7 +172,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         // Re-initialize PID with current settings
         pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
         pid->SetOutputLimits(0, *pwmFullScaleRaw);
-        pid->SetMode(AUTOMATIC);
+        pid->SetMode(PID::Automatic);
         
         // Reset manual mode if it was enabled
         *manualPWMMode = false;
@@ -634,7 +649,7 @@ void CommandProcessor::handleFileSystemCommands(const String& cmd)
 void CommandProcessor::updatePWM() 
 {
     ledcSetup(HardwareConfig::PWM_CHANNEL_MOSFET, settings->pwm_freq, settings->pwm_res);
-    ledcWrite(HardwareConfig::PWM_CHANNEL_MOSFET, *actualPwm);
+    // Let the control loop apply the correct mapped PWM value on the next cycle
 }
 
 void CommandProcessor::showHelp() 

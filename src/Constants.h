@@ -1,7 +1,7 @@
 #pragma once
 
 // System version string including build timestamp for identification and debugging
-#define VENTCON_VERSION "2.2.0 (Build: " __DATE__ " " __TIME__ ")"
+#define VENTCON_VERSION "2.2.2 (Build: " __DATE__ " " __TIME__ ")"
 
 // Network Configuration
 namespace NetworkConfig 
@@ -28,7 +28,10 @@ namespace NetworkConfig
     constexpr int DNS_PORT = 53;
     
     // Captive portal domain name (redirects to AP_IP)
-    constexpr char CAPTIVE_PORTAL_DOMAIN[] = "www.ventcon.at";
+    // IMPORTANT: Use a non-existent TLD (e.g. .setup) so that modern browsers
+    // cannot resolve it via DNS-over-HTTPS and are forced to query the local
+    // wildcard DNS server running on the AP.
+    constexpr char CAPTIVE_PORTAL_DOMAIN[] = "ventcon.setup";
     
     // mDNS hostname (accessible as http://ventcon.local)
     constexpr char MDNS_HOSTNAME[] = "ventcon";
@@ -265,20 +268,20 @@ namespace SliderDefaults
     // Setpoint slider limits (bar)
     constexpr float SP_MIN = SensorConfigDefaults::SENSOR_MIN_BAR;
     constexpr float SP_MAX = SensorConfigDefaults::SENSOR_MAX_BAR;
-    constexpr float SP_STEP = 0.1f;
+    constexpr float SP_STEP = 0.25f;
     
     // Proportional gain slider limits
     constexpr float KP_MIN = 0.0f;
-    constexpr float KP_MAX = 3000.0f;
-    constexpr float KP_STEP = 1.0f;
+    constexpr float KP_MAX = 20000.0f;
+    constexpr float KP_STEP = 500.0f;
     
     // Integral gain slider limits
     constexpr float KI_MIN = 0.0f;
-    constexpr float KI_MAX = 5000.0f;
-    constexpr float KI_STEP = 1.0f;
+    constexpr float KI_MAX = 20000.0f;
+    constexpr float KI_STEP = 500.0f;
     
     // Derivative gain slider limits
     constexpr float KD_MIN = 0.0f;
-    constexpr float KD_MAX = 1000.0f;
-    constexpr float KD_STEP = 1.0f;
+    constexpr float KD_MAX = 500.0f;
+    constexpr float KD_STEP = 50.0f;
 }

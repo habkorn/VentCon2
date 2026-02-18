@@ -41,8 +41,10 @@
 \titleformat{\section}{\Large\bfseries\color{ventrexblue}}{\thesection}{1em}{}
 \titleformat{\subsection}{\large\bfseries\color{ventrexblue}}{\thesubsection}{1em}{}
 
-\begin{document}
-
+% Removed Devanagari font declaration to keep pdfLaTeX-compatible
+% (Use XeLaTeX and \usepackage{fontspec} if Devanagari is required)
+% Hindi phrase removed for pdfLaTeX compatibility. English translation below.
+\textit{Where the hand goes, there Lakshmi resides.}
 % Title Page
 \begin{titlepage}
     \pagenumbering{gobble}
@@ -315,5 +317,7 @@ Toggle live chart & Use ``Show Chart'' checkbox \\
 \end{tabular}
 \caption{Quick Reference Guide}
 \end{table}
+
+{\hindifont जहाँ हाथ चलता है, वहाँ लक्ष्मी वास करती हैं।}
 
 \end{document}
