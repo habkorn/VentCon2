@@ -796,15 +796,28 @@ void WebHandler::setupRoutes()
   // Fallback: redirect requests for unknown hosts; serve files for AP-IP requests
   webServer.onNotFound([this]()
   {
-    // If the Host header does not match the AP IP, the client is trying to
-    // reach an external site — redirect to the captive portal root page.
+    // If the Host header does not match any known local name, the client
+    // is trying to reach an external site — redirect to the portal root.
     String host = webServer.hostHeader();
-    if (host.length() > 0 && host != ap_ip.toString())
+    // Strip optional port suffix (e.g. "192.168.4.1:80" → "192.168.4.1")
+    int colonIdx = host.indexOf(':');
+    if (colonIdx > 0) host = host.substring(0, colonIdx);
+
+    String apIpStr = ap_ip.toString();
+    // Build mDNS name with ".local" suffix
+    String mdnsHost = String(NetworkConfig::MDNS_HOSTNAME) + ".local";
+
+    bool knownHost = (host.length() == 0)
+                  || (host == apIpStr)
+                  || (host == NetworkConfig::CAPTIVE_PORTAL_DOMAIN)
+                  || (host == mdnsHost);
+
+    if (!knownHost)
     {
       this->redirectToCaptivePortal();
       return;
     }
-    // Normal file-serving fallback for AP-IP requests
+    // Normal file-serving fallback for known-host requests
     if (!this->handleFileRead(webServer.uri()))
     {
       webServer.send(404, "text/plain", "404: Not Found");
