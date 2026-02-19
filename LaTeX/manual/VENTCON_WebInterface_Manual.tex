@@ -43,9 +43,10 @@
 
 % Removed Devanagari font declaration to keep pdfLaTeX-compatible
 % (Use XeLaTeX and \usepackage{fontspec} if Devanagari is required)
-% Hindi phrase removed for pdfLaTeX compatibility. English translation below.
-\textit{Where the hand goes, there Lakshmi resides.}
-% Title Page
+% Hindi phrase removed for pdfLaTeX compatibility. English translation was:
+% "Where the hand goes, there Lakshmi resides."
+% Begin document and Title Page
+\begin{document}
 \begin{titlepage}
     \pagenumbering{gobble}
     \centering
@@ -318,6 +319,11 @@ Toggle live chart & Use ``Show Chart'' checkbox \\
 \caption{Quick Reference Guide}
 \end{table}
 
-{\hindifont जहाँ हाथ चलता है, वहाँ लक्ष्मी वास करती हैं।}
+% Original Devanagari phrase removed for pdfLaTeX compatibility.
+% To include Hindi text use XeLaTeX and add `\usepackage{fontspec}` and
+% define a Devanagari font, e.g.:
+%   \usepackage{fontspec}
+%   \newfontfamily\hindifont{Noto Sans Devanagari}
+% then restore: {\hindifont जहाँ हाथ चलता है, वहाँ लक्ष्मी वास करती हैं।}
 
 \end{document}

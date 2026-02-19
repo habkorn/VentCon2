@@ -1,10 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  18 FEB 2026 12:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  18 FEB 2026 15:05
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
-**"c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex"
-(c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex
+**./VENTCON_WebInterface_Manual.tex
+(VENTCON_WebInterface_Manual.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 (C:\Program Files\MiKTeX\tex/latex/base\article.cls
@@ -23,35 +22,46 @@ File: size11.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
 \abovecaptionskip=\skip48
 \belowcaptionskip=\skip49
 \bibindent=\dimen140
-) (C:\Program Files\MiKTeX\tex/latex/base\inputenc.sty
+)
+(C:\Program Files\MiKTeX\tex/latex/base\inputenc.sty
 Package: inputenc 2021/02/14 v1.3d Input encoding file
 \inpenc@prehook=\toks17
 \inpenc@posthook=\toks18
-) (C:\Program Files\MiKTeX\tex/latex/base\fontenc.sty
+)
+(C:\Program Files\MiKTeX\tex/latex/base\fontenc.sty
 Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
-) (C:\Program Files\MiKTeX\tex/latex/graphics\graphicx.sty
+)
+(C:\Program Files\MiKTeX\tex/latex/graphics\graphicx.sty
 Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
- (C:\Program Files\MiKTeX\tex/latex/graphics\keyval.sty
+
+(C:\Program Files\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks19
-) (C:\Program Files\MiKTeX\tex/latex/graphics\graphics.sty
+)
+(C:\Program Files\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
- (C:\Program Files\MiKTeX\tex/latex/graphics\trig.sty
+
+(C:\Program Files\MiKTeX\tex/latex/graphics\trig.sty
 Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
-) (C:\Program Files\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
+)
+(C:\Program Files\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
 Package graphics Info: Driver file: pdftex.def on input line 107.
- (C:\Program Files\MiKTeX\tex/latex/graphics-def\pdftex.def
+
+(C:\Program Files\MiKTeX\tex/latex/graphics-def\pdftex.def
 File: pdftex.def 2022/09/22 v1.2b Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen141
 \Gin@req@width=\dimen142
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/geometry\geometry.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/geometry\geometry.s
+ty
 Package: geometry 2020/01/02 v5.9 Page Geometry
  (C:\Program Files\MiKTeX\tex/generic/iftex\ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
- (C:\Program Files\MiKTeX\tex/generic/iftex\iftex.sty
+
+(C:\Program Files\MiKTeX\tex/generic/iftex\iftex.sty
 Package: iftex 2022/02/03 v1.0f TeX engine tests
 ))
 \Gm@cnth=\count195
@@ -66,36 +76,59 @@ Package: iftex 2022/02/03 v1.0f TeX engine tests
 \Gm@layouthoffset=\dimen149
 \Gm@layoutvoffset=\dimen150
 \Gm@dimlist=\toks20
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/geometry\geometry.cfg)) (C:\Program Files\MiKTeX\tex/latex/hyperref\hyperref.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/geometry\geometry.c
+fg)) (C:\Program Files\MiKTeX\tex/latex/hyperref\hyperref.sty
 Package: hyperref 2023-11-26 v7.01g Hypertext links for LaTeX
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/infwarerr\infwarerr.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/infwarerr\infware
+rr.sty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/kvsetkeys\kvsetkeys
+.sty
 Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/kvdefinekeys\kvdefinekeys.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/kvdefinekeys\kvde
+finekeys.sty
 Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/pdfescape\pdfescape.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/pdfescape\pdfesca
+pe.sty
 Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/ltxcmds\ltxcmds.s
+ty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
 ) (C:\Program Files\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.sty
-Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO)
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
-)) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/hycolor\hycolor.sty
+))
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/hycolor\hycolor.sty
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/letltxmacro\letltxmacro.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/letltxmacro\letltxm
+acro.sty
 Package: letltxmacro 2019/12/03 v1.6 Let assignment for LaTeX macros (HO)
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/auxhook\auxhook.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/auxhook\auxhook.sty
 Package: auxhook 2019-12-17 v1.6 Hooks for auxiliary files (HO)
 ) (C:\Program Files\MiKTeX\tex/latex/hyperref\nameref.sty
 Package: nameref 2023-11-26 v2.56 Cross-referencing by name of section
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/refcount\refcount.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/refcount\refcount.s
+ty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/gettitlestring\gettitlestring.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/gettitlestring\ge
+ttitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/kvoptions\kvoptions
+.sty
 Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
 ))
 \c@section@level=\count198
@@ -106,11 +139,14 @@ Package: etoolbox 2020/10/05 v2.5k e-TeX tools for LaTeX (JAW)
 \@linkdim=\dimen151
 \Hy@linkcounter=\count266
 \Hy@pagecounter=\count267
- (C:\Program Files\MiKTeX\tex/latex/hyperref\pd1enc.def
+
+(C:\Program Files\MiKTeX\tex/latex/hyperref\pd1enc.def
 File: pd1enc.def 2023-11-26 v7.01g Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/intcalc\intcalc.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/intcalc\intcalc.s
+ty
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
 \Hy@SavedSpaceFactor=\count268
@@ -127,16 +163,21 @@ Package hyperref Info: Backreferencing OFF on input line 4201.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4448.
 \c@Hy@tempcnt=\count269
- (C:\Program Files\MiKTeX\tex/latex/url\url.sty
+
+(C:\Program Files\MiKTeX\tex/latex/url\url.sty
 \Urlmuskip=\muskip16
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4786.
 \XeTeXLinkMargin=\dimen152
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/bitset\bitset.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/bigintcalc\bigintcalc.sty
-Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO)
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/bigintcalc\bigint
+calc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
 ))
 \Fld@menulength=\count270
 \Field@Width=\dimen153
@@ -157,29 +198,39 @@ package with kernel methods
 \c@Hfootnote=\count273
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
- (C:\Program Files\MiKTeX\tex/latex/hyperref\hpdftex.def
+
+(C:\Program Files\MiKTeX\tex/latex/hyperref\hpdftex.def
 File: hpdftex.def 2023-11-26 v7.01g Hyperref driver for pdfTeX
- (C:\Program Files\MiKTeX\tex/latex/base\atveryend-ltx.sty
-Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend package
+
+(C:\Program Files\MiKTeX\tex/latex/base\atveryend-ltx.sty
+Package: atveryend-ltx 2020/08/19 v1.0a Emulation of the original atveryend pac
+kage
 with kernel methods
 )
 \Fld@listcount=\count274
 \c@bookmark@seq@number=\count275
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/rerunfilecheck\rerunfilecheck.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/rerunfilecheck\reru
+nfilecheck.sty
 Package: rerunfilecheck 2022-07-10 v1.10 Rerun checks for auxiliary files (HO)
- (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/uniquecounter\uniquecounter.sty
+
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/generic/uniquecounter\uni
+quecounter.sty
 Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
 )
-Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 285.
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+85.
 )
 \Hy@SectionHShift=\skip50
 ) (C:\Program Files\MiKTeX\tex/latex/xcolor\xcolor.sty
 Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
- (C:\Program Files\MiKTeX\tex/latex/graphics-cfg\color.cfg
+
+(C:\Program Files\MiKTeX\tex/latex/graphics-cfg\color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
 Package xcolor Info: Driver file: pdftex.def on input line 274.
- (C:\Program Files\MiKTeX\tex/latex/graphics\mathcolor.ltx)
+
+(C:\Program Files\MiKTeX\tex/latex/graphics\mathcolor.ltx)
 Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1350.
 Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1354.
 Package xcolor Info: Model `RGB' extended on input line 1366.
@@ -189,7 +240,9 @@ Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1370.
 Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/booktabs\booktabs.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/booktabs\booktabs.s
+ty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \heavyrulewidth=\dimen155
 \lightrulewidth=\dimen156
@@ -208,7 +261,9 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \@thisruleclass=\count278
 \@lastruleclass=\count279
 \@thisrulewidth=\dimen167
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/enumitem\enumitem.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/enumitem\enumitem.s
+ty
 Package: enumitem 2025/02/06 v3.11 Customized lists
 \labelindent=\skip51
 \enit@outerparindent=\dimen168
@@ -216,8 +271,11 @@ Package: enumitem 2025/02/06 v3.11 Customized lists
 \enit@inbox=\box51
 \enit@count@id=\count280
 \enitdp@description=\count281
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/fancyhdr\fancyhdr.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/fancyhdr\fancyhdr.s
+ty
 Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+
 \f@nch@headwidth=\skip52
 \f@nch@offset@elh=\skip53
 \f@nch@offset@erh=\skip54
@@ -233,7 +291,9 @@ Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
 \f@nch@widthC=\skip64
 \f@nch@widthR=\skip65
 \@temptokenb=\toks22
-) (C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/titlesec\titlesec.sty
+)
+(C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex/latex/titlesec\titlesec.s
+ty
 Package: titlesec 2025/01/04 v2.17 Sectioning titles
 \ttl@box=\box52
 \beforetitleunit=\skip66
@@ -253,7 +313,8 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \@floatcapt=\box54
 ) (C:\Program Files\MiKTeX\tex/latex/amsfonts\amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
- (C:\Program Files\MiKTeX\tex/latex/amsfonts\amsfonts.sty
+
+(C:\Program Files\MiKTeX\tex/latex/amsfonts\amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \@emptytoks=\toks26
 \symAMSa=\mathgroup4
@@ -265,2097 +326,173 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 Package hyperref Info: Option `colorlinks' set `true' on input line 30.
 Package hyperref Info: Option `hypertexnames' set `false' on input line 30.
 
+(C:\Program Files\MiKTeX\tex/latex/l3backend\l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-01-04 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count283
+\l__pdf_internal_box=\box55
+)
+(VENTCON_WebInterface_Manual.aux)
+\openout1 = `VENTCON_WebInterface_Manual.aux'.
 
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:47: LaTeX Error: Missing \begin{document}.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 49.
+LaTeX Font Info:    ... okay on input line 49.
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.47 ...ere the hand goes, there Lakshmi resides.}
-                                                  
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
+(C:\Program Files\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count284
+\scratchdimen=\dimen174
+\scratchbox=\box56
+\nofMPsegments=\count285
+\nofMParguments=\count286
+\everyMPshowfont=\toks27
+\MPscratchCnt=\count287
+\MPscratchDim=\dimen175
+\MPnumerator=\count288
+\makeMPintoPDFobject=\count289
+\everyMPtoPDFconversion=\toks28
+) (C:\Program Files\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
 
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:49: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.49 \begin{titlepage}
-                      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
+(C:\Program Files\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(71.13188pt, 702.78308pt, 71.13188pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=455.24411pt
+* \textheight=702.78308pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-40.1381pt
+* \headheight=14.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=50.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:49: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.49 \begin{titlepage}
-                      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
+Package hyperref Info: Link coloring ON on input line 49.
+(VENTCON_WebInterface_Manual.out) (VENTCON_WebInterface_Manual.out)
+\@outlinefile=\write3
+\openout3 = `VENTCON_WebInterface_Manual.out'.
 
-[1{C:/Users/thomas.haberkorn/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}
-
-]
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:54: LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.54 ...e\bfseries\textcolor{ventrexblue}{VENTCON}
-                                                  \par}
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:56: LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.56 ...lor{ventrexgreen}{Pressure Control System}
-                                                  \par}
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:59: LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.59     {\Large W
-                  eb Interface User Manual\par}
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:62: LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.62     \includegraphics
-                         [width=0.4\textwidth]{Top_Web interface.jpg}
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-<Top_Web interface.jpg, id=8, 260.172pt x 581.0508pt>
+<Top_Web interface.jpg, id=83, 260.172pt x 581.0508pt>
 File: Top_Web interface.jpg Graphic file (type jpg)
 <use Top_Web interface.jpg>
-Package pdftex.def Info: Top_Web interface.jpg  used on input line 62.
+Package pdftex.def Info: Top_Web interface.jpg  used on input line 63.
 (pdftex.def)             Requested size: 182.09486pt x 406.69731pt.
+ [1
 
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:66: LaTeX Error: Missing \begin{document}.
+{C:/Users/thomas.haberkorn/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <.
+/Top_Web interface.jpg>] (VENTCON_WebInterface_Manual.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
 
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.66     {\large V
-                  ersion 2.0\par}
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:67: LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.67     {\large \today
-                       \par}
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:69: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.69 \end{titlepage}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:69: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.69 \end{titlepage}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[1 <./Top_Web interface.jpg>]
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:72: LaTeX Error: Missing \begin{document}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.72 \tableofcontents
-                     
-You're in trouble here.  Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-No file VENTCON_WebInterface_Manual.toc.
-\tf@toc=\write3
-\openout3 = `VENTCON_WebInterface_Manual.toc'.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:73: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.73 \newpage
-             
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:73: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.73 \newpage
-             
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[1]
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:76: Undefined control sequence.
-<inserted text> ...arindent \begingroup \@svsechd 
-                                                  \unskip {\hspace {\@tempsk...
-l.76 \section{Getting Started}
-                              
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:76: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.76 \section{Getting Started}
-                              
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:76: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.76 \section{Getting Started}
-                              
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:76: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.76 \section{Getting Started}
-                              
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:76: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.76 \section{Getting Started}
-                              
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:79: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.79 \subsection{Connecting to the Device}
-                                          
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:79: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.79 \subsection{Connecting to the Device}
-                                          
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:79: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.79 \subsection{Connecting to the Device}
-                                          
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:79: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.79 \subsection{Connecting to the Device}
-                                          
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-
-Package hyperref Warning: The anchor of a bookmark and its parent's must not
-(hyperref)                be the same. Added a new anchor on input line 79.
-
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 86.
-(C:\Program Files\MiKTeX\tex/latex/base\t1cmtt.fd
-File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
-)
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:92: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.92 \begin{table}[H]
-                     
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-LaTeX Font Info:    Trying to load font information for U+msa on input line 94.
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 94.
- (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsb.fd
+LaTeX Font Info:    Trying to load font information for U+msb on input line 2.
+
+(C:\Program Files\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+))
+\tf@toc=\write4
+\openout4 = `VENTCON_WebInterface_Manual.toc'.
+
+ [1]
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 8
+7.
+
+(C:\Program Files\MiKTeX\tex/latex/base\t1cmtt.fd
+File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:96: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.96 \textbf
-            {Setting} & \textbf{Value} \\
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:98: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.98 N
-      etwork Name (SSID) & \texttt{VENTCON\_AP} \\
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:102: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.102 \end
-          {tabular}
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:103: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.103 \caption{Default WiFi Connection Settings}
-                                                
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:106: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.106 \subsection{Browser Compatibility}
-                                        
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:106: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.106 \subsection{Browser Compatibility}
-                                        
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:106: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.106 \subsection{Browser Compatibility}
-                                        
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:106: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.106 \subsection{Browser Compatibility}
-                                        
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:117: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.117 \section{Web Interface Overview}
-                                      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:117: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.117 \section{Web Interface Overview}
-                                      
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:117: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.117 \section{Web Interface Overview}
-                                      
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:117: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.117 \section{Web Interface Overview}
-                                      
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:128: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.128 \begin{figure}[H]
-                       
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
 File: Top_Web interface.jpg Graphic file (type jpg)
 <use Top_Web interface.jpg>
-Package pdftex.def Info: Top_Web interface.jpg  used on input line 130.
+Package pdftex.def Info: Top_Web interface.jpg  used on input line 131.
 (pdftex.def)             Requested size: 204.85846pt x 457.5356pt.
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:131: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.131 ...b interface showing real-time monitoring}
-                                                  
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:134: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.134 
-      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:134: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.134 
-      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[2
-\@writefile{toc}{\contentsline {section}{\numberline {0}Getting Started}{2}{Doc-Start}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}Connecting to the Device}{2}{section*.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Default WiFi Connection Settings}}{2}{table.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}Browser Compatibility}{2}{table.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {0}Web Interface Overview}{2}{table.9}\protected@file@percent }
-]
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:135: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.135 \begin{figure}[H]
-                       
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-<Bottom_Web interface.jpg, id=39, 260.172pt x 513.8397pt>
+ [2]
+<Bottom_Web interface.jpg, id=135, 260.172pt x 513.8397pt>
 File: Bottom_Web interface.jpg Graphic file (type jpg)
 <use Bottom_Web interface.jpg>
-Package pdftex.def Info: Bottom_Web interface.jpg  used on input line 137.
+Package pdftex.def Info: Bottom_Web interface.jpg  used on input line 138.
 (pdftex.def)             Requested size: 204.85846pt x 404.61171pt.
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:138: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.138 ...ottom portion showing parameter controls}
-                                                  
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:141: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.141 
-      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:141: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.141 
-      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[3
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Top portion of the web interface showing real-time monitoring}}{3}{figure.11}\protected@file@percent }
-\newlabel{fig:top-interface}{{1}{3}{Top portion of the web interface showing real-time monitoring}{figure.11}{}}
-]
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:143: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.143 \section{Real-Time Monitoring}
-                                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:143: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.143 \section{Real-Time Monitoring}
-                                    
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:143: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.143 \section{Real-Time Monitoring}
-                                    
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:143: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.143 \section{Real-Time Monitoring}
-                                    
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:146: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.146 \subsection{Pressure Gauge}
-                                 
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:146: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.146 \subsection{Pressure Gauge}
-                                 
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:146: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.146 \subsection{Pressure Gauge}
-                                 
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:146: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.146 \subsection{Pressure Gauge}
-                                 
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-
-Package hyperref Warning: The anchor of a bookmark and its parent's must not
-(hyperref)                be the same. Added a new anchor on input line 146.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:156: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.156 \subsection{Valve Duty Cycle Gauge}
-                                         
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:156: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.156 \subsection{Valve Duty Cycle Gauge}
-                                         
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:156: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.156 \subsection{Valve Duty Cycle Gauge}
-                                         
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:156: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.156 \subsection{Valve Duty Cycle Gauge}
-                                         
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:165: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.165 \subsection{Live Chart}
-                             
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:165: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.165 \subsection{Live Chart}
-                             
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:165: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.165 \subsection{Live Chart}
-                             
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:165: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.165 \subsection{Live Chart}
-                             
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:169: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.169     \item \textbf
-                       {Blue line}: Actual pressure
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:169: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.169     \item \textbf
-                       {Blue line}: Actual pressure
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[4
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Bottom portion showing parameter controls}}{4}{figure.13}\protected@file@percent }
-\newlabel{fig:bottom-interface}{{2}{4}{Bottom portion showing parameter controls}{figure.13}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {0}Real-Time Monitoring}{4}{figure.13}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}Pressure Gauge}{4}{section*.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}Valve Duty Cycle Gauge}{4}{section*.14}\protected@file@percent }
- <./Bottom_Web interface.jpg>]
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:177: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.177 \section{Parameter Controls}
-                                  
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:177: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.177 \section{Parameter Controls}
-                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:177: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.177 \section{Parameter Controls}
-                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:177: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.177 \section{Parameter Controls}
-                                  
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:180: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.180 \subsection{Adjusting Setpoint}
-                                     
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:180: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.180 \subsection{Adjusting Setpoint}
-                                     
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:180: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.180 \subsection{Adjusting Setpoint}
-                                     
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:180: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.180 \subsection{Adjusting Setpoint}
-                                     
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-
-Package hyperref Warning: The anchor of a bookmark and its parent's must not
-(hyperref)                be the same. Added a new anchor on input line 180.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:192: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.192 \subsection{PID Parameters}
-                                 
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:192: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.192 \subsection{PID Parameters}
-                                 
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:192: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.192 \subsection{PID Parameters}
-                                 
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:192: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.192 \subsection{PID Parameters}
-                                 
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:196: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.196 \begin{table}[H]
-                      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:200: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.200 \textbf
-             {Parameter} & \textbf{Effect} \\
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:202: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.202 \textbf
-             {Proportional (Kp)} & Controls response strength. Higher values...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:206: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.206 \end
-          {tabular}
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:207: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.207 \caption{PID Parameter Effects}
-                                     
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:212: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.212 \subsection{Configuring Slider Limits}
-                                            
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:212: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.212 \subsection{Configuring Slider Limits}
-                                            
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:212: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.212 \subsection{Configuring Slider Limits}
-                                            
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:212: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.212 \subsection{Configuring Slider Limits}
-                                            
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:223: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.223 
-      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:223: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.223 
-      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[5
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}Live Chart}{5}{section*.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {0}Parameter Controls}{5}{section*.14}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}Adjusting Setpoint}{5}{section*.15}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}PID Parameters}{5}{Item.20}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces PID Parameter Effects}}{5}{table.22}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}Configuring Slider Limits}{5}{table.22}\protected@file@percent }
-]
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:226: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.226 \subsection{System Parameters}
-                                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:226: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.226 \subsection{System Parameters}
-                                    
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:226: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.226 \subsection{System Parameters}
-                                    
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:226: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.226 \subsection{System Parameters}
-                                    
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:228: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.228 ...r Strength on Pressure Sensor ($\alpha$)}
-                                                  
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:228: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.228 ...r Strength on Pressure Sensor ($\alpha$)}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:228: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.228 ...r Strength on Pressure Sensor ($\alpha$)}
-                                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:228: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.228 ...r Strength on Pressure Sensor ($\alpha$)}
-                                                  
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-
-Package hyperref Warning: The anchor of a bookmark and its parent's must not
-(hyperref)                be the same. Added a new anchor on input line 228.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:236: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.236 \subsubsection{Actuator PWM Frequency}
-                                            
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:236: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.236 \subsubsection{Actuator PWM Frequency}
-                                            
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:236: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.236 \subsubsection{Actuator PWM Frequency}
-                                            
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:236: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.236 \subsubsection{Actuator PWM Frequency}
-                                            
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:244: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.244 \subsubsection{Actuator PWM Resolution}
-                                             
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:244: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.244 \subsubsection{Actuator PWM Resolution}
-                                             
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:244: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.244 \subsubsection{Actuator PWM Resolution}
-                                             
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:244: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.244 \subsubsection{Actuator PWM Resolution}
-                                             
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:253: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.253 \section{System Information}
-                                  
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:253: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.253 \section{System Information}
-                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:253: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.253 \section{System Information}
-                                  
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:253: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.253 \section{System Information}
-                                  
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:263: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.263 \section{Applying Changes}
-                                
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:263: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.263 \section{Applying Changes}
-                                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:263: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.263 \section{Applying Changes}
-                                
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:263: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.263 \section{Applying Changes}
-                                
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:278: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.278 \section{Troubleshooting}
-                               
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:278: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.278 \section{Troubleshooting}
-                               
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:278: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.278 \section{Troubleshooting}
-                               
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[6
-\@writefile{toc}{\contentsline {subsection}{\numberline {0.0}System Parameters}{6}{table.22}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {0.0.0}Low Pass Filter Strength on Pressure Sensor (alpha)}{6}{section*.23}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {0.0.0}Actuator PWM Frequency}{6}{section*.23}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {0.0.0}Actuator PWM Resolution}{6}{section*.23}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {0}System Information}{6}{section*.23}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {0}Applying Changes}{6}{section*.23}\protected@file@percent }
-]
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:278: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.278 \section{Troubleshooting}
-                               
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:278: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.278 \section{Troubleshooting}
-                               
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:278: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.278 \section{Troubleshooting}
-                               
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:281: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.281 \begin{table}[H]
-                      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:285: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.285 \textbf
-             {Problem} & \textbf{Solution} \\
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:287: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.287 C
-       annot find WiFi network & Ensure device is powered on. Wait 10 second...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:293: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.293 \end
-          {tabular}
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-Overfull \hbox (21.88582pt too wide) in paragraph at lines 283--294
- [][] 
- []
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:294: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.294 \caption{Common Issues and Solutions}
-                                           
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:298: Undefined control sequence.
-\ttl@labelling ...se \else \ttl@Hy@refstepcounter 
-                                                  {#1}\@nameuse {ttl@#1out}\...
-l.298 \section{Quick Reference}
-                               
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:298: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.298 \section{Quick Reference}
-                               
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:298: LaTeX Error: Something's wrong--perhaps a missing \item.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.298 \section{Quick Reference}
-                               
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:298: Package titlesec Error: Entered in horizontal mode.
-
-See the titlesec package documentation for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.298 \section{Quick Reference}
-                               
-The <format> argument cannot contain horizontal material
-such as text, \noindent, \makebox, etc.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:301: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.301 \begin{table}[H]
-                      
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:305: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.305 \textbf
-             {Action} & \textbf{How To} \\
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:307: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.307 C
-       onnect to device & WiFi: \texttt{VENTCON\_AP} / Password: \texttt{ven...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:317: Undefined control sequence.
-\@BTswitch ->{\CT@arc@ 
-                       \hrule \@height \@thisrulewidth }\futurenonspacelet \...
-l.317 \end
-          {tabular}
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:318: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.318 \caption{Quick Reference Guide}
-                                     
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: Undefined control sequence.
-l.321 {\hindifont
-                  जहाँ हाथ चलता है, वहाँ �...
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ज (U+091C)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont ज
-                     हाँ हाथ चलता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ह (U+0939)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जह
-                        ाँ हाथ चलता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ा (U+093E)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहा
-                           ँ हाथ चलता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ँ (U+0901)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहाँ
-                               हाथ चलता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ह (U+0939)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहाँ ह
-                                  ाथ चलता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ा (U+093E)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहाँ हा
-                                     थ चलता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character थ (U+0925)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहाँ हाथ
-                                         चलता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character च (U+091A)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहाँ हाथ च
-                                            लता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ल (U+0932)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहाँ हाथ चल
-                                               ता है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character त (U+0924)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 {\hindifont जहाँ हाथ चलत
-                                                  ा है, वहाँ �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ा (U+093E)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...ifont जहाँ हाथ चलता
-                                                   है, वहाँ ल�...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ह (U+0939)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...t जहाँ हाथ चलता ह
-                                                  ै, वहाँ लक�...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ै (U+0948)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...��हाँ हाथ चलता है
-                                                  , वहाँ लक्�...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character व (U+0935)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...ाँ हाथ चलता है, व
-                                                  हाँ लक्ष्�...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ह (U+0939)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...ँ हाथ चलता है, वह
-                                                  ाँ लक्ष्म�...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ा (U+093E)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ... हाथ चलता है, वहा
-                                                  ँ लक्ष्मी ...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ँ (U+0901)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...�ाथ चलता है, वहाँ
-                                                   लक्ष्मी व...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ल (U+0932)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...थ चलता है, वहाँ ल
-                                                  क्ष्मी वा�...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character क (U+0915)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ... चलता है, वहाँ लक
-                                                  ्ष्मी वास ...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ् (U+094D)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...�लता है, वहाँ लक्
-                                                  ष्मी वास क...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ष (U+0937)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...�ता है, वहाँ लक्ष
-                                                  ्मी वास कर...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ् (U+094D)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...�ा है, वहाँ लक्ष्
-                                                  मी वास करत...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character म (U+092E)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...� है, वहाँ लक्ष्म
-                                                  ी वास करती...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ी (U+0940)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...��ै, वहाँ लक्ष्मी
-                                                   वास करती �...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character व (U+0935)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...�, वहाँ लक्ष्मी व
-                                                  ास करती है...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ा (U+093E)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...वहाँ लक्ष्मी वा
-                                                  स करती हैं...
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character स (U+0938)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...हाँ लक्ष्मी वास
-                                                   करती हैं।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character क (U+0915)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...��ँ लक्ष्मी वास क
-                                                  रती हैं।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character र (U+0930)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...�� लक्ष्मी वास कर
-                                                  ती हैं।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character त (U+0924)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...लक्ष्मी वास करत
-                                                  ी हैं।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ी (U+0940)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...क्ष्मी वास करती
-                                                   हैं।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ह (U+0939)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...��ष्मी वास करती ह
-                                                  ैं।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ै (U+0948)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...��्मी वास करती है
-                                                  ं।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character ं (U+0902)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...��मी वास करती हैं
-                                                  ।}
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:321: LaTeX Error: Unicode character । (U+0964)
-               not set up for use with LaTeX.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.321 ...��ी वास करती हैं।
-                                                  }
-You may provide a definition with
-\DeclareUnicodeCharacter 
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:323: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.323 \end{document}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:323: Undefined control sequence.
-\set@color ...\@pdfcolorstack push{\current@color 
-                                                  }\aftergroup \reset@color 
-l.323 \end{document}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-[7
-\@writefile{toc}{\contentsline {section}{\numberline {0}Troubleshooting}{7}{Item.27}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Common Issues and Solutions}}{7}{table.29}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {0}Quick Reference}{7}{table.29}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Quick Reference Guide}}{7}{table.31}\protected@file@percent }
-]
-\gdef \@abspage@last{9}
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:323: I can't find file `VENTCON_WebInterface_Manual.aux'.
-\enddocument ...keatletter \@@input \jobname .aux 
-                                                  \fi \UseOneTimeHook {enddo...
-l.323 \end{document}
-                    
-(Press Enter to retry, or Control-C to exit)
-Please type another input file name
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:323: Emergency stop.
-\enddocument ...keatletter \@@input \jobname .aux 
-                                                  \fi \UseOneTimeHook {enddo...
-l.323 \end{document}
-                    
-*** (job aborted, file error in nonstop mode)
-
- 
+ [3] [4 <./Bottom_Web interface.jpg>] [5] [6] [7] (VENTCON_WebInterface_Manual.
+aux)
+ ***********
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-04>
+ ***********
+Package rerunfilecheck Info: File `VENTCON_WebInterface_Manual.out' has not cha
+nged.
+(rerunfilecheck)             Checksum: 7FBB51B3D18BC6CB77320F44DB5EE720;3166.
+ ) 
 Here is how much of TeX's memory you used:
- 10678 strings out of 474486
- 161962 string characters out of 5753537
+ 11335 strings out of 474486
+ 175083 string characters out of 5753537
  1936542 words of memory out of 5000000
- 32805 multiletter control sequences out of 15000+600000
- 571010 words of font info for 66 fonts, out of 8000000 for 9000
+ 33420 multiletter control sequences out of 15000+600000
+ 570321 words of font info for 65 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,359b,566s stack positions out of 10000i,1000n,20000p,200000b,200000s
-c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex:323:  ==> Fatal error occurred, no output PDF file produced!
+ 75i,12n,79p,417b,555s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/
+dpi600\tcrm1095.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/lj
+four/jknappen/ec/dpi600\ectt1095.pk> <C:\Users\thomas.haberkorn\AppData\Local\M
+iKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1200.pk> <C:\Users\thomas.haberkor
+n\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx1095.pk> <C:\User
+s\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx
+1440.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknapp
+en/ec/dpi600\ecrm1095.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts
+/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\thomas.haberkorn\AppData\L
+ocal\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1440.pk> <C:\Users\thomas.ha
+berkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk> <C
+:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
+0\ecbx2488.pk><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pf
+b><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program
+ Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX
+/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on VENTCON_WebInterface_Manual.pdf (8 pages, 1187949 bytes).
+PDF statistics:
+ 548 PDF objects out of 1000 (max. 8388607)
+ 56 named destinations out of 1000 (max. 500000)
+ 171 words of extra memory for PDF output out of 10000 (max. 10000000)
+
+ut of 1000 (max. 8388607)
+ 56 named destinations out of 1000 (max. 500000)
+ 171 words of extra memory for PDF output out of 10000 (max. 10000000)
+
