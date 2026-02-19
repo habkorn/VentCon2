@@ -1,5 +1,4 @@
 #include <WebServer.h>
-#include <DNSServer.h>
 #include <LittleFS.h>
 #include <ArduinoJson.h>
 #include <PID_v2.h>

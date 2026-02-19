@@ -1,6 +1,5 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
-#include <DNSServer.h>
 #include <LittleFS.h>
 #include "WebContent.h"
 #include "Constants.h"
@@ -45,7 +44,6 @@ WebHandler::WebHandler(SettingsHandler* settings,
                        int* pwmFullScaleRaw,
                        float* last_filtered_pressure)
     : webServer(NetworkConfig::WEB_PORT),
-      webDnsServer(),
       settings(settings),
       pid(pid),
       pressureInput(pressureInput),
@@ -180,11 +178,6 @@ void WebHandler::initializeWiFiAP()
     // Configure WiFi AP
     WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
     WiFi.softAP(ap_ssid, ap_password, 1, 0, NetworkConfig::MAX_CLIENTS);
-    
-    // Start DNS server — resolve only the portal domain (not wildcard "*")
-    // so that OS captive-portal probe domains are NOT answered and the
-    // "Sign in to network" popup is never triggered.
-    webDnsServer.start(NetworkConfig::DNS_PORT, NetworkConfig::CAPTIVE_PORTAL_DOMAIN, ap_ip);
     
     // Start mDNS responder (accessible as http://ventcon.local)
     if (MDNS.begin(NetworkConfig::MDNS_HOSTNAME))
@@ -730,20 +723,6 @@ void WebHandler::handleSliderLimits()
 //
 // ============================================================================
 
-/**
- * redirectToCaptivePortal() - Send a 302 redirect to the AP root page.
- *
- * Used by captive-portal probe handlers and the onNotFound fallback
- * to guide devices/browsers to the main VentCon UI.
- */
-void WebHandler::redirectToCaptivePortal()
-{
-    String url = "http://" + ap_ip.toString();
-    webServer.sendHeader("Location", url, true);
-    webServer.send(302, "text/html",
-        "<!DOCTYPE html><html><body><a href='" + url + "'>VentCon Portal</a></body></html>");
-}
-
 void WebHandler::setupRoutes()
 {  
   // Register main page handler (memory-efficient streaming)
@@ -781,43 +760,9 @@ void WebHandler::setupRoutes()
     this->handleFileRead("/Logo.svg");
   });
 
-  // ---- Captive-portal probe suppression ----
-  // Reply with the exact "success" responses that each OS expects so
-  // the device believes it has normal internet and never shows the
-  // "Sign in to network" popup.
-  webServer.on("/generate_204",      [this](){ webServer.send(204, "", ""); });                     // Android / Chrome OS
-  webServer.on("/hotspot-detect.html",[this](){ webServer.send(200, "text/html", "<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"); }); // iOS / macOS
-  webServer.on("/connecttest.txt",   [this](){ webServer.send(200, "text/plain", "Microsoft Connect Test"); }); // Windows NCSI
-  webServer.on("/ncsi.txt",          [this](){ webServer.send(200, "text/plain", "Microsoft NCSI"); });         // Windows NCSI alt
-  webServer.on("/redirect",          [this](){ webServer.send(200, "text/plain", ""); });           // Generic
-  webServer.on("/canonical.html",    [this](){ webServer.send(200, "text/html", "<HTML><HEAD><TITLE>Success</TITLE></HEAD><BODY>Success</BODY></HTML>"); }); // Firefox
-  webServer.on("/success.txt",       [this](){ webServer.send(200, "text/plain", "success"); });    // Android variants
-
-  // Fallback: redirect requests for unknown hosts; serve files for AP-IP requests
+  // Fallback: serve files or return 404
   webServer.onNotFound([this]()
   {
-    // If the Host header does not match any known local name, the client
-    // is trying to reach an external site — redirect to the portal root.
-    String host = webServer.hostHeader();
-    // Strip optional port suffix (e.g. "192.168.4.1:80" → "192.168.4.1")
-    int colonIdx = host.indexOf(':');
-    if (colonIdx > 0) host = host.substring(0, colonIdx);
-
-    String apIpStr = ap_ip.toString();
-    // Build mDNS name with ".local" suffix
-    String mdnsHost = String(NetworkConfig::MDNS_HOSTNAME) + ".local";
-
-    bool knownHost = (host.length() == 0)
-                  || (host == apIpStr)
-                  || (host == NetworkConfig::CAPTIVE_PORTAL_DOMAIN)
-                  || (host == mdnsHost);
-
-    if (!knownHost)
-    {
-      this->redirectToCaptivePortal();
-      return;
-    }
-    // Normal file-serving fallback for known-host requests
     if (!this->handleFileRead(webServer.uri()))
     {
       webServer.send(404, "text/plain", "404: Not Found");
@@ -1064,7 +1009,6 @@ void WebHandler::changeWiFiChannel(int channel)
     Serial.println("Stopping current Access Point...");
       // Stop current services
     webServer.stop();
-    webDnsServer.stop();
     
     // Disconnect all clients and stop AP
     WiFi.softAPdisconnect(true);
@@ -1091,9 +1035,6 @@ void WebHandler::changeWiFiChannel(int channel)
         WiFi.softAP(currentSSID.c_str(), currentPassword.c_str());
         Serial.println("Access Point restored to automatic channel selection");
     }
-      // Restart DNS server for captive portal (domain-specific, not wildcard)
-    webDnsServer.start(NetworkConfig::DNS_PORT, NetworkConfig::CAPTIVE_PORTAL_DOMAIN, WiFi.softAPIP());
-    
     // Restart mDNS responder
     MDNS.end();
     if (MDNS.begin(NetworkConfig::MDNS_HOSTNAME))

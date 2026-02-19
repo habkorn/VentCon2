@@ -1,7 +1,6 @@
 #pragma once
 
 #include <WebServer.h>
-#include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <WiFi.h>
 #include <PID_v2.h>
@@ -15,14 +14,14 @@
  * This class handles all HTTP requests, serves static files, and provides
  * API endpoints for system control and monitoring using proper OOP principles.
  */
-class WebHandler {
+class WebHandler 
+{
 private:
     // Static instance pointer for WiFi event callback
     static WebHandler* instance;
     
     // Owned network components
     WebServer webServer;
-    DNSServer webDnsServer;
     
     // References to system components (dependency injection)
     SettingsHandler* settings;
@@ -59,7 +58,7 @@ private:
     void handleValues();
     void handleResetPID();
     void handleSliderLimits();   // GET/POST slider limits API
-    void redirectToCaptivePortal(); // 302 redirect to AP root page
+
 
 public:    // Constructor with dependency injection
     WebHandler(SettingsHandler* settings,
@@ -89,5 +88,4 @@ public:    // Constructor with dependency injection
     
     // Server access methods
     WebServer& getWebServer() { return webServer; }
-    DNSServer& getDNSServer() { return webDnsServer; }
 };

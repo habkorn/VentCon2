@@ -24,15 +24,6 @@ namespace NetworkConfig
     // Access Point subnet mask (255.255.255.0 = /24 network)
     constexpr uint8_t AP_SUBNET[4] = {255, 255, 255, 0};
     
-    // DNS server port for captive portal
-    constexpr int DNS_PORT = 53;
-    
-    // Captive portal domain name (redirects to AP_IP)
-    // IMPORTANT: Use a non-existent TLD (e.g. .setup) so that modern browsers
-    // cannot resolve it via DNS-over-HTTPS and are forced to query the local
-    // wildcard DNS server running on the AP.
-    constexpr char CAPTIVE_PORTAL_DOMAIN[] = "ventcon.setup";
-    
     // mDNS hostname (accessible as http://ventcon.local)
     constexpr char MDNS_HOSTNAME[] = "ventcon";
     

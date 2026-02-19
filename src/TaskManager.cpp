@@ -19,7 +19,6 @@ void TaskManager::networkTaskWrapper(void* parameter)
         {
             unsigned long netStart = micros();
             
-            webHandler->getDNSServer().processNextRequest();
             webHandler->getWebServer().handleClient();
             
             unsigned long netTime = micros() - netStart;
