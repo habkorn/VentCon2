@@ -17,7 +17,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="sp_slider" min="%SP_MIN%" max="%SP_MAX%" step="%SP_STEP%" value="%SP%">
             <button type="button" class="slider-btn increment-btn" id="sp_increment">+</button>
             <input type="text" inputmode="decimal" id="sp_text" value="%SP%" step="%SP_STEP%">
-            <button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits">&#9965;</button>
+            <button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits">&#9965</button>
           </div>
         </div>    
       
@@ -73,6 +73,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="flt_slider" min="%FLT_MIN%" max="%FLT_MAX%" step="%FLT_STEP%" value="%FLT%">
             <button type="button" class="slider-btn increment-btn" id="flt_increment">+</button>
             <input type="text" inputmode="decimal" id="flt_text" value="%FLT%" step="%FLT_STEP%">
+            <button class="settings-gear" onclick="openSliderSettings('flt')" title="Configure slider limits">&#9965;</button>
           </div>
         </div>
 
@@ -93,6 +94,14 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="res_slider" min="%RES_MIN%" max="%RES_MAX%" step="%RES_STEP%" value="%RES%">
             <button type="button" class="slider-btn increment-btn" id="res_increment">+</button>
             <input type="text" inputmode="numeric" id="res_text" value="%RES%" step="%RES_STEP%">
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label for="pst_text">PID Sample Time in ms</label>
+          <div class="input-with-unit">
+            <input type="text" inputmode="numeric" id="pst_text" value="%PST%" min="%PST_MIN%" max="%PST_MAX%">
+            <span class="unit">ms</span>
           </div>
         </div>
       </div>

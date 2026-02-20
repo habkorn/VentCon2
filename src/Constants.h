@@ -1,7 +1,7 @@
 #pragma once
 
 // System version string including build timestamp for identification and debugging
-#define VENTCON_VERSION "2.2.2 (Build: " __DATE__ " " __TIME__ ")"
+#define VENTCON_VERSION "2.6.3 (Build: " __DATE__ " " __TIME__ ")"
 
 // Network Configuration
 namespace NetworkConfig 
@@ -95,12 +95,12 @@ namespace ValveConfig
     constexpr float PID_MIN_OUTPUT_PERCENT = 1.0f;
     
     // Minimum PWM duty cycle where valve physically begins to respond.
-    // Below ~50%, the solenoid doesn't generate enough force to move.
+    // Below ~20%, the solenoid doesn't generate enough force to move.
     // PID's 0-100% output is mapped to this as the lower bound.
-    // Example: PID 0% → Valve 50%, PID 50% → Valve 70%
+    // Example: PID 0% → Valve 20%, PID 50% → Valve 55%
     // Used in: mapPwmToValve() for range mapping, anti-windup detection,
     //          and AutoTuner for gain compensation.
-    constexpr float VALVE_MIN_DUTY = 50.0f;
+    constexpr float VALVE_MIN_DUTY = 20.0f;
     
     // Maximum PWM duty cycle for valve operation.
     // Above ~90%, additional current generates heat without more force.
@@ -251,6 +251,38 @@ namespace Esp32AdcConfig
     
     // ESP32 12-bit ADC maximum value
     constexpr int ADC_MAX = 4095;
+}
+
+// Settings Defaults — initial values when settings.json is missing or corrupt.
+// Matches the compile-time fallbacks used in SettingsHandler::resetToDefaults()
+// and SettingsHandler::load().  Update data/default.json in sync.
+namespace SettingsDefaults
+{
+    constexpr double KP = 0.0;                  // Proportional gain
+    constexpr double KI = 0.0;                  // Integral gain
+    constexpr double KD = 0.0;                  // Derivative gain
+    constexpr float FILTER_STRENGTH = 0.0f;     // Low-pass filter strength (0 = off, 1 = max)
+    constexpr double SETPOINT = 3.0;            // Target pressure in bar
+    constexpr int PWM_FREQ = 2000;              // PWM frequency in Hz
+    constexpr int PWM_RES = 14;                 // PWM resolution in bits
+
+    constexpr int PID_SAMPLE_TIME = 10;         // PID sample time in milliseconds
+    constexpr int CONTROL_FREQ_HZ = 1000;       // Control loop frequency in Hz
+
+    constexpr bool ANTI_WINDUP = false;          // PID anti-windup for valve deadband
+    constexpr bool HYSTERESIS = false;           // Hysteresis compensation enable
+    constexpr float HYST_AMOUNT = 5.0f;         // Hysteresis compensation in percentage points
+}
+
+// Chart Axis Defaults (for web UI live chart)
+namespace ChartDefaults
+{
+    constexpr float Y_MIN = 0.0f;              // Pressure axis minimum (bar)
+    constexpr float Y_MAX = 10.0f;             // Pressure axis maximum (bar)
+    constexpr float PWM_MIN = 0.0f;            // Duty-cycle axis minimum (%)
+    constexpr float PWM_MAX = 100.0f;          // Duty-cycle axis maximum (%)
+    constexpr int TIME_WINDOW = 8;             // X-axis rolling window (seconds)
+    constexpr int TIME_GRID = 1;               // X-axis grid/tick interval (seconds)
 }
 
 // Slider Limits Defaults (for web UI)

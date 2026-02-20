@@ -647,11 +647,36 @@ progress
   margin: 0.5rem 0 0;
 }
 
-.chart-toggle
+.chart-header-left,
+.chart-header-right
 {
   display: flex;
   align-items: center;
   gap: 0.375rem;
+}
+
+.chart-gear-btn
+{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  width: auto;
+  box-sizing: content-box;
+  color: var(--secondary);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s, color 0.2s;
+}
+
+.chart-gear-btn:hover
+{
+  opacity: 1;
+  color: var(--primary);
 }
 
 .toggle-label

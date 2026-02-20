@@ -16,6 +16,20 @@ struct SliderLimits {
 };
 
 /**
+ * ChartSettings Structure
+ * 
+ * Defines configurable axis limits and time window for the live chart.
+ */
+struct ChartSettings {
+    float y_min;        // Pressure axis minimum (bar)
+    float y_max;        // Pressure axis maximum (bar)
+    float pwm_min;      // Duty-cycle axis minimum (%)
+    float pwm_max;      // Duty-cycle axis maximum (%)
+    int time_window;    // X-axis rolling window (seconds)
+    int time_grid;      // X-axis grid/tick interval (seconds)
+};
+
+/**
  * SettingsHandler Class
  * 
  * Encapsulates all system configuration parameters for the VentCon2 system.
@@ -67,6 +81,9 @@ public:
     float sensor_min_voltage;   // Sensor output at min pressure (V)
     float sensor_max_voltage;   // Sensor output at max pressure (V)
     
+    // Chart Axis Settings (user-configurable limits for live chart)
+    ChartSettings chart_settings;
+    
     // Constructor with default values
     SettingsHandler();
     
@@ -89,25 +106,5 @@ public:
     void printStoredSettings();
 
 private:
-    // Default values
-    static constexpr double DEFAULT_KP = 0.0;
-    static constexpr double DEFAULT_KI = 0.0;
-    static constexpr double DEFAULT_KD = 0.0;
-    static constexpr float DEFAULT_FILTER_STRENGTH = 0.0;
-    static constexpr double DEFAULT_SETPOINT = 3.0;
-    static constexpr int DEFAULT_PWM_FREQ = 2000;
-    static constexpr int DEFAULT_PWM_RES = 14;
-    static constexpr int DEFAULT_PID_SAMPLE_TIME = 10;
-    static constexpr int DEFAULT_CONTROL_FREQ_HZ = 1000;
-    static constexpr bool DEFAULT_ANTI_WINDUP = false;
-    static constexpr bool DEFAULT_HYSTERESIS = false;
-    static constexpr float DEFAULT_HYST_AMOUNT = 5.0;
-    
-    // Default sensor calibration values (from Constants.h)
-    static constexpr float DEFAULT_SENSOR_MIN_PRESSURE = SensorConfigDefaults::SENSOR_MIN_BAR;
-    static constexpr float DEFAULT_SENSOR_MAX_PRESSURE = SensorConfigDefaults::SENSOR_MAX_BAR;
-    static constexpr float DEFAULT_SENSOR_MIN_VOLTAGE = SensorConfigDefaults::SENSOR_MIN_VOLTAGE;
-    static constexpr float DEFAULT_SENSOR_MAX_VOLTAGE = SensorConfigDefaults::SENSOR_MAX_VOLTAGE;
-    
     static const char* SETTINGS_FILE_PATH;
 };

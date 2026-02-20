@@ -15,5 +15,6 @@
   "kp_limits": { "min": 0.0, "max": 20000.0, "step": 500.0 },
   "ki_limits": { "min": 0.0, "max": 20000.0, "step": 500.0 },
   "kd_limits": { "min": 0.0, "max": 500.0, "step": 50.0 },
-  "sensor_limits": { "minP": 0.0, "maxP": 10.0, "minV": 0.5, "maxV": 4.5 }
+  "sensor_limits": { "minP": 0.0, "maxP": 10.0, "minV": 0.5, "maxV": 4.5 },
+  "chart_settings": { "y_min": 0.0, "y_max": 10.0, "pwm_min": 0.0, "pwm_max": 100.0, "time_window": 8, "time_grid": 1 }
 }

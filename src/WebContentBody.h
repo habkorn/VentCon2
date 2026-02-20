@@ -65,8 +65,11 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
       </div>
       
       <div class="chart-header">
-        <h3>Live Chart</h3>
-        <div class="chart-toggle">
+        <div class="chart-header-left">
+          <span class="chart-gear-btn" onclick="openChartSettings()" title="Chart Settings">&#9965;</span>
+          <h3>Live Chart</h3>
+        </div>
+        <div class="chart-header-right">
           <label for="chartToggle" class="toggle-label">Show Chart</label>
           <input type="checkbox" id="chartToggle" checked>
         </div>
@@ -106,6 +109,46 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         <div class="modal-footer">
           <button class="modal-btn modal-btn-cancel" onclick="closeSliderModal()">Cancel</button>
           <button class="modal-btn modal-btn-save" onclick="saveSliderSettings()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Settings Modal -->
+    <div id="chartSettingsModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Chart Settings</h3>
+          <button class="modal-close" onclick="closeChartSettings()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-row">
+            <label>Pressure axis min (bar)</label>
+            <input type="text" inputmode="decimal" id="chartYMin" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Pressure axis max (bar)</label>
+            <input type="text" inputmode="decimal" id="chartYMax" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Duty cycle axis min (%)</label>
+            <input type="text" inputmode="decimal" id="chartPwmMin" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Duty cycle axis max (%)</label>
+            <input type="text" inputmode="decimal" id="chartPwmMax" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Time window (seconds)</label>
+            <input type="text" inputmode="numeric" id="chartTimeWindow" step="1">
+          </div>
+          <div class="modal-row">
+            <label>Time grid interval (seconds)</label>
+            <input type="text" inputmode="numeric" id="chartTimeGrid" step="1">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn-cancel" onclick="closeChartSettings()">Cancel</button>
+          <button class="modal-btn modal-btn-save" onclick="saveChartSettings()">Save</button>
         </div>
       </div>
     </div>

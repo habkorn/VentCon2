@@ -178,7 +178,7 @@ void WebHandler::initializeWiFiAP()
     // Configure WiFi AP
     WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet);
     WiFi.softAP(ap_ssid, ap_password, 1, 0, NetworkConfig::MAX_CLIENTS);
-    
+
     // Start mDNS responder (accessible as http://ventcon.local)
     if (MDNS.begin(NetworkConfig::MDNS_HOSTNAME))
     {
@@ -347,7 +347,8 @@ void WebHandler::handleRoot()
     {"%KD%",   String(settings->Kd, decimalsFromStep(settings->kd_limits.step))},
     {"%FLT%",  String(settings->filter_strength, 2)},
     {"%FREQ%", String(settings->pwm_freq)},
-    {"%RES%",  String(settings->pwm_res)}
+    {"%RES%",  String(settings->pwm_res)},
+    {"%PST%",  String(settings->pid_sample_time)}
   };
   for (auto& r : valueReplacements) inputs.replace(r.placeholder, r.value);
   
@@ -376,6 +377,8 @@ void WebHandler::handleRoot()
   inputs.replace("%RES_MIN%",  String(PwmConfig::MIN_RES_BITS));
   inputs.replace("%RES_MAX%",  String(PwmConfig::MAX_RES_BITS));
   inputs.replace("%RES_STEP%", String(PwmConfig::RES_STEP_BITS));
+  inputs.replace("%PST_MIN%",  String(ControlConfig::MIN_SAMPLE_TIME_MS));
+  inputs.replace("%PST_MAX%",  String(ControlConfig::MAX_SAMPLE_TIME_MS));
   
   // Replace sensor calibration placeholders
   inputs.replace("%SENSOR_MINP%", String(settings->sensor_min_pressure, 1));
@@ -395,7 +398,7 @@ void WebHandler::handleRoot()
   // 6. Inject server-rendered configuration constants for JavaScript
   // These values are defined in Constants.h and injected here so the JS
   // doesn't hardcode values that could drift out of sync with the firmware.
-  char configScript[256];
+  char configScript[384];
   snprintf(configScript, sizeof(configScript),
     "<script>"
     "var CFG={"
@@ -404,7 +407,9 @@ void WebHandler::handleRoot()
     "ip:'%d.%d.%d.%d',"
     "flt:{min:%.2f,max:%.2f,step:%.2f},"
     "freq:{min:%d,max:%d,step:%d},"
-    "res:{min:%d,max:%d,step:%d}"
+    "res:{min:%d,max:%d,step:%d},"
+    "pst:{min:%d,max:%d},"
+    "chart:{yMin:%.2f,yMax:%.2f,pMin:%.2f,pMax:%.2f,tw:%d,tg:%d}"
     "};"
     "</script>",
     settings->sensor_max_pressure,
@@ -413,7 +418,11 @@ void WebHandler::handleRoot()
     NetworkConfig::AP_IP[2], NetworkConfig::AP_IP[3],
     FilterConfig::MIN_STRENGTH, FilterConfig::MAX_STRENGTH, FilterConfig::STRENGTH_STEP,
     PwmConfig::MIN_FREQ_HZ, PwmConfig::MAX_FREQ_HZ, PwmConfig::FREQ_STEP_HZ,
-    PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS, PwmConfig::RES_STEP_BITS
+    PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS, PwmConfig::RES_STEP_BITS,
+    ControlConfig::MIN_SAMPLE_TIME_MS, ControlConfig::MAX_SAMPLE_TIME_MS,
+    settings->chart_settings.y_min, settings->chart_settings.y_max,
+    settings->chart_settings.pwm_min, settings->chart_settings.pwm_max,
+    settings->chart_settings.time_window, settings->chart_settings.time_grid
   );
   webServer.sendContent(configScript);
   
@@ -539,6 +548,17 @@ void WebHandler::handleSet()
     }
   }
   
+  if (webServer.hasArg("pst"))
+  {
+    requested = true;
+    int val = webServer.arg("pst").toInt();
+    if (val >= ControlConfig::MIN_SAMPLE_TIME_MS && val <= ControlConfig::MAX_SAMPLE_TIME_MS)
+    {
+      settings->pid_sample_time = val;
+      pid->SetSampleTime(settings->pid_sample_time);
+      changed = true;
+    }
+  }
 
 
   // Update PID tunings only if gains changed; save settings if anything changed
@@ -567,10 +587,10 @@ void WebHandler::handleValues() // Send current values as JSON
   const float pwm_actual_percent = max_output_pwm > 0 ? (*actualPwm / (float)max_output_pwm) * 100.0 : 0;
   const char* adc_status = *ads_found ? "100" : "000";
   
-  char json[448]; 
+  char json[512]; 
   snprintf(json, sizeof(json),
     "{\"sp\":%.4f,\"kp\":%.4f,\"ki\":%.4f,\"kd\":%.4f,\"flt\":%.4f,"
-    "\"freq\":%d,\"res\":%d,"
+    "\"freq\":%d,\"res\":%d,\"pst\":%d,"
     "\"pressure\":%.2f,\"pwm\":%.3f,\"adc_status\":\"%s\","
     "\"sensor_minP\":%.4f,\"sensor_maxP\":%.4f,\"sensor_minV\":%.4f,\"sensor_maxV\":%.4f}",
     settings->setpoint,
@@ -580,6 +600,7 @@ void WebHandler::handleValues() // Send current values as JSON
     settings->filter_strength,
     settings->pwm_freq,
     settings->pwm_res,
+    settings->pid_sample_time,
     *pressureInput,
     pwm_actual_percent,
     adc_status,
@@ -672,6 +693,49 @@ void WebHandler::handleSliderLimits()
   }
 }
 
+// Handler for chart settings API (GET/POST)
+void WebHandler::handleChartSettings()
+{
+  if (webServer.method() == HTTP_GET)
+  {
+    // Return current chart axis settings as JSON
+    char json[128];
+    snprintf(json, sizeof(json),
+      "{\"y_min\":%.2f,\"y_max\":%.2f,\"pwm_min\":%.2f,\"pwm_max\":%.2f,\"time_window\":%d,\"time_grid\":%d}",
+      settings->chart_settings.y_min, settings->chart_settings.y_max,
+      settings->chart_settings.pwm_min, settings->chart_settings.pwm_max,
+      settings->chart_settings.time_window, settings->chart_settings.time_grid
+    );
+    webServer.send(200, "application/json", json);
+  }
+  else if (webServer.method() == HTTP_POST)
+  {
+    float newYMin   = webServer.hasArg("y_min")       ? webServer.arg("y_min").toFloat()       : settings->chart_settings.y_min;
+    float newYMax   = webServer.hasArg("y_max")       ? webServer.arg("y_max").toFloat()       : settings->chart_settings.y_max;
+    float newPMin   = webServer.hasArg("pwm_min")     ? webServer.arg("pwm_min").toFloat()     : settings->chart_settings.pwm_min;
+    float newPMax   = webServer.hasArg("pwm_max")     ? webServer.arg("pwm_max").toFloat()     : settings->chart_settings.pwm_max;
+    int   newTW     = webServer.hasArg("time_window") ? webServer.arg("time_window").toInt()   : settings->chart_settings.time_window;
+    int   newTG     = webServer.hasArg("time_grid")   ? webServer.arg("time_grid").toInt()     : settings->chart_settings.time_grid;
+
+    // Validate: max > min for both axes, time_window >= 1, time_grid >= 1
+    if (newYMax <= newYMin || newPMax <= newPMin || newTW < 1 || newTG < 1)
+    {
+      webServer.send(400, "application/json", "{\"success\":false,\"message\":\"Max must be > Min, time window >= 1, grid >= 1\"}");
+      return;
+    }
+
+    settings->chart_settings.y_min       = newYMin;
+    settings->chart_settings.y_max       = newYMax;
+    settings->chart_settings.pwm_min     = newPMin;
+    settings->chart_settings.pwm_max     = newPMax;
+    settings->chart_settings.time_window = newTW;
+    settings->chart_settings.time_grid   = newTG;
+
+    settings->save();
+    webServer.send(200, "application/json", "{\"success\":true}");
+  }
+}
+
 // ============================================================================
 // setupRoutes() - Web Server Route Configuration
 // ============================================================================
@@ -748,6 +812,14 @@ void WebHandler::setupRoutes()
   
   webServer.on("/api/slider-limits", HTTP_POST, [this](){
     this->handleSliderLimits();
+  });
+  
+  webServer.on("/api/chart-settings", HTTP_GET, [this](){
+    this->handleChartSettings();
+  });
+  
+  webServer.on("/api/chart-settings", HTTP_POST, [this](){
+    this->handleChartSettings();
   });
   
   // Register handlers for JavaScript files at root level
@@ -975,7 +1047,7 @@ void WebHandler::scanWiFiNetworks()
  * 2. Saves current AP configuration
  * 3. Stops the current Access Point
  * 4. Restarts the AP on the new channel
- * 5. Restarts the DNS server for captive portal functionality
+ * 5. Restarts the mDNS responder
  * 6. Provides feedback on the channel change
  * 
  * Parameters:

@@ -163,6 +163,8 @@ void ControlSystem::processControlLoop()
 
             // Compute PID output
             pid->Compute();
+
+            
             
             // Constrain output to valid range (safety check, SetOutputLimits should handle this)
             *pwmPIDoutput = constrain(*pwmPIDoutput, 0, *pwmFullScaleRaw);

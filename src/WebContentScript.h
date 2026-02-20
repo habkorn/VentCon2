@@ -34,7 +34,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     
     // Timing constants (shared between chart and data polling)
     const POLLING_INTERVAL_MS = 100;  // Data fetch interval
-    const DISPLAY_WINDOW_S = 8;       // Seconds of chart history to display
+    let DISPLAY_WINDOW_S = (CFG.chart && CFG.chart.tw) || 8; // Seconds of chart history (updated by chart settings)
 
     // Helper to get CSS variable value (as rgb hex)
     function getCssVar(name) {
@@ -103,7 +103,17 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           sensor_maxP: document.getElementById('sensor_maxP'),
           sensor_minV: document.getElementById('sensor_minV'),
           sensor_maxV: document.getElementById('sensor_maxV')
-        }
+        },
+        // Cache standalone numeric inputs
+        pstText: document.getElementById('pst_text'),
+        // Cache chart settings modal elements
+        chartModal: document.getElementById('chartSettingsModal'),
+        chartYMin: document.getElementById('chartYMin'),
+        chartYMax: document.getElementById('chartYMax'),
+        chartPwmMin: document.getElementById('chartPwmMin'),
+        chartPwmMax: document.getElementById('chartPwmMax'),
+        chartTimeWindow: document.getElementById('chartTimeWindow'),
+        chartTimeGrid: document.getElementById('chartTimeGrid')
       };
     }
 
@@ -182,8 +192,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       const chartCtx = ctx.getContext('2d');
       
       // Efficient circular buffer implementation
-      const BUFFER_SIZE = 128;         // Power of 2 >= DISPLAY_SIZE
-      const DISPLAY_SIZE = Math.round(DISPLAY_WINDOW_S / (POLLING_INTERVAL_MS / 1000)); // 80 points
+      const BUFFER_SIZE = 1024;        // Power of 2, supports up to ~102s at 100ms polling
       
       // Create circular buffers with object pooling
       window.chartData = {
@@ -232,7 +241,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         {
           this.resetPool();
           
-          const displayCount = Math.min(this.count, DISPLAY_SIZE);
+          const displayCount = Math.min(this.count, Math.round(DISPLAY_WINDOW_S / (POLLING_INTERVAL_MS / 1000)));
           
           const timeStep = POLLING_INTERVAL_MS / 1000; // Derive from polling interval
           
@@ -308,9 +317,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           },
           scales: {
             y: {
-              beginAtZero: true,
-              min: 0,
-              max: CFG.maxBar,
+              min: (CFG.chart && CFG.chart.yMin) ?? 0,
+              max: (CFG.chart && CFG.chart.yMax) ?? CFG.maxBar,
               position: 'left',
               title: {
                 display: true,
@@ -327,9 +335,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               }
             },
             pwm: {
-              beginAtZero: true,
-              min: 0,
-              max: 100,
+              min: (CFG.chart && CFG.chart.pMin) ?? 0,
+              max: (CFG.chart && CFG.chart.pMax) ?? 100,
               position: 'right',
               title: {
                 display: true,
@@ -360,7 +367,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--text'),
-                stepSize: 1,
+                stepSize: (CFG.chart && CFG.chart.tg) || 1,
                 autoSkip: false,
                 font: {
                   size: 8,
@@ -568,6 +575,37 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         }
       });
       
+      // Setup PID sample time input change listener with range validation
+      if (cachedElements.pstText)
+      {
+        cachedElements.pstText.addEventListener('input', function()
+        {
+          const val = parseInt(cachedElements.pstText.value, 10);
+          if (!isNaN(val) && val >= CFG.pst.min && val <= CFG.pst.max)
+          {
+            setInputError(cachedElements.pstText, null);
+            validationOk = true;
+            showSaveSnackbar('pst', val);
+          }
+          else
+          {
+            setInputError(cachedElements.pstText, 'Range: ' + CFG.pst.min + ' - ' + CFG.pst.max + ' ms');
+            validationOk = false;
+          }
+        });
+        cachedElements.pstText.addEventListener('blur', function()
+        {
+          const raw = cachedElements.pstText.value.trim();
+          if (raw === '' || isNaN(parseInt(raw, 10)))
+          {
+            if (savedSnapshot && savedSnapshot['pst'] !== undefined)
+              cachedElements.pstText.value = savedSnapshot['pst'];
+            setInputError(cachedElements.pstText, null);
+            validationOk = true;
+          }
+        });
+      }
+
       // Setup save snackbar click handler
       if (cachedElements.saveSnackbar && cachedElements.saveSnackbarText)
       {
@@ -686,7 +724,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (typeof data.sensor_maxP !== 'undefined' && data.sensor_maxP !== CFG.maxBar)
             {
               CFG.maxBar = data.sensor_maxP;
-              updateChartYAxisMax(data.sensor_maxP);
             }
 
             // Update pressure fill and calculate percentage (0-maxBar range)
@@ -777,6 +814,12 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
                   cachedElements.sensorInputs[key].value = data[key];
                 }
               });
+            }
+
+            // Sync PID sample time from server
+            if (typeof data.pst !== 'undefined' && cachedElements.pstText && cachedElements.pstText !== activeEl)
+            {
+              cachedElements.pstText.value = data.pst;
             }
           }
 
@@ -895,6 +938,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       const si = cachedElements.sensorInputs;
       if (txt) { Object.keys(txt).forEach(function(k) { if (txt[k]) savedSnapshot[k] = txt[k].value; }); }
       if (si)  { Object.keys(si).forEach(function(k)  { if (si[k])  savedSnapshot[k] = si[k].value;  }); }
+      // Capture standalone numeric inputs
+      if (cachedElements.pstText) savedSnapshot['pst'] = cachedElements.pstText.value;
     }
     
     // Reusable button feedback helper: shows temporary text/color then reverts
@@ -1113,10 +1158,16 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           if (sl && sl[param]) sl[param].value = oldVal;
           setInputError(txt[param], null);
         }
+        else if (param === 'pst' && cachedElements.pstText)
+        {
+          cachedElements.pstText.value = oldVal;
+          setInputError(cachedElements.pstText, null);
+        }
       });
 
       pendingChanges = {};
       validationOk = true;
+      updateTimeConstants();
       resetSnackbar();
     }
     
@@ -1237,12 +1288,18 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             'Ki: ' + defaults.Ki + ' PWM_counts / (bar·s)',
             'Kd: ' + defaults.Kd + ' PWM_counts·s / bar',
             'Filter: ' + defaults.filter_strength,
-            'PWM Freq: ' + defaults.pwm_freq + ' Hz'
+            'PWM Freq: ' + defaults.pwm_freq + ' Hz',
+            'PID Sample Time: ' + defaults.pid_sample_time + ' ms'
           ];
           if (defaults.sensor_limits)
           {
             const sl = defaults.sensor_limits;
             lines.push('Sensor: ' + sl.minP + '-' + sl.maxP + ' bar, ' + sl.minV + '-' + sl.maxV + ' V');
+          }
+          if (defaults.chart_settings)
+          {
+            const cs = defaults.chart_settings;
+            lines.push('Chart: Y[' + cs.y_min + '-' + cs.y_max + '] PWM[' + cs.pwm_min + '-' + cs.pwm_max + '] T=' + cs.time_window + 's grid=' + cs.time_grid + 's');
           }
 
           if (!confirm('Reset all settings to defaults?\n\n' + lines.join('\n')))
@@ -1275,11 +1332,29 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           return Promise.all(limitsPromises).then(() =>
           {
             applySliderLimits();
-            // Update chart Y-axis if setpoint max changed
-            if (defaults.sp_limits && typeof defaults.sp_limits.max === 'number')
-              updateChartYAxisMax(defaults.sp_limits.max);
-            return defaults;
-          });
+
+            // Reset chart settings from defaults
+            if (defaults.chart_settings)
+            {
+              const cs = defaults.chart_settings;
+              const formData = new URLSearchParams();
+              formData.append('y_min', cs.y_min);
+              formData.append('y_max', cs.y_max);
+              formData.append('pwm_min', cs.pwm_min);
+              formData.append('pwm_max', cs.pwm_max);
+              formData.append('time_window', cs.time_window);
+              formData.append('time_grid', cs.time_grid);
+              return fetch('/api/chart-settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+              }).then(() =>
+              {
+                chartSettings = { y_min: cs.y_min, y_max: cs.y_max, pwm_min: cs.pwm_min, pwm_max: cs.pwm_max, time_window: cs.time_window, time_grid: cs.time_grid };
+                applyChartAxes(chartSettings);
+              });
+            }
+          }).then(() => defaults);
         })
         .then(defaults =>
         {
@@ -1288,6 +1363,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             .filter(param => defaults[PARAM_CONFIG[param].jsonKey] !== undefined)
             .map(param => param + '=' + encodeURIComponent(defaults[PARAM_CONFIG[param].jsonKey]))
             .join('&');
+
+          // Include PID sample time default
+          if (defaults.pid_sample_time !== undefined)
+            params += '&pst=' + encodeURIComponent(defaults.pid_sample_time);
 
           // Include sensor calibration defaults
           if (defaults.sensor_limits)
@@ -1312,6 +1391,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (cachedElements.sensorInputs.sensor_minV && sl.minV !== undefined) cachedElements.sensorInputs.sensor_minV.value = sl.minV;
             if (cachedElements.sensorInputs.sensor_maxV && sl.maxV !== undefined) cachedElements.sensorInputs.sensor_maxV.value = sl.maxV;
           }
+
+          // Update PID sample time input from defaults
+          if (cachedElements.pstText && defaults.pid_sample_time !== undefined)
+            cachedElements.pstText.value = defaults.pid_sample_time;
 
           // Step 4: Reset PID controller
           return fetch('/resetPID');
@@ -1398,16 +1481,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     let currentSliderParam = null;
     let sliderLimits = {};
     
-    // Update chart primary Y-axis max to match setpoint slider max
-    function updateChartYAxisMax(maxVal)
-    {
-      if (window.pressureChart && window.pressureChart.options.scales.y)
-      {
-        window.pressureChart.options.scales.y.max = maxVal;
-        window.pressureChart.update('none');
-      }
-    }
-    
     // Slider names for modal title
     const sliderNames = {
       sp: 'Setpoint',
@@ -1425,8 +1498,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         {
           sliderLimits = data;
           applySliderLimits();
-          // Sync chart Y-axis with setpoint max from saved settings
-          if (data.sp && typeof data.sp.max === 'number') updateChartYAxisMax(data.sp.max);
         })
         .catch(err => console.error('Failed to fetch slider limits:', err));
     }
@@ -1536,9 +1607,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           }
           if (text) text.step = newStep;
           
-          // If setpoint max changed, update chart Y-axis
-          if (currentSliderParam === 'sp') updateChartYAxisMax(newMax);
-          
           closeSliderModal();
         }
         else
@@ -1560,10 +1628,118 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       {
         closeSliderModal();
       }
+      if (e.target && e.target.id === 'chartSettingsModal')
+      {
+        closeChartSettings();
+      }
     });
     
     // Fetch limits on load
     document.addEventListener('DOMContentLoaded', fetchSliderLimits);
+
+    // ========== Chart Settings Modal Functions ==========
+    let chartSettings = CFG.chart
+      ? { y_min: CFG.chart.yMin, y_max: CFG.chart.yMax, pwm_min: CFG.chart.pMin, pwm_max: CFG.chart.pMax, time_window: CFG.chart.tw, time_grid: CFG.chart.tg }
+      : { y_min: 0, y_max: 10, pwm_min: 0, pwm_max: 100, time_window: 8, time_grid: 1 };
+
+    // Apply chart axis settings to the live chart
+    function applyChartAxes(s)
+    {
+      if (!window.pressureChart) return;
+      const sc = window.pressureChart.options.scales;
+      if (sc.y)   { sc.y.min = s.y_min;   sc.y.max = s.y_max; }
+      if (sc.pwm) { sc.pwm.min = s.pwm_min; sc.pwm.max = s.pwm_max; }
+      if (sc.x)   { sc.x.min = -s.time_window; sc.x.ticks.stepSize = s.time_grid; }
+      DISPLAY_WINDOW_S = s.time_window;
+      window.pressureChart.update('none');
+    }
+
+    // Fetch chart settings on page load and apply to chart
+    function fetchChartSettings()
+    {
+      fetch('/api/chart-settings')
+        .then(r => r.json())
+        .then(data =>
+        {
+          chartSettings = data;
+          applyChartAxes(data);
+        })
+        .catch(err => console.error('Failed to fetch chart settings:', err));
+    }
+
+    // Open chart settings modal
+    function openChartSettings()
+    {
+      if (!cachedElements.chartModal) return;
+      const s = chartSettings;
+      if (cachedElements.chartYMin)       cachedElements.chartYMin.value       = s.y_min   ?? 0;
+      if (cachedElements.chartYMax)       cachedElements.chartYMax.value       = s.y_max   ?? 10;
+      if (cachedElements.chartPwmMin)     cachedElements.chartPwmMin.value     = s.pwm_min ?? 0;
+      if (cachedElements.chartPwmMax)     cachedElements.chartPwmMax.value     = s.pwm_max ?? 100;
+      if (cachedElements.chartTimeWindow) cachedElements.chartTimeWindow.value = s.time_window ?? 8;
+      if (cachedElements.chartTimeGrid)   cachedElements.chartTimeGrid.value   = s.time_grid   ?? 1;
+      cachedElements.chartModal.style.display = 'flex';
+    }
+
+    // Close chart settings modal
+    function closeChartSettings()
+    {
+      if (cachedElements.chartModal) cachedElements.chartModal.style.display = 'none';
+    }
+
+    // Save chart settings to server and apply
+    function saveChartSettings()
+    {
+      const yMin = parseFloat(cachedElements.chartYMin.value);
+      const yMax = parseFloat(cachedElements.chartYMax.value);
+      const pMin = parseFloat(cachedElements.chartPwmMin.value);
+      const pMax = parseFloat(cachedElements.chartPwmMax.value);
+      const tw   = parseInt(cachedElements.chartTimeWindow.value, 10);
+      const tg   = parseInt(cachedElements.chartTimeGrid.value, 10);
+
+      if (isNaN(yMin) || isNaN(yMax) || isNaN(pMin) || isNaN(pMax) || isNaN(tw) || isNaN(tg)
+          || yMax <= yMin || pMax <= pMin || tw < 1 || tg < 1)
+      {
+        alert('Invalid values. Max must be > Min, time window >= 1, grid >= 1.');
+        return;
+      }
+
+      const formData = new URLSearchParams();
+      formData.append('y_min', yMin);
+      formData.append('y_max', yMax);
+      formData.append('pwm_min', pMin);
+      formData.append('pwm_max', pMax);
+      formData.append('time_window', tw);
+      formData.append('time_grid', tg);
+
+      fetch('/api/chart-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString()
+      })
+      .then(r => r.json())
+      .then(data =>
+      {
+        if (data.success)
+        {
+          chartSettings = { y_min: yMin, y_max: yMax, pwm_min: pMin, pwm_max: pMax, time_window: tw, time_grid: tg };
+          applyChartAxes(chartSettings);
+          closeChartSettings();
+        }
+        else
+        {
+          alert('Failed to save chart settings');
+        }
+      })
+      .catch(err =>
+      {
+        console.error('Error saving chart settings:', err);
+        alert('Error saving chart settings');
+      });
+    }
+
+    // Fetch chart settings on load
+    document.addEventListener('DOMContentLoaded', fetchChartSettings);
 
     // Setup scroll handler
     function setupScrollHandler()

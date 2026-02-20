@@ -2,24 +2,6 @@
 #include "Logger.h"
 #include "Constants.h"
 
-// Define static const members
-constexpr double SettingsHandler::DEFAULT_KP;
-constexpr double SettingsHandler::DEFAULT_KI;
-constexpr double SettingsHandler::DEFAULT_KD;
-constexpr float SettingsHandler::DEFAULT_FILTER_STRENGTH;
-constexpr double SettingsHandler::DEFAULT_SETPOINT;
-constexpr int SettingsHandler::DEFAULT_PWM_FREQ;
-constexpr int SettingsHandler::DEFAULT_PWM_RES;
-constexpr int SettingsHandler::DEFAULT_PID_SAMPLE_TIME;
-constexpr int SettingsHandler::DEFAULT_CONTROL_FREQ_HZ;
-constexpr bool SettingsHandler::DEFAULT_ANTI_WINDUP;
-constexpr bool SettingsHandler::DEFAULT_HYSTERESIS;
-constexpr float SettingsHandler::DEFAULT_HYST_AMOUNT;
-constexpr float SettingsHandler::DEFAULT_SENSOR_MIN_PRESSURE;
-constexpr float SettingsHandler::DEFAULT_SENSOR_MAX_PRESSURE;
-constexpr float SettingsHandler::DEFAULT_SENSOR_MIN_VOLTAGE;
-constexpr float SettingsHandler::DEFAULT_SENSOR_MAX_VOLTAGE;
-
 const char* SettingsHandler::SETTINGS_FILE_PATH = "/settings.json";
 
 SettingsHandler::SettingsHandler() 
@@ -34,30 +16,37 @@ SettingsHandler::~SettingsHandler()
 
 void SettingsHandler::resetToDefaults() 
 {
-    Kp = DEFAULT_KP;
-    Ki = DEFAULT_KI;
-    Kd = DEFAULT_KD;
-    filter_strength = DEFAULT_FILTER_STRENGTH;
-    setpoint = DEFAULT_SETPOINT;
-    pwm_freq = DEFAULT_PWM_FREQ;
-    pwm_res = DEFAULT_PWM_RES;
-    pid_sample_time = DEFAULT_PID_SAMPLE_TIME;
-    control_freq_hz = DEFAULT_CONTROL_FREQ_HZ;
-    antiWindup = DEFAULT_ANTI_WINDUP;
-    hysteresis = DEFAULT_HYSTERESIS;
-    hystAmount = DEFAULT_HYST_AMOUNT;
+    Kp = SettingsDefaults::KP;
+    Ki = SettingsDefaults::KI;
+    Kd = SettingsDefaults::KD;
+    filter_strength = SettingsDefaults::FILTER_STRENGTH;
+    setpoint = SettingsDefaults::SETPOINT;
+    pwm_freq = SettingsDefaults::PWM_FREQ;
+    pwm_res = SettingsDefaults::PWM_RES;
+    pid_sample_time = SettingsDefaults::PID_SAMPLE_TIME;
+    control_freq_hz = SettingsDefaults::CONTROL_FREQ_HZ;
+    antiWindup = SettingsDefaults::ANTI_WINDUP;
+    hysteresis = SettingsDefaults::HYSTERESIS;
+    hystAmount = SettingsDefaults::HYST_AMOUNT;
     
-    // Default slider limits (from Constants.h)
+    // Default slider limits
     sp_limits = {SliderDefaults::SP_MIN, SliderDefaults::SP_MAX, SliderDefaults::SP_STEP};
     kp_limits = {SliderDefaults::KP_MIN, SliderDefaults::KP_MAX, SliderDefaults::KP_STEP};
     ki_limits = {SliderDefaults::KI_MIN, SliderDefaults::KI_MAX, SliderDefaults::KI_STEP};
     kd_limits = {SliderDefaults::KD_MIN, SliderDefaults::KD_MAX, SliderDefaults::KD_STEP};
     
-    // Default sensor calibration (from Constants.h)
-    sensor_min_pressure = DEFAULT_SENSOR_MIN_PRESSURE;
-    sensor_max_pressure = DEFAULT_SENSOR_MAX_PRESSURE;
-    sensor_min_voltage = DEFAULT_SENSOR_MIN_VOLTAGE;
-    sensor_max_voltage = DEFAULT_SENSOR_MAX_VOLTAGE;
+    // Default sensor calibration
+    sensor_min_pressure = SensorConfigDefaults::SENSOR_MIN_BAR;
+    sensor_max_pressure = SensorConfigDefaults::SENSOR_MAX_BAR;
+    sensor_min_voltage = SensorConfigDefaults::SENSOR_MIN_VOLTAGE;
+    sensor_max_voltage = SensorConfigDefaults::SENSOR_MAX_VOLTAGE;
+    
+    // Default chart axis settings
+    chart_settings = {
+        ChartDefaults::Y_MIN, ChartDefaults::Y_MAX,
+        ChartDefaults::PWM_MIN, ChartDefaults::PWM_MAX,
+        ChartDefaults::TIME_WINDOW, ChartDefaults::TIME_GRID
+    };
 }
 
 bool SettingsHandler::load() 
@@ -86,18 +75,18 @@ bool SettingsHandler::load()
     }
     
     // Load values with defaults as fallback
-    Kp = doc["Kp"] | DEFAULT_KP;
-    Ki = doc["Ki"] | DEFAULT_KI;
-    Kd = doc["Kd"] | DEFAULT_KD;
-    filter_strength = doc["filter_strength"] | DEFAULT_FILTER_STRENGTH;
-    setpoint = doc["setpoint"] | DEFAULT_SETPOINT;
-    pwm_freq = doc["pwm_freq"] | DEFAULT_PWM_FREQ;
-    pwm_res = doc["pwm_res"] | DEFAULT_PWM_RES;
-    pid_sample_time = doc["pid_sample_time"] | DEFAULT_PID_SAMPLE_TIME;
-    control_freq_hz = doc["control_freq_hz"] | DEFAULT_CONTROL_FREQ_HZ;
-    antiWindup = doc["antiWindup"] | DEFAULT_ANTI_WINDUP;
-    hysteresis = doc["hysteresis"] | DEFAULT_HYSTERESIS;
-    hystAmount = doc["hystAmount"] | DEFAULT_HYST_AMOUNT;
+    Kp = doc["Kp"] | SettingsDefaults::KP;
+    Ki = doc["Ki"] | SettingsDefaults::KI;
+    Kd = doc["Kd"] | SettingsDefaults::KD;
+    filter_strength = doc["filter_strength"] | SettingsDefaults::FILTER_STRENGTH;
+    setpoint = doc["setpoint"] | SettingsDefaults::SETPOINT;
+    pwm_freq = doc["pwm_freq"] | SettingsDefaults::PWM_FREQ;
+    pwm_res = doc["pwm_res"] | SettingsDefaults::PWM_RES;
+    pid_sample_time = doc["pid_sample_time"] | SettingsDefaults::PID_SAMPLE_TIME;
+    control_freq_hz = doc["control_freq_hz"] | SettingsDefaults::CONTROL_FREQ_HZ;
+    antiWindup = doc["antiWindup"] | SettingsDefaults::ANTI_WINDUP;
+    hysteresis = doc["hysteresis"] | SettingsDefaults::HYSTERESIS;
+    hystAmount = doc["hystAmount"] | SettingsDefaults::HYST_AMOUNT;
     
     // Load slider limits with defaults from Constants.h
     JsonObject sp_lim = doc["sp_limits"];
@@ -120,12 +109,21 @@ bool SettingsHandler::load()
     kd_limits.max = kd_lim["max"] | SliderDefaults::KD_MAX;
     kd_limits.step = kd_lim["step"] | SliderDefaults::KD_STEP;
     
-    // Load sensor calibration with defaults from Constants.h
+    // Load sensor calibration with defaults
     JsonObject sensor_lim = doc["sensor_limits"];
-    sensor_min_pressure = sensor_lim["minP"] | DEFAULT_SENSOR_MIN_PRESSURE;
-    sensor_max_pressure = sensor_lim["maxP"] | DEFAULT_SENSOR_MAX_PRESSURE;
-    sensor_min_voltage  = sensor_lim["minV"] | DEFAULT_SENSOR_MIN_VOLTAGE;
-    sensor_max_voltage  = sensor_lim["maxV"] | DEFAULT_SENSOR_MAX_VOLTAGE;
+    sensor_min_pressure = sensor_lim["minP"] | SensorConfigDefaults::SENSOR_MIN_BAR;
+    sensor_max_pressure = sensor_lim["maxP"] | SensorConfigDefaults::SENSOR_MAX_BAR;
+    sensor_min_voltage  = sensor_lim["minV"] | SensorConfigDefaults::SENSOR_MIN_VOLTAGE;
+    sensor_max_voltage  = sensor_lim["maxV"] | SensorConfigDefaults::SENSOR_MAX_VOLTAGE;
+    
+    // Load chart axis settings with defaults
+    JsonObject chart = doc["chart_settings"];
+    chart_settings.y_min      = chart["y_min"]      | ChartDefaults::Y_MIN;
+    chart_settings.y_max      = chart["y_max"]      | ChartDefaults::Y_MAX;
+    chart_settings.pwm_min    = chart["pwm_min"]     | ChartDefaults::PWM_MIN;
+    chart_settings.pwm_max    = chart["pwm_max"]     | ChartDefaults::PWM_MAX;
+    chart_settings.time_window = chart["time_window"] | ChartDefaults::TIME_WINDOW;
+    chart_settings.time_grid    = chart["time_grid"]    | ChartDefaults::TIME_GRID;
     
     LOG_I(CAT_SYSTEM, "Settings loaded successfully from LittleFS");
     return true;
@@ -182,6 +180,15 @@ bool SettingsHandler::save()
     sensor_lim["minV"] = sensor_min_voltage;
     sensor_lim["maxV"] = sensor_max_voltage;
     
+    // Save chart axis settings as nested object
+    JsonObject chart = doc["chart_settings"].to<JsonObject>();
+    chart["y_min"]       = chart_settings.y_min;
+    chart["y_max"]       = chart_settings.y_max;
+    chart["pwm_min"]     = chart_settings.pwm_min;
+    chart["pwm_max"]     = chart_settings.pwm_max;
+    chart["time_window"] = chart_settings.time_window;
+    chart["time_grid"]    = chart_settings.time_grid;
+    
     if (serializeJson(doc, file) == 0)
     {
         LOG_E(CAT_SYSTEM, "Failed to write settings to file");
@@ -209,6 +216,10 @@ void SettingsHandler::printSettings()
                  hysteresis ? "Enabled" : "Disabled", hystAmount);
     Serial.printf("Sensor Pressure:   %.1f - %.1f bar\n", sensor_min_pressure, sensor_max_pressure);
     Serial.printf("Sensor Voltage:    %.2f - %.2f V\n", sensor_min_voltage, sensor_max_voltage);
+    Serial.printf("Chart Axes:        Y[%.1f-%.1f] PWM[%.0f-%.0f] T=%ds grid=%ds\n",
+                 chart_settings.y_min, chart_settings.y_max,
+                 chart_settings.pwm_min, chart_settings.pwm_max,
+                 chart_settings.time_window, chart_settings.time_grid);
 }
 
 void SettingsHandler::printStoredSettings() 

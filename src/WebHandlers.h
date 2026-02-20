@@ -58,6 +58,7 @@ private:
     void handleValues();
     void handleResetPID();
     void handleSliderLimits();   // GET/POST slider limits API
+    void handleChartSettings();  // GET/POST chart axis settings API
 
 
 public:    // Constructor with dependency injection

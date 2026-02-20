@@ -66,7 +66,7 @@ const char HTML_FOOTER[] PROGMEM = R"rawliteral(
             <div class="cmd-group-body">
               <div class="cmd-grid">
                 <span><strong>FREQ &lt;hz&gt;</strong></span><span>Set PWM frequency, 100-10000Hz (e.g., FREQ 1000)</span>
-                <span><strong>RES &lt;bits&gt;</strong></span><span>Set PWM resolution, 1-16 bits (e.g., RES 8)</span>
+                <span><strong>RES &lt;bits&gt;</strong></span><span>Set PWM resolution, 8-16 bits (e.g., RES 14)</span>
                 <span><strong>PWM &lt;percent&gt;</strong></span><span>Force PWM duty cycle, 0-100% (e.g., PWM 25)</span>
                 <span><strong>RESUME</strong></span><span>Resume normal PID control after manual PWM</span>
                 <span><strong>CONTROL FREQ</strong></span><span>Set control loop frequency, 10-1000Hz</span>
@@ -85,7 +85,7 @@ const char HTML_FOOTER[] PROGMEM = R"rawliteral(
                 <span><strong>TUNE REJECT</strong></span><span>Reject and keep current PID parameters</span>
                 <span><strong>TUNE SP &lt;bar&gt;</strong></span><span>Set auto-tune test setpoint, 0.5-10.0 bar</span>
                 <span><strong>TUNE MIN &lt;pct&gt;</strong></span><span>Set auto-tune minimum PWM, 50-90%</span>
-                <span><strong>TUNE MAX &lt;pct&gt;</strong></span><span>Set auto-tune maximum PWM, 60-95%</span>
+                <span><strong>TUNE MAX &lt;pct&gt;</strong></span><span>Set auto-tune maximum PWM, 50-90%</span>
                 <span><strong>TUNE CYCLE &lt;ms&gt;</strong></span><span>Set min cycle time, 50-2000ms</span>
                 <span><strong>TUNE RULE &lt;0-3&gt;</strong></span><span>Select tuning rule (see TUNE RULES)</span>
                 <span><strong>TUNE AGGR &lt;val&gt;</strong></span><span>Set aggressiveness factor, 0.5-2.0</span>
@@ -111,6 +111,10 @@ const char HTML_FOOTER[] PROGMEM = R"rawliteral(
               <div class="cmd-grid">
                 <span><strong>STATUS</strong></span><span>Show comprehensive system status</span>
                 <span><strong>SENSOR</strong></span><span>Test SensorManager and show detailed sensor readings</span>
+                <span><strong>SENSOR MINP &lt;v&gt;</strong></span><span>Set sensor min pressure in bar (e.g., SENSOR MINP 0)</span>
+                <span><strong>SENSOR MAXP &lt;v&gt;</strong></span><span>Set sensor max pressure in bar (e.g., SENSOR MAXP 10)</span>
+                <span><strong>SENSOR MINV &lt;v&gt;</strong></span><span>Set sensor min voltage in V (e.g., SENSOR MINV 0.5)</span>
+                <span><strong>SENSOR MAXV &lt;v&gt;</strong></span><span>Set sensor max voltage in V (e.g., SENSOR MAXV 4.5)</span>
                 <span><strong>STARTCD</strong></span><span>Start continuous data output for plotting</span>
                 <span><strong>STOPCD</strong></span><span>Stop continuous data output</span>
                 <span><strong>MEM</strong></span><span>Show memory usage and system information</span>
