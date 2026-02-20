@@ -22,6 +22,8 @@
         },
         "mode": true,
         ".\\upload_filesystem.bat": true,
-        "gzip": true
+        "gzip": true,
+        "ForEach-Object": true,
+        "clang-format": true
     }
 }

@@ -9,7 +9,8 @@
  * 
  * Defines configurable min/max/step values for UI sliders.
  */
-struct SliderLimits {
+struct SliderLimits 
+{
     float min;
     float max;
     float step;
@@ -20,7 +21,8 @@ struct SliderLimits {
  * 
  * Defines configurable axis limits and time window for the live chart.
  */
-struct ChartSettings {
+struct ChartSettings 
+{
     float y_min;        // Pressure axis minimum (bar)
     float y_max;        // Pressure axis maximum (bar)
     float pwm_min;      // Duty-cycle axis minimum (%)

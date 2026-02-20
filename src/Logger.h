@@ -7,7 +7,8 @@
  * Log Levels - higher value = more verbose
  * Set via build_flags: -DLOG_LEVEL=LOG_DEBUG
  */
-enum LogLevel {
+enum LogLevel 
+{
     LOG_NONE  = 0,
     LOG_ERROR = 1,
     LOG_WARN  = 2,
@@ -18,7 +19,8 @@ enum LogLevel {
 /**
  * Log Categories - each has independent rate limiting
  */
-enum LogCategory {
+enum LogCategory 
+{
     CAT_CONTROL,    // Control loop, PID, valve
     CAT_NETWORK,    // WiFi, web server, DNS
     CAT_SENSOR,     // Pressure sensor, ADC
@@ -41,7 +43,8 @@ enum LogCategory {
  * - Runtime enable/disable (ties into existing continousValueOutput)
  * - printf-style formatting
  */
-class Logger {
+class Logger 
+{
 private:
     static unsigned long lastLogTime[CAT_COUNT];
     static bool enabled;
