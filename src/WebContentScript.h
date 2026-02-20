@@ -183,6 +183,19 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       }
     }
     
+    // Compute a visually clean tick step for a given axis span
+    // Targets ~5 divisions; snaps to 1/2/2.5/5 * 10^n
+    function niceStep(span, targetDivisions)
+    {
+      if (!targetDivisions) targetDivisions = 5;
+      if (!span || span <= 0) return 1;
+      const raw = span / targetDivisions;
+      const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+      const candidates = [1, 2, 2.5, 5, 10];
+      const factor = candidates.find(function(c) { return c * magnitude >= raw; }) || 10;
+      return magnitude * factor;
+    }
+
     // Initialize chart in separate function
     function initializeChart()
     {
@@ -327,7 +340,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--primary'),
-                stepSize: 2,
+              stepSize: niceStep((CFG.chart ? CFG.chart.yMax - CFG.chart.yMin : CFG.maxBar) || 10),
                 autoSkip: false
               },
               grid: {
@@ -345,7 +358,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--success'),
-                stepSize: 20,
+                stepSize: niceStep((CFG.chart ? CFG.chart.pMax - CFG.chart.pMin : 100) || 100),
                 autoSkip: false
               },
               grid: {
@@ -1647,8 +1660,18 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     {
       if (!window.pressureChart) return;
       const sc = window.pressureChart.options.scales;
-      if (sc.y)   { sc.y.min = s.y_min;   sc.y.max = s.y_max; }
-      if (sc.pwm) { sc.pwm.min = s.pwm_min; sc.pwm.max = s.pwm_max; }
+      if (sc.y)
+      {
+        sc.y.min = s.y_min;
+        sc.y.max = s.y_max;
+        sc.y.ticks.stepSize = niceStep(s.y_max - s.y_min);
+      }
+      if (sc.pwm)
+      {
+        sc.pwm.min = s.pwm_min;
+        sc.pwm.max = s.pwm_max;
+        sc.pwm.ticks.stepSize = niceStep(s.pwm_max - s.pwm_min);
+      }
       if (sc.x)   { sc.x.min = -s.time_window; sc.x.ticks.stepSize = s.time_grid; }
       DISPLAY_WINDOW_S = s.time_window;
       window.pressureChart.update('none');
