@@ -876,7 +876,7 @@ footer
 
 .reset-btn
 {
-  background-color: #f59e0b;
+  background-color: var(--secondary);
   color: white;
   border: none;
   border-radius: 4px;
@@ -891,7 +891,7 @@ footer
 
 .reset-btn:hover
 {
-  background-color: #d97706;
+  background-color: var(--accent-dark);
 }
 
 /* Reset to Default button */
@@ -903,7 +903,7 @@ footer
 
 .reset-defaults-btn
 {
-  background-color: #64748b;
+  background-color: var(--secondary);
   color: white;
   border: none;
   border-radius: 6px;
@@ -916,7 +916,7 @@ footer
 
 .reset-defaults-btn:hover
 {
-  background-color: #475569;
+  background-color: var(--secondary-dark);
 }
 
 .reset-defaults-btn:disabled
@@ -934,7 +934,7 @@ footer
   width: 100vw;
   height: 100vh;
   z-index: 9999;
-  background: #fff;
+  background: var(--background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -949,7 +949,7 @@ footer
 
 .loader-spinner
 {
-  border: 6px solid #f3f3f3;
+  border: 6px solid var(--background);
   border-top: 6px solid var(--primary);
   border-radius: 50%;
   width: 48px;
@@ -967,7 +967,7 @@ footer
 /* Brand title gradient */
 .brand-title
 {
-  background: linear-gradient(90deg, #002f87 0%, #32c09d 100%);
+  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
