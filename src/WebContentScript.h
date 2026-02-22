@@ -34,7 +34,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     
     // Timing constants (shared between chart and data polling)
     const POLLING_INTERVAL_MS = 100;  // Data fetch interval
-    let DISPLAY_WINDOW_S = (CFG.chart && CFG.chart.tw) || 8; // Seconds of chart history (updated by chart settings)
+    let DISPLAY_WINDOW_S = (CFG.chart && CFG.chart.time_window) || 8; // Seconds of chart history (updated by chart settings)
 
     // Helper to get CSS variable value (as rgb hex)
     function getCssVar(name) {
@@ -149,7 +149,9 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           hideLoaderAndContinue();
           if(cachedElements.chartContainer) cachedElements.chartContainer.style.display = 'none';
           setupEventListeners();
+          fetchSliderLimits();
           captureAllInputs();
+          updateTimeConstants();
           startDataUpdates();
           return;
         }
@@ -164,6 +166,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
 
       // Setup all other functionality
       setupEventListeners();
+      fetchSliderLimits();
       captureAllInputs();
       updateTimeConstants();
       startDataUpdates();
@@ -330,8 +333,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           },
           scales: {
             y: {
-              min: (CFG.chart && CFG.chart.yMin) ?? 0,
-              max: (CFG.chart && CFG.chart.yMax) ?? CFG.maxBar,
+              min: (CFG.chart && CFG.chart.y_min) ?? 0,
+              max: (CFG.chart && CFG.chart.y_max) ?? CFG.maxBar,
               position: 'left',
               title: {
                 display: true,
@@ -340,16 +343,17 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--primary'),
-              stepSize: niceStep((CFG.chart ? CFG.chart.yMax - CFG.chart.yMin : CFG.maxBar) || 10),
-                autoSkip: false
+                stepSize: niceStep((CFG.chart ? CFG.chart.y_max - CFG.chart.y_min : CFG.maxBar) || 10),
+                autoSkip: false,
+                callback: function(value) { return +value.toFixed(2) + ''; }
               },
               grid: {
                 display: true
               }
             },
             pwm: {
-              min: (CFG.chart && CFG.chart.pMin) ?? 0,
-              max: (CFG.chart && CFG.chart.pMax) ?? 100,
+              min: (CFG.chart && CFG.chart.pwm_min) ?? 0,
+              max: (CFG.chart && CFG.chart.pwm_max) ?? 100,
               position: 'right',
               title: {
                 display: true,
@@ -358,8 +362,9 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--success'),
-                stepSize: niceStep((CFG.chart ? CFG.chart.pMax - CFG.chart.pMin : 100) || 100),
-                autoSkip: false
+                stepSize: niceStep((CFG.chart ? CFG.chart.pwm_max - CFG.chart.pwm_min : 100) || 100),
+                autoSkip: false,
+                callback: function(value) { return value.toFixed(0); }
               },
               grid: {
                 display: false
@@ -380,7 +385,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--text'),
-                stepSize: (CFG.chart && CFG.chart.tg) || 1,
+                stepSize: (CFG.chart && CFG.chart.time_grid) || 1,
                 autoSkip: false,
                 font: {
                   size: 8,
@@ -467,7 +472,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (raw === '' || raw === '-' || raw === '.')
             {
               setInputError(text, null);
-              validationOk = true;
               return;
             }
             const val = parseFloat(raw);
@@ -483,8 +487,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               setInputError(text, isNaN(val) ? 'Enter a number' : 'Range: ' + lo + ' – ' + hi);
             }
             if (isPid) updateTimeConstants();
-            validationOk = !text.classList.contains('input-error');
-            if (validationOk) showSaveSnackbar(param, text.value);
+            if (!text.classList.contains('input-error')) showSaveSnackbar(param, text.value);
           });
 
           // On blur: clamp value to slider range and clear any error
@@ -492,7 +495,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           {
             clampTextToSlider(text, slider);
             if (isPid) updateTimeConstants();
-            validationOk = true;
             // If clamped value differs from saved snapshot, register as pending change
             if (savedSnapshot[param] !== undefined && String(text.value) !== String(savedSnapshot[param]))
             {
@@ -555,7 +557,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           input.addEventListener('input', function()
           {
             const sensorValid = validateSensorInputs();
-            validationOk = sensorValid;
             if (sensorValid) showSaveSnackbar(param, input.value);
           });
 
@@ -569,7 +570,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               if (savedSnapshot && savedSnapshot[param] !== undefined)
                 input.value = savedSnapshot[param];
               setInputError(input, null);
-              validationOk = true;
             }
           });
 
@@ -597,13 +597,11 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           if (!isNaN(val) && val >= CFG.pst.min && val <= CFG.pst.max)
           {
             setInputError(cachedElements.pstText, null);
-            validationOk = true;
             showSaveSnackbar('pst', val);
           }
           else
           {
             setInputError(cachedElements.pstText, 'Range: ' + CFG.pst.min + ' - ' + CFG.pst.max + ' ms');
-            validationOk = false;
           }
         });
         cachedElements.pstText.addEventListener('blur', function()
@@ -614,7 +612,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             if (savedSnapshot && savedSnapshot['pst'] !== undefined)
               cachedElements.pstText.value = savedSnapshot['pst'];
             setInputError(cachedElements.pstText, null);
-            validationOk = true;
           }
         });
       }
@@ -747,10 +744,13 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             }
             
             // Update setpoint target marker
-            const setpointPercent = (data.sp / CFG.maxBar) * 100;
-            if (cachedElements.pressureTarget)
+            if (typeof data.sp !== 'undefined')
             {
-              cachedElements.pressureTarget.style.left = `${setpointPercent}%`;
+              const setpointPercent = (data.sp / CFG.maxBar) * 100;
+              if (cachedElements.pressureTarget)
+              {
+                cachedElements.pressureTarget.style.left = `${setpointPercent}%`;
+              }
             }
             
             // Update trend indicator
@@ -758,9 +758,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             
             // Get PWM value for chart
             const pwmVal = (data.pwm !== undefined) ? data.pwm : 0;
+            const spVal = (data.sp !== undefined) ? data.sp : 0;
             
             // Always call updateChart, it will handle visibility internally
-            updateChart(pressureVal, data.sp, pwmVal);
+            updateChart(pressureVal, spVal, pwmVal);
           }
           else
           {
@@ -849,7 +850,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           {
             if (cachedElements.networkIndicator)
             {
-              cachedElements.networkIndicator.style.backgroundColor = getCssVar('--danger') || '#ef4444';
+              cachedElements.networkIndicator.style.backgroundColor = 'var(--danger)';
             }
             if (cachedElements.networkStatus)
             {
@@ -1003,8 +1004,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     }
 
     // ── Input Validation Helpers ──────────────────────────────────────────
-    // Track whether all pending changes are valid (blocks save when false)
-    let validationOk = true;
 
     // Set or clear error state on a single input element
     function setInputError(input, errorMsg)
@@ -1065,6 +1064,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       else                        { setInputError(si.sensor_minV, null); }
 
       // Max voltage must be > min voltage and <= 5.0V (ADC limit)
+      // NOTE: 5.0 must match SensorConfigDefaults::SENSOR_MAX_VOLTAGE_LIMIT in Constants.h
       if (isNaN(maxV))            { setInputError(si.sensor_maxV, 'Enter a valid number');              ok = false; }
       else if (maxV <= minV)      { setInputError(si.sensor_maxV, 'Must be greater than Min Voltage');  ok = false; }
       else if (maxV > 5.0)        { setInputError(si.sensor_maxV, 'Cannot exceed 5.0 V (ADC limit)');   ok = false; }
@@ -1179,7 +1179,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       });
 
       pendingChanges = {};
-      validationOk = true;
       updateTimeConstants();
       resetSnackbar();
     }
@@ -1189,12 +1188,24 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     {
       if (!cachedElements.saveSnackbarText) return;
 
-      // Block save if any input has a validation error
-      if (!validationOk)
+      // Block save if ANY input currently has a validation error (DOM-based check
+      // avoids the single-flag race where fixing one field clears the flag while
+      // another field still has an error)
+      if (document.querySelector('.input-error'))
       {
         cachedElements.saveSnackbarText.textContent = "Fix errors first";
         cachedElements.saveSnackbar.style.background = getCssVar('--danger');
         setTimeout(() => resetSnackbar(), 1500);
+        // Restart auto-revert timer so pending edits aren't silently discarded
+        clearTimeout(changeTimeout);
+        changeTimeout = setTimeout(() => fadeOutSnackbar(revertUnsavedChanges), 8000);
+        return;
+      }
+
+      // Nothing to save — dismiss the snackbar
+      if (Object.keys(pendingChanges).length === 0)
+      {
+        fadeOutSnackbar(resetSnackbar);
         return;
       }
       
@@ -1238,9 +1249,9 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     }
 
     // Handle PID reset
-    function handlePidReset()
+    function handlePidReset(e)
     {
-      const btn = this;
+      const btn = e.currentTarget;
       const originalText = btn.textContent;
       btn.textContent = "Resetting...";
       btn.style.backgroundColor = getCssVar('--accent'); // Use accent color during reset
@@ -1502,7 +1513,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       kd: 'Derivative (Kd)'
     };
     
-    // Fetch slider limits on page load
+    // Fetch slider limits from server and apply to DOM
     function fetchSliderLimits()
     {
       fetch('/api/slider-limits')
@@ -1511,6 +1522,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         {
           sliderLimits = data;
           applySliderLimits();
+          // Re-snapshot after limits are applied (they may clamp slider values)
+          captureAllInputs();
         })
         .catch(err => console.error('Failed to fetch slider limits:', err));
     }
@@ -1647,12 +1660,11 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       }
     });
     
-    // Fetch limits on load
-    document.addEventListener('DOMContentLoaded', fetchSliderLimits);
+    // Slider limits are fetched inside initializeApp()
 
     // ========== Chart Settings Modal Functions ==========
     let chartSettings = CFG.chart
-      ? { y_min: CFG.chart.yMin, y_max: CFG.chart.yMax, pwm_min: CFG.chart.pMin, pwm_max: CFG.chart.pMax, time_window: CFG.chart.tw, time_grid: CFG.chart.tg }
+      ? { y_min: CFG.chart.y_min, y_max: CFG.chart.y_max, pwm_min: CFG.chart.pwm_min, pwm_max: CFG.chart.pwm_max, time_window: CFG.chart.time_window, time_grid: CFG.chart.time_grid }
       : { y_min: 0, y_max: 10, pwm_min: 0, pwm_max: 100, time_window: 8, time_grid: 1 };
 
     // Apply chart axis settings to the live chart
@@ -1677,18 +1689,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       window.pressureChart.update('none');
     }
 
-    // Fetch chart settings on page load and apply to chart
-    function fetchChartSettings()
-    {
-      fetch('/api/chart-settings')
-        .then(r => r.json())
-        .then(data =>
-        {
-          chartSettings = data;
-          applyChartAxes(data);
-        })
-        .catch(err => console.error('Failed to fetch chart settings:', err));
-    }
+    // Chart settings are already injected server-side via CFG.chart and applied
+    // during initializeChart(), so no separate fetch is needed.
 
     // Open chart settings modal
     function openChartSettings()
@@ -1713,27 +1715,27 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     // Save chart settings to server and apply
     function saveChartSettings()
     {
-      const yMin = parseFloat(cachedElements.chartYMin.value);
-      const yMax = parseFloat(cachedElements.chartYMax.value);
-      const pMin = parseFloat(cachedElements.chartPwmMin.value);
-      const pMax = parseFloat(cachedElements.chartPwmMax.value);
-      const tw   = parseInt(cachedElements.chartTimeWindow.value, 10);
-      const tg   = parseInt(cachedElements.chartTimeGrid.value, 10);
+      const y_min       = parseFloat(cachedElements.chartYMin.value);
+      const y_max       = parseFloat(cachedElements.chartYMax.value);
+      const pwm_min     = parseFloat(cachedElements.chartPwmMin.value);
+      const pwm_max     = parseFloat(cachedElements.chartPwmMax.value);
+      const time_window = parseInt(cachedElements.chartTimeWindow.value, 10);
+      const time_grid   = parseInt(cachedElements.chartTimeGrid.value, 10);
 
-      if (isNaN(yMin) || isNaN(yMax) || isNaN(pMin) || isNaN(pMax) || isNaN(tw) || isNaN(tg)
-          || yMax <= yMin || pMax <= pMin || tw < 1 || tg < 1)
+      if (isNaN(y_min) || isNaN(y_max) || isNaN(pwm_min) || isNaN(pwm_max) || isNaN(time_window) || isNaN(time_grid)
+          || y_max <= y_min || pwm_max <= pwm_min || time_window < 1 || time_grid < 1)
       {
         alert('Invalid values. Max must be > Min, time window >= 1, grid >= 1.');
         return;
       }
 
       const formData = new URLSearchParams();
-      formData.append('y_min', yMin);
-      formData.append('y_max', yMax);
-      formData.append('pwm_min', pMin);
-      formData.append('pwm_max', pMax);
-      formData.append('time_window', tw);
-      formData.append('time_grid', tg);
+      formData.append('y_min', y_min);
+      formData.append('y_max', y_max);
+      formData.append('pwm_min', pwm_min);
+      formData.append('pwm_max', pwm_max);
+      formData.append('time_window', time_window);
+      formData.append('time_grid', time_grid);
 
       fetch('/api/chart-settings', {
         method: 'POST',
@@ -1745,7 +1747,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       {
         if (data.success)
         {
-          chartSettings = { y_min: yMin, y_max: yMax, pwm_min: pMin, pwm_max: pMax, time_window: tw, time_grid: tg };
+          chartSettings = { y_min: y_min, y_max: y_max, pwm_min: pwm_min, pwm_max: pwm_max, time_window: time_window, time_grid: time_grid };
           applyChartAxes(chartSettings);
           closeChartSettings();
         }
@@ -1761,8 +1763,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       });
     }
 
-    // Fetch chart settings on load
-    document.addEventListener('DOMContentLoaded', fetchChartSettings);
+    // Chart settings are initialized from CFG.chart (server-injected)
 
     // Setup scroll handler
     function setupScrollHandler()

@@ -1,6 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1771423524.95828 "c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex" "VENTCON_WebInterface_Manual.pdf" "VENTCON_WebInterface_Manual" 1771423525.90296 0
-  "Bottom_Web interface.jpg" 1770736866 444234 6a6c9b58f6ee3ca228f9a850bf3a69c2 ""
+["pdflatex"] 1771624311.0277 "c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex" "VENTCON_WebInterface_Manual.pdf" "VENTCON_WebInterface_Manual" 1771624311.81097 0
   "C:/Program Files/MiKTeX/fonts/tfm/jknappen/ec/ecbx1095.tfm" 993061956 3228 aacd2ac2d814480e4422ad7e830fd2d4 ""
   "C:/Program Files/MiKTeX/fonts/tfm/jknappen/ec/ecbx1200.tfm" 993061958 3200 b8d69bc738e5ef3e08cefeef3109ff56 ""
   "C:/Program Files/MiKTeX/fonts/tfm/jknappen/ec/ecbx1440.tfm" 993061960 3196 0b37fa3083e15c57cfa8c4ff52f2807a ""
@@ -104,12 +103,12 @@
   "C:/Users/thomas.haberkorn/AppData/Roaming/MiKTeX/tex/latex/refcount/refcount.sty" 1576433952 9878 9e94e8fa600d95f9c7731bb21dfb67a4 ""
   "C:/Users/thomas.haberkorn/AppData/Roaming/MiKTeX/tex/latex/rerunfilecheck/rerunfilecheck.sty" 1657800696 9714 ba3194bd52c8499b3f1e3eb91d409670 ""
   "C:/Users/thomas.haberkorn/AppData/Roaming/MiKTeX/tex/latex/titlesec/titlesec.sty" 1736608268 48766 87a17a4ef312a39cd43896e34a679a56 ""
-  "Top_Web interface.jpg" 1770796416 565768 7313fe5f1ed3323c7e3609cc383f87da ""
-  "VENTCON_WebInterface_Manual.aux" 1771423525 3716 b46897bca4fc4676583d138de1547c06 "pdflatex"
-  "VENTCON_WebInterface_Manual.out" 1771423525 3166 7fbb51b3d18bc6cb77320f44db5ee720 "pdflatex"
-  "VENTCON_WebInterface_Manual.tex" 1771423524 12584 bb20a25686b87207304f0befe572e209 ""
-  "VENTCON_WebInterface_Manual.toc" 1771423525 1658 1e00140eb2e30122fbeb7133a8ec42f7 "pdflatex"
-  "c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex" 1771423524 12584 bb20a25686b87207304f0befe572e209 ""
+  "VENTCON_WebInterface_Manual.aux" 1771624311 3467 7044bd349ec7cbd9883f796822fd958a "pdflatex"
+  "VENTCON_WebInterface_Manual.out" 1771624311 3166 0d906455fb2b0cb4a32e369ac2d68e5f "pdflatex"
+  "VENTCON_WebInterface_Manual.tex" 1771624309 12382 2383761450eeb532d214b8c29f4f1018 ""
+  "VENTCON_WebInterface_Manual.toc" 1771624311 1658 a1630b3ba627471792cd2281fc7a814b "pdflatex"
+  "c:/Users/thomas.haberkorn/OneDrive - VENTREX/Desktop/VentCon2/LaTeX/manual/VENTCON_WebInterface_Manual.tex" 1771624309 12382 2383761450eeb532d214b8c29f4f1018 ""
+  "pic/Top_Web interface.jpg" 1771595891 592076 a1e91b9f191472c7b55195bccc612bfc ""
   (generated)
   "VENTCON_WebInterface_Manual.aux"
   "VENTCON_WebInterface_Manual.log"

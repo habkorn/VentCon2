@@ -11,13 +11,13 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
       <summary>Control Parameters</summary>
       <div class="collapsible-content">
         <div class="control-row">
-          <label for="sp_slider">Setpoint Outlet Pressure in bar(g)</label>
+          <label for="sp_slider"><span style="color:var(--accent)">SETPOINT</span> Outlet Pressure in bar(g)</label>
           <div class="control-slider">
             <button type="button" class="slider-btn decrement-btn" id="sp_decrement">-</button>
             <input type="range" id="sp_slider" min="%SP_MIN%" max="%SP_MAX%" step="%SP_STEP%" value="%SP%">
             <button type="button" class="slider-btn increment-btn" id="sp_increment">+</button>
             <input type="text" inputmode="decimal" id="sp_text" value="%SP%" step="%SP_STEP%">
-            <button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits">&#9965</button>
+            <button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits">&#9965;</button>
           </div>
         </div>    
       
@@ -73,7 +73,6 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="flt_slider" min="%FLT_MIN%" max="%FLT_MAX%" step="%FLT_STEP%" value="%FLT%">
             <button type="button" class="slider-btn increment-btn" id="flt_increment">+</button>
             <input type="text" inputmode="decimal" id="flt_text" value="%FLT%" step="%FLT_STEP%">
-            <button class="settings-gear" onclick="openSliderSettings('flt')" title="Configure slider limits">&#9965;</button>
           </div>
         </div>
 

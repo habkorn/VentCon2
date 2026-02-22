@@ -142,13 +142,13 @@ INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\ecrm2488.tfm
 INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\ecbx2488.tfm
 INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\ecrm1728.tfm
 INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\ecrm1440.tfm
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
 INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\ecrm1200.tfm
 INPUT C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\ecbx1440.tfm
@@ -186,17 +186,10 @@ INPUT C:\Program Files\MiKTeX\tex\latex\base\t1cmtt.fd
 INPUT C:\Program Files\MiKTeX\tex\latex\base\t1cmtt.fd
 INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\ectt1095.tfm
 INPUT C:\Program Files\MiKTeX\fonts\tfm\jknappen\ec\tcrm1095.tfm
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Top_Web interface.jpg
-INPUT .\Bottom_Web interface.jpg
-INPUT .\Bottom_Web interface.jpg
-INPUT .\Bottom_Web interface.jpg
-INPUT .\Bottom_Web interface.jpg
-INPUT .\Bottom_Web interface.jpg
-INPUT .\Bottom_Web interface.jpg
-INPUT .\Bottom_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
+INPUT .\pic\Top_Web interface.jpg
 INPUT VENTCON_WebInterface_Manual.aux
 INPUT .\VENTCON_WebInterface_Manual.out
 INPUT .\VENTCON_WebInterface_Manual.out

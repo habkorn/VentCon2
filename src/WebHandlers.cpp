@@ -398,7 +398,7 @@ void WebHandler::handleRoot()
   // 6. Inject server-rendered configuration constants for JavaScript
   // These values are defined in Constants.h and injected here so the JS
   // doesn't hardcode values that could drift out of sync with the firmware.
-  char configScript[384];
+  char configScript[416];
   snprintf(configScript, sizeof(configScript),
     "<script>"
     "var CFG={"
@@ -409,7 +409,7 @@ void WebHandler::handleRoot()
     "freq:{min:%d,max:%d,step:%d},"
     "res:{min:%d,max:%d,step:%d},"
     "pst:{min:%d,max:%d},"
-    "chart:{yMin:%.2f,yMax:%.2f,pMin:%.2f,pMax:%.2f,tw:%d,tg:%d}"
+    "chart:{y_min:%.2f,y_max:%.2f,pwm_min:%.2f,pwm_max:%.2f,time_window:%d,time_grid:%d}"
     "};"
     "</script>",
     settings->sensor_max_pressure,
@@ -585,13 +585,12 @@ void WebHandler::handleValues() // Send current values as JSON
 
   // Calculate actual valve duty cycle percentage from the mapped PWM value
   const float pwm_actual_percent = max_output_pwm > 0 ? (*actualPwm / (float)max_output_pwm) * 100.0 : 0;
-  const char* adc_status = *ads_found ? "100" : "000";
   
   char json[512]; 
   snprintf(json, sizeof(json),
     "{\"sp\":%.4f,\"kp\":%.4f,\"ki\":%.4f,\"kd\":%.4f,\"flt\":%.4f,"
     "\"freq\":%d,\"res\":%d,\"pst\":%d,"
-    "\"pressure\":%.2f,\"pwm\":%.3f,\"adc_status\":\"%s\","
+    "\"pressure\":%.2f,\"pwm\":%.3f,"
     "\"sensor_minP\":%.4f,\"sensor_maxP\":%.4f,\"sensor_minV\":%.4f,\"sensor_maxV\":%.4f}",
     settings->setpoint,
     settings->Kp,
@@ -603,7 +602,6 @@ void WebHandler::handleValues() // Send current values as JSON
     settings->pid_sample_time,
     *pressureInput,
     pwm_actual_percent,
-    adc_status,
     settings->sensor_min_pressure,
     settings->sensor_max_pressure,
     settings->sensor_min_voltage,

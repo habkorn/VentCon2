@@ -596,8 +596,8 @@ void CommandProcessor::handleDiagnosticCommands(const String& cmd)
                 settings->save();
             }
         } else if (param == "MAXV") {
-            if (val <= settings->sensor_min_voltage || val > 5.0f) {
-                Serial.printf("ERROR: Max voltage (%.3f) must be > min voltage (%.3f) and <= 5.0V\n", val, settings->sensor_min_voltage);
+            if (val <= settings->sensor_min_voltage || val > SensorConfigDefaults::SENSOR_MAX_VOLTAGE_LIMIT) {
+                Serial.printf("ERROR: Max voltage (%.3f) must be > min voltage (%.3f) and <= %.1fV\n", val, settings->sensor_min_voltage, SensorConfigDefaults::SENSOR_MAX_VOLTAGE_LIMIT);
             } else {
                 settings->sensor_max_voltage = val;
                 Serial.printf("Sensor max voltage set to: %.3f V\n", val);

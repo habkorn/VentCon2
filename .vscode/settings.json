@@ -24,6 +24,9 @@
         ".\\upload_filesystem.bat": true,
         "gzip": true,
         "ForEach-Object": true,
-        "clang-format": true
+        "clang-format": true,
+        "c.get(\\\"%.1f\\\",0)": true,
+        "\\\"%.1f\\\",0": true,
+        ".1f\\\"]}')": true
     }
 }

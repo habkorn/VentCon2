@@ -1,7 +1,7 @@
 #pragma once
 
 // System version string including build timestamp for identification and debugging
-#define VENTCON_VERSION "2.6.3 (Build: " __DATE__ " " __TIME__ ")"
+#define VENTCON_VERSION "2.6.6 (Build: " __DATE__ " " __TIME__ ")"
 
 // Network Configuration
 namespace NetworkConfig 
@@ -78,6 +78,10 @@ namespace SensorConfigDefaults
     
     // Maximum pressure reading in bar that the sensor can measure (10 bar range)
     constexpr float SENSOR_MAX_BAR = 10.f;
+
+    // Absolute upper limit for sensor max voltage setting (hardware ADC input limit)
+    // NOTE: Also hardcoded in WebContentScript.h JS validation (raw string, can't reference C++ constants)
+    constexpr float SENSOR_MAX_VOLTAGE_LIMIT = 5.0f;
 }
 
 // Valve Configuration

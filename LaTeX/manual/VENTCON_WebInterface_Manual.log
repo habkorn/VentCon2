@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  18 FEB 2026 15:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2024.11.8)  20 FEB 2026 22:51
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -413,15 +413,15 @@ Package hyperref Info: Link coloring ON on input line 49.
 \@outlinefile=\write3
 \openout3 = `VENTCON_WebInterface_Manual.out'.
 
-<Top_Web interface.jpg, id=83, 260.172pt x 581.0508pt>
-File: Top_Web interface.jpg Graphic file (type jpg)
-<use Top_Web interface.jpg>
-Package pdftex.def Info: Top_Web interface.jpg  used on input line 63.
+<pic/Top_Web interface.jpg, id=83, 260.172pt x 581.0508pt>
+File: pic/Top_Web interface.jpg Graphic file (type jpg)
+<use pic/Top_Web interface.jpg>
+Package pdftex.def Info: pic/Top_Web interface.jpg  used on input line 63.
 (pdftex.def)             Requested size: 182.09486pt x 406.69731pt.
  [1
 
 {C:/Users/thomas.haberkorn/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map} <.
-/Top_Web interface.jpg>] (VENTCON_WebInterface_Manual.toc
+/pic/Top_Web interface.jpg>] (VENTCON_WebInterface_Manual.toc
 LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
 
 (C:\Program Files\MiKTeX\tex/latex/amsfonts\umsa.fd
@@ -442,34 +442,28 @@ LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 8
 (C:\Program Files\MiKTeX\tex/latex/base\t1cmtt.fd
 File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 )
-File: Top_Web interface.jpg Graphic file (type jpg)
-<use Top_Web interface.jpg>
-Package pdftex.def Info: Top_Web interface.jpg  used on input line 131.
+File: pic/Top_Web interface.jpg Graphic file (type jpg)
+<use pic/Top_Web interface.jpg>
+Package pdftex.def Info: pic/Top_Web interface.jpg  used on input line 131.
 (pdftex.def)             Requested size: 204.85846pt x 457.5356pt.
- [2]
-<Bottom_Web interface.jpg, id=135, 260.172pt x 513.8397pt>
-File: Bottom_Web interface.jpg Graphic file (type jpg)
-<use Bottom_Web interface.jpg>
-Package pdftex.def Info: Bottom_Web interface.jpg  used on input line 138.
-(pdftex.def)             Requested size: 204.85846pt x 404.61171pt.
- [3] [4 <./Bottom_Web interface.jpg>] [5] [6] [7] (VENTCON_WebInterface_Manual.
-aux)
+ [2] [3] [4] [5] [6]
+(VENTCON_WebInterface_Manual.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
  ***********
 Package rerunfilecheck Info: File `VENTCON_WebInterface_Manual.out' has not cha
 nged.
-(rerunfilecheck)             Checksum: 7FBB51B3D18BC6CB77320F44DB5EE720;3166.
+(rerunfilecheck)             Checksum: 0D906455FB2B0CB4A32E369AC2D68E5F;3166.
  ) 
 Here is how much of TeX's memory you used:
- 11335 strings out of 474486
- 175083 string characters out of 5753537
+ 11324 strings out of 474486
+ 174849 string characters out of 5753537
  1936542 words of memory out of 5000000
- 33420 multiletter control sequences out of 15000+600000
+ 33412 multiletter control sequences out of 15000+600000
  570321 words of font info for 65 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,417b,555s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,79p,417b,574s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/
 dpi600\tcrm1095.pk> <C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\fonts/pk/lj
 four/jknappen/ec/dpi600\ectt1095.pk> <C:\Users\thomas.haberkorn\AppData\Local\M
@@ -486,13 +480,9 @@ berkorn\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk> <C
 b><C:/Program Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Program
  Files/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX
 /fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on VENTCON_WebInterface_Manual.pdf (8 pages, 1187949 bytes).
+Output written on VENTCON_WebInterface_Manual.pdf (7 pages, 767697 bytes).
 PDF statistics:
- 548 PDF objects out of 1000 (max. 8388607)
- 56 named destinations out of 1000 (max. 500000)
- 171 words of extra memory for PDF output out of 10000 (max. 10000000)
-
-ut of 1000 (max. 8388607)
- 56 named destinations out of 1000 (max. 500000)
- 171 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 537 PDF objects out of 1000 (max. 8388607)
+ 53 named destinations out of 1000 (max. 500000)
+ 166 words of extra memory for PDF output out of 10000 (max. 10000000)
 
