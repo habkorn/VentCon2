@@ -1,0 +1,1 @@
+editing these large PROGMEM string for the web content is cumbersome (e.g. no syntaxt highlightin, no browser preview). Suggest a way to improve coding experience
