@@ -161,7 +161,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
       </div>
     </details>
 
-
+    
 
   </main>
 )rawliteral";
