@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2026.2.24)  24 FEB 2026 14:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (MiKTeX 24.1) (preloaded format=pdflatex 2026.2.24)  24 FEB 2026 14:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1082,12 +1082,12 @@ Overfull \vbox (72.90346pt too high) has occurred while \output is active []
 
 
 [4 <./pic/BrowserApp.pdf>]
-<pic/ApplyButton.pdf, id=155, 221.84132pt x 113.38556pt>
+<pic/ApplyButton.pdf, id=159, 221.84132pt x 113.38556pt>
 File: pic/ApplyButton.pdf Graphic file (type pdf)
 <use pic/ApplyButton.pdf>
 Package pdftex.def Info: pic/ApplyButton.pdf  used on input line 308.
 (pdftex.def)             Requested size: 193.47578pt x 98.89203pt.
-<pic/PID_blockDiagram.pdf, id=158, 252.71004pt x 105.44423pt>
+<pic/PID_blockDiagram.pdf, id=162, 252.71004pt x 105.44423pt>
 File: pic/PID_blockDiagram.pdf Graphic file (type pdf)
 <use pic/PID_blockDiagram.pdf>
 Package pdftex.def Info: pic/PID_blockDiagram.pdf  used on input line 324.
@@ -1097,13 +1097,13 @@ Package pdftex.def Info: pic/PID_blockDiagram.pdf  used on input line 324.
 pdfTeX warning: pdflatex.exe (file ./pic/PID_blockDiagram.pdf): PDF inclusion: 
 multiple pdfs with page group included in a single page
 >]
-<pic/Example_Set_4_to_6_bar.pdf, id=219, 240.9pt x 145.9854pt>
+<pic/Example_Set_4_to_6_bar.pdf, id=223, 240.9pt x 145.9854pt>
 File: pic/Example_Set_4_to_6_bar.pdf Graphic file (type pdf)
 <use pic/Example_Set_4_to_6_bar.pdf>
 Package pdftex.def Info: pic/Example_Set_4_to_6_bar.pdf  used on input line 412
 .
 (pdftex.def)             Requested size: 232.17242pt x 140.70126pt.
-<pic/Example_Regulator_Action_Massflow_Variation.pdf, id=220, 239.9364pt x 149.
+<pic/Example_Regulator_Action_Massflow_Variation.pdf, id=224, 239.9364pt x 149.
 8398pt>
 File: pic/Example_Regulator_Action_Massflow_Variation.pdf Graphic file (type pd
 f)
@@ -1111,39 +1111,25 @@ f)
 Package pdftex.def Info: pic/Example_Regulator_Action_Massflow_Variation.pdf  u
 sed on input line 418.
 (pdftex.def)             Requested size: 232.17242pt x 144.99916pt.
-
-
-pdfTeX warning: pdflatex.exe (file ./pic/Where the hands work, there Lakshmi re
-sides.pdf): PDF inclusion: found PDF version <1.7>, but at most version <1.5> a
-llowed
-<pic/Where the hands work, there Lakshmi resides.pdf, id=221, 147.34045pt x 10.
-50926pt>
-File: pic/Where the hands work, there Lakshmi resides.pdf Graphic file (type pd
-f)
-<use pic/Where the hands work, there Lakshmi resides.pdf>
-Package pdftex.def Info: pic/Where the hands work, there Lakshmi resides.pdf  u
-sed on input line 426.
-(pdftex.def)             Requested size: 145.11053pt x 10.35095pt.
-[6{C:/Program Files/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files/MiKTe
-X/fonts/enc/dvips/lm/lm-mathex.enc}{C:/Program Files/MiKTeX/fonts/enc/dvips/lm/
-lm-mathsy.enc} <./pic/Example_Set_4_to_6_bar.pdf> <./pic/Example_Regulator_Acti
-on_Massflow_Variation.pdf
+ [6{C:/Program Files/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Program Files/MiKT
+eX/fonts/enc/dvips/lm/lm-mathex.enc}{C:/Program Files/MiKTeX/fonts/enc/dvips/lm
+/lm-mathsy.enc} <./pic/Example_Set_4_to_6_bar.pdf> <./pic/Example_Regulator_Act
+ion_Massflow_Variation.pdf
 
 pdfTeX warning: pdflatex.exe (file ./pic/Example_Regulator_Action_Massflow_Vari
 ation.pdf): PDF inclusion: multiple pdfs with page group included in a single p
 age
-> <./pic/Where the hands work, there Lakshmi resides.pdf>]
-(VentCon_2.6_User_Manual.aux)
+>] (VentCon_2.6_User_Manual.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 31002 strings out of 474486
- 646941 string characters out of 5753537
+ 30994 strings out of 474486
+ 646523 string characters out of 5753537
  1947542 words of memory out of 5000000
- 52783 multiletter control sequences out of 15000+600000
+ 52776 multiletter control sequences out of 15000+600000
  650549 words of font info for 97 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  108i,20n,107p,11228b,953s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1161,9 +1147,9 @@ m/lmri8.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lmssbx10.pfb><C:/Pro
 gram Files/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Program Files/MiKTeX/fon
 ts/type1/public/lm/lmtk10.pfb><C:/Program Files/MiKTeX/fonts/type1/public/lm/lm
 tt10.pfb>
-Output written on VentCon_2.6_User_Manual.pdf (7 pages, 3450653 bytes).
+Output written on VentCon_2.6_User_Manual.pdf (7 pages, 3491453 bytes).
 PDF statistics:
- 379 PDF objects out of 1000 (max. 8388607)
- 38 named destinations out of 1000 (max. 500000)
- 135 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 373 PDF objects out of 1000 (max. 8388607)
+ 37 named destinations out of 1000 (max. 500000)
+ 130 words of extra memory for PDF output out of 10000 (max. 10000000)
 

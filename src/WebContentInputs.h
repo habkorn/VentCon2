@@ -158,10 +158,13 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <span id="network_status" class="status-text">--</span>
           </div>
         </div>
+        <div class="control-row">
++          <a href="/VentCon_User_Manual.pdf" target="_blank" style="color:var(--primary-dark);text-decoration:none;font-weight:600;">&#128196; Download User Manual (PDF)</a>
+        </div>
       </div>
     </details>
 
-    
+
 
   </main>
 )rawliteral";

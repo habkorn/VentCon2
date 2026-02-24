@@ -830,6 +830,11 @@ void WebHandler::setupRoutes()
     this->handleFileRead("/Logo.svg");
   });
 
+  // Add handler for the user manual PDF
+  webServer.on("/VentCon_User_Manual.pdf", [this](){
+    this->handleFileRead("/VentCon_User_Manual.pdf");
+  });
+
   // Fallback: serve files or return 404
   webServer.onNotFound([this]()
   {
