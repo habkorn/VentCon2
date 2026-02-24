@@ -51,7 +51,7 @@
 \pagestyle{scrheadings}
 \clearpairofpagestyles
 \ihead{VentCon -- PID Control Demonstrator}
-\ohead{User Manual v1.0}
+\ohead{User Manual v2.6}
 \cfoot{\pagemark}
 \KOMAoptions{headsepline=0.4pt}           % line below header
 
@@ -95,7 +95,7 @@
 
 Unlike a mechanical pressure regulator, which relies on a diaphragm and spring to maintain its setpoint,
 the VENTREX electronic pressure regulator uses a software-based feedback control loop.
-A PID algorithm continuously compares the measured outlet pressure with the desired setpoint and modulates the 
+A PID control algorithm continuously compares the measured outlet pressure with the desired setpoint and modulates the 
 proportional valve accordingly.
 
 The VentCon demonstrator showcases this principle: it implements the complete control loop on an ESP32-S3 
@@ -125,8 +125,9 @@ The VentCon operates fully self-contained, making it usable in any environment r
 ]
 The PID control loop runs independently of the WiFi connection.
 Even if the browser is closed or the device is disconnected from WiFi, pressure regulation continues uninterrupted 
-based on the last applied settings---as long as the power supply remains on. \\[1ex]
-This also means that upon switching the power supply on, the system will immediately start to regulate the pressure.
+based on the last applied settings (as long as the power supply remains on). \\[1ex]
+This also means that upon switching the power supply on, the system will immediately start to regulate the pressure by 
+powering the proportional valve.
 \end{tcolorbox}
 
 \pagebreak
@@ -135,88 +136,192 @@ This also means that upon switching the power supply on, the system will immedia
 % ---------- SECTION 2: GETTING STARTED --------------------------------------
 \section{Getting Started}
 
-\subsection{Wiring Scheme}
+\subsection{Wiring Scheme}\label{sec:wiring}
 
-The terminal block on the front of the unit (Figure~\ref{fig:terminal}) provides connections for the proportional valve 
-(\texttt{PV+}/\texttt{PV-}), the pressure sensor (\texttt{Sen}/\texttt{Sup}/\texttt{GND}), and the power supply 
-(\texttt{VIn}/\texttt{GND}).
-
-The connector for the PV is included in the demo kit, thus the user only needs to connect the pressure sensor and the power supply.
-The pressure sensor (not included in the demo kit) requires three connections: \texttt{Sup} provides regulated 5\,V 
-supply for the sensor, while \texttt{GND} serves as the sensor's ground reference. The \texttt{Sen} terminal is the input for the 
-sensor's pressure signal, which the controller uses to regulate the outlet pressure.
-
-The power supply (not included) should provide a stable DC voltage. For the PV delivered in this demo kit, 
-the recommended voltage is 12\,V (connected to \texttt{VIn})\footnote{the device can operate with any supply voltage in the range of 12 to 
-30\,V}, while the \texttt{GND}\footnote{The \texttt{GND} terminal serves as the common ground reference for the entire system} 
-is connected to the negative terminal of the power supply.
+The terminal block on the front of the VentCon device (Figure~\ref{fig:terminal}) provides connections for the pressure sensor 
+(\texttt{Sen}/\texttt{Sup}/\texttt{GND}), the power supply (\texttt{VIn}/\texttt{GND}) and the proportional valve (\texttt{PV+}/\texttt{PV-}).
 
 \begin{figure}[H]
     \centering
-        \centering
         \includegraphics[width=0.9\linewidth]{pic/Terminal_block.pdf}
         \caption{Terminal block connections.}
         \label{fig:terminal}
 \end{figure}
+The terminal block connections are numbered as follows (from left to right; see Figure~\ref{fig:terminal}).\hfill
+
+\vspace{1ex}
+
+The \textbf{Pressure Sensor} (not included in the demo kit) is connected at three positions:
+\begin{tcolorbox}[blanker, borderline west={1pt}{0pt}{ventrexblue}, left=1em]
+
+    \begin{enumerate}[leftmargin=6em]
+        \item [Pos. \textbf{1)}]\fbox{\texttt{Sen}} Connect to the analog pressure signal output of the pressure sensor.
+        \item [Pos. \textbf{2)}]\fbox{\texttt{Sup}} This connector provides a regulated 5\,V to the pressure sensor. Connect to the 'supply voltage' pin of the pressure sensor.
+        \item [Pos. \textbf{3)}]\fbox{\texttt{GND}} Connect to the ground pin of the pressure sensor.
+    \end{enumerate}
+\end{tcolorbox}
+
+\vspace{1ex}
+
+The \textbf{Power Supply} (not included in the demo kit) is connected at two positions:
+\begin{tcolorbox}[blanker, borderline west={1pt}{0pt}{ventrexblue}, left=1em]
+
+    \begin{enumerate}[leftmargin=6em]
+            \item [Pos. \textbf{4)}]\fbox{\texttt{VIn}} Connect to the positive terminal of the power supply (red banana plug)
+            \item [Pos. \textbf{5)}]\fbox{\texttt{GND}} Connect to the negative terminal of the power supply (black banana plug)
+    \end{enumerate}
+    \vspace{1ex}
+    The power supply must deliver a stable DC voltage. It is used to power the entire system, including the microcontroller, pressure sensor, and proportional valve.
+    For the proportional valve supplied with this demo kit, a 12\,V source rated for at least 4\,A 
+    is recommended.\footnote{The VenCon device, however, accepts any supply voltage in the range of 12--30\,V.}.
+\end{tcolorbox}
+
+\vspace{1ex}
+
+Optional external \textbf{Analog Input}:
+\begin{tcolorbox}[blanker, borderline west={1pt}{0pt}{ventrexblue}, left=1em]
+    \begin{enumerate}[leftmargin=6em]
+            \item [Pos. \textbf{6)}] \fbox{\texttt{AI}} Used for external analog input (not used in this demo kit, reserved for future expansion).
+    \end{enumerate}
+\end{tcolorbox}
+
+\vspace{1ex}
+
+The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connector (i.e. no user wiring required):
+
+\begin{tcolorbox}[blanker, borderline west={1pt}{0pt}{ventrexblue}, left=1em]
+    \begin{tcolorbox}[
+        colback=ventrexblue!8,
+        colframe=ventrexblue,
+        fonttitle=\bfseries,
+        title=Important,
+        boxrule=0.6pt,
+        arc=2pt
+    ]
+    It is recommend that users first familiarise themselves with sensor behaviour, browser interface, 
+    and control parameters before connecting the proportional valve (PV). \underline{See section~\ref{sec:connWifi}.}
+    \end{tcolorbox}
 
 
-\subsection{Connecting to the Device}
+    \begin{enumerate}[leftmargin=6em]
+            \item [Pos. \textbf{7)}]\fbox{\texttt{PV+}} This is connected to the positive terminal of the proportional valve 
+            \item [Pos. \textbf{8)}]\fbox{\texttt{PV-}} This is connected to the negative terminal of the proportional valve
+    \end{enumerate}
+\end{tcolorbox}
 
 
+
+
+\subsection{Connecting to the Device via WiFi}\label{sec:connWifi}
+
+It is recommended that before the VenCon device is wired up to the proportional valve,users first connect to the device via WiFi and explore 
+the browser interface. The device used for this can be any WiFi-enabled smartphone, tablet or PC with a modern web browser (e.g. Google Chrome, Safari)\footnote{Up to two devices can be connected to the VentCon's WiFi network at the same time.
+This allows, for example, a smartphone and a laptop to both access the web interface simultaneously.}. 
+
+The VentCon device creates its own WiFi access point. No router or internet connection is needed or used.
+This also means that the device is not able to send or receive any data to or from the internet.
+
+\begin{tcolorbox}[
+            colback=ventrexblue!8,
+            colframe=ventrexblue,
+            fonttitle=\bfseries,
+            title=Important,
+            boxrule=0.6pt,
+            arc=2pt
+        ]
+    The PID control loop runs independently of the WiFi connection.
+    Disconnecting the browser does \emph{not} stop pressure regulation.
+\end{tcolorbox}
+
+In order to initiate the connection to the device, follow these steps:
+
+\noindent
+\begin{minipage}[ht]{0.4\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{pic/BackSide.pdf}
+    \captionof{figure}{QR Code for WiFi connection.}
+    \label{fig:backside}
+\end{minipage}
+\hfill
+\begin{minipage}[ht]{0.55\textwidth}
+    \vspace{-12mm}
+        \begin{enumerate}
+            \item \textbf{Power on} the VentCon unit via your power supply (connector see Section~\ref{sec:wiring}).
+            \item On your smartphone or tablet, scan the QR Code on the back of the device (see Figure~\ref{fig:backside}).
+            This will connect to a network called \texttt{VENTCON\_AP}.\\
+            Go to step \ref{item:webinterface} from here.\\[2ex]
+            If your device does not support QR code scanning (e.g. on a PC):
+            \begin{enumerate}[leftmargin=3em]
+                \item[1.] Open WiFi settings on your device.
+                \item[2.] Connect to the network \texttt{VENTCON\_AP} using the password \texttt{ventcon12!}
+            \end{enumerate}
+
+            \item If your device reports that the network has no internet access, you can safely ignore this notice.\\ 
+            VentCon creates a local WiFi network only and does not provide internet connectivity.
+
+            \item\label{item:webinterface} Open a web browser and navigate to\\ \textbf{\url{http://192.168.4.1}} or, alternatively,\\
+            \textbf{\url{http://ventcon.local}}
+    \end{enumerate}
+\end{minipage}%
+\vspace{0mm}
+
+% ---------- SECTION 3: WEB INTERFACE ----------------------------------------
+\section{Web Interface}
+
+The web interface is divided into collapsible sections (tap a header to expand/collapse).
+Figure~\ref{fig:browser-app} provides an annotated overview. At the top, real-time status indicators display the current outlet pressure and valve 
+duty cycle as gauges. Below, a live trend chart plots the pressure, setpoint and duty cycle over time.
+The control parameters section allows adjustment of the pressure setpoint and PID gains ($K_p$, $K_i$, $K_d$). 
+Be sure you know the effects of each parameter before making changes (see Section~\ref{sec:pid}).
+Additional auxiliary settings, such as the sensor low-pass filter strength, are grouped at the bottom.
+
+A \texttt{Reset PID} button clears the controller's internal state, which is useful when the system is saturated or oscillating.
+Finally, a \texttt{Reset to Default} button restores all user-adjustable settings to their factory values after confirmation.
+
+\newpage
+\thispagestyle{empty}
+\begin{figure}[H]
+    \centering
+    \vspace*{-\headsep}\vspace*{-\headheight}\vspace*{-\topmargin}\vspace*{-1in}%
+    \makebox[\textwidth]{%
+        \includegraphics[width=\paperwidth, height=\paperheight, keepaspectratio]{pic/BrowserApp.pdf}%
+    }
+    \caption{Annotated overview of the VentCon browser application.}
+    \label{fig:browser-app}
+\end{figure}
+\newpage
+
+
+
+\subsection{Applying Changes}
+
+Changes are \textbf{not} applied immediately.
+After adjusting any parameter, a blue \textbf{Apply Changes} button appears at the bottom of the screen (Figure~\ref{fig:apply}).
+Tap it to send all pending changes to the device.
+All applied settings are automatically saved to VentCon's flash memory and survive power cycles.
+
+If the \textbf{Apply Changes} button is not tapped within a few seconds, the new settings will \textbf{not} take effect 
+and the system will continue operating with the previously applied parameters.
 
 \begin{figure}[H]
     \centering
-
-        \centering
-        \includegraphics[width=0.5\linewidth]{pic/BackSide.pdf}
-        \caption{Rear view of the VentCon unit.}
-        \label{fig:backside}
-
+    \includegraphics[width=0.4\textwidth]{pic/ApplyButton.pdf}
+    \caption{The floating \emph{Apply Changes} button appears when parameters have been modified.}
+    \label{fig:apply}
 \end{figure}
 
-The VentCon creates its own WiFi access point---no router or internet connection is needed.
-
-\begin{enumerate}
-    \item \textbf{Power on} the VentCon unit.
-    \item On your smartphone, tablet or PC, open \textbf{WiFi settings}.
-    \item Connect to the network \texttt{VENTCON\_AP}.
-    \item Enter the password: \texttt{ventcon12!}
-    \item Open a web browser and navigate to \textbf{\url{http://192.168.4.1}}\\
-          (alternatively \textbf{\url{http://ventcon.local}}).
-\end{enumerate}
-
-\begin{table}[H]
-\centering\small
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Setting}        & \textbf{Default Value} \\
-\midrule
-Network Name (SSID)      & \texttt{VENTCON\_AP} \\
-Password                 & \texttt{ventcon12!} \\
-IP Address               & \texttt{192.168.4.1} \\
-Max.\ simultaneous clients & 2 \\
-\bottomrule
-\end{tabular}
-\caption{WiFi connection details.}
-\end{table}
-
-\noindent\textit{Note:} The PID control loop runs independently of the WiFi connection.
-Disconnecting the browser does \emph{not} stop pressure regulation.
-
-\subsection{Browser Compatibility}
-
-The web interface works with all modern browsers, e.g. Google Chrome or Safari.
 
 
-\subsection{Functional Principle}
+% ---------- SECTION 4: PID CONTROL BASICS -----------------------------------
+\section{PID Control Basics}\label{sec:pid}
 
-Figure~\ref{fig:pid-block} illustrates the closed-loop control architecture.
-A pressure sensor continuously measures the outlet pressure (\emph{Process Variable}).
+Figure \ref{fig:overview} and \ref{fig:pid-block} illustrate the closed-loop control architecture.
+The pressure sensor continuously measures the outlet pressure (\emph{Process Variable}).
 The PID controller computes the error between the \emph{Setpoint} and the measured pressure, and outputs a \emph{Valve Duty Cycle} (PWM signal) to the solenoid valve.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{pic/PID_blockDiagram.pdf}
+    \includegraphics[width=0.8\linewidth]{pic/PID_blockDiagram.pdf}
     \caption{PID closed-loop control block diagram.
              The Setpoint is compared with the Outlet Pressure; the error drives
              the Proportional, Integral and Derivative paths whose sum controls
@@ -224,113 +329,59 @@ The PID controller computes the error between the \emph{Setpoint} and the measur
     \label{fig:pid-block}
 \end{figure}
 
+The algorithm uses the \emph{Parallel Form} (non-interacting form) of the PID algorithm.
+Each control action is computed independently and summed.
 
-
-
-% ---------- SECTION 3: WEB INTERFACE ----------------------------------------
-\section{Web Interface}
-
-The web interface is divided into collapsible sections (tap a header to expand/collapse).
-Figure~\ref{fig:browser-app} provides an annotated overview.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{pic/BrowserApp.pdf}
-    \caption{Annotated overview of the VentCon browser application.}
-    \label{fig:browser-app}
-\end{figure}
-
-\subsection{Real-Time Monitoring}
-
-\begin{itemize}
-    \item \textbf{Outlet Pressure} gauge---current pressure in bar(g) with a target marker at the setpoint and a trend indicator ($\blacktriangle$\,rising / $\blacktriangledown$\,falling / $=$\,stable).
-    \item \textbf{Valve Duty Cycle} gauge---current PID output as a percentage (0--100\,\%).
-    \item \textbf{Live Chart}---time-series plot of:
-        \begin{itemize}
-            \item \textcolor{blue}{Blue line}: Outlet Pressure (Process Variable)
-            \item \textcolor{orange}{Orange dashed line}: Setpoint
-            \item \textcolor{green!60!black}{Green line}: Valve Duty Cycle
-        \end{itemize}
-    Toggle the chart with the \emph{Show Chart} checkbox. Disabling it can improve performance on slower devices.
-\end{itemize}
-
-\subsection{Control Parameters}
-
-\begin{itemize}
-    \item \textbf{Setpoint Outlet Pressure}---target pressure in bar(g). Adjusted via slider, $+$/$-$ buttons, or direct numerical input.
-    \item \textbf{Kp, Ki, Kd}---PID gains (see Section~\ref{sec:pid}).
-    \item \textbf{Reset PID} button---clears the controller's internal state (integral sum and derivative history).
-\end{itemize}
-
-Each slider's range can be customised by tapping the gear icon next to the slider label.
-
-\subsection{Auxiliary Settings}
-
-\begin{itemize}
-    \item \textbf{Low Pass Filter ($\alpha$)}---filter strength applied to the pressure sensor signal (0\,=\,off, 1\,=\,maximum smoothing).
-    \item \textbf{Actuator PWM Frequency}---solenoid drive frequency (100--10\,000\,Hz).
-    \item \textbf{Actuator PWM Resolution}---duty-cycle resolution (8--16\,bit).
-    \item \textbf{PID Sample Time}---control loop period in ms.
-\end{itemize}
-
-\subsection{Applying Changes}
-
-Changes are \textbf{not} applied immediately.
-After adjusting any parameter a blue \textbf{Apply Changes} button appears at the bottom of the screen (Figure~\ref{fig:apply}).
-Tap it to send all pending changes to the device.
-All applied settings are automatically persisted to flash memory and survive power cycles.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.55\textwidth]{pic/ApplyButton.pdf}
-    \caption{The floating \emph{Apply Changes} button appears when parameters have been modified.}
-    \label{fig:apply}
-\end{figure}
-
-% ---------- SECTION 4: PID CONTROL BASICS -----------------------------------
-\section{PID Control Basics}\label{sec:pid}
-
-The VentCon uses the \emph{Parallel Form} (non-interacting form) of the PID algorithm.
-Each control action is computed independently and summed:
-
-\begin{equation}
-y(t) \;=\; K_p \, e(t) \;+\; K_i \!\int_0^t e(\tau) \, d\tau \;+\; K_d \, \frac{de(t)}{dt}
-\label{eq:pid}
-\end{equation}
-
-\noindent where $y(t)$ is the controller output (Valve Duty Cycle), $e(t)$ is the error (Setpoint\,$-$\,Outlet Pressure), and $K_p$, $K_i$, $K_d$ are the tunable gains.
-
-\begin{table}[H]
-\centering\small
-\begin{tabular}{c|l|l}
-\textbf{Term} & \textbf{Role} & \textbf{Focus} \\ \hline
-$K_p$ (Proportional) & Present & Reacts to \emph{how far} you are from target \\
-$K_i$ (Integral)     & Past    & Reacts to \emph{how long} you have been away \\
-$K_d$ (Derivative)   & Future  & Reacts to \emph{how fast} you are approaching/leaving
-\end{tabular}
-\caption{PID term summary.}
-\end{table}
-
-\paragraph{Proportional ($K_p$).}
-Output proportional to the current error.
+\textbf{Proportional} (gain $K_p$): Output proportional to the current error.\\
 Higher $K_p$ gives a more aggressive response but can cause overshoot.
 
-\paragraph{Integral ($K_i$).}
-Accumulates past error to eliminate steady-state offset.
+\textbf{Integral} (gain $K_i$): Accumulates past error to eliminate steady-state offset.\\
 Too high a value causes oscillation (integral windup).
 
-\paragraph{Derivative ($K_d$).}
-Damps the response by reacting to the rate of change of the error.
+\textbf{Derivative} (gain $K_d$): Damps the response by reacting to the rate of change of the error.\\
 Reduces overshoot but amplifies sensor noise if set too high.
 
-% ---------- SECTION 5: TUNING GUIDE -----------------------------------------
-\section{Tuning Guide}
+
+\pagebreak
+
+The mathematical representation of the PID controller is given by the following equation:
+
+    \begin{equation}\nonumber
+    y(t) \;=\; K_p \, e(t) \;+\; K_i \!\int_0^t e(\tau) \, d\tau \;+\; K_d \, \frac{de(t)}{dt}
+    \label{eq:pid}
+    \end{equation}
+
+    \begin{tabular}{rl}
+        $y(t)$ & is the controller output (Valve Duty Cycle)\\
+        $e(t)$ & is the error (Setpoint\,$-$\,Outlet Pressure)\\
+        $K_p$, $K_i$, $K_d$ & are the tunable gains.
+    \end{tabular}
+
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|l|l}
+        \textbf{Term} & \textbf{Role} & \textbf{Focus} \\ \hline
+        $K_p$  & Present & Reacts to \emph{how far} you are from target \\
+        $K_i$  & Past    & Reacts to \emph{how long} you have been away \\
+        $K_d$  & Future  & Reacts to \emph{how fast} you are approaching/leaving
+        \end{tabular}
+        \caption{PID term summary.}
+    \end{table}
+
+
+
+
+
+
+% ---------- SECTION: TUNING GUIDE -----------------------------------------
+\subsection{Tuning Guide}
 
 Follow these steps for initial tuning. Observe the \textbf{Live Chart} after each change.
 
 \begin{enumerate}
     \item \textbf{Set a Stable Operating Point.}
-          Choose a moderate setpoint (e.g.\ 4.00\,bar) and let the system settle.
+          Choose a moderate setpoint (e.g.\ 6\,bar(g)), let the system settle.
 
     \item \textbf{Start with P-only control.}
           Set $K_i = 0$ and $K_d = 0$.
@@ -370,28 +421,10 @@ Figure~\ref{fig:disturbance} demonstrates the controller rejecting a mass-flow d
     \end{minipage}
 \end{figure}
 
-% ---------- SECTION 6: QUICK REFERENCE --------------------------------------
-\section{Quick Reference}
-
-\begin{table}[H]
-\centering\small
-\begin{tabular}{@{}ll@{}}
-\toprule
-\textbf{Action}              & \textbf{How To} \\
-\midrule
-Connect to device             & WiFi: \texttt{VENTCON\_AP} / Password: \texttt{ventcon12!} \\
-Open web interface            & Browser $\rightarrow$ \texttt{http://192.168.4.1} \\
-Expand / collapse sections    & Tap section header \\
-Adjust setpoint               & Drag slider or use $+$/$-$ buttons \\
-Fine-tune PID                 & Adjust $K_p$, $K_i$, $K_d$ sliders \\
-Customise slider range        & Tap gear icon next to slider label \\
-Apply changes                 & Tap blue \emph{Apply Changes} button \\
-Reset PID state               & Tap \emph{Reset PID} button \\
-Toggle live chart             & Use \emph{Show Chart} checkbox \\
-Reset to factory defaults     & Use \emph{Reset to Default} in System Info \\
-\bottomrule
-\end{tabular}
-\caption{Quick reference card.}
-\end{table}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{pic/Where the hands work, there Lakshmi resides.pdf}
+    \label{fig:bestwishes}
+\end{figure}
 
 \end{document}
