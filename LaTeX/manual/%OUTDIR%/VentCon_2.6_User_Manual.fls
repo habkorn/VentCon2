@@ -1,7 +1,7 @@
-PWD c:\Users\thomas.haberkorn\OneDrive - VENTREX\Desktop\VentCon2\LaTeX\manual
+PWD k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual
 INPUT C:\Users\thomas.haberkorn\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
-INPUT c:\Users\thomas.haberkorn\OneDrive - VENTREX\Desktop\VentCon2\LaTeX\manual\VencCon_User_Manual.tex
-OUTPUT VencCon_User_Manual.log
+INPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\VentCon_2.6_User_Manual.tex
+OUTPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\%OUTDIR%\VentCon_2.6_User_Manual.log
 INPUT C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex\latex\koma-script\scrartcl.cls
 INPUT C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex\latex\koma-script\scrartcl.cls
 INPUT C:\Users\thomas.haberkorn\AppData\Roaming\MiKTeX\tex\latex\koma-script\scrkbase.sty
@@ -273,10 +273,10 @@ INPUT C:\Program Files\MiKTeX\tex\latex\lm\t1lmr.fd
 INPUT C:\Program Files\MiKTeX\fonts\tfm\public\lm\ec-lmr10.tfm
 INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
 INPUT C:\Program Files\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
-INPUT .\VencCon_User_Manual.aux
-INPUT .\VencCon_User_Manual.aux
-INPUT VencCon_User_Manual.aux
-OUTPUT VencCon_User_Manual.aux
+INPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\%OUTDIR%\VentCon_2.6_User_Manual.aux
+INPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\%OUTDIR%\VentCon_2.6_User_Manual.aux
+INPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\%OUTDIR%\VentCon_2.6_User_Manual.aux
+OUTPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\%OUTDIR%\VentCon_2.6_User_Manual.aux
 INPUT C:\Program Files\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
 INPUT C:\Program Files\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
 INPUT C:\Program Files\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
@@ -286,7 +286,7 @@ INPUT C:\Program Files\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
 INPUT C:\Program Files\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
 INPUT C:\Program Files\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
 INPUT C:\Program Files\MiKTeX\tex\latex\graphics\color.sty
-OUTPUT VencCon_User_Manual.pdf
+OUTPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\%OUTDIR%\VentCon_2.6_User_Manual.pdf
 INPUT C:\Program Files\MiKTeX\fonts\tfm\public\cm\cmr10.tfm
 INPUT .\pic\VENTREX_Logo + Slogan.pdf
 INPUT .\pic\VENTREX_Logo + Slogan.pdf
@@ -438,7 +438,7 @@ INPUT .\pic\Where the hands work, there Lakshmi resides.pdf
 INPUT C:\Program Files\MiKTeX\fonts\enc\dvips\lm\lm-rm.enc
 INPUT C:\Program Files\MiKTeX\fonts\enc\dvips\lm\lm-mathex.enc
 INPUT C:\Program Files\MiKTeX\fonts\enc\dvips\lm\lm-mathsy.enc
-INPUT VencCon_User_Manual.aux
+INPUT k:\CNG029\02_PRODUKTENTWICKLUNG\05_GROBAUSLEGUNG\07 VENTCON\VentCon2\LaTeX\manual\%OUTDIR%\VentCon_2.6_User_Manual.aux
 INPUT C:\Program Files\MiKTeX\fonts\type1\public\lm\lmbx10.pfb
 INPUT C:\Program Files\MiKTeX\fonts\type1\public\lm\lmbx10.pfb
 INPUT C:\Program Files\MiKTeX\fonts\type1\public\lm\lmbx12.pfb
