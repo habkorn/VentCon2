@@ -226,7 +226,7 @@ details.card .collapsible-content
   background: var(--primary-dark);
 }
 
-/* Gear icon for slider settings */
+/* Gear icon for slider settings — glyph defined here once (U+26ED) */
 .settings-gear
 {
   background: none;
@@ -242,6 +242,11 @@ details.card .collapsible-content
   color: var(--text-light);
   opacity: 0.6;
   transition: opacity 0.2s;
+}
+
+.settings-gear::after
+{
+  content: '\26ED';
 }
 
 .settings-gear:hover
@@ -655,6 +660,7 @@ progress
   gap: 0.375rem;
 }
 
+/* Chart gear icon — glyph defined here once (U+26ED) */
 .chart-gear-btn
 {
   display: inline-flex;
@@ -671,6 +677,12 @@ progress
   cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.2s, color 0.2s;
+}
+
+
+.chart-gear-btn::after
+{
+  content: '\26ED';
 }
 
 .chart-gear-btn:hover

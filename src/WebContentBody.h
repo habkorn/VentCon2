@@ -66,7 +66,7 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
       
       <div class="chart-header">
         <div class="chart-header-left">
-          <span class="chart-gear-btn" onclick="openChartSettings()" title="Chart Settings">&#9965;</span>
+          <span class="chart-gear-btn" onclick="openChartSettings()" title="Chart Settings"></span>
           <h3>Live Chart</h3>
         </div>
         <div class="chart-header-right">

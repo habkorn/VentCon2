@@ -17,7 +17,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="sp_slider" min="%SP_MIN%" max="%SP_MAX%" step="%SP_STEP%" value="%SP%">
             <button type="button" class="slider-btn increment-btn" id="sp_increment">+</button>
             <input type="text" inputmode="decimal" id="sp_text" value="%SP%" step="%SP_STEP%">
-            <button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits">&#9965;</button>
+            <button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits"></button>
           </div>
         </div>    
       
@@ -35,7 +35,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="kp_slider" min="%KP_MIN%" max="%KP_MAX%" step="%KP_STEP%" value="%KP%">
             <button type="button" class="slider-btn increment-btn" id="kp_increment">+</button>
             <input type="text" inputmode="decimal" id="kp_text" value="%KP%" step="%KP_STEP%">
-            <button class="settings-gear" onclick="openSliderSettings('kp')" title="Configure slider limits">&#9965;</button>
+            <button class="settings-gear" onclick="openSliderSettings('kp')" title="Configure slider limits"></button>
           </div>
         </div>
 
@@ -46,7 +46,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="ki_slider" min="%KI_MIN%" max="%KI_MAX%" step="%KI_STEP%" value="%KI%">
             <button type="button" class="slider-btn increment-btn" id="ki_increment">+</button>
             <input type="text" inputmode="decimal" id="ki_text" value="%KI%" step="%KI_STEP%">
-            <button class="settings-gear" onclick="openSliderSettings('ki')" title="Configure slider limits">&#9965;</button>
+            <button class="settings-gear" onclick="openSliderSettings('ki')" title="Configure slider limits"></button>
           </div>
         </div>
 
@@ -57,7 +57,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             <input type="range" id="kd_slider" min="%KD_MIN%" max="%KD_MAX%" step="%KD_STEP%" value="%KD%">
             <button type="button" class="slider-btn increment-btn" id="kd_increment">+</button>
             <input type="text" inputmode="decimal" id="kd_text" value="%KD%" step="%KD_STEP%">
-            <button class="settings-gear" onclick="openSliderSettings('kd')" title="Configure slider limits">&#9965;</button>
+            <button class="settings-gear" onclick="openSliderSettings('kd')" title="Configure slider limits"></button>
           </div>
         </div>
       </div>
@@ -159,7 +159,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
           </div>
         </div>
         <div class="control-row">
-+          <a href="/VentCon_User_Manual.pdf" target="_blank" style="color:var(--primary-dark);text-decoration:none;font-weight:600;">&#128196; Download User Manual (PDF)</a>
+          <a href="/VentCon_User_Manual.pdf?v=%VERSION_NUMBER%" target="_blank" style="color:var(--primary-dark);text-decoration:none;font-weight:600;">&#128196; Download User Manual (PDF)</a>
         </div>
       </div>
     </details>

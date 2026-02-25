@@ -249,11 +249,16 @@ bool WebHandler::handleFileRead(String path)
         return true;
       }
       
-      // Cache static assets (JS libraries, images) for 1 week; skip for dynamic content like JSON
+      // Cache static assets (JS libraries, images) for 1 week; skip for dynamic content like JSON/PDF
       if (contentType == "application/javascript" || contentType == "image/svg+xml" || 
           contentType == "image/png" || contentType == "image/jpeg")
       {
         webServer.sendHeader("Cache-Control", "public, max-age=604800, immutable");
+      }
+      else
+      {
+        // Force revalidation for everything else (PDF, JSON, etc.)
+        webServer.sendHeader("Cache-Control", "no-cache, must-revalidate");
       }
       
       // Send headers with content length and gzip encoding if applicable
@@ -385,6 +390,9 @@ void WebHandler::handleRoot()
   inputs.replace("%SENSOR_MAXP%", String(settings->sensor_max_pressure, 1));
   inputs.replace("%SENSOR_MINV%", String(settings->sensor_min_voltage, 2));
   inputs.replace("%SENSOR_MAXV%", String(settings->sensor_max_voltage, 2));
+  
+  // Cache-busting version tag for PDF download link
+  inputs.replace("%VERSION_NUMBER%", VENTCON_VERSION_NUMBER);
   
   webServer.sendContent(inputs);
   yield();

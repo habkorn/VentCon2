@@ -32,6 +32,7 @@
         "fc-list": true,
         "Push-Location": true,
         ".6_User_Manual.tex": true,
-        "Pop-Location": true
+        "Pop-Location": true,
+        "Get-FileHash": true
     }
 }
