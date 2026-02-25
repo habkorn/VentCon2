@@ -1,3 +1,4 @@
+% !TeX program = xelatex
 % =============================================================================
 %  VentCon: PID Control Demonstrator — User Manual
 %  Target: max. 5 pages (excluding title page)
@@ -13,9 +14,24 @@
 ]{scrartcl}
 
 % --- Packages ----------------------------------------------------------------
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern}                      % Latin Modern — clean, scalable
+% (inputenc and fontenc removed — XeLaTeX handles UTF-8 and OpenType natively)
+\usepackage{fontspec}                      % OpenType/TrueType font selection
+\setmainfont{Satoshi}[
+    UprightFont    = *-Regular,
+    BoldFont       = *-Bold,
+    ItalicFont     = *-Italic,
+    BoldItalicFont = *-BoldItalic,
+    FontFace = {l}{n}{*-Light},
+    FontFace = {l}{it}{*-LightItalic},
+    FontFace = {mb}{n}{*-Medium},
+    FontFace = {mb}{it}{*-MediumItalic},
+    FontFace = {eb}{n}{*-Black},
+    FontFace = {eb}{it}{*-BlackItalic},
+]
+% Convenience commands for additional weights
+\DeclareRobustCommand{\lightfont}{\fontseries{l}\selectfont}
+\DeclareRobustCommand{\mediumfont}{\fontseries{mb}\selectfont}
+\DeclareRobustCommand{\heavyfont}{\fontseries{eb}\selectfont}
 \usepackage{graphicx}
 \usepackage[margin=2cm, top=2.4cm, bottom=2cm]{geometry}
 \usepackage{hyperref}
@@ -27,6 +43,10 @@
 \usepackage{float}
 \usepackage{amsmath, amssymb, array}
 \usepackage{caption}
+\usepackage{catchfile}  % read external files into macros
+
+% --- Version (single source of truth: ../../VERSION) -------------------------
+\CatchFileDef{\ventconversion}{../../VERSION}{}
 
 % --- Colors ------------------------------------------------------------------
 \definecolor{ventrexblue}{RGB}{0,47,135}
@@ -50,10 +70,31 @@
 % --- Header / Footer (scrlayer-scrpage) --------------------------------------
 \pagestyle{scrheadings}
 \clearpairofpagestyles
-\ihead{VentCon -- PID Control Demonstrator}
-\ohead{User Manual v2.6}
-\cfoot{\pagemark}
-\KOMAoptions{headsepline=0.4pt}           % line below header
+\rohead{\includegraphics[height=1.0em]{pic/VENTREX_Logo_slim.pdf}}
+
+% Full-width footer image anchored at the page bottom via KOMA layer
+\DeclareNewLayer[
+  background,
+  hoffset=0pt,
+  voffset=\paperheight,
+  width=\paperwidth,
+  align=bl,
+  contents={\includegraphics[width=\paperwidth]{pic/Aalberts_footer.pdf}}
+]{footerimage}
+% Page number centered on top of the footer image
+\DeclareNewLayer[
+  foreground,
+  hoffset=0pt,
+  voffset=\paperheight,
+  width=\paperwidth,
+  align=bl,
+  contents={\makebox[\paperwidth][c]{\raisebox{17pt}{\usekomafont{pagefoot}\pagemark}}}
+]{footerpagemark}
+\AddLayersToPageStyle{scrheadings}{footerimage,footerpagemark}
+
+
+
+% \KOMAoptions{headsepline=0.4pt}           % line below header
 
 % --- Compact lists -----------------------------------------------------------
 \setlist{nosep, leftmargin=1.5em}
@@ -83,7 +124,7 @@
     \includegraphics[width=0.90\textwidth]{pic/SchematicHardware.pdf}
 
     \vfill
-    {\large Version 2.6\par}
+    {\large Version \ventconversion\par}
     {\large \today\par}
 \end{titlepage}
 
@@ -98,8 +139,7 @@ the VENTREX electronic pressure regulator uses a software-based feedback control
 A PID control algorithm continuously compares the measured outlet pressure with the desired setpoint and modulates the 
 proportional valve accordingly.
 
-The VentCon demonstrator showcases this principle: it implements the complete control loop on an ESP32-S3 
-microcontroller, allowing users to observe and tune the regulator's behaviour in real time.
+The VentCon demonstrator showcases this principle: it implements the complete control loop on a microcontroller by \textsc{Espressif Systems}, allowing users to observe and tune the regulator's behaviour in real time.
 This document covers the system's hardware, functional principles, and browser-based user interface.
 
 
@@ -147,7 +187,8 @@ The terminal block on the front of the VentCon device (Figure~\ref{fig:terminal}
         \caption{Terminal block connections.}
         \label{fig:terminal}
 \end{figure}
-The terminal block connections are numbered as follows (from left to right; see Figure~\ref{fig:terminal}).\hfill
+\vspace{-2mm}
+The terminal block connections are numbered as follows (from left to right; see Figure~\ref{fig:terminal}).
 
 \vspace{1ex}
 
@@ -167,13 +208,24 @@ The \textbf{Power Supply} (not included in the demo kit) is connected at two pos
 \begin{tcolorbox}[blanker, borderline west={1pt}{0pt}{ventrexblue}, left=1em]
 
     \begin{enumerate}[leftmargin=6em]
-            \item [Pos. \textbf{4)}]\fbox{\texttt{VIn}} Connect to the positive terminal of the power supply (red banana plug)
-            \item [Pos. \textbf{5)}]\fbox{\texttt{GND}} Connect to the negative terminal of the power supply (black banana plug)
+            \item [Pos. \textbf{4)}]\fbox{\texttt{VIn}} Connect to the positive terminal of the power supply (red banana plug).
+            \item [Pos. \textbf{5)}]\fbox{\texttt{GND}} Connect to the negative terminal of the power supply (black banana plug).
     \end{enumerate}
     \vspace{1ex}
     The power supply must deliver a stable DC voltage. It is used to power the entire system, including the microcontroller, pressure sensor, and proportional valve.
-    For the proportional valve supplied with this demo kit, a 12\,V source rated for at least 4\,A 
-    is recommended.\footnote{The VenCon device, however, accepts any supply voltage in the range of 12--30\,V.}.
+    
+    \begin{tcolorbox}[
+		colback=ventrexblue!8,
+		colframe=ventrexblue,
+		fonttitle=\bfseries,
+		title=Important,
+		boxrule=0.6pt,
+		arc=2pt
+		]
+ 		The proportional valve receives the same voltage that is set on the user's power supply.
+	\end{tcolorbox}
+
+    For the proportional valve supplied with this demo kit, a 12\,V source rated for at least 4\,A is recommended. The VentCon device, however, accepts any supply voltage in the range of 12 to 30\,V.
 \end{tcolorbox}
 
 \vspace{1ex}
@@ -198,14 +250,14 @@ The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connect
         boxrule=0.6pt,
         arc=2pt
     ]
-    It is recommend that users first familiarise themselves with sensor behaviour, browser interface, 
+    It is recommended that users first familiarise themselves with sensor behaviour, browser interface, 
     and control parameters before connecting the proportional valve (PV). \underline{See section~\ref{sec:connWifi}.}
     \end{tcolorbox}
 
 
     \begin{enumerate}[leftmargin=6em]
-            \item [Pos. \textbf{7)}]\fbox{\texttt{PV+}} This is connected to the positive terminal of the proportional valve 
-            \item [Pos. \textbf{8)}]\fbox{\texttt{PV-}} This is connected to the negative terminal of the proportional valve
+            \item [Pos. \textbf{7)}]\fbox{\texttt{PV+}} This is connected to the positive terminal of the proportional valve.
+            \item [Pos. \textbf{8)}]\fbox{\texttt{PV-}} This is connected to the negative terminal of the proportional valve.
     \end{enumerate}
 \end{tcolorbox}
 
@@ -214,7 +266,7 @@ The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connect
 
 \subsection{Connecting to the Device via WiFi}\label{sec:connWifi}
 
-It is recommended that before the VenCon device is wired up to the proportional valve,users first connect to the device via WiFi and explore 
+It is recommended that before the VentCon device is wired up to the proportional valve, users first connect to the device via WiFi and explore 
 the browser interface. The device used for this can be any WiFi-enabled smartphone, tablet or PC with a modern web browser (e.g. Google Chrome, Safari)\footnote{Up to two devices can be connected to the VentCon's WiFi network at the same time.
 This allows, for example, a smartphone and a laptop to both access the web interface simultaneously.}. 
 
@@ -246,10 +298,10 @@ In order to initiate the connection to the device, follow these steps:
 \begin{minipage}[ht]{0.55\textwidth}
     \vspace{-12mm}
         \begin{enumerate}
-            \item \textbf{Power on} the VentCon unit via your power supply (connector see Section~\ref{sec:wiring}).
+            \item Power on the VentCon unit via your power supply (connector see Section~\ref{sec:wiring}).
             \item On your smartphone or tablet, scan the QR Code on the back of the device (see Figure~\ref{fig:backside}).
             This will connect to a network called \texttt{VENTCON\_AP}.\\
-            Go to step \ref{item:webinterface} from here.\\[2ex]
+            Go to step~\ref{item:webinterface} from here.\\[2ex]
             If your device does not support QR code scanning (e.g. on a PC):
             \begin{enumerate}[leftmargin=3em]
                 \item[1.] Open WiFi settings on your device.
@@ -275,8 +327,8 @@ The control parameters section allows adjustment of the pressure setpoint and PI
 Be sure you know the effects of each parameter before making changes (see Section~\ref{sec:pid}).
 Additional auxiliary settings, such as the sensor low-pass filter strength, are grouped at the bottom.
 
-A \texttt{Reset PID} button clears the controller's internal state, which is useful when the system is saturated or oscillating.
-Finally, a \texttt{Reset to Default} button restores all user-adjustable settings to their factory values after confirmation.
+A \textbf{Reset PID} button clears the controller's internal state, which is useful when the system is saturated or oscillating.
+Finally, a \textbf{Reset to Default} button restores all user-adjustable settings to their factory values after confirmation.
 
 \newpage
 \thispagestyle{empty}
@@ -315,7 +367,7 @@ and the system will continue operating with the previously applied parameters.
 % ---------- SECTION 4: PID CONTROL BASICS -----------------------------------
 \section{PID Control Basics}\label{sec:pid}
 
-Figure \ref{fig:overview} and \ref{fig:pid-block} illustrate the closed-loop control architecture.
+Figures~\ref{fig:overview} and~\ref{fig:pid-block} illustrate the closed-loop control architecture.
 The pressure sensor continuously measures the outlet pressure (\emph{Process Variable}).
 The PID controller computes the error between the \emph{Setpoint} and the measured pressure, and outputs a \emph{Valve Duty Cycle} (PWM signal) to the solenoid valve.
 
@@ -346,10 +398,9 @@ Reduces overshoot but amplifies sensor noise if set too high.
 
 The mathematical representation of the PID controller is given by the following equation:
 
-    \begin{equation}\nonumber
+    \begin{equation*}
     y(t) \;=\; K_p \, e(t) \;+\; K_i \!\int_0^t e(\tau) \, d\tau \;+\; K_d \, \frac{de(t)}{dt}
-    \label{eq:pid}
-    \end{equation}
+    \end{equation*}
 
     \begin{tabular}{rl}
         $y(t)$ & is the controller output (Valve Duty Cycle)\\
@@ -421,10 +472,10 @@ Figure~\ref{fig:disturbance} demonstrates the controller rejecting a mass-flow d
     \end{minipage}
 \end{figure}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.3\linewidth]{pic/Where the hands work, there Lakshmi resides.pdf}
-%     \label{fig:bestwishes}
-% \end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\linewidth]{pic/Where the hands work, there Lakshmi resides.pdf}
+    \label{fig:bestwishes}
+\end{figure}
 
 \end{document}

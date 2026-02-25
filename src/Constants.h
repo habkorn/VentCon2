@@ -1,7 +1,11 @@
 #pragma once
 
-// System version string including build timestamp for identification and debugging
-#define VENTCON_VERSION "2.6.6 (Build: " __DATE__ " " __TIME__ ")"
+// System version string including build timestamp for identification and debugging.
+// VENTCON_VERSION_NUMBER is injected by inject_version.py from the root VERSION file.
+#ifndef VENTCON_VERSION_NUMBER
+  #define VENTCON_VERSION_NUMBER "0.0.0"
+#endif
+#define VENTCON_VERSION VENTCON_VERSION_NUMBER " (Build: " __DATE__ " " __TIME__ ")"
 
 // Network Configuration
 namespace NetworkConfig 

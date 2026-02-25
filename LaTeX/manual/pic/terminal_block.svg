@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="308.51373mm"
-   height="91.735565mm"
-   viewBox="0 0 308.51374 91.735566"
+   width="345.3461mm"
+   height="67.678055mm"
+   viewBox="0 0 345.34611 67.678055"
    version="1.1"
    id="svg1"
    inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
@@ -28,9 +28,9 @@
      inkscape:cx="305.74276"
      inkscape:cy="195.53883"
      inkscape:window-width="1920"
-     inkscape:window-height="1129"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:window-height="1111"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1" />
   <defs
@@ -39,7 +39,7 @@
      inkscape:label="Ebene 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(48.746578,-96.837502)">
+     transform="translate(78.393817,-96.837502)">
     <image
        width="116.2486"
        height="52.043919"
@@ -50,84 +50,76 @@
        y="96.837502" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
-       x="194.55217"
-       y="161.0706"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
+       x="208.29189"
+       y="130.10722"
        id="text34"><tspan
          sodipodi:role="line"
          id="tspan34"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
-         x="194.55217"
-         y="161.0706">VENTREX </tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
+         x="208.29189"
+         y="130.10722">VENTREX </tspan><tspan
          sodipodi:role="line"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
-         x="194.55217"
-         y="171.03333"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
+         x="208.29189"
+         y="140.06995"
          id="tspan2">Electronic Pressure Regulator</tspan><tspan
          sodipodi:role="line"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
-         x="194.55217"
-         y="180.99605"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
+         x="208.29189"
+         y="150.03267"
          id="tspan6">Proportional Valve (PV)</tspan></text>
     <path
        style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linejoin:round;stroke-dasharray:none"
-       d="m 92.714785,141.21978 -5.681274,21.4215"
+       d="m 92.714785,141.21978 -3.774687,10.82935"
        id="path2"
        sodipodi:nodetypes="cc" />
-    <g
-       id="g5"
-       transform="matrix(0.9,0,0,0.9,8.9762442,15.167946)">
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.85576px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.836767"
-         x="60.879379"
-         y="173.1011"
-         id="text76"><tspan
-           sodipodi:role="line"
-           id="tspan76"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.85576px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.836767"
-           x="60.879379"
-           y="173.1011">Power Supply</tspan></text>
-      <rect
-         style="fill:none;stroke:#ff0000;stroke-width:1;stroke-linejoin:round;stroke-dasharray:none"
-         id="rect3"
-         width="61.671253"
-         height="13.045844"
-         x="58.926815"
-         y="164.16499"
-         ry="2.2652543" />
-    </g>
-    <g
-       id="g4"
-       transform="matrix(0.9,0,0,0.9,0.22034264,16.414242)">
-      <text
-         xml:space="preserve"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.85576px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:0.836767"
-         x="-46.312866"
-         y="172.61078"
-         id="text33"><tspan
-           sodipodi:role="line"
-           id="tspan33"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:8.85576px;font-family:KohinoorW00-Bold;-inkscape-font-specification:'KohinoorW00-Bold, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:0.836767"
-           x="-46.312866"
-           y="172.61078">Outlet Pressure Sensor</tspan></text>
-      <rect
-         style="fill:none;fill-opacity:1;stroke:#ff00ff;stroke-width:1;stroke-linejoin:round;stroke-dasharray:none"
-         id="rect4"
-         width="100.90001"
-         height="13.045837"
-         x="-48.246578"
-         y="162.78023"
-         ry="2.2652543" />
-    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.75309"
+       x="70.845558"
+       y="160.20341"
+       id="text76"><tspan
+         sodipodi:role="line"
+         id="tspan76"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:0.75309"
+         x="70.845558"
+         y="160.20341">Power Supply</tspan></text>
+    <rect
+       style="fill:none;stroke:#ff0000;stroke-width:0.9;stroke-linejoin:round;stroke-dasharray:none"
+       id="rect3"
+       width="55.504128"
+       height="11.74126"
+       x="68.789352"
+       y="152.3243"
+       ry="2.0387287" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
+       x="-74.81662"
+       y="138.65266"
+       id="text33"><tspan
+         sodipodi:role="line"
+         id="tspan33"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:7.97018px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ff00ff;fill-opacity:1;stroke:none;stroke-width:0.75309"
+         x="-74.81662"
+         y="138.65266">Outlet Pressure Sensor</tspan></text>
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#ff00ff;stroke-width:0.9;stroke-linejoin:round;stroke-dasharray:none"
+       id="rect4"
+       width="90.810005"
+       height="11.741254"
+       x="-77.943817"
+       y="129.86894"
+       ry="2.0387287" />
     <path
        style="fill:none;stroke:#ff00ff;stroke-width:1;stroke-linejoin:round;stroke-dasharray:none"
-       d="M 44.727977,141.21978 24.149565,162.83033"
+       d="m 34.559515,129.14473 -21.637626,5.72233"
        id="path5"
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#0000ff;stroke-width:1;stroke-linejoin:round;stroke-dasharray:none"
-       d="m 130.24038,139.37115 22.05622,13.40313"
+       d="m 131.29959,130.2619 19.30637,5.36211"
        id="path6"
        sodipodi:nodetypes="cc" />
     <rect
@@ -135,8 +127,8 @@
        id="rect6"
        width="115.93464"
        height="32.87727"
-       x="136.89171"
-       y="152.85321"
+       x="150.56764"
+       y="121.6308"
        ry="2.0387287" />
   </g>
 </svg>

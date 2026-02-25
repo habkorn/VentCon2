@@ -27,6 +27,11 @@
         "clang-format": true,
         "c.get(\\\"%.1f\\\",0)": true,
         "\\\"%.1f\\\",0": true,
-        ".1f\\\"]}')": true
+        ".1f\\\"]}')": true,
+        "xelatex": true,
+        "fc-list": true,
+        "Push-Location": true,
+        ".6_User_Manual.tex": true,
+        "Pop-Location": true
     }
 }
