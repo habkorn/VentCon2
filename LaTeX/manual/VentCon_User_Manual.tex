@@ -73,13 +73,14 @@
 \rohead{\includegraphics[height=1.0em]{pic/VENTREX_Logo_slim.pdf}}
 
 % Full-width footer image anchored at the page bottom via KOMA layer
+% Inset 5mm from edges to stay within printer hardware margins
 \DeclareNewLayer[
   background,
-  hoffset=0pt,
-  voffset=\paperheight,
-  width=\paperwidth,
+  hoffset=5mm,
+  voffset=\dimexpr\paperheight-2mm\relax,
+  width=\dimexpr\paperwidth-10mm\relax,
   align=bl,
-  contents={\includegraphics[width=\paperwidth]{pic/Aalberts_footer.pdf}}
+  contents={\includegraphics[width=\dimexpr\paperwidth-10mm\relax]{pic/Aalberts_footer.pdf}}
 ]{footerimage}
 % Page number centered on top of the footer image
 \DeclareNewLayer[
@@ -88,7 +89,7 @@
   voffset=\paperheight,
   width=\paperwidth,
   align=bl,
-  contents={\makebox[\paperwidth][c]{\raisebox{17pt}{\usekomafont{pagefoot}\pagemark}}}
+  contents={\makebox[\paperwidth][c]{\raisebox{27pt}{\usekomafont{pagefoot}\pagemark}}}
 ]{footerpagemark}
 \AddLayersToPageStyle{scrheadings}{footerimage,footerpagemark}
 
@@ -150,8 +151,9 @@ This document covers the system's hardware, functional principles, and browser-b
     \label{fig:overview}
 \end{figure}
 
-All parameters can be adjusted through a browser-based interface served over WiFi directly from the device---no external software, router, or internet connection is required.
-The VentCon operates fully self-contained, making it usable in any environment regardless of existing network infrastructure.
+All parameters can be adjusted through a browser-based interface served over WiFi directly from the device. 
+No external software, router, or internet connection is required. The VentCon operates fully self-contained, 
+making it usable in any environment regardless of existing network infrastructure.
 
 \vfill
 
@@ -196,7 +198,7 @@ The \textbf{Pressure Sensor} (not included in the demo kit) is connected at thre
 \begin{tcolorbox}[blanker, borderline west={1pt}{0pt}{ventrexblue}, left=1em]
 
     \begin{enumerate}[leftmargin=6em]
-        \item [Pos. \textbf{1)}]\fbox{\texttt{Sen}} Connect to the analog pressure signal output of the pressure sensor.
+        \item [Pos. \textbf{1)}]\fbox{\texttt{Sen}} Connect this to the analog pressure signal output of the pressure sensor.
         \item [Pos. \textbf{2)}]\fbox{\texttt{Sup}} This connector provides a regulated 5\,V to the pressure sensor. Connect to the 'supply voltage' pin of the pressure sensor.
         \item [Pos. \textbf{3)}]\fbox{\texttt{GND}} Connect to the ground pin of the pressure sensor.
     \end{enumerate}
@@ -461,7 +463,7 @@ Figure~\ref{fig:disturbance} demonstrates the controller rejecting a mass-flow d
     \begin{minipage}[t]{0.48\textwidth}
         \centering
         \includegraphics[width=\linewidth]{pic/Example_Set_4_to_6_bar.pdf}
-        \caption{Setpoint step from 4 to 6\,bar.}
+        \caption{Setpoint step from 6 to 4\,bar.}
         \label{fig:step}
     \end{minipage}\hfill
     \begin{minipage}[t]{0.48\textwidth}

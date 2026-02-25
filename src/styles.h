@@ -20,6 +20,7 @@ const char CSS_STYLES[] PROGMEM = R"rawliteral(
   --text-light: #64748b;
   --text-secondary: #6b7280;
   --background-alt: #f1f5f9;
+  --ventrex-blue: #002f87;
 }
 
 * 
@@ -966,13 +967,14 @@ footer
   border-radius: 50%;
   width: 48px;
   height: 48px;
+  color: var(--ventrex-blue);
   animation: spin 1s linear infinite;
 }
 
 .loader-text
 {
   margin-top: 12px;
-  color: var(--primary);
+  color: var(--ventrex-blue);
   font-weight: 600;
 }
 

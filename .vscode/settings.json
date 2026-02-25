@@ -33,6 +33,11 @@
         "Push-Location": true,
         ".6_User_Manual.tex": true,
         "Pop-Location": true,
-        "Get-FileHash": true
+        "Get-FileHash": true,
+        "/^cd \"k:\\\\CNG029\\\\02_PRODUKTENTWICKLUNG\\\\05_GROBAUSLEGUNG\\\\07 VENTCON\\\\VentCon2\"; python -c \"\nimport fitz, os\ndoc = fitz\\.open\\('data/VentCon_User_Manual\\.pdf'\\)\nfsize = os\\.path\\.getsize\\('data/VentCon_User_Manual\\.pdf'\\)\nprint\\(f'Pages: \\{len\\(doc\\)\\}'\\)\nprint\\(f'File size: \\{fsize:,\\} bytes'\\)\nprint\\(\\)\ntotal_img_size = 0\nfor i, page in enumerate\\(doc\\):\n    imgs = page\\.get_images\\(full=True\\)\n    print\\(f'Page \\{i\\+1\\}: \\{len\\(imgs\\)\\} images'\\)\n    for j, img in enumerate\\(imgs\\):\n        xref = img\\[0\\]\n        base = doc\\.extract_image\\(xref\\)\n        if base:\n            raw = base\\['image'\\]\n            print\\(f'  img\\[\\{j\\}\\] xref=\\{xref\\}: \\{base\\[\\\\\"width\\\\\"\\]\\}x\\{base\\[\\\\\"height\\\\\"\\]\\}, ext=\\{base\\[\\\\\"ext\\\\\"\\]\\}, size=\\{len\\(raw\\):,\\}B'\\)\n            total_img_size \\+= len\\(raw\\)\n        else:\n            print\\(f'  img\\[\\{j\\}\\] xref=\\{xref\\}: could not extract'\\)\nprint\\(f'\\\\nTotal image data: \\{total_img_size:,\\} bytes \\(\\{total_img_size/1024:\\.0f\\} KB\\)'\\)\nprint\\(f'Image share: \\{total_img_size/fsize\\*100:\\.1f\\}%'\\)\ndoc\\.close\\(\\)\n\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "pdfinfo": true
     }
 }

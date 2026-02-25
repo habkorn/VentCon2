@@ -23,12 +23,12 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         <img src="/Logo.svg" alt="VENTREX" class="logo" id="loaderLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
       </div>
       <h1>
-        <span class="brand-title" aria-label="VENTCON Pressure Control System">
+        <span class="brand-title" style="color: var(--ventrex-blue);" aria-label="VENTCON Pressure Control System">
           VENTCON Pressure Control System
         </span>
       </h1>
       <div class="loader-spinner"></div>
-      <span class="loader-text">Loading...</span>
+      <span class="loader-text" ">Loading...</span>
     </div>
   </div>
 
