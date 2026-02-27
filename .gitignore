@@ -3,3 +3,12 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+compile_commands.json
+
+# Auto-generated PROGMEM headers (source of truth is web/)
+src/styles.h
+src/WebContentHead.h
+src/WebContentBody.h
+src/WebContentInputs.h
+src/WebContentFooter.h
+src/WebContentScript.h

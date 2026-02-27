@@ -38,6 +38,14 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "pdfinfo": true
+        "pdfinfo": true,
+        "/^cd \"k:\\\\CNG029\\\\02_PRODUKTENTWICKLUNG\\\\05_GROBAUSLEGUNG\\\\07 VENTCON\\\\VentCon2\\\\web\"; New-Item -ItemType Directory -Path css, js -Force \\| Out-Null; Copy-Item styles\\.css css\\\\styles\\.css; Copy-Item script\\.js js\\\\app\\.js; Write-Output \"Done: css/styles\\.css and js/app\\.js created\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd \"k:\\\\CNG029\\\\02_PRODUKTENTWICKLUNG\\\\05_GROBAUSLEGUNG\\\\07 VENTCON\\\\VentCon2\"; New-Item -ItemType Directory -Path \\.pio\\\\reference_headers -Force \\| Out-Null; @\\('styles\\.h','WebContentHead\\.h','WebContentBody\\.h','WebContentInputs\\.h','WebContentFooter\\.h','WebContentScript\\.h'\\) \\| ForEach-Object \\{ Copy-Item \"src\\\\\\$_\" \"\\.pio\\\\reference_headers\\\\\\$_\" \\}; Write-Output \"Reference headers saved\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

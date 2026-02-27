@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>VentCon Pressure Control</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Load JS libraries from LittleFS root with deferred loading.-->
+  <script src="/chart.min.js" defer></script>
+
+<!-- @EMBED:STYLES -->
+  <link rel="stylesheet" href="css/styles.css">
+<!-- @EMBED:BODY -->
+
+</head>
+
+<body>
+  <div class="loader" id="loader">
+    <div class="loader-content">
+      <div class="logo-container">
+        <img src="/Logo.svg" alt="VENTREX" class="logo" id="loaderLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
+      </div>
+      <h1>
+        <span class="brand-title" style="color: var(--ventrex-blue);" aria-label="VENTCON Pressure Control System">
+          VENTCON Pressure Control System
+        </span>
+      </h1>
+      <div class="loader-spinner"></div>
+      <span class="loader-text" ">Loading...</span>
+    </div>
+  </div>
+
+
+  <main>
+    <section class="card">
+      <!-- <h2 style="text-align: center;">Real Time Monitoring</h2> -->
+      
+      <div class="gauge-container">
+        <div class="gauge">
+          <div class="gauge-title">Outlet Pressure</div>
+          <div class="gauge-value">
+            <span id="pressure">--</span>
+            <small>bar(g)</small>
+            <span id="pressure-trend" class="trend-indicator trend-stable">▲</span>
+          </div>
+          <div class="gauge-bar">
+            <div id="pressure-fill" class="gauge-fill" style="width:0%"></div>
+            <div id="pressure-target" class="gauge-target" style="left:30%"></div>
+          </div>
+        </div>
+        
+        <div class="gauge">
+          <div class="gauge-title">Valve Duty Cycle</div>
+          <div class="gauge-value">
+            <span id="pwm" style="color: var(--success);">--</span>
+            <small>%</small>
+            <span id="pwm-trend" class="trend-indicator trend-stable">▲</span>
+          </div>
+          <div class="gauge-bar">
+            <div id="pwm-fill" class="gauge-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chart-header">
+        <div class="chart-header-left">
+          <span class="chart-gear-btn" onclick="openChartSettings()" title="Chart Settings"></span>
+          <h3>Live Chart</h3>
+        </div>
+        <div class="chart-header-right">
+          <label for="chartToggle" class="toggle-label">Show Chart</label>
+          <input type="checkbox" id="chartToggle" checked>
+        </div>
+      </div>
+      
+      <div class="chart-container" id="chartContainer">
+        <canvas id="pressureChart"></canvas>
+      </div>
+    </section>   
+   
+    <!-- Snackbar Apply Changes button (hidden by default) -->
+    <div id="saveSnackbar" class="snackbar">
+      <span id="saveSnackbarText">Apply Changes</span>
+    </div>
+    
+    <!-- Slider Settings Modal -->
+    <div id="sliderSettingsModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Slider Settings</h3>
+          <button class="modal-close" onclick="closeSliderModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-row">
+            <label>Minimum value for slider</label>
+            <input type="text" inputmode="decimal" id="modalMin" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Maximum value for slider</label>
+            <input type="text" inputmode="decimal" id="modalMax" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Step for +/- Buttons</label>
+            <input type="text" inputmode="decimal" id="modalStep" step="any">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn-cancel" onclick="closeSliderModal()">Cancel</button>
+          <button class="modal-btn modal-btn-save" onclick="saveSliderSettings()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Settings Modal -->
+    <div id="chartSettingsModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Chart Settings</h3>
+          <button class="modal-close" onclick="closeChartSettings()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-row">
+            <label>Pressure axis min (bar)</label>
+            <input type="text" inputmode="decimal" id="chartYMin" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Pressure axis max (bar)</label>
+            <input type="text" inputmode="decimal" id="chartYMax" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Duty cycle axis min (%)</label>
+            <input type="text" inputmode="decimal" id="chartPwmMin" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Duty cycle axis max (%)</label>
+            <input type="text" inputmode="decimal" id="chartPwmMax" step="any">
+          </div>
+          <div class="modal-row">
+            <label>Time window (seconds)</label>
+            <input type="text" inputmode="numeric" id="chartTimeWindow" step="1">
+          </div>
+          <div class="modal-row">
+            <label>Time grid interval (seconds)</label>
+            <input type="text" inputmode="numeric" id="chartTimeGrid" step="1">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="modal-btn modal-btn-cancel" onclick="closeChartSettings()">Cancel</button>
+          <button class="modal-btn modal-btn-save" onclick="saveChartSettings()">Save</button>
+        </div>
+      </div>
+    </div>
+
+<!-- @EMBED:INPUTS -->
+    <details class="card" open>
+      <summary>Control Parameters</summary>
+      <div class="collapsible-content">
+        <div class="control-row">
+          <label for="sp_slider"><span style="color:var(--accent)">SETPOINT</span> Outlet Pressure in bar(g)</label>
+          <div class="control-slider">
+            <button type="button" class="slider-btn decrement-btn" id="sp_decrement">-</button>
+            <input type="range" id="sp_slider" min="%SP_MIN%" max="%SP_MAX%" step="%SP_STEP%" value="%SP%">
+            <button type="button" class="slider-btn increment-btn" id="sp_increment">+</button>
+            <input type="text" inputmode="decimal" id="sp_text" value="%SP%" step="%SP_STEP%">
+            <button class="settings-gear" onclick="openSliderSettings('sp')" title="Configure slider limits"></button>
+          </div>
+        </div>    
+      
+        <hr>
+      
+        <div class="section-title-row">
+          <span class="section-title"><span>PID</span><div></div></span>
+          <button id="resetPidBtn" class="reset-btn" title="Re-initialize PID with current settings">Reset PID</button>
+        </div>
+
+        <div class="control-row">
+          <label for="kp_slider">Proportional Kp</label>
+          <div class="control-slider">
+            <button type="button" class="slider-btn decrement-btn" id="kp_decrement">-</button>
+            <input type="range" id="kp_slider" min="%KP_MIN%" max="%KP_MAX%" step="%KP_STEP%" value="%KP%">
+            <button type="button" class="slider-btn increment-btn" id="kp_increment">+</button>
+            <input type="text" inputmode="decimal" id="kp_text" value="%KP%" step="%KP_STEP%">
+            <button class="settings-gear" onclick="openSliderSettings('kp')" title="Configure slider limits"></button>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label for="ki_slider">Integral Ki <span id="ti_display" class="time-const" title="Integration time constant Ti = Kp / Ki"></span></label>
+          <div class="control-slider">
+            <button type="button" class="slider-btn decrement-btn" id="ki_decrement">-</button>
+            <input type="range" id="ki_slider" min="%KI_MIN%" max="%KI_MAX%" step="%KI_STEP%" value="%KI%">
+            <button type="button" class="slider-btn increment-btn" id="ki_increment">+</button>
+            <input type="text" inputmode="decimal" id="ki_text" value="%KI%" step="%KI_STEP%">
+            <button class="settings-gear" onclick="openSliderSettings('ki')" title="Configure slider limits"></button>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label for="kd_slider">Derivative Kd <span id="td_display" class="time-const" title="Derivative time constant Td = Kd / Kp"></span></label>
+          <div class="control-slider">
+            <button type="button" class="slider-btn decrement-btn" id="kd_decrement">-</button>
+            <input type="range" id="kd_slider" min="%KD_MIN%" max="%KD_MAX%" step="%KD_STEP%" value="%KD%">
+            <button type="button" class="slider-btn increment-btn" id="kd_increment">+</button>
+            <input type="text" inputmode="decimal" id="kd_text" value="%KD%" step="%KD_STEP%">
+            <button class="settings-gear" onclick="openSliderSettings('kd')" title="Configure slider limits"></button>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary>Auxiliary Settings</summary>
+      <div class="collapsible-content">
+        <div class="control-row">
+          <label for="flt_slider">Low Pass Filter Strength on Pressure Sensor (α)</label>
+          <div class="control-slider">
+            <button type="button" class="slider-btn decrement-btn" id="flt_decrement">-</button>
+            <input type="range" id="flt_slider" min="%FLT_MIN%" max="%FLT_MAX%" step="%FLT_STEP%" value="%FLT%">
+            <button type="button" class="slider-btn increment-btn" id="flt_increment">+</button>
+            <input type="text" inputmode="decimal" id="flt_text" value="%FLT%" step="%FLT_STEP%">
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label for="freq_slider">Actuator PWM Frequency in Hz</label>
+          <div class="control-slider">
+            <button type="button" class="slider-btn decrement-btn" id="freq_decrement">-</button>
+            <input type="range" id="freq_slider" min="%FREQ_MIN%" max="%FREQ_MAX%" step="%FREQ_STEP%" value="%FREQ%">
+            <button type="button" class="slider-btn increment-btn" id="freq_increment">+</button>
+            <input type="text" inputmode="numeric" id="freq_text" value="%FREQ%" step="%FREQ_STEP%">
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label for="res_slider">Actuator PWM Resolution in bits</label>
+          <div class="control-slider">
+            <button type="button" class="slider-btn decrement-btn" id="res_decrement">-</button>
+            <input type="range" id="res_slider" min="%RES_MIN%" max="%RES_MAX%" step="%RES_STEP%" value="%RES%">
+            <button type="button" class="slider-btn increment-btn" id="res_increment">+</button>
+            <input type="text" inputmode="numeric" id="res_text" value="%RES%" step="%RES_STEP%">
+          </div>
+        </div>
+
+        <div class="control-row">
+          <label for="pst_text">PID Sample Time in ms</label>
+          <div class="input-with-unit">
+            <input type="text" inputmode="numeric" id="pst_text" value="%PST%" min="%PST_MIN%" max="%PST_MAX%">
+            <span class="unit">ms</span>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="card">
+      <summary>Outlet Pressure Sensor Settings</summary>
+      <div class="collapsible-content">
+        <div class="sensor-columns">
+          <div class="sensor-block">
+            <div class="sensor-section-title">Pressure Range</div>
+            <div class="sensor-group">
+              <label for="sensor_minP">Min</label>
+              <div class="input-with-unit">
+                <input type="text" inputmode="decimal" id="sensor_minP" value="%SENSOR_MINP%">
+                <span class="unit">bar(g)</span>
+              </div>
+            </div>
+            <div class="sensor-group">
+              <label for="sensor_maxP">Max</label>
+              <div class="input-with-unit">
+                <input type="text" inputmode="decimal" id="sensor_maxP" value="%SENSOR_MAXP%">
+                <span class="unit">bar(g)</span>
+              </div>
+            </div>
+          </div>
+          <div class="sensor-block">
+            <div class="sensor-section-title">Voltage Range</div>
+            <div class="sensor-group">
+              <label for="sensor_minV">Min</label>
+              <div class="input-with-unit">
+                <input type="text" inputmode="decimal" id="sensor_minV" value="%SENSOR_MINV%">
+                <span class="unit">V</span>
+              </div>
+            </div>
+            <div class="sensor-group">
+              <label for="sensor_maxV">Max</label>
+              <div class="input-with-unit">
+                <input type="text" inputmode="decimal" id="sensor_maxV" value="%SENSOR_MAXV%">
+                <span class="unit">V</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="card" open>
+      <summary>System Information</summary>
+      <div class="collapsible-content">
+        <div class="control-row">
+          <label>Network Status</label>
+          <div class="hardware-info">
+            <span class="status-indicator" id="network_indicator"></span>
+            <span id="network_status" class="status-text">--</span>
+          </div>
+        </div>
+        <div class="control-row">
+          <a href="/VentCon_User_Manual.pdf?v=%VERSION_NUMBER%" target="_blank" style="color:var(--primary-dark);text-decoration:none;font-weight:600;">&#128196; Download User Manual (PDF)</a>
+        </div>
+      </div>
+    </details>
+
+
+
+  </main>
+<!-- @EMBED:FOOTER -->
+  <footer>
+
+    <div class="logo-container">
+      <img src="/Logo.svg" alt="VENTREX" class="logo" id="ventrexLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
+    </div>
+    <h1>
+      <span class="brand-title" aria-label="VENTCON Pressure Control System">
+        VENTCON Pressure Control System
+      </span>
+    </h1>
+
+    <p>v%VERSION% by HAB</p>
+    <!-- Hidden Easter egg panel -->
+    <div id="easterEgg" class="easter-egg">
+      <h3>Developer Mode Activated! 🚀</h3>
+      <p>Hello there, curious one!</p> 
+      <p>You've found the secret developer panel.</p>
+      <p>VENTCON Control System - Made with ❤️ by VENTREX</p>
+      
+      <div class="easter-egg-section">
+        <h4>📊 System Information</h4>
+        <div id="devInfo" class="dev-info"></div>
+        <h4>💻 Serial Commands Reference</h4>
+        <div class="cmd-ref">
+          <div class="cmd-ref-header">
+            <div class="cmd-ref-title">📋 VENTCON2 COMMAND REFERENCE</div>
+            <div class="cmd-ref-subtitle">All commands are case-insensitive</div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">🎛️ PID CONTROL</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid">
+                <span><strong>KP &lt;value&gt;</strong></span><span>Set proportional gain (e.g., KP 0.5)</span>
+                <span><strong>KI &lt;value&gt;</strong></span><span>Set integral gain (e.g., KI 0.1)</span>
+                <span><strong>KD &lt;value&gt;</strong></span><span>Set derivative gain (e.g., KD 0.01)</span>
+                <span><strong>SP &lt;value&gt;</strong></span><span>Set pressure setpoint in bar (e.g., SP 3.0)</span>
+                <span><strong>SAMPLE &lt;ms&gt;</strong></span><span>Set PID sample time, 1-1000ms (e.g., SAMPLE 10)</span>
+                <span><strong>RESET</strong></span><span>Reset PID controller (clear windup & state)</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">📊 SIGNAL PROCESSING</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid">
+                <span><strong>FLT &lt;value&gt;</strong></span><span>Set filter strength, 0.0-1.0 (e.g., FLT 0.2)</span>
+                <span><strong>AW ON/OFF</strong></span><span>Enable/disable anti-windup for deadband</span>
+                <span><strong>HYST ON/OFF</strong></span><span>Enable/disable hysteresis compensation</span>
+                <span><strong>HYSTAMT &lt;val&gt;</strong></span><span>Set hysteresis amount in % (e.g., HYSTAMT 5)</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">⚡ PWM & VALVE CONTROL</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid">
+                <span><strong>FREQ &lt;hz&gt;</strong></span><span>Set PWM frequency, 100-10000Hz (e.g., FREQ 1000)</span>
+                <span><strong>RES &lt;bits&gt;</strong></span><span>Set PWM resolution, 8-16 bits (e.g., RES 14)</span>
+                <span><strong>PWM &lt;percent&gt;</strong></span><span>Force PWM duty cycle, 0-100% (e.g., PWM 25)</span>
+                <span><strong>RESUME</strong></span><span>Resume normal PID control after manual PWM</span>
+                <span><strong>CONTROL FREQ</strong></span><span>Set control loop frequency, 10-1000Hz</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">🎯 AUTO-TUNING</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid">
+                <span><strong>AUTOTUNE</strong></span><span>Test AutoTuner and show detailed configuration</span>
+                <span><strong>TUNE START</strong></span><span>Start PID auto-tuning process</span>
+                <span><strong>TUNE STOP</strong></span><span>Cancel auto-tuning process</span>
+                <span><strong>TUNE ACCEPT</strong></span><span>Accept calculated PID parameters</span>
+                <span><strong>TUNE REJECT</strong></span><span>Reject and keep current PID parameters</span>
+                <span><strong>TUNE SP &lt;bar&gt;</strong></span><span>Set auto-tune test setpoint, 0.5-10.0 bar</span>
+                <span><strong>TUNE MIN &lt;pct&gt;</strong></span><span>Set auto-tune minimum PWM, 50-90%</span>
+                <span><strong>TUNE MAX &lt;pct&gt;</strong></span><span>Set auto-tune maximum PWM, 50-90%</span>
+                <span><strong>TUNE CYCLE &lt;ms&gt;</strong></span><span>Set min cycle time, 50-2000ms</span>
+                <span><strong>TUNE RULE &lt;0-3&gt;</strong></span><span>Select tuning rule (see TUNE RULES)</span>
+                <span><strong>TUNE AGGR &lt;val&gt;</strong></span><span>Set aggressiveness factor, 0.5-2.0</span>
+                <span><strong>TUNE RULES</strong></span><span>Show available tuning rules with descriptions</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">📡 NETWORK & WIFI</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid">
+                <span><strong>SCAN WIFI</strong></span><span>Scan and list WiFi networks with signal strength</span>
+                <span><strong>WIFI CHANNEL</strong></span><span>Set WiFi AP channel, 1-13 (interference avoidance)</span>
+                <span><strong>PAGE ON/OFF</strong></span><span>Enable/disable web server processing</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">📈 DATA & MONITORING</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid">
+                <span><strong>STATUS</strong></span><span>Show comprehensive system status</span>
+                <span><strong>SENSOR</strong></span><span>Test SensorManager and show detailed sensor readings</span>
+                <span><strong>SENSOR MINP &lt;v&gt;</strong></span><span>Set sensor min pressure in bar (e.g., SENSOR MINP 0)</span>
+                <span><strong>SENSOR MAXP &lt;v&gt;</strong></span><span>Set sensor max pressure in bar (e.g., SENSOR MAXP 10)</span>
+                <span><strong>SENSOR MINV &lt;v&gt;</strong></span><span>Set sensor min voltage in V (e.g., SENSOR MINV 0.5)</span>
+                <span><strong>SENSOR MAXV &lt;v&gt;</strong></span><span>Set sensor max voltage in V (e.g., SENSOR MAXV 4.5)</span>
+                <span><strong>STARTCD</strong></span><span>Start continuous data output for plotting</span>
+                <span><strong>STOPCD</strong></span><span>Stop continuous data output</span>
+                <span><strong>MEM</strong></span><span>Show memory usage and system information</span>
+                <span><strong>VER</strong></span><span>Display firmware version and build info</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">💾 FILE SYSTEM & SETTINGS</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid">
+                <span><strong>SAVE</strong></span><span>Force save current settings to flash memory</span>
+                <span><strong>READ</strong></span><span>Read and display settings stored in flash</span>
+                <span><strong>DIR</strong></span><span>List all files in flash memory with sizes</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="cmd-group">
+            <div class="cmd-group-header">🚀 QUICK REFERENCE</div>
+            <div class="cmd-group-body">
+              <div class="cmd-grid" style="margin-bottom: 8px;">
+                <span><strong>HELP</strong></span><span>Show this command reference</span>
+              </div>
+              <div class="cmd-workflow">
+                <div class="cmd-workflow-title">Example workflow:</div>
+                <div class="cmd-workflow-steps">
+                  STATUS → Check current system state<br>
+                  TUNE START → Begin auto-tuning for optimal PID<br>
+                  TUNE ACCEPT → Accept calculated parameters<br>
+                  STARTCD → Monitor real-time data<br>
+                  SAVE → Persist settings to flash
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <div class="reset-defaults-container">
+    <button id="resetDefaultsBtn" class="reset-defaults-btn" title="Load default values from settings.json and reset PID">Reset to Default</button>
+  </div>
+
+<!-- @EMBED:CONFIG -->
+  <!-- Dev mode: mock server configuration (not used in production) -->
+  <script>
+    if (typeof CFG === 'undefined') 
+    {
+      // Load Chart.js from CDN (the /chart.min.js path only works on the ESP32)
+      var cdnScript = document.createElement('script');
+      cdnScript.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
+      document.head.appendChild(cdnScript);
+
+      var CFG = {
+        maxBar: 10.0,
+        ssid: 'VENTCON_AP',
+        ip: '192.168.4.1',
+        flt: { min: 0.00, max: 1.00, step: 0.01 },
+        freq: { min: 100, max: 10000, step: 100 },
+        res: { min: 8, max: 16, step: 1 },
+        pst: { min: 1, max: 1000 },
+        chart: { y_min: 0.00, y_max: 10.00, pwm_min: 0.00, pwm_max: 100.00, time_window: 8, time_grid: 1 }
+      };
+
+      // Mock fetch endpoints for development
+      const _origFetch = window.fetch;
+      window.fetch = function(url, opts) {
+        const u = typeof url === 'string' ? url : url.toString();
+        if (u.includes('/values')) {
+          return Promise.resolve(new Response(JSON.stringify({
+            pressure: +(3.0 + Math.random() * 0.2 - 0.1).toFixed(2),
+            pwm: +(65.0 + Math.random() * 2 - 1).toFixed(1),
+            sp: 6.0, kp: 9000.0, ki: 10000.0, kd: 0.0,
+            flt: 0.00, freq: 2000, res: 14, pst: 10,
+            sensor_minP: 0, sensor_maxP: 10, sensor_minV: 0.5, sensor_maxV: 4.5,
+            tuning: false, manualOverride: false, uptime: Math.floor(Date.now()/1000)%86400,
+            freeHeap: 180000, wifiChannel: 1, clients: 1, controlFreq: 1000
+          }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        }
+        if (u.includes('/set')) {
+          console.log('[DEV] /set:', u);
+          return Promise.resolve(new Response('OK', { status: 200 }));
+        }
+        if (u.includes('/resetPID')) {
+          return Promise.resolve(new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        }
+        if (u.includes('/api/slider-limits')) {
+          if (opts && opts.method === 'POST') {
+            return Promise.resolve(new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+          }
+          return Promise.resolve(new Response(JSON.stringify({
+            sp: { min: 0, max: 10, step: 0.25 },
+            kp: { min: 0, max: 20000, step: 500 },
+            ki: { min: 0, max: 20000, step: 500 },
+            kd: { min: 0, max: 500, step: 50 }
+          }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        }
+        if (u.includes('/api/chart-settings')) {
+          return Promise.resolve(new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+        }
+        return _origFetch.apply(this, arguments);
+      };
+
+      // Replace %PLACEHOLDER% tokens with sample values after DOM loads
+      document.addEventListener('DOMContentLoaded', function() {
+        var map = {
+          '%SP%': '6.00', '%SP_MIN%': '0.00', '%SP_MAX%': '10.00', '%SP_STEP%': '0.25',
+          '%KP%': '9000.00', '%KP_MIN%': '0.00', '%KP_MAX%': '20000.00', '%KP_STEP%': '500.00',
+          '%KI%': '10000.00', '%KI_MIN%': '0.00', '%KI_MAX%': '20000.00', '%KI_STEP%': '500.00',
+          '%KD%': '0.00', '%KD_MIN%': '0.00', '%KD_MAX%': '500.00', '%KD_STEP%': '50.00',
+          '%FLT%': '0.00', '%FLT_MIN%': '0.00', '%FLT_MAX%': '1.00', '%FLT_STEP%': '0.01',
+          '%FREQ%': '2000', '%FREQ_MIN%': '100', '%FREQ_MAX%': '10000', '%FREQ_STEP%': '100',
+          '%RES%': '14', '%RES_MIN%': '8', '%RES_MAX%': '16', '%RES_STEP%': '1',
+          '%PST%': '10', '%PST_MIN%': '1', '%PST_MAX%': '1000',
+          '%SENSOR_MINP%': '0.0', '%SENSOR_MAXP%': '10.0',
+          '%SENSOR_MINV%': '0.50', '%SENSOR_MAXV%': '4.50',
+          '%VERSION%': '0.0.0-dev', '%VERSION_NUMBER%': '0.0.0'
+        };
+        // Replace in input values and attributes
+        document.querySelectorAll('input').forEach(function(el) {
+          ['value','min','max','step'].forEach(function(attr) {
+            var v = el.getAttribute(attr);
+            if (v && v.indexOf('%') === 0) {
+              var replacement = map[v];
+              if (replacement) el.setAttribute(attr, replacement);
+            }
+          });
+        });
+        // Replace in href attributes
+        document.querySelectorAll('a[href]').forEach(function(el) {
+          var h = el.getAttribute('href');
+          Object.keys(map).forEach(function(k) {
+            if (h.indexOf(k) !== -1) el.setAttribute('href', h.replace(k, map[k]));
+          });
+        });
+        // Replace in text content (footer version)
+        document.querySelectorAll('footer p').forEach(function(el) {
+          Object.keys(map).forEach(function(k) {
+            if (el.textContent.indexOf(k) !== -1) el.textContent = el.textContent.replace(k, map[k]);
+          });
+        });
+      });
+    }
+  </script>
+
+<!-- @EMBED:SCRIPT -->
+  <script src="js/app.js"></script>
+</body>
+</html>
