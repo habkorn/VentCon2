@@ -140,7 +140,7 @@ the VENTREX electronic pressure regulator uses a software-based feedback control
 A PID control algorithm continuously compares the measured outlet pressure with the desired setpoint and modulates the 
 proportional valve accordingly.
 
-The VentCon demonstrator showcases this principle: it implements the complete control loop on a microcontroller by \textsc{Espressif Systems}, allowing users to observe and tune the regulator's behaviour in real time.
+The VentCon demonstrator showcases this principle: it implements the complete control loop on a microcontroller chip, allowing users to observe and tune the regulator's behaviour in real time.
 This document covers the system's hardware, functional principles, and browser-based user interface.
 
 
@@ -270,9 +270,11 @@ The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connect
 
 It is recommended that before the VentCon device is wired up to the proportional valve, users first connect to the device via WiFi and explore 
 the browser interface. The device used for this can be any WiFi-enabled smartphone, tablet or PC with a modern web browser (e.g. Google Chrome, Safari)\footnote{Up to two devices can be connected to the VentCon's WiFi network at the same time.
-This allows, for example, a smartphone and a laptop to both access the web interface simultaneously.}. 
+This allows, for example, a smartphone and a laptop to both access the browser interface simultaneously.}. 
 
-The VentCon device creates its own WiFi access point. No router or internet connection is needed or used.
+Upon connecting the device to supply voltage, a green indicator LED inside the DEBUG connector on the side of the housing confirms 
+that the electronics are successfully powered and the microcontroller is running.
+The device will automatically create its own WiFi access point. No router or internet connection is needed or used.
 This also means that the device is not able to send or receive any data to or from the internet.
 
 \begin{tcolorbox}[
@@ -292,13 +294,13 @@ In order to initiate the connection to the device, follow these steps:
 \noindent
 \begin{minipage}[ht]{0.4\textwidth}
     \centering
-    \includegraphics[width=\linewidth]{pic/BackSide.pdf}
+    \includegraphics[width=0.98\linewidth]{pic/BackSide.pdf}
     \captionof{figure}{QR Code for WiFi connection.}
     \label{fig:backside}
 \end{minipage}
 \hfill
 \begin{minipage}[ht]{0.55\textwidth}
-    \vspace{-12mm}
+    \vspace{0mm}
         \begin{enumerate}
             \item Power on the VentCon unit via your power supply (connector see Section~\ref{sec:wiring}).
             \item On your smartphone or tablet, scan the QR Code on the back of the device (see Figure~\ref{fig:backside}).
@@ -317,12 +319,11 @@ In order to initiate the connection to the device, follow these steps:
             \textbf{\url{http://ventcon.local}}
     \end{enumerate}
 \end{minipage}%
-\vspace{0mm}
+\vspace{-3ex}
+% ---------- SECTION 3: BROWSER INTERFACE ----------------------------------------
+\section{Browser Interface}
 
-% ---------- SECTION 3: WEB INTERFACE ----------------------------------------
-\section{Web Interface}
-
-The web interface is divided into collapsible sections (tap a header to expand/collapse).
+The browser interface is divided into collapsible sections (tap a header to expand/collapse).
 Figure~\ref{fig:browser-app} provides an annotated overview. At the top, real-time status indicators display the current outlet pressure and valve 
 duty cycle as gauges. Below, a live trend chart plots the pressure, setpoint and duty cycle over time.
 The control parameters section allows adjustment of the pressure setpoint and PID gains ($K_p$, $K_i$, $K_d$). 
