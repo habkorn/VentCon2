@@ -1,6 +1,6 @@
 % !TeX program = xelatex
 % =============================================================================
-%  VentCon: PID Control Demonstrator — User Manual
+%  VENTCON: PID Control Demonstrator — User Manual
 %  Target: max. 5 pages (excluding title page)
 %  Document class: KOMA-Script scrartcl
 % =============================================================================
@@ -115,7 +115,7 @@
     \includegraphics[width=0.75\textwidth]{pic/VENTREX_Logo + Slogan.pdf}
 
     \vspace{1.2cm}
-    {\Huge\bfseries\textcolor{ventrexblue}{VentCon - PID Control Demonstrator}\par}
+    {\Huge\bfseries\textcolor{ventrexblue}{VENTCON - Pressure Control System}\par}
     \vspace{0.4cm}
 
 
@@ -140,19 +140,19 @@ the VENTREX electronic pressure regulator uses a software-based feedback control
 A PID control algorithm continuously compares the measured outlet pressure with the desired setpoint and modulates the 
 proportional valve accordingly.
 
-The VentCon demonstrator showcases this principle: it implements the complete control loop on a microcontroller chip, allowing users to observe and tune the regulator's behaviour in real time.
+The VENTCON demonstrator showcases this principle: it implements the complete control loop on a microcontroller chip, allowing users to observe and tune the regulator's behaviour in real time.
 This document covers the system's hardware, functional principles, and browser-based user interface.
 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{pic/SchematicHardware.pdf}
-    \caption{VentCon system overview.}
+    \caption{VENTCON system overview.}
     \label{fig:overview}
 \end{figure}
 
 All parameters can be adjusted through a browser-based interface served over WiFi directly from the device. 
-No external software, router, or internet connection is required. The VentCon operates fully self-contained, 
+No external software, router, or internet connection is required. The VENTCON operates fully self-contained, 
 making it usable in any environment regardless of existing network infrastructure.
 
 \vfill
@@ -180,7 +180,7 @@ powering the proportional valve.
 
 \subsection{Wiring Scheme}\label{sec:wiring}
 
-The terminal block on the front of the VentCon device (Figure~\ref{fig:terminal}) provides connections for the pressure sensor 
+The terminal block on the front of the VENTCON device (Figure~\ref{fig:terminal}) provides connections for the pressure sensor 
 (\texttt{Sen}/\texttt{Sup}/\texttt{GND}), the power supply (\texttt{VIn}/\texttt{GND}) and the proportional valve (\texttt{PV+}/\texttt{PV-}).
 
 \begin{figure}[H]
@@ -227,7 +227,7 @@ The \textbf{Power Supply} (not included in the demo kit) is connected at two pos
  		The proportional valve receives the same voltage that is set on the user's power supply.
 	\end{tcolorbox}
 
-    For the proportional valve supplied with this demo kit, a 12\,V source rated for at least 4\,A is recommended. The VentCon device, however, accepts any supply voltage in the range of 12 to 30\,V.
+    For the proportional valve supplied with this demo kit, a 12\,V source rated for at least 4\,A is recommended. The VENTCON device, however, accepts any supply voltage in the range of 12 to 30\,V.
 \end{tcolorbox}
 
 \vspace{1ex}
@@ -268,8 +268,8 @@ The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connect
 
 \subsection{Connecting to the Device via WiFi}\label{sec:connWifi}
 
-It is recommended that before the VentCon device is wired up to the proportional valve, users first connect to the device via WiFi and explore 
-the browser interface. The device used for this can be any WiFi-enabled smartphone, tablet or PC with a modern web browser (e.g. Google Chrome, Safari)\footnote{Up to two devices can be connected to the VentCon's WiFi network at the same time.
+It is recommended that before the VENTCON device is wired up to the proportional valve, users first connect to the device via WiFi and explore 
+the browser interface. The device used for this can be any WiFi-enabled smartphone, tablet or PC with a modern web browser (e.g. Google Chrome, Safari)\footnote{Up to two devices can be connected to the VENTCON's WiFi network at the same time.
 This allows, for example, a smartphone and a laptop to both access the browser interface simultaneously.}. 
 
 Upon connecting the device to supply voltage, a green indicator LED inside the DEBUG connector on the side of the housing confirms 
@@ -302,7 +302,7 @@ In order to initiate the connection to the device, follow these steps:
 \begin{minipage}[ht]{0.55\textwidth}
     \vspace{0mm}
         \begin{enumerate}
-            \item Power on the VentCon unit via your power supply (connector see Section~\ref{sec:wiring}).
+            \item Power on the VENTCON unit via your power supply (connector see Section~\ref{sec:wiring}).
             \item On your smartphone or tablet, scan the QR Code on the back of the device (see Figure~\ref{fig:backside}).
             This will connect to a network called \texttt{VENTCON\_AP}.\\
             Go to step~\ref{item:webinterface} from here.\\[2ex]
@@ -313,7 +313,7 @@ In order to initiate the connection to the device, follow these steps:
             \end{enumerate}
 
             \item If your device reports that the network has no internet access, you can safely ignore this notice.\\ 
-            VentCon creates a local WiFi network only and does not provide internet connectivity.
+            VENTCON creates a local WiFi network only and does not provide internet connectivity.
 
             \item\label{item:webinterface} Open a web browser and navigate to\\ \textbf{\url{http://192.168.4.1}} or, alternatively,\\
             \textbf{\url{http://ventcon.local}}
@@ -341,7 +341,7 @@ Finally, a \textbf{Reset to Default} button restores all user-adjustable setting
     \makebox[\textwidth]{%
         \includegraphics[width=\paperwidth, height=\paperheight, keepaspectratio]{pic/BrowserApp.pdf}%
     }
-    \caption{Annotated overview of the VentCon browser application.}
+    \caption{Annotated overview of the VENTCON browser application.}
     \label{fig:browser-app}
 \end{figure}
 \newpage
@@ -353,7 +353,7 @@ Finally, a \textbf{Reset to Default} button restores all user-adjustable setting
 Changes are \textbf{not} applied immediately.
 After adjusting any parameter, a blue \textbf{Apply Changes} button appears at the bottom of the screen (Figure~\ref{fig:apply}).
 Tap it to send all pending changes to the device.
-All applied settings are automatically saved to VentCon's flash memory and survive power cycles.
+All applied settings are automatically saved to VENTCON's flash memory and survive power cycles.
 
 If the \textbf{Apply Changes} button is not tapped within a few seconds, the new settings will \textbf{not} take effect 
 and the system will continue operating with the previously applied parameters.

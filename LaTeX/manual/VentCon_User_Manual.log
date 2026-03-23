@@ -1,13 +1,9 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2026.2.24)  27 FEB 2026 11:59
+This is XeTeX, Version 3.141592653-2.6-0.999995 (MiKTeX 24.1) (preloaded format=xelatex 2026.2.24)  10 MAR 2026 15:53
 entering extended mode
  restricted \write18 enabled.
- file:line:error style messages enabled.
  %&-line parsing enabled.
-**"k:/CNG029/02_PRODUKTENTWICKLUNG/05_GROBAUSLEGUNG/07 VENTCON/VentCon2/LaTeX/m
-anual/VentCon_User_Manual.tex"
-
-(k:/CNG029/02_PRODUKTENTWICKLUNG/05_GROBAUSLEGUNG/07 VENTCON/VentCon2/LaTeX/man
-ual/VentCon_User_Manual.tex
+**./VentCon_User_Manual.tex
+(VentCon_User_Manual.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-04>
 
@@ -1154,12 +1150,12 @@ L3 programming layer <2024-01-04>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 32829 strings out of 409617
- 718873 string characters out of 5778276
+ 32828 strings out of 409617
+ 718629 string characters out of 5778276
  1943191 words of memory out of 5000000
  54472 multiletter control sequences out of 15000+600000
  567685 words of font info for 104 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 108i,23n,107p,11306b,965s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 108i,23n,107p,11224b,965s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
 Output written on VentCon_User_Manual.pdf (7 pages).
