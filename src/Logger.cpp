@@ -46,14 +46,6 @@ bool Logger::shouldLog(LogCategory cat)
     return false;
 }
 
-void Logger::resetTimer(LogCategory cat)
-{
-    if (cat < CAT_COUNT)
-    {
-        lastLogTime[cat] = 0;
-    }
-}
-
 const char* Logger::getCategoryName(LogCategory cat)
 {
     switch (cat)

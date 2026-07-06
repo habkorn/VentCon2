@@ -24,10 +24,6 @@ public:
     
     bool createTasks();
     void printTaskInfo();
-    
-    // Getters for task handles (for external monitoring)
-    TaskHandle_t getNetworkTaskHandle() const { return networkTaskHandle; }
-    TaskHandle_t getControlTaskHandle() const { return controlTaskHandle; }
 };
 
 #endif // TASKMANAGER_H

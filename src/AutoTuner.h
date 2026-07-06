@@ -165,18 +165,6 @@ public:
     float getTestSetpoint() const { return testSetpoint; }
     
     /**
-     * Get current tuning rule
-     * @return Current tuning rule enum
-     */
-    TuningRule getTuningRule() const { return currentTuningRule; }
-    
-    /**
-     * Get current aggressiveness factor
-     * @return Current aggressiveness multiplier
-     */
-    float getAggressiveness() const { return tuningAggressiveness; }
-    
-    /**
      * Get PWM range information
      */
     float getMinPWM() const { return minPwmValue; }

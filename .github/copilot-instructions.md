@@ -1,91 +1,93 @@
-# VentCon2 - AI Coding Agent Instructions
+# Project Instructions — VentCon2
 
-ESP32-S3 PID pressure control system for solenoid valves using PlatformIO/Arduino.
+## Purpose
 
-## Architecture Overview
+Valve control and ventilation simulation.
 
-**Control Flow**: `main.cpp` initializes all components → `TaskManager` creates FreeRTOS tasks → `ControlSystem` runs PID loop at configurable frequency (default 1kHz) → PWM output to solenoid valve.
+## Recommended Agents
 
-**Component Hierarchy** (dependency injection pattern):
-```
-SettingsHandler (standalone, LittleFS persistence)
-    ↓
-SensorManager (depends on SettingsHandler)
-    ↓
-AutoTuner (depends on SettingsHandler, PID)
-    ↓
-ControlSystem (depends on all above + PID)
-WebHandler, CommandProcessor (parallel, depend on SettingsHandler + PID)
-    ↓
-TaskManager (orchestrates ControlSystem + WebHandler as FreeRTOS tasks)
-```
+| Agent | Role in this project |
+|---|---|
+| **Axiom** | Numerical simulation of valve control dynamics |
+| **Pyra** | Python simulation engine |
+| **Forge** | Valve design and actuation mechanics |
 
-## Build & Upload Commands
+---
 
-```bash
-pio run                    # Build firmware
-pio run --target upload    # Upload via esptool (default)
-pio run --target uploadfs  # Upload LittleFS filesystem
-python switch_protocol.py dfu     # Switch to DFU upload mode
-python switch_protocol.py esptool # Switch to esptool upload mode
-```
+## Implementation Protocol
 
-Use `upload_filesystem.bat` to upload static web resources (handles protocol switching automatically).
+### Delegation Judgment
 
-## Key Conventions
+Use the Recommended Agents table above to decide which specialist to invoke. Whether to actually delegate is a judgment call: weigh benefit against overhead.
 
-### Constants Organization
-All hardware/system constants are in `Constants.h` using namespaces:
-- `NetworkConfig::` - WiFi AP settings
-- `HardwareConfig::` - GPIO pins, PWM channels
-- `SensorConfig::` - ADC configuration, pressure range (0-10 bar)
-- `ValveConfig::` - `VALVE_MIN_DUTY` (50%), `VALVE_MAX_DUTY` (90%)
+**Delegate when:**
+- The task spans 3+ files and you would otherwise chain multiple manual searches or reads
+- The subagent has domain knowledge you lack
+- The task involves codebase exploration across unknown files (use Explore)
 
-### PWM/Valve Mapping
-The valve operates in a restricted duty cycle range (50-90%). The `mapPwmToValve()` function in `ControlSystem.cpp` maps PID output (0-100%) to this effective range. When modifying valve control:
-- `pwmFullScaleRaw` = maximum raw PWM value based on resolution (e.g., 16383 for 14-bit)
-- Duty cycle < 1% keeps valve closed (returns 0)
-- Anti-windup resets PID when output is outside effective valve range
+**Skip delegation when:**
+- The change is a single line in a single file with no exploration needed
+- You have already read the full context and there are no hidden dependencies
+- The overhead of describing the task to a subagent exceeds the work itself
 
-### Rate-Limited Debug Output Pattern
-Use this pattern for debug output in control loops:
-```cpp
-static unsigned long lastDebugTime = 0;
-if (*continousValueOutput && (millis() - lastDebugTime >= SERIAL_OUTPUT_INTERVAL)) {
-    Serial.println("Debug message");
-    lastDebugTime = millis();
-}
-```
+**Anti-pattern**: delegating for delegation's sake. If a one-line Python edit takes 30 seconds directly, do not spend 60 seconds composing a subagent prompt.
 
-### Settings Persistence
-`SettingsHandler` manages all configurable parameters. Changes persist to `/settings.json` on LittleFS. Always call `settings.save()` after modifications.
+### Bulk Deletion Protocol
 
-## Serial Command Interface
+**CRITICAL — Applies to ALL file-destructive operations regardless of mechanism: terminal commands, Python scripts invoked by agents, subagent actions, and tool calls. Before delegating any task that may involve file deletion, include this protocol in the subagent's instructions.**
 
-Commands are processed by `CommandProcessor`. Key commands:
-- `sp=X.X` - Set pressure setpoint (bar)
-- `kp=X.X`, `ki=X.X`, `kd=X.X` - Set PID gains
-- `co` - Toggle continuous output
-- `tune` - Start auto-tuning
-- `status` - Show current state
-- `save` - Persist settings
+1. **Dry-run first**: Always use `-WhatIf` (PowerShell) or `--dry-run` first. Show the complete list of what WOULD be deleted. Never skip this step.
+2. **Get explicit approval**: State the count of files/dirs. Wait for user confirmation before executing. Never proceed without approval.
+3. **Check git tracking**: For git-tracked files being deleted, warn the user and require explicit `--force` acknowledgment. Consider `git stash --include-untracked` first — instant recovery via `git stash pop` if needed. Untracked and gitignored files (build artifacts, caches, generated files) may proceed normally with dry-run + approval. If unsure, ask.
+4. **Quote all paths**: Use `Remove-Item "literal path with spaces"` — never dynamically construct paths from directory listings without quoting.
+5. **One path per Remove-Item call** for anything outside gitignored cache dirs. Use explicit hardcoded paths. Do not use `Get-ChildItem | ForEach-Object { Remove-Item }`.
+6. **Never use `Remove-Item -Recurse` on dynamically constructed paths**. If the path comes from a variable or loop, validate it against the expected pattern first.
+7. **Prefer `C:\Dropbox\Tom\AITeam\scripts\safe_cleanup.py`** for cache/artifact cleanup. It automates dry-run, git-tracking checks, Dropbox warnings, and audit logging. Run without flags for a dry-run review, then re-run with `--execute` to proceed.
+8. **Dropbox awareness**: When deleting files in a Dropbox-synced path, warn that deletions propagate to all synced machines. Suggest pausing Dropbox sync before bulk operations. Dropbox retains 30-day version history as a secondary recovery option.
+9. **Audit trail**: For any deletion of 3+ files, write a timestamped log entry to `workspace/deletion_log.md` with: date, time, files, reason, and approval status.
 
-## Web Interface
+### File System Scope
 
-WiFi AP mode (SSID: `VENTCON_AP`, password in `Constants.h`). Captive portal serves HTML from `WebContent.h` (generated from `test/webcontent.html`). Static resources (Chart.js) stored compressed in `data/` folder.
+**CRITICAL — Confine all file operations to this project's directory tree.**
 
-## FreeRTOS Task Structure
+1. Create, edit, and delete files ONLY within this project's folder.
+2. Do not touch files in other projects, the AITeam workspace, or any external path.
+3. The AITeam workspace agent may access files across projects per its own scope rules.
+4. The user may grant explicit exceptions — confirm the target path before proceeding.
 
-- **Control Task**: High priority, runs PID loop with `vTaskDelayUntil()` for precise timing
-- **Network Task**: Lower priority, handles web server and DNS
+### Pre-Implementation Checklist
 
-## Documentation
+Before starting any multi-step or multi-file implementation:
 
-LaTeX documentation in `LaTeX/` folder. Build with `make` in that directory. Keep code snippets in documentation synchronized with actual implementation.
+1. Identify: which parts of this task match a subagent domain?
+2. Decide: does the benefit of delegating each part outweigh the overhead?
+3. Delegate: launch subagents in parallel for independent work streams where beneficial.
+4. Coordinate: handle integration, config, and verification steps directly.
 
-## Testing
+---
 
-Manual testing via:
-1. Serial commands through `pio device monitor`
-2. Web interface at `http://192.168.4.1` when connected to AP
-3. `test/webcontent.html` for web UI development (uses CDN resources)
+## Workspace Conventions
+
+- **Dates**: Always ISO 8601 (`YYYY-MM-DD`).
+- **File naming**: `YYYY-MM-DD_short-description.ext`.
+- **Output routing**: Write files to the currently open workspace folder.
+- **Never use the em dash character** (U+2014) in any generated text. Use a comma, colon, or rephrased sentence instead.
+
+## Venv & Dropbox Rule
+
+- **Never create Python virtual environments inside Dropbox-synced folders.**
+- Always use one of these patterns:
+  a. `C:\venvs\<project-name>\` (central local cache)
+  b. `uv` (automatic central cache via `%APPDATA%\uv\venv`)
+  c. `python -m venv --copies .venv` (if local path not feasible, avoids hardlinks)
+- Add `.venv/` to `.gitignore` for every Python project.
+- Hardlinks inside Dropbox folders are prohibited — they corrupt the sync engine.
+
+## Agent Memory
+
+Agent memory files are stored at:
+`C:\Dropbox\Tom\AITeam\workspace\memory\<agent-name>.md`
+
+At the start of every session, read your memory file from that path.
+Update it at session end.
+

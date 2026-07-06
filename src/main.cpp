@@ -43,17 +43,8 @@ TaskManager* taskManager = nullptr;
 
 // ====== Global Variables ======
 bool continousValueOutput = false; // Flag for Serial output
-long lastcontinousValueOutputTime=0; // Last time output was sent to Serial
 int pwmFullScaleRaw = (1 << settings.pwm_res) - 1; // Maximum PWM value based on resolution
 bool manualPWMMode = false; // Flag to track manual PWM control mode
-int SERIAL_OUTPUT_INTERVAL  = TimingConfig::SERIAL_OUTPUT_INTERVAL_MS; // Interval for continuous serial output in milliseconds
-
-void showSettingsFromLittleFS()
-{
-    // Use the SettingsHandler class method to display stored settings
-    settings.printStoredSettings();
-}
-
 
 // ====== Arduino Setup Function ======
 void setup()
@@ -86,7 +77,7 @@ void setup()
   
   // Update PWM max value after loading settings
   pwmFullScaleRaw = (1 << settings.pwm_res) - 1;
-  showSettingsFromLittleFS(); // Show loaded settings on startup
+  settings.printStoredSettings(); // Show loaded settings on startup
   // Initialize SensorManager
   sensorManager = new SensorManager(&settings);
   if (!sensorManager->initialize()) 

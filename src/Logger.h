@@ -81,12 +81,6 @@ public:
     static bool shouldLog(LogCategory cat);
     
     /**
-     * Force reset rate limit timer for a category
-     * @param cat the log category to reset
-     */
-    static void resetTimer(LogCategory cat);
-    
-    /**
      * Get category name for output prefix
      */
     static const char* getCategoryName(LogCategory cat);

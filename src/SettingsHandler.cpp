@@ -201,27 +201,6 @@ bool SettingsHandler::save()
     return true;
 }
 
-void SettingsHandler::printSettings() 
-{
-    Serial.println("\n=== Current Settings ===");
-    Serial.printf("PID Parameters:    Kp=%.2f, Ki=%.2f, Kd=%.2f\n", Kp, Ki, Kd);
-    Serial.printf("Filter Strength:   %.2f\n", filter_strength);
-    Serial.printf("Pressure Setpoint: %.2f bar\n", setpoint);
-    Serial.printf("PWM Configuration: %d Hz, %d-bit (max value: %d)\n", 
-                 pwm_freq, pwm_res, (1 << pwm_res) - 1);
-    Serial.printf("Control Loop Freq: %d Hz\n", control_freq_hz);
-    Serial.printf("PID Sample Time:   %d ms\n", pid_sample_time);
-    Serial.printf("Anti-Windup:       %s\n", antiWindup ? "Enabled" : "Disabled");
-    Serial.printf("Hysteresis Comp:   %s (%.1f%%)\n", 
-                 hysteresis ? "Enabled" : "Disabled", hystAmount);
-    Serial.printf("Sensor Pressure:   %.1f - %.1f bar\n", sensor_min_pressure, sensor_max_pressure);
-    Serial.printf("Sensor Voltage:    %.2f - %.2f V\n", sensor_min_voltage, sensor_max_voltage);
-    Serial.printf("Chart Axes:        Y[%.1f-%.1f] PWM[%.0f-%.0f] T=%ds grid=%ds\n",
-                 chart_settings.y_min, chart_settings.y_max,
-                 chart_settings.pwm_min, chart_settings.pwm_max,
-                 chart_settings.time_window, chart_settings.time_grid);
-}
-
 void SettingsHandler::printStoredSettings() 
 {
     if (!LittleFS.exists(SETTINGS_FILE_PATH))

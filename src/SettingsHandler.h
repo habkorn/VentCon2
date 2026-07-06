@@ -101,9 +101,6 @@ public:
     // Reset to default values
     void resetToDefaults();
     
-    // Display current settings to Serial
-    void printSettings();
-    
     // Display settings stored in LittleFS to Serial
     void printStoredSettings();
 
