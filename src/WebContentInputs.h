@@ -145,6 +145,17 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
             </div>
           </div>
         </div>
+        <hr class="sensor-divider">
+        <div class="sensor-block display-range-block">
+          <div class="sensor-section-title">Display Range</div>
+          <div class="sensor-group">
+            <label for="display_maxP">Max Pressure Bar Fill</label>
+            <div class="input-with-unit">
+              <input type="text" inputmode="decimal" id="display_maxP" value="%DISPLAY_MAXP%">
+              <span class="unit">bar(g)</span>
+            </div>
+          </div>
+        </div>
       </div>
     </details>
 

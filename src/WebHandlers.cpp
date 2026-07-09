@@ -391,6 +391,9 @@ void WebHandler::handleRoot()
   inputs.replace("%SENSOR_MINV%", String(settings->sensor_min_voltage, 2));
   inputs.replace("%SENSOR_MAXV%", String(settings->sensor_max_voltage, 2));
   
+  // Replace display range placeholder
+  inputs.replace("%DISPLAY_MAXP%", String(settings->display_max_pressure, 1));
+  
   // Cache-busting version tag for PDF download link
   inputs.replace("%VERSION_NUMBER%", VENTCON_VERSION_NUMBER);
   
@@ -406,11 +409,12 @@ void WebHandler::handleRoot()
   // 6. Inject server-rendered configuration constants for JavaScript
   // These values are defined in Constants.h and injected here so the JS
   // doesn't hardcode values that could drift out of sync with the firmware.
-  char configScript[416];
+  char configScript[512];
   snprintf(configScript, sizeof(configScript),
     "<script>"
     "var CFG={"
     "maxBar:%.1f,"
+    "displayMaxBar:%.1f,"
     "ssid:'%s',"
     "ip:'%d.%d.%d.%d',"
     "flt:{min:%.2f,max:%.2f,step:%.2f},"
@@ -421,6 +425,7 @@ void WebHandler::handleRoot()
     "};"
     "</script>",
     settings->sensor_max_pressure,
+    settings->display_max_pressure,
     NetworkConfig::AP_SSID,
     NetworkConfig::AP_IP[0], NetworkConfig::AP_IP[1],
     NetworkConfig::AP_IP[2], NetworkConfig::AP_IP[3],
@@ -455,7 +460,7 @@ void WebHandler::handleSet()
   {
     requested = true;
     float val = webServer.arg("sp").toFloat();
-    float spMax = min(settings->sp_limits.max, settings->sensor_max_pressure);
+    float spMax = min({settings->sp_limits.max, settings->sensor_max_pressure, OperatingDefaults::HARD_SP_MAX_BAR});
     if (val >= settings->sp_limits.min && val <= spMax)
     { settings->setpoint = val; changed = true; }
   }
@@ -568,6 +573,19 @@ void WebHandler::handleSet()
     }
   }
 
+  // Process display range parameter
+  if (webServer.hasArg("display_maxP"))
+  {
+    requested = true;
+    float val = webServer.arg("display_maxP").toFloat();
+    // Must be positive and not exceed sensor max pressure
+    if (val > 0.0f && val <= settings->sensor_max_pressure)
+    {
+      settings->display_max_pressure = val;
+      changed = true;
+    }
+  }
+
 
   // Update PID tunings only if gains changed; save settings if anything changed
   if (changed)
@@ -594,12 +612,13 @@ void WebHandler::handleValues() // Send current values as JSON
   // Calculate actual valve duty cycle percentage from the mapped PWM value
   const float pwm_actual_percent = max_output_pwm > 0 ? (*actualPwm / (float)max_output_pwm) * 100.0 : 0;
   
-  char json[512]; 
+  char json[576];
   snprintf(json, sizeof(json),
     "{\"sp\":%.4f,\"kp\":%.4f,\"ki\":%.4f,\"kd\":%.4f,\"flt\":%.4f,"
     "\"freq\":%d,\"res\":%d,\"pst\":%d,"
     "\"pressure\":%.2f,\"pwm\":%.3f,"
-    "\"sensor_minP\":%.4f,\"sensor_maxP\":%.4f,\"sensor_minV\":%.4f,\"sensor_maxV\":%.4f}",
+    "\"sensor_minP\":%.4f,\"sensor_maxP\":%.4f,\"sensor_minV\":%.4f,\"sensor_maxV\":%.4f,"
+    "\"display_maxP\":%.1f}",
     settings->setpoint,
     settings->Kp,
     settings->Ki,
@@ -613,7 +632,8 @@ void WebHandler::handleValues() // Send current values as JSON
     settings->sensor_min_pressure,
     settings->sensor_max_pressure,
     settings->sensor_min_voltage,
-    settings->sensor_max_voltage
+    settings->sensor_max_voltage,
+    settings->display_max_pressure
   );
   webServer.send(200, "application/json", json); // why 200? Because this is a successful response
 }

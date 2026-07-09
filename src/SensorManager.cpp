@@ -159,6 +159,11 @@ void SensorManager::printSensorStatus() const
 
 bool SensorManager::isPressureSafe() const 
 {
-    // Check if pressure exceeds safe limit (10% above max rated pressure)
-    return filtered_pressure <= (settings->sensor_max_pressure * 1.1f);
+    // Check if pressure exceeds safe limit.
+    // Uses the operating range as the primary threshold, falling back to
+    // the sensor calibration range only if it's tighter. This ensures the
+    // alarm trips at a sensible pressure regardless of sensor configuration.
+    float operatingLimit = OperatingDefaults::MAX_OPERATING_BAR * OperatingDefaults::SAFETY_MARGIN_FACTOR;
+    float sensorLimit = settings->sensor_max_pressure * OperatingDefaults::SAFETY_MARGIN_FACTOR;
+    return filtered_pressure <= min(operatingLimit, sensorLimit);
 }

@@ -41,6 +41,9 @@ void SettingsHandler::resetToDefaults()
     sensor_min_voltage = SensorConfigDefaults::SENSOR_MIN_VOLTAGE;
     sensor_max_voltage = SensorConfigDefaults::SENSOR_MAX_VOLTAGE;
     
+    // Default display range (decoupled from sensor calibration)
+    display_max_pressure = UIDisplayDefaults::DISPLAY_MAX_BAR;
+
     // Default chart axis settings
     chart_settings = {
         ChartDefaults::Y_MIN, ChartDefaults::Y_MAX,
@@ -116,6 +119,10 @@ bool SettingsHandler::load()
     sensor_min_voltage  = sensor_lim["minV"] | SensorConfigDefaults::SENSOR_MIN_VOLTAGE;
     sensor_max_voltage  = sensor_lim["maxV"] | SensorConfigDefaults::SENSOR_MAX_VOLTAGE;
     
+    // Load display range with default (absent in old settings, so backward-compatible)
+    JsonObject display = doc["display_range"];
+    display_max_pressure = display["maxP"] | UIDisplayDefaults::DISPLAY_MAX_BAR;
+
     // Load chart axis settings with defaults
     JsonObject chart = doc["chart_settings"];
     chart_settings.y_min      = chart["y_min"]      | ChartDefaults::Y_MIN;
@@ -180,6 +187,10 @@ bool SettingsHandler::save()
     sensor_lim["minV"] = sensor_min_voltage;
     sensor_lim["maxV"] = sensor_max_voltage;
     
+    // Save display range as nested object
+    JsonObject display = doc["display_range"].to<JsonObject>();
+    display["maxP"] = display_max_pressure;
+
     // Save chart axis settings as nested object
     JsonObject chart = doc["chart_settings"].to<JsonObject>();
     chart["y_min"]       = chart_settings.y_min;

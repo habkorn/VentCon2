@@ -1732,8 +1732,8 @@ function updateData() {
                     cachedElements.pressure.textContent = pressureVal.toFixed(2);
                 }
                 
-                // Update pressure fill and calculate percentage (0-10 bar range)
-                const pressurePercent = (pressureVal / 10) * 100;
+                // Update pressure fill and calculate percentage (using display range)
+                const pressurePercent = (pressureVal / CFG.displayMaxBar) * 100;
                 if (cachedElements.pressureFill) {
                     cachedElements.pressureFill.style.width = `${pressurePercent}%`;
                 }

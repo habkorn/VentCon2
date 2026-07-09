@@ -116,7 +116,8 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
     else if (cmd.startsWith("SP ")) 
     {
         float val = cmd.substring(3).toFloat();
-        if (val >= settings->sp_limits.min && val <= settings->sensor_max_pressure)
+        float spMax = min(settings->sensor_max_pressure, OperatingDefaults::HARD_SP_MAX_BAR);
+        if (val >= settings->sp_limits.min && val <= spMax)
         {
             settings->setpoint = val;
             Serial.printf("Setpoint updated to: %.2f bar\n", settings->setpoint);
@@ -124,7 +125,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         }
         else
         {
-            Serial.printf("ERROR: Setpoint must be %.1f - %.1f bar\n", settings->sp_limits.min, settings->sensor_max_pressure);
+            Serial.printf("ERROR: Setpoint must be %.1f - %.1f bar\n", settings->sp_limits.min, spMax);
         }
     }
     else if (cmd.startsWith("SAMPLE ")) 

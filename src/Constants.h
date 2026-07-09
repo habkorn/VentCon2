@@ -213,6 +213,29 @@ namespace ControlConfig
     constexpr int MAX_SAMPLE_TIME_MS = 1000;
 }
 
+// Operating Range Configuration — defines the expected normal operating limits.
+// These are decoupled from the raw sensor range (SENSOR_MAX_BAR) so that
+// UI defaults, safety limits, and the hard setpoint cap reflect practical
+// operation rather than sensor capability.
+namespace OperatingDefaults
+{
+    // Max expected pressure in normal operation (bar)
+    constexpr float MAX_OPERATING_BAR = 10.0f;
+
+    // Firmware-enforced setpoint ceiling (bar) — cannot be overridden by UI slider config.
+    constexpr float HARD_SP_MAX_BAR = 10.0f;
+
+    // Multiplier for safe pressure threshold in isPressureSafe()
+    constexpr float SAFETY_MARGIN_FACTOR = 1.1f;
+}
+
+// UI Display Defaults — presentation settings independent of sensor calibration.
+namespace UIDisplayDefaults
+{
+    // Default display range for the pressure bar visualization (bar)
+    constexpr float DISPLAY_MAX_BAR = OperatingDefaults::MAX_OPERATING_BAR;
+}
+
 // Auto-Tuning Configuration
 namespace AutoTuneConfig
 {
@@ -233,7 +256,7 @@ namespace AutoTuneConfig
     
     // Test setpoint range limits (bar)
     constexpr float MIN_TEST_SETPOINT = 0.5f;
-    constexpr float MAX_TEST_SETPOINT = SensorConfigDefaults::SENSOR_MAX_BAR;
+    constexpr float MAX_TEST_SETPOINT = OperatingDefaults::MAX_OPERATING_BAR;
     
     // Tuning aggressiveness defaults and range
     constexpr float DEFAULT_AGGRESSIVENESS = 2.0f;
@@ -286,7 +309,7 @@ namespace SettingsDefaults
 namespace ChartDefaults
 {
     constexpr float Y_MIN = 0.0f;              // Pressure axis minimum (bar)
-    constexpr float Y_MAX = 10.0f;             // Pressure axis maximum (bar)
+    constexpr float Y_MAX = OperatingDefaults::MAX_OPERATING_BAR;             // Pressure axis maximum (bar)
     constexpr float PWM_MIN = 0.0f;            // Duty-cycle axis minimum (%)
     constexpr float PWM_MAX = 100.0f;          // Duty-cycle axis maximum (%)
     constexpr int TIME_WINDOW = 8;             // X-axis rolling window (seconds)
@@ -298,7 +321,7 @@ namespace SliderDefaults
 {
     // Setpoint slider limits (bar)
     constexpr float SP_MIN = SensorConfigDefaults::SENSOR_MIN_BAR;
-    constexpr float SP_MAX = SensorConfigDefaults::SENSOR_MAX_BAR;
+    constexpr float SP_MAX = OperatingDefaults::MAX_OPERATING_BAR;
     constexpr float SP_STEP = 0.25f;
     
     // Proportional gain slider limits

@@ -424,6 +424,19 @@ h4
   color: var(--text);
 }
 
+/* Divider between sensor calibration and display range blocks */
+.sensor-divider
+{
+  margin: 1rem 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.display-range-block
+{
+  padding-top: 0.25rem;
+}
+
 .input-with-unit
 {
   display: flex;
