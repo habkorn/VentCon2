@@ -23,19 +23,18 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         <img src="/Logo.svg" alt="VENTREX" class="logo" id="loaderLogo" onerror="this.style.display='none';var s=document.createElement('span');s.className='logo-fallback';s.textContent='VENTREX';this.parentNode.appendChild(s);">
       </div>
       <h1>
-        <span class="brand-title" style="color: var(--ventrex-blue);" aria-label="VENTCON Pressure Control System">
+        <span class="brand-title" aria-label="VENTCON Pressure Control System">
           VENTCON Pressure Control System
         </span>
       </h1>
       <div class="loader-spinner"></div>
-      <span class="loader-text" ">Loading...</span>
+      <span class="loader-text">Loading...</span>
     </div>
   </div>
 
 
   <main>
     <section class="card">
-      <!-- <h2 style="text-align: center;">Real Time Monitoring</h2> -->
       
       <div class="gauge-container">
         <div class="gauge">
@@ -94,15 +93,15 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         </div>
         <div class="modal-body">
           <div class="modal-row">
-            <label>Minimum value for slider</label>
+            <label for="modalMin">Minimum value for slider</label>
             <input type="text" inputmode="decimal" id="modalMin" step="any">
           </div>
           <div class="modal-row">
-            <label>Maximum value for slider</label>
+            <label for="modalMax">Maximum value for slider</label>
             <input type="text" inputmode="decimal" id="modalMax" step="any">
           </div>
           <div class="modal-row">
-            <label>Step for +/- Buttons</label>
+            <label for="modalStep">Step for +/- Buttons</label>
             <input type="text" inputmode="decimal" id="modalStep" step="any">
           </div>
         </div>
@@ -122,27 +121,27 @@ const char HTML_BODY_START[] PROGMEM = R"rawliteral(
         </div>
         <div class="modal-body">
           <div class="modal-row">
-            <label>Pressure axis min (bar)</label>
+            <label for="chartYMin">Pressure axis min (bar)</label>
             <input type="text" inputmode="decimal" id="chartYMin" step="any">
           </div>
           <div class="modal-row">
-            <label>Pressure axis max (bar)</label>
+            <label for="chartYMax">Pressure axis max (bar)</label>
             <input type="text" inputmode="decimal" id="chartYMax" step="any">
           </div>
           <div class="modal-row">
-            <label>Duty cycle axis min (%)</label>
+            <label for="chartPwmMin">Duty cycle axis min (%)</label>
             <input type="text" inputmode="decimal" id="chartPwmMin" step="any">
           </div>
           <div class="modal-row">
-            <label>Duty cycle axis max (%)</label>
+            <label for="chartPwmMax">Duty cycle axis max (%)</label>
             <input type="text" inputmode="decimal" id="chartPwmMax" step="any">
           </div>
           <div class="modal-row">
-            <label>Time window (seconds)</label>
+            <label for="chartTimeWindow">Time window (seconds)</label>
             <input type="text" inputmode="numeric" id="chartTimeWindow" step="1">
           </div>
           <div class="modal-row">
-            <label>Time grid interval (seconds)</label>
+            <label for="chartTimeGrid">Time grid interval (seconds)</label>
             <input type="text" inputmode="numeric" id="chartTimeGrid" step="1">
           </div>
         </div>

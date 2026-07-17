@@ -83,9 +83,6 @@ public:
     float sensor_min_voltage;   // Sensor output at min pressure (V)
     float sensor_max_voltage;   // Sensor output at max pressure (V)
 
-    // Display Range (decoupled from sensor calibration, controls UI bar scaling)
-    float display_max_pressure; // Max pressure for UI bar fill & marker (bar)
-    
     // Chart Axis Settings (user-configurable limits for live chart)
     ChartSettings chart_settings;
     

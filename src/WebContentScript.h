@@ -34,7 +34,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     
     // Timing constants (shared between chart and data polling)
     const POLLING_INTERVAL_MS = 100;  // Data fetch interval
-    let DISPLAY_WINDOW_S = (CFG.chart && CFG.chart.time_window) || 8; // Seconds of chart history (updated by chart settings)
+    let DISPLAY_WINDOW_S = (CFG.chart && CFG.chart.time_window) ?? 8; // Seconds of chart history (updated by chart settings)
 
     // Helper to get CSS variable value (as rgb hex)
     function getCssVar(name) {
@@ -113,7 +113,11 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         chartPwmMin: document.getElementById('chartPwmMin'),
         chartPwmMax: document.getElementById('chartPwmMax'),
         chartTimeWindow: document.getElementById('chartTimeWindow'),
-        chartTimeGrid: document.getElementById('chartTimeGrid')
+        chartTimeGrid: document.getElementById('chartTimeGrid'),
+        // Cache Easter egg elements
+        easterEggLogo: document.getElementById('ventrexLogo'),
+        easterEgg: document.getElementById('easterEgg'),
+        devInfo: document.getElementById('devInfo')
       };
     }
 
@@ -343,7 +347,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--primary'),
-                stepSize: niceStep((CFG.chart ? CFG.chart.y_max - CFG.chart.y_min : CFG.maxBar) || 10),
+                stepSize: niceStep((CFG.chart ? CFG.chart.y_max - CFG.chart.y_min : CFG.maxBar) ?? 10),
                 autoSkip: false,
                 callback: function(value) { return +value.toFixed(2) + ''; }
               },
@@ -362,7 +366,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--success'),
-                stepSize: niceStep((CFG.chart ? CFG.chart.pwm_max - CFG.chart.pwm_min : 100) || 100),
+                stepSize: niceStep((CFG.chart ? CFG.chart.pwm_max - CFG.chart.pwm_min : 100) ?? 100),
                 autoSkip: false,
                 callback: function(value) { return value.toFixed(0); }
               },
@@ -385,7 +389,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               },
               ticks: {
                 color: getCssVar('--text'),
-                stepSize: (CFG.chart && CFG.chart.time_grid) || 1,
+                stepSize: (CFG.chart && CFG.chart.time_grid) ?? 1,
                 autoSkip: false,
                 font: {
                   size: 8,
@@ -546,6 +550,27 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
           incBtn.addEventListener('click', function() { adjustValue(cfg, 1); });
         }
       });
+
+      // Setup pst increment/decrement buttons (standalone, no slider)
+      var pstDecBtn = document.getElementById('pst_decrement');
+      var pstIncBtn = document.getElementById('pst_increment');
+      if (pstDecBtn && pstIncBtn && cachedElements.pstText)
+      {
+        pstDecBtn.addEventListener('click', function()
+        {
+          var val = parseInt(cachedElements.pstText.value, 10) || CFG.pst.min;
+          var newVal = Math.max(CFG.pst.min, val - 1);
+          cachedElements.pstText.value = newVal;
+          if (newVal !== val) { setInputError(cachedElements.pstText, null); showSaveSnackbar('pst', newVal); }
+        });
+        pstIncBtn.addEventListener('click', function()
+        {
+          var val = parseInt(cachedElements.pstText.value, 10) || CFG.pst.min;
+          var newVal = Math.min(CFG.pst.max, val + 1);
+          cachedElements.pstText.value = newVal;
+          if (newVal !== val) { setInputError(cachedElements.pstText, null); showSaveSnackbar('pst', newVal); }
+        });
+      }
       
       // Setup sensor calibration input change listeners with cross-validation
       const SENSOR_PARAMS = ['sensor_minP', 'sensor_maxP', 'sensor_minV', 'sensor_maxV'];
@@ -636,11 +661,10 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         resetDefaultsBtn.addEventListener('click', handleResetToDefaults);
       }
       
-      // Keep snackbar above the on-screen keyboard using requestAnimationFrame.
-      // Runs only while an input has focus, so there is no idle cost.
+      // Reposition snackbar above on-screen keyboard using event-driven visualViewport (no polling)
       if (window.visualViewport && cachedElements.saveSnackbar)
       {
-        let snackbarRafId = null;
+        let snackbarListening = false;
 
         function repositionSnackbar()
         {
@@ -650,24 +674,39 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             const offset = window.innerHeight - vv.height - vv.offsetTop;
             cachedElements.saveSnackbar.style.bottom = Math.max(24, 24 + offset) + 'px';
           }
-          snackbarRafId = requestAnimationFrame(repositionSnackbar);
         }
 
-        // Start loop when any input/text field gains focus
+        function addSnackbarListeners()
+        {
+          if (!snackbarListening)
+          {
+            window.visualViewport.addEventListener('resize', repositionSnackbar);
+            window.visualViewport.addEventListener('scroll', repositionSnackbar);
+            snackbarListening = true;
+          }
+          repositionSnackbar(); // Position immediately
+        }
+
+        function removeSnackbarListeners()
+        {
+          if (snackbarListening)
+          {
+            window.visualViewport.removeEventListener('resize', repositionSnackbar);
+            window.visualViewport.removeEventListener('scroll', repositionSnackbar);
+            snackbarListening = false;
+          }
+        }
+
         document.addEventListener('focusin', function(e)
         {
-          if (e.target.matches('input, textarea') && !snackbarRafId)
-          {
-            snackbarRafId = requestAnimationFrame(repositionSnackbar);
-          }
+          if (e.target.matches('input, textarea')) addSnackbarListeners();
         });
 
-        // Stop loop when focus leaves input fields
         document.addEventListener('focusout', function(e)
         {
           if (e.target.matches('input, textarea'))
           {
-            if (snackbarRafId) { cancelAnimationFrame(snackbarRafId); snackbarRafId = null; }
+            removeSnackbarListeners();
             // Reset to default position after keyboard closes
             setTimeout(function() {
               if (cachedElements.saveSnackbar) cachedElements.saveSnackbar.style.bottom = '24px';
@@ -706,7 +745,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       fetchInFlight = true;
 
       fetch('/values')
-        .then(r => r.json())
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(data =>
         {
           fetchInFlight = false;
@@ -865,7 +904,11 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     }
 
     // Hide loader as soon as DOM is interactive
+    if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeApp);
+  } else {
+    initializeApp();
+  }
 
     // Function to add data to the chart (optimized)
     function updateChart(pressure, setpoint, pwm)
@@ -1300,7 +1343,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       btn.disabled = true;
 
       fetch('/default.json')
-        .then(r => r.json())
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(defaults =>
         {
           // Build a human-readable summary of default values
@@ -1447,9 +1490,9 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     // Setup Easter egg
     function setupEasterEgg()
     {
-      const logo = document.getElementById('ventrexLogo');
-      const easterEgg = document.getElementById('easterEgg');
-      const devInfo = document.getElementById('devInfo');
+      const logo = cachedElements.easterEggLogo;
+      const easterEgg = cachedElements.easterEgg;
+      const devInfo = cachedElements.devInfo;
       
       if (logo && easterEgg && devInfo)
       {
@@ -1519,7 +1562,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
     function fetchSliderLimits()
     {
       fetch('/api/slider-limits')
-        .then(r => r.json())
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(data =>
         {
           sliderLimits = data;
@@ -1609,7 +1652,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
       })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data =>
       {
         if (data.success)
@@ -1691,9 +1734,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       window.pressureChart.update('none');
     }
 
-    // Chart settings are already injected server-side via CFG.chart and applied
-    // during initializeChart(), so no separate fetch is needed.
-
     // Open chart settings modal
     function openChartSettings()
     {
@@ -1744,7 +1784,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formData.toString()
       })
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data =>
       {
         if (data.success)
@@ -1765,8 +1805,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       });
     }
 
-    // Chart settings are initialized from CFG.chart (server-injected)
-
     // Setup scroll handler
     function setupScrollHandler()
     {
@@ -1774,10 +1812,13 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       if (sliders && sliders.length > 0)
       {
         let scrollTimeout;
+        let slidersDisabled = false;
         
-        // Add a class to disable sliders during scroll
+        // Add a class to disable sliders during scroll (debounced via flag)
         function disableSliders()
         {
+          if (slidersDisabled) return;
+          slidersDisabled = true;
           sliders.forEach(slider =>
           {
             if (slider && slider.classList)
@@ -1800,6 +1841,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
                 slider.classList.remove('scrolling');
               }
             });
+            slidersDisabled = false;
           }, 250); // Wait 250ms after scrolling stops before re-enabling
         }
         

@@ -99,7 +99,9 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
         <div class="control-row">
           <label for="pst_text">PID Sample Time in ms</label>
           <div class="input-with-unit">
-            <input type="text" inputmode="numeric" id="pst_text" value="%PST%" min="%PST_MIN%" max="%PST_MAX%">
+            <button type="button" class="slider-btn decrement-btn" id="pst_decrement">-</button>
+            <input type="number" inputmode="numeric" id="pst_text" value="%PST%" min="%PST_MIN%" max="%PST_MAX%" step="1">
+            <button type="button" class="slider-btn increment-btn" id="pst_increment">+</button>
             <span class="unit">ms</span>
           </div>
         </div>
@@ -159,7 +161,7 @@ const char HTML_INPUTS[] PROGMEM = R"rawliteral(
           </div>
         </div>
         <div class="control-row">
-          <a href="/VentCon_User_Manual.pdf?v=%VERSION_NUMBER%" target="_blank" style="color:var(--primary-dark);text-decoration:none;font-weight:600;">&#128196; Download User Manual (PDF)</a>
+          <a href="/VentCon_User_Manual.pdf?v=%VERSION_NUMBER%" target="_blank" class="pdf-download-link">&#128196; Download User Manual (PDF)</a>
         </div>
       </div>
     </details>

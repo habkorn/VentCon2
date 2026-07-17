@@ -21,6 +21,8 @@ const char CSS_STYLES[] PROGMEM = R"rawliteral(
   --text-secondary: #6b7280;
   --background-alt: #f1f5f9;
   --ventrex-blue: #002f87;
+  --accent-dark: #d97706;
+  --secondary-dark: #1e293b;
 }
 
 * 
@@ -47,11 +49,6 @@ body
 main
 {
   flex: 1;
-}
-
-header
-{
-  margin: 0 0 1rem 0;
 }
 
 /* Collapsible card styling */
@@ -227,7 +224,7 @@ details.card .collapsible-content
   background: var(--primary-dark);
 }
 
-/* Gear icon for slider settings — glyph defined here once (U+26ED) */
+/* Gear icon for slider settings */
 .settings-gear
 {
   background: none;
@@ -248,11 +245,6 @@ details.card .collapsible-content
 .settings-gear::after
 {
   content: '\26ED';
-}
-
-.settings-gear:hover
-{
-  opacity: 1;
 }
 
 h1, h2, h3, h4
@@ -290,32 +282,6 @@ h4
   font-size: 0.875rem;
   color: var(--secondary);
   margin-bottom: 0.25rem;
-}
-
-.alert
-{
-  background-color: #fef9c3;
-  border-left: 4px solid var(--accent);
-  color: #854d0e;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.alert h3
-{
-  margin-bottom: 0;
-  color: #854d0e;
-  font-size: 0.9rem;
-}
-
-.alert p
-{
-  font-size: 0.8rem;
-  margin: 0;
 }
 
 .card
@@ -540,11 +506,6 @@ input[type="range"].scrolling::-moz-range-thumb
   pointer-events: none !important; /* Disable during scrolling for Firefox */
 }
 
-input[type="range"].scrolling::-ms-thumb
-{
-  pointer-events: none !important; /* Disable during scrolling for IE/Edge */
-}
-
 input[type="range"]::-moz-range-thumb
 {
   width: 1rem;
@@ -553,17 +514,6 @@ input[type="range"]::-moz-range-thumb
   background-color: var(--primary);
   cursor: pointer;
   pointer-events: auto; /* Make the thumb interactive for Firefox */
-  border: none;
-}
-
-input[type="range"]::-ms-thumb
-{
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  background-color: var(--primary);
-  cursor: pointer;
-  pointer-events: auto; /* Make the thumb interactive for IE/Edge */
   border: none;
 }
 
@@ -584,27 +534,6 @@ input[type="range"]::-ms-thumb
   box-shadow: 0 0 0 2px rgba(239,68,68,0.2);
 }
 
-/* Validation error tooltip shown below input */
-.input-error-msg
-{
-  color: var(--danger);
-  font-size: 0.7rem;
-  margin-top: 2px;
-  display: none;
-}
-
-.input-error-msg.visible
-{
-  display: block;
-}
-
-.button-container
-{
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 0.75rem;
-}
-
 button
 {
   background-color: var(--primary);
@@ -616,26 +545,6 @@ button
   cursor: pointer;
   min-width: 150px;
   font-size: 0.875rem;
-}
-
-.status-value
-{
-  font-weight: 600;
-  padding: 0.25rem 0.5rem;
-  background-color: var(--background);
-  border-radius: 0.25rem;
-  min-width: 3.5rem;
-  text-align: right;
-  font-size: 0.875rem;
-}
-
-progress
-{
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 0.375rem;
-  border-radius: 0.25rem;
 }
 
 .chart-container
@@ -661,7 +570,7 @@ progress
   gap: 0.375rem;
 }
 
-/* Chart gear icon — glyph defined here once (U+26ED) */
+/* Chart gear icon */
 .chart-gear-btn
 {
   display: inline-flex;
@@ -688,7 +597,6 @@ progress
 
 .chart-gear-btn:hover
 {
-  opacity: 1;
   color: var(--primary);
 }
 
@@ -817,6 +725,18 @@ footer
   background-color: var(--accent);
   top: 0;
   transition: left 0.3s ease-out;
+}
+
+.pdf-download-link
+{
+  color: var(--primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pdf-download-link:hover
+{
+  text-decoration: underline;
 }
 
 .trend-indicator
@@ -967,7 +887,6 @@ footer
   border-radius: 50%;
   width: 48px;
   height: 48px;
-  color: var(--ventrex-blue);
   animation: spin 1s linear infinite;
 }
 
@@ -978,16 +897,13 @@ footer
   font-weight: 600;
 }
 
-/* Brand title gradient */
+/* Brand title */
 .brand-title
 {
-  background: linear-gradient(90deg, var(--primary-dark) 0%, var(--primary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--ventrex-blue);
   display: inline-block;
   font-size: 0.75em;
-  font-weight: 1000;
+  font-weight: 900;
 }
 
 /* Snackbar */

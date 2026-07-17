@@ -229,13 +229,6 @@ namespace OperatingDefaults
     constexpr float SAFETY_MARGIN_FACTOR = 1.1f;
 }
 
-// UI Display Defaults — presentation settings independent of sensor calibration.
-namespace UIDisplayDefaults
-{
-    // Default display range for the pressure bar visualization (bar)
-    constexpr float DISPLAY_MAX_BAR = OperatingDefaults::MAX_OPERATING_BAR;
-}
-
 // Auto-Tuning Configuration
 namespace AutoTuneConfig
 {
