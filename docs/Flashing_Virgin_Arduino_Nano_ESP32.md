@@ -5,11 +5,13 @@ This guide covers how to flash the VentCon2 firmware onto a brand-new (factory-f
 ## Prerequisites
 
 ### Software
+
 - **PlatformIO** (CLI or VS Code extension) installed and working
 - **Python 3** (comes with PlatformIO, but must be on PATH)
 - **USB drivers**: The Arduino Nano ESP32 uses an ESP32-S3 with native USB CDC. Windows 10/11 typically recognizes it automatically. If not, install the drivers via the [Arduino IDE](https://www.arduino.cc/en/software) or [Zadig](https://zadig.akeo.ie/).
 
 ### Hardware
+
 - Arduino Nano ESP32 board (ESP32-S3 based)
 - USB-C cable (data-capable, not charge-only)
 
@@ -74,6 +76,7 @@ upload_filesystem.bat
 ```
 
 The filesystem contains:
+
 - `chart.min.js` — Chart.js library for the web interface
 - `default.json` — Factory-default settings
 - `settings.json` — Active settings (initially a copy of defaults)
@@ -111,6 +114,7 @@ pio device monitor
 You should see the VentCon2 boot message with the firmware version. Type `status` and press Enter to confirm the system is running.
 
 Connect to the WiFi Access Point to verify the web interface:
+
 - **SSID:** `VENTCON_AP`
 - **Password:** `ventcon12!`
 - **URL:** `http://192.168.4.1`
@@ -139,14 +143,14 @@ pio device monitor
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---|---|
-| No COM port detected | Try a different USB-C cable (must be data-capable). Try a different USB port. |
-| Upload fails with "No serial data received" | Hold **BOOT**, tap **RESET**, release **BOOT**, then retry upload. |
-| COM port disappears after first upload | Run `install_usb_reset_helper.bat` as Admin (one-time). The pre-upload script will handle resets automatically. |
-| `esptool` can't connect after DFU upload | Switch back to esptool: `python switch_protocol.py esptool`, then retry. |
-| Web interface not loading | Ensure filesystem was uploaded (`pio run --target uploadfs`). Check serial monitor for LittleFS mount errors. |
-| Board stuck / unresponsive | Double-tap the **RESET** button quickly to enter bootloader mode, then flash with esptool. |
+| Problem                                     | Solution                                                                                                         |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| No COM port detected                        | Try a different USB-C cable (must be data-capable). Try a different USB port.                                    |
+| Upload fails with "No serial data received" | Hold**BOOT**, tap **RESET**, release **BOOT**, then retry upload.                              |
+| COM port disappears after first upload      | Run`install_usb_reset_helper.bat` as Admin (one-time). The pre-upload script will handle resets automatically. |
+| `esptool` can't connect after DFU upload  | Switch back to esptool:`python switch_protocol.py esptool`, then retry.                                        |
+| Web interface not loading                   | Ensure filesystem was uploaded (`pio run --target uploadfs`). Check serial monitor for LittleFS mount errors.  |
+| Board stuck / unresponsive                  | Double-tap the**RESET** button quickly to enter bootloader mode, then flash with esptool.                  |
 
 ## Notes
 

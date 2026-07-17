@@ -233,7 +233,7 @@ details.card .collapsible-content
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1.17rem;
   padding: 0;
   margin: 0;
   width: auto;
@@ -241,7 +241,7 @@ details.card .collapsible-content
   line-height: 1;
   flex-shrink: 0;
   color: var(--text-light);
-  opacity: 0.6;
+  opacity: 1.0;
   transition: opacity 0.2s;
 }
 
@@ -422,19 +422,6 @@ h4
   font-size: 0.8rem;
   margin-bottom: 0.2rem;
   color: var(--text);
-}
-
-/* Divider between sensor calibration and display range blocks */
-.sensor-divider
-{
-  margin: 1rem 0;
-  border: none;
-  border-top: 1px solid var(--border);
-}
-
-.display-range-block
-{
-  padding-top: 0.25rem;
 }
 
 .input-with-unit
@@ -680,7 +667,7 @@ progress
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.43rem;
   line-height: 1;
   padding: 0;
   margin: 0;
@@ -689,7 +676,7 @@ progress
   box-sizing: content-box;
   color: var(--secondary);
   cursor: pointer;
-  opacity: 0.5;
+  opacity: 1.0;
   transition: opacity 0.2s, color 0.2s;
 }
 

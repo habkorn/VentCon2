@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MPS1-TF-CNG Characteristic Curve</title>
+<style>
+
+  @media print { @page { size: A4; margin: 18mm 16mm; } body { font-size: 9pt; } }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10pt; line-height: 1.5; color: #1a1a1a; max-width: 800px; margin: 20px auto; padding: 0 16px; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #0050a0; padding-bottom: 6px; color: #0050a0; }
+  h2 { font-size: 14pt; margin-top: 24px; color: #003366; }
+  h3 { font-size: 11pt; margin-top: 16px; color: #333; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 9pt; }
+  th, td { border: 1px solid #999; padding: 4px 8px; text-align: left; }
+  th { background-color: #0050a0; color: white; font-weight: bold; }
+  tr:nth-child(even) { background-color: #f2f6fa; }
+  img { max-width: 100%; height: auto; margin: 12px 0; border: 1px solid #ccc; }
+  code { background: #f0f0f0; padding: 1px 4px; border-radius: 3px; font-size: 9pt; }
+  pre { background: #f5f5f5; border: 1px solid #ddd; padding: 10px; font-size: 9pt; overflow-x: auto; }
+  hr { border: none; border-top: 1px solid #ccc; margin: 20px 0; }
+  blockquote { border-left: 3px solid #0050a0; margin: 10px 0; padding: 6px 12px; background: #f8faff; }
+  strong { color: #0050a0; }
+  .math { font-family: 'Cambria Math', 'Times New Roman', serif; font-style: italic; }
+  .math-block { font-family: 'Cambria Math', 'Times New Roman', serif; font-style: italic; padding: 8px 0; font-size: 11pt; }
+  .print-btn { position: fixed; top: 10px; right: 10px; background: #0050a0; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11pt; z-index: 1000; }
+  @media print { .print-btn { display: none; } }
+
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">Print to PDF</button>
+<h1>MPS1-TF-CNG Characteristic Curve -- Authoritative Determination</h1>
+<p><strong>Date:</strong> 2026-07-16<br />
+<strong>Status:</strong> Verified against Bosch source material</p>
+<hr />
+<h2>Source Evidence</h2>
+<p>The transfer function is defined in the Bosch i-business catalog (2025-11-12 edition).</p>
+<h3>Source 1: Transfer Function Definition (Catalog Page 58)</h3>
+<p><img alt="Catalog page 58 -- Medium Pressure Sensor transfer function definition" src="page58_transfer_function.png" /></p>
+<p>The catalog defines the characteristic data for all MPS1 medium pressure sensors:</p>
+<table>
+<thead>
+<tr>
+<th>Symbol</th>
+<th>Meaning</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UA</td>
+<td>Output voltage</td>
+<td>--</td>
+</tr>
+<tr>
+<td>UV</td>
+<td>Supply voltage</td>
+<td>--</td>
+</tr>
+<tr>
+<td>US</td>
+<td>Input voltage</td>
+<td>--</td>
+</tr>
+<tr>
+<td>p</td>
+<td>Pressure</td>
+<td>[MPa]</td>
+</tr>
+<tr>
+<td><strong>C0</strong></td>
+<td><strong>Offset coefficient</strong></td>
+<td><strong>0.1</strong></td>
+</tr>
+<tr>
+<td><strong>C1</strong></td>
+<td><strong>Span coefficient</strong></td>
+<td><strong>0.8 * p / PN</strong></td>
+</tr>
+<tr>
+<td>PN</td>
+<td>Rated pressure</td>
+<td>[MPa]</td>
+</tr>
+</tbody>
+</table>
+<h3>Source 2: MPS1-TF-CNG Specifications (Catalog Page 60)</h3>
+<p><img alt="Catalog page 60 -- MPS1-TF-CNG specifications" src="page60_MPS1-TF-CNG_specs.png" /></p>
+<p>Key specifications for the MPS1-TF-CNG (part number <strong>0 261 544 00K</strong>):</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pressure range PN</td>
+<td>0.5 -- 16 bar</td>
+</tr>
+<tr>
+<td>Max. feed voltage Us</td>
+<td>18 V</td>
+</tr>
+<tr>
+<td>Supply voltage UV</td>
+<td>5 +/- 0.25 V</td>
+</tr>
+<tr>
+<td>Load capacitance to ground</td>
+<td>13 nF</td>
+</tr>
+<tr>
+<td>Thread</td>
+<td>M10 x 1</td>
+</tr>
+<tr>
+<td>Application/medium</td>
+<td>CNG</td>
+</tr>
+<tr>
+<td>Temperature range</td>
+<td>-40 to +150 deg C</td>
+</tr>
+<tr>
+<td>Max. overpressure pmax</td>
+<td>32 bar</td>
+</tr>
+<tr>
+<td>Response time tau_ini</td>
+<td>2.0 ms</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Derived Characteristic Curve</h2>
+<h3>Transfer Function (Platform-Level)</h3>
+<p>The MPS1 platform uses a unified transfer function where each variant is calibrated via its rated pressure P_N:</p>
+<div class="math-block">U_{OUT} = (C_1 + C_0) \cdot U_S = \left(0.8 \cdot \frac{p}{P_N} + 0.1\right) \cdot U_S</div>
+
+<h3>MPS1-TF-CNG Specific Derivation</h3>
+<p>For the CNG variant, the catalog specifies <span class="math">P_N = 16\ \text{bar} = 1.6\ \text{MPa} = 1600\ \text{kPa}</span>:</p>
+<div class="math-block">c_1 = \frac{0.8}{P_N} = \frac{0.8}{1600\ \text{kPa}} = 0.0005\ \text{kPa}^{-1}</div>
+
+<p>Substituting into the platform formula:</p>
+<div class="math-block">U_{OUT} = (0.0005 \cdot p_{kPa} + 0.1) \cdot U_S</div>
+
+<h3>Simplified Form (US = 5.0 V)</h3>
+<div class="math-block">U_{OUT}[V] = 0.25 \cdot p_{bar} + 0.5</div>
+
+<p><strong>Inverse (pressure from voltage):</strong></p>
+<div class="math-block">p_{bar} = 4 \cdot U_{OUT}[V] - 2</div>
+
+<div class="math-block">p_{kPa} = 400 \cdot U_{OUT}[V] - 200</div>
+
+<h3>Coefficients Summary</h3>
+<table>
+<thead>
+<tr>
+<th>Coefficient</th>
+<th>Symbol</th>
+<th>Value</th>
+<th>Unit</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Offset</td>
+<td>C0</td>
+<td>0.1</td>
+<td>dimensionless</td>
+<td>Catalog p.58</td>
+</tr>
+<tr>
+<td>Rated pressure</td>
+<td>P_N</td>
+<td>16</td>
+<td>bar</td>
+<td>Catalog p.60</td>
+</tr>
+<tr>
+<td>Rated pressure</td>
+<td>P_N</td>
+<td>1600</td>
+<td>kPa</td>
+<td>Conversion</td>
+</tr>
+<tr>
+<td>Gain</td>
+<td>c1</td>
+<td>0.0005</td>
+<td>kPa^-1</td>
+<td>c1 = 0.8 / P_N</td>
+</tr>
+<tr>
+<td>Sensitivity</td>
+<td>--</td>
+<td>0.25</td>
+<td>V/bar</td>
+<td>c1 * US * 100</td>
+</tr>
+<tr>
+<td>Sensitivity</td>
+<td>--</td>
+<td>2.5</td>
+<td>mV/kPa</td>
+<td>c1 * US</td>
+</tr>
+</tbody>
+</table>
+<h3>Key Transfer Points</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Pressure (bar)</th>
+<th style="text-align: center;">Pressure (kPa)</th>
+<th style="text-align: center;">U_OUT @ US=5.0V (V)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0.500</td>
+</tr>
+<tr>
+<td style="text-align: center;">0.5</td>
+<td style="text-align: center;">50</td>
+<td style="text-align: center;">0.625</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">100</td>
+<td style="text-align: center;">0.750</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">200</td>
+<td style="text-align: center;">1.000</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">1.250</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">400</td>
+<td style="text-align: center;">1.500</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">500</td>
+<td style="text-align: center;">1.750</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">600</td>
+<td style="text-align: center;">2.000</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">700</td>
+<td style="text-align: center;">2.250</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">800</td>
+<td style="text-align: center;">2.500</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">900</td>
+<td style="text-align: center;">2.750</td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">1000</td>
+<td style="text-align: center;">3.000</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td style="text-align: center;">1100</td>
+<td style="text-align: center;">3.250</td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">1200</td>
+<td style="text-align: center;">3.500</td>
+</tr>
+<tr>
+<td style="text-align: center;">13</td>
+<td style="text-align: center;">1300</td>
+<td style="text-align: center;">3.750</td>
+</tr>
+<tr>
+<td style="text-align: center;">14</td>
+<td style="text-align: center;">1400</td>
+<td style="text-align: center;">4.000</td>
+</tr>
+<tr>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">1500</td>
+<td style="text-align: center;">4.250</td>
+</tr>
+<tr>
+<td style="text-align: center;">16</td>
+<td style="text-align: center;">1600</td>
+<td style="text-align: center;">4.500</td>
+</tr>
+</tbody>
+</table>
+<h3>Full-Scale Output Range</h3>
+<p>The sensor uses the complete ratiometric output range of the MPS1 platform:</p>
+<table>
+<thead>
+<tr>
+<th>Range</th>
+<th>Symbol</th>
+<th style="text-align: center;">Fraction of US</th>
+<th style="text-align: center;">Voltage @ 5V</th>
+<th style="text-align: center;">Pressure Equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lower SRC diagnostic</td>
+<td>Usrcl</td>
+<td style="text-align: center;">[0.00 ... 0.04]</td>
+<td style="text-align: center;">0.00 -- 0.20 V</td>
+<td style="text-align: center;">Fault: short to GND</td>
+</tr>
+<tr>
+<td>Lower unused</td>
+<td>--</td>
+<td style="text-align: center;">]0.04 ... 0.06[</td>
+<td style="text-align: center;">0.20 -- 0.30 V</td>
+<td style="text-align: center;">Transition</td>
+</tr>
+<tr>
+<td>Lower clamp</td>
+<td>Ucll (C1)</td>
+<td style="text-align: center;">[0.06 ... 0.10]</td>
+<td style="text-align: center;">0.30 -- 0.50 V</td>
+<td style="text-align: center;">Output limitation</td>
+</tr>
+<tr>
+<td><strong>Measurement start</strong></td>
+<td><strong>Umrb (C2)</strong></td>
+<td style="text-align: center;"><strong>0.10</strong></td>
+<td style="text-align: center;"><strong>0.50 V</strong></td>
+<td style="text-align: center;"><strong>~0 bar</strong></td>
+</tr>
+<tr>
+<td><strong>Measurement end</strong></td>
+<td><strong>Umre (C3)</strong></td>
+<td style="text-align: center;"><strong>0.90</strong></td>
+<td style="text-align: center;"><strong>4.50 V</strong></td>
+<td style="text-align: center;"><strong>~16 bar</strong></td>
+</tr>
+<tr>
+<td>Upper clamp</td>
+<td>Uclh (C4)</td>
+<td style="text-align: center;">[0.90 ... 0.94]</td>
+<td style="text-align: center;">4.50 -- 4.70 V</td>
+<td style="text-align: center;">Output limitation</td>
+</tr>
+<tr>
+<td>Upper unused</td>
+<td>--</td>
+<td style="text-align: center;">]0.94 ... 0.96[</td>
+<td style="text-align: center;">4.70 -- 4.80 V</td>
+<td style="text-align: center;">Transition</td>
+</tr>
+<tr>
+<td>Upper SRC diagnostic</td>
+<td>Usrch</td>
+<td style="text-align: center;">[0.96 ... 1.00]</td>
+<td style="text-align: center;">4.80 -- 5.00 V</td>
+<td style="text-align: center;">Fault: short to UB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Usable measurement span:</strong> 4.0 V (0.5 V to 4.5 V) corresponding to 0--16 bar.<br />
+<strong>Sensitivity:</strong> 0.25 V/bar (2.5 mV/kPa).</p>
+<hr />
+<h2>Practical Implications</h2>
+<h3>ADC Resolution (ADS1015 on VentCon2)</h3>
+<p>With the existing <code>GAIN_TWOTHIRDS</code> setting (+/-6.144 V, 3 mV/LSB):</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ADC steps across 0--16 bar</td>
+<td>4.0 V / 0.003 V = ~1,333 steps</td>
+</tr>
+<tr>
+<td>Pressure per ADC step</td>
+<td>16 bar / 1333 = ~0.012 bar</td>
+</tr>
+<tr>
+<td>Effective resolution</td>
+<td>~12 mbar per LSB</td>
+</tr>
+</tbody>
+</table>
+<p>This is excellent for pressure control -- <strong>no gain switching needed</strong>. The <code>GAIN_TWOTHIRDS</code> setting that VentCon2 already uses is perfectly adequate.</p>
+<h3>Wiring</h3>
+<table>
+<thead>
+<tr>
+<th>Pin</th>
+<th>Function</th>
+<th>ESP32 Connection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>GND</td>
+<td>GND</td>
+</tr>
+<tr>
+<td>2</td>
+<td>NTC (temperature)</td>
+<td>Optional -- ADC channel if needed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>+5V (supply)</td>
+<td>5V rail</td>
+</tr>
+<tr>
+<td>4</td>
+<td>U_OUT (pressure)</td>
+<td>ADS1015 AIN0 or ESP32 ADC</td>
+</tr>
+</tbody>
+</table>
+<h3>Calibration Constants for VentCon2</h3>
+<pre><code>Sensor type:           Bosch MPS1-TF-CNG (P/N 0 261 544 00K)
+Transfer function:     p_bar = 4.0 * U_V - 2.0
+Min voltage:           0.5 V
+Max voltage:           4.5 V
+Min pressure:          0.0 bar
+Max pressure:          16.0 bar
+Ratiometric:           Yes (measure Uout/Us ratio for best accuracy)
+</code></pre>
+<hr />
+<h2>Connector and Accessories</h2>
+<table>
+<thead>
+<tr>
+<th>Accessory</th>
+<th>Part Number</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sensor</td>
+<td>0 261 544 00K</td>
+<td>MPS1-TF-CNG</td>
+</tr>
+<tr>
+<td>Connector housing</td>
+<td>1 928 405 159</td>
+<td>--</td>
+</tr>
+<tr>
+<td>Contact pins (silver-plated)</td>
+<td>1 928 498 143</td>
+<td>Wire dia. 0.35--0.5 mm2</td>
+</tr>
+<tr>
+<td>Single-wire seal</td>
+<td>1 928 300 934</td>
+<td>--</td>
+</tr>
+<tr>
+<td>Dummy plug</td>
+<td>1 928 300 935</td>
+<td>For unused cavities</td>
+</tr>
+</tbody>
+</table>
+<p><em>Accessories not included with sensor -- order separately.</em></p>
+<hr />
+<p><em>Characteristic curve determined from Bosch i-business catalog (2025-11-12), Section 3.4 Medium Pressure Sensors, cross-validated against MPS1 platform TCD RB 0 261 K00 13H.</em></p>
+</body>
+</html>

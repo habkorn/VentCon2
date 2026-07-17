@@ -106,7 +106,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         },
         // Cache standalone numeric inputs
         pstText: document.getElementById('pst_text'),
-        displayMaxP: document.getElementById('display_maxP'),
         // Cache chart settings modal elements
         chartModal: document.getElementById('chartSettingsModal'),
         chartYMin: document.getElementById('chartYMin'),
@@ -589,34 +588,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         }
       });
       
-      // Setup display max pressure input change listener with validation
-      if (cachedElements.displayMaxP)
-      {
-        cachedElements.displayMaxP.addEventListener('input', function()
-        {
-          const val = parseFloat(cachedElements.displayMaxP.value);
-          if (!isNaN(val) && val > 0 && val <= CFG.maxBar)
-          {
-            setInputError(cachedElements.displayMaxP, null);
-            showSaveSnackbar('display_maxP', val);
-          }
-          else
-          {
-            setInputError(cachedElements.displayMaxP, 'Must be 0 - ' + CFG.maxBar + ' bar');
-          }
-        });
-        cachedElements.displayMaxP.addEventListener('blur', function()
-        {
-          const raw = cachedElements.displayMaxP.value.trim();
-          if (raw === '' || isNaN(parseFloat(raw)))
-          {
-            if (savedSnapshot && savedSnapshot['display_maxP'] !== undefined)
-              cachedElements.displayMaxP.value = savedSnapshot['display_maxP'];
-            setInputError(cachedElements.displayMaxP, null);
-          }
-        });
-      }
-
       // Setup PID sample time input change listener with range validation
       if (cachedElements.pstText)
       {
@@ -765,14 +736,8 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               CFG.maxBar = data.sensor_maxP;
             }
 
-            // Sync CFG.displayMaxBar if display range changed on server
-            if (typeof data.display_maxP !== 'undefined' && data.display_maxP !== CFG.displayMaxBar)
-            {
-              CFG.displayMaxBar = data.display_maxP;
-            }
-
-            // Update pressure fill and calculate percentage (0-displayMaxBar range)
-            const pressurePercent = (pressureVal / CFG.displayMaxBar) * 100;
+            // Update pressure fill using chart Y-axis max as the 0-100% range
+            const pressurePercent = (pressureVal / chartSettings.y_max) * 100;
             if (cachedElements.pressureFill)
             {
               cachedElements.pressureFill.style.width = `${pressurePercent}%`;
@@ -781,7 +746,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
             // Update setpoint target marker
             if (typeof data.sp !== 'undefined')
             {
-              const setpointPercent = (data.sp / CFG.displayMaxBar) * 100;
+              const setpointPercent = (data.sp / chartSettings.y_max) * 100;
               if (cachedElements.pressureTarget)
               {
                 cachedElements.pressureTarget.style.left = `${setpointPercent}%`;
@@ -871,11 +836,7 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
               cachedElements.pstText.value = data.pst;
             }
 
-            // Sync display max pressure from server
-            if (typeof data.display_maxP !== 'undefined' && cachedElements.displayMaxP && cachedElements.displayMaxP !== activeEl)
-            {
-              cachedElements.displayMaxP.value = data.display_maxP;
-            }
+
           }
 
           scheduleNextUpdate();
@@ -995,7 +956,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
       if (si)  { Object.keys(si).forEach(function(k)  { if (si[k])  savedSnapshot[k] = si[k].value;  }); }
       // Capture standalone numeric inputs
       if (cachedElements.pstText) savedSnapshot['pst'] = cachedElements.pstText.value;
-      if (cachedElements.displayMaxP) savedSnapshot['display_maxP'] = cachedElements.displayMaxP.value;
     }
     
     // Reusable button feedback helper: shows temporary text/color then reverts
@@ -1217,11 +1177,6 @@ const char HTML_SCRIPT[] PROGMEM = R"rawliteral(
         {
           cachedElements.pstText.value = oldVal;
           setInputError(cachedElements.pstText, null);
-        }
-        else if (param === 'display_maxP' && cachedElements.displayMaxP)
-        {
-          cachedElements.displayMaxP.value = oldVal;
-          setInputError(cachedElements.displayMaxP, null);
         }
       });
 
