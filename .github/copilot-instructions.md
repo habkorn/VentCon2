@@ -52,6 +52,7 @@ Use the Recommended Agents table above to decide which specialist to invoke. Whe
 
 1. Create, edit, and delete files ONLY within this project's folder.
 2. Do not touch files in other projects, the AITeam workspace, or any external path.
+   **Exception:** Updating your own agent memory file at `C:\Dropbox\Tom\AITeam\workspace\memory\<agent-name>.md` is the one allowed cross-project write (see Agent Memory section below). Do NOT create a local `workspace/memory/` inside this project.
 3. The AITeam workspace agent may access files across projects per its own scope rules.
 4. The user may grant explicit exceptions — confirm the target path before proceeding.
 

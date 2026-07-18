@@ -1,0 +1,218 @@
+This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.12) (preloaded format=xelatex 2026.7.18)  18 JUL 2026 12:45
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**c:/Dropbox/Tom/AIProjects/VentCon2/LaTeX/manual/VentCon_User_Manual.tex
+(c:/Dropbox/Tom/AIProjects/VentCon2/LaTeX/manual/VentCon_User_Manual.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrartcl.cl
+s
+Document Class: scrartcl 2025/12/01 v3.49 KOMA-Script document class (article)
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrkbase.st
+y
+Package: scrkbase 2025/12/01 v3.49 KOMA-Script package (KOMA-Script-dependent b
+asics and keyval usage)
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrbase.sty
+Package: scrbase 2025/12/01 v3.49 KOMA-Script package (KOMA-Script-independent 
+basics and keyval usage)
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile.st
+y
+Package: scrlfile 2025/12/01 v3.49 KOMA-Script package (file load hooks)
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlfile-ho
+ok.sty
+Package: scrlfile-hook 2025/12/01 v3.49 KOMA-Script package (using LaTeX hooks)
+
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrlogo.sty
+Package: scrlogo 2025/12/01 v3.49 KOMA-Script package (logo)
+))) (C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+Applying: [2021/05/01] Usage of raw or classic option list on input line 254.
+Already applied: [0000/00/00] Usage of raw or classic option list on input line
+ 370.
+))
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\tocbasic.st
+y
+Package: tocbasic 2025/12/01 v3.49 KOMA-Script package (handling toc-files)
+\scr@dte@tocline@numberwidth=\skip49
+\scr@dte@tocline@numbox=\box53
+)
+Package tocbasic Info: omitting babel extension for `toc'
+(tocbasic)             because of feature `nobabel' available
+(tocbasic)             for `toc' on input line 141.
+Package scrartcl Info: You've used standard option `11pt'.
+(scrartcl)             This is correct!
+(scrartcl)             Internally I'm using `fontsize=11pt'.
+(scrartcl)             If you'd like to set the option with \KOMAoptions,
+(scrartcl)             you'd have to use `fontsize=11pt' there
+(scrartcl)             instead of `11pt', too.
+Class scrartcl Info: File `scrsize11pt.clo' used to setup font sizes on input l
+ine 2487.
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\scrsize11pt
+.clo
+File: scrsize11pt.clo 2025/12/01 v3.49 KOMA-Script font size class option (11pt
+)
+)
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/koma-script\typearea.st
+y
+Package: typearea 2025/12/01 v3.49 KOMA-Script package (type area)
+\ta@bcor=\skip50
+\ta@div=\count271
+Package typearea Info: You've used standard option `a4paper'.
+(typearea)             This is correct!
+(typearea)             Internally I'm using `paper=a4'.
+(typearea)             If you'd like to set the option with \KOMAoptions,
+(typearea)             you'd have to use `paper=a4' there
+(typearea)             instead of `a4paper', too.
+\ta@hblk=\skip51
+\ta@vblk=\skip52
+\ta@temp=\skip53
+\footheight=\skip54
+Package typearea Info: These are the values describing the layout:
+(typearea)             DIV  = 10
+(typearea)             BCOR = 0.0pt
+(typearea)             \paperwidth      = 597.50793pt
+(typearea)              \textwidth      = 418.25555pt
+(typearea)              DIV departure   = -6%
+(typearea)              \evensidemargin = 17.3562pt
+(typearea)              \oddsidemargin  = 17.3562pt
+(typearea)             \paperheight     = 845.04694pt
+(typearea)              \textheight     = 595.80026pt
+(typearea)              \topmargin      = -25.16531pt
+(typearea)              \headheight     = 17.0pt
+(typearea)              \headsep        = 20.40001pt
+(typearea)              \topskip        = 11.0pt
+(typearea)              \footskip       = 47.6pt
+(typearea)              \baselineskip   = 13.6pt
+(typearea)              on input line 1808.
+)
+\c@part=\count272
+\c@section=\count273
+\c@subsection=\count274
+\c@subsubsection=\count275
+\c@paragraph=\count276
+\c@subparagraph=\count277
+\scr@dte@section@maxnumwidth=\skip55
+Class scrartcl Info: using compatibility default `runin=bysign'
+(scrartcl)           for `\section on input line 5007.
+Class scrartcl Info: using compatibility default `afterindent=bysign'
+(scrartcl)           for `\section on input line 5007.
+\scr@dte@part@maxnumwidth=\skip56
+Class scrartcl Info: using compatibility default `afterindent=false'
+(scrartcl)           for `\part on input line 5015.
+\scr@dte@subsection@maxnumwidth=\skip57
+Class scrartcl Info: using compatibility default `runin=bysign'
+(scrartcl)           for `\subsection on input line 5025.
+Class scrartcl Info: using compatibility default `afterindent=bysign'
+(scrartcl)           for `\subsection on input line 5025.
+\scr@dte@subsubsection@maxnumwidth=\skip58
+Class scrartcl Info: using compatibility default `runin=bysign'
+(scrartcl)           for `\subsubsection on input line 5035.
+Class scrartcl Info: using compatibility default `afterindent=bysign'
+(scrartcl)           for `\subsubsection on input line 5035.
+\scr@dte@paragraph@maxnumwidth=\skip59
+Class scrartcl Info: using compatibility default `runin=bysign'
+(scrartcl)           for `\paragraph on input line 5046.
+Class scrartcl Info: using compatibility default `afterindent=bysign'
+(scrartcl)           for `\paragraph on input line 5046.
+\scr@dte@subparagraph@maxnumwidth=\skip60
+Class scrartcl Info: using compatibility default `runin=bysign'
+(scrartcl)           for `\subparagraph on input line 5056.
+Class scrartcl Info: using compatibility default `afterindent=bysign'
+(scrartcl)           for `\subparagraph on input line 5056.
+\abovecaptionskip=\skip61
+\belowcaptionskip=\skip62
+\c@pti@nb@sid@b@x=\box54
+Package tocbasic Info: omitting babel extension for `lof'
+(tocbasic)             because of feature `nobabel' available
+(tocbasic)             for `lof' on input line 6279.
+\scr@dte@figure@maxnumwidth=\skip63
+\c@figure=\count278
+Package tocbasic Info: omitting babel extension for `lot'
+(tocbasic)             because of feature `nobabel' available
+(tocbasic)             for `lot' on input line 6291.
+\scr@dte@table@maxnumwidth=\skip64
+\c@table=\count279
+Class scrartcl Info: Redefining `\numberline' on input line 6461.
+\bibindent=\dimen148
+)
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontspec.sty
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xpars
+e.sty
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+Package: expl3 2025-12-24 L3 programming layer (loader) 
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-xet
+ex.def
+File: l3backend-xetex.def 2025-10-09 L3 backend support: XeTeX
+\g__graphics_track_int=\count280
+\g__pdfannot_backend_int=\count281
+\g__pdfannot_backend_link_int=\count282
+))
+Package: xparse 2025-10-09 L3 Experimental document command parser
+)
+Package: fontspec 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaTeX
+
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontspec-xetex
+.sty
+Package: fontspec-xetex 2025/09/29 v2.9g Font selection for XeLaTeX and LuaLaTe
+X
+\l__fontspec_script_int=\count283
+\l__fontspec_language_int=\count284
+\l__fontspec_strnum_int=\count285
+\l__fontspec_tmp_int=\count286
+\l__fontspec_tmpa_int=\count287
+\l__fontspec_tmpb_int=\count288
+\l__fontspec_tmpc_int=\count289
+\l__fontspec_em_int=\count290
+\l__fontspec_emdef_int=\count291
+\l__fontspec_strong_int=\count292
+\l__fontspec_strongdef_int=\count293
+\l__fontspec_tmpa_dim=\dimen149
+\l__fontspec_tmpb_dim=\dimen150
+\l__fontspec_tmpc_dim=\dimen151
+ (C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
+)
+(C:\Users\thmsh\AppData\Local\Programs\MiKTeX\tex/latex/fontspec\fontspec.cfg))
+)
+
+! Package fontspec Error: 
+(fontspec)                The font "Satoshi-Regular" cannot be found; this
+(fontspec)                may be but usually is not a fontspec bug. Either
+(fontspec)                there is a typo in the font name/file, the font is
+(fontspec)                not installed (correctly), or there is a bug in
+(fontspec)                the underlying font loading engine
+(fontspec)                (XeTeX/luaotfload).
+
+For immediate help type H <return>.
+ ...                                              
+                                                  
+l.30 ]
+      
+
+A font might not be found for many reasons.
+ Check the spelling, where the font is installed etc. etc.
+
+ When in doubt, ask someone for help!
+
+
+ 
+Here is how much of TeX's memory you used:
+ 5969 strings out of 402987
+ 174363 string characters out of 5448524
+ 723821 words of memory out of 5000000
+ 34705 multiletter control sequences out of 15000+600000
+ 627737 words of font info for 42 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 108i,1n,107p,11270b,341s stack positions out of 10000i,1000n,20000p,200000b,200000s
+No pages of output.

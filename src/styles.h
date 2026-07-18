@@ -440,11 +440,11 @@ h4
 
 .slider-btn 
 {
-  width: 20px;
+  width: 30px;
   height: 20px;
-  min-width: 20px;
+  min-width: 30px;
   min-height: 20px;
-  max-width: 20px;
+  max-width: 30px;
   max-height: 20px;
   display: flex;
   align-items: center;
