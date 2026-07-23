@@ -34,7 +34,7 @@ namespace NetworkConfig
     // Web server port
     constexpr int WEB_PORT = 80;
     
-    // File streaming chunk size in bytes
+    // File streaming chunk size in bytes (must stay well below TaskConfig::STACK_SIZE of 4096)
     constexpr size_t CHUNK_SIZE = 1024;
     
     // WiFi channel 1 frequency (MHz) for frequency calculation

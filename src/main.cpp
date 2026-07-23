@@ -57,20 +57,49 @@ void setup()
   Serial.println("Ventcon System Starting...");
   Serial.println("====================================================");
   
-  // Initialize LittleFS for settings storage
-  if (!LittleFS.begin(true))
+  // Initialize LittleFS for settings and static file storage.
+  // Use begin(false) — do NOT auto-format on mount failure. Auto-formatting
+  // silently destroys all files (PDF, settings, JS, SVG) when LittleFS detects
+  // any corruption, with no user-visible warning beyond a serial message.
+  if (!LittleFS.begin(false))
   {
-    Serial.println("LittleFS error!");
+    Serial.println("========================================");
+    Serial.println("!!! LittleFS mount failed — formatting !!!");
+    Serial.println("All files have been lost.");
+    Serial.println("Run upload_filesystem.bat to restore");
+    Serial.println("static files (PDF, chart.js, logo, etc).");
+    Serial.println("Settings have been reset to defaults.");
+    Serial.println("========================================");
+    
+    if (!LittleFS.format())
+    {
+      Serial.println("FATAL: LittleFS format failed!");
+    }
+    else if (!LittleFS.begin(false))
+    {
+      Serial.println("FATAL: LittleFS mount failed after format!");
+    }
+    else
+    {
+      Serial.println("LittleFS formatted successfully (empty).");
+    }
   }
   else
   {
     Serial.println("LittleFS mounted. Files:");
     File root = LittleFS.open("/");
-    File file = root.openNextFile();
-    while(file)
+    if (root)
     {
-      Serial.printf("  /%s (%d bytes)\n", file.name(), file.size());
-      file = root.openNextFile();
+      File file = root.openNextFile();
+      while(file)
+      {
+        Serial.printf("  /%s (%d bytes)\n", file.name(), file.size());
+        file = root.openNextFile();
+      }
+    }
+    else
+    {
+      Serial.println("  (empty filesystem)");
     }
   }
   settings.load();

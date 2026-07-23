@@ -215,9 +215,21 @@ String WebHandler::getContentType(String filename)
   return "text/plain";
 }
 
-// Handler for serving files from LittleFS with chunked transfer for large files
+// Handler for serving files from LittleFS with chunked transfer for large files.
+// Uses sendContent() streaming (same pattern as handleRoot()) instead of raw
+// client().write() to avoid ERR_EMPTY_RESPONSE when the client disconnects
+// between request parsing and handler execution.
 bool WebHandler::handleFileRead(String path)
 {
+  // Guard: if client already disconnected, don't attempt send() — the ESP32
+  // WebServer library's send() silently returns when _currentClient is invalid,
+  // which causes Chrome ERR_EMPTY_RESPONSE ("sent no data").
+  if (!webServer.client().connected())
+  {
+    LOG_W(CAT_NETWORK, "Client disconnected before serving: %s", path.c_str());
+    return false;
+  }
+
   if (path.endsWith("/")) path += "index.html";
   String contentType = getContentType(path);
   
@@ -261,21 +273,25 @@ bool WebHandler::handleFileRead(String path)
         webServer.sendHeader("Cache-Control", "no-cache, must-revalidate");
       }
       
-      // Send headers with content length and gzip encoding if applicable
+      // Send gzip encoding header if applicable
       if (isGzipped)
       {
         webServer.sendHeader("Content-Encoding", "gzip");
       }
-      webServer.setContentLength(fileSize);
+      
+      // Use chunked transfer encoding (CONTENT_LENGTH_UNKNOWN) — same pattern
+      // as handleRoot(). This routes ALL data through the WebServer library's
+      // sendContent() path instead of bypassing it with raw client().write().
+      webServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
       webServer.send(200, contentType, "");
       
-      // Stream file in chunks to avoid WiFi buffer issues
-      const size_t chunkSize = NetworkConfig::CHUNK_SIZE;  // 1KB chunks
+      // Stream file in chunks using sendContent with explicit length for binary safety
+      const size_t chunkSize = NetworkConfig::CHUNK_SIZE;
       uint8_t buffer[chunkSize];
       size_t bytesRemaining = fileSize;
       size_t bytesSent = 0;
       
-      while (bytesRemaining > 0)
+      while (bytesRemaining > 0 && webServer.client().connected())
       {
         size_t toRead = (bytesRemaining < chunkSize) ? bytesRemaining : chunkSize;
         size_t bytesRead = file.read(buffer, toRead);
@@ -286,17 +302,27 @@ bool WebHandler::handleFileRead(String path)
           break;
         }
         
-        webServer.client().write(buffer, bytesRead);
+        // sendContent with explicit length handles binary data (null bytes in PDFs)
+        webServer.sendContent(String((const char*)buffer, bytesRead));
         bytesSent += bytesRead;
         bytesRemaining -= bytesRead;
         
-        // Yield to allow WiFi stack to process - critical for large files
-        yield();
-        delay(1);  // Small delay to prevent WiFi buffer overflow
+        yield();  // Allow WiFi stack and task watchdog to process
       }
       
+      // Terminate chunked transfer encoding with empty chunk
+      webServer.sendContent("");
+      
       file.close();
-      LOG_D(CAT_NETWORK, "Sent %d/%d bytes for %s", bytesSent, fileSize, path.c_str());
+      
+      if (bytesSent < fileSize)
+      {
+        LOG_W(CAT_NETWORK, "Stream interrupted: sent %d/%d bytes for %s", bytesSent, fileSize, path.c_str());
+      }
+      else
+      {
+        LOG_D(CAT_NETWORK, "Sent %d/%d bytes for %s", bytesSent, fileSize, path.c_str());
+      }
       return true;
     } else {
       LOG_E(CAT_NETWORK, "Could not open file: %s", path.c_str());
@@ -829,17 +855,20 @@ void WebHandler::setupRoutes()
   
   // Register handlers for JavaScript files at root level
   webServer.on("/chart.min.js", [this](){
-    this->handleFileRead("/chart.min.js");
+    if (!this->handleFileRead("/chart.min.js"))
+      webServer.send(404, "text/plain", "File not found");
   });
   
   // Add handler for the SVG logo
   webServer.on("/Logo.svg", [this](){
-    this->handleFileRead("/Logo.svg");
+    if (!this->handleFileRead("/Logo.svg"))
+      webServer.send(404, "text/plain", "File not found");
   });
 
   // Add handler for the user manual PDF
   webServer.on("/VentCon_User_Manual.pdf", [this](){
-    this->handleFileRead("/VentCon_User_Manual.pdf");
+    if (!this->handleFileRead("/VentCon_User_Manual.pdf"))
+      webServer.send(404, "text/plain", "File not found");
   });
 
   // Fallback: serve files or return 404
