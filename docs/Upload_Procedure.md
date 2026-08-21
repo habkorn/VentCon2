@@ -47,8 +47,8 @@ Should show a device with VID `2341` and PID `0070` (Arduino Nano ESP32) on a CO
 
 ## Which Procedure Do I Need?
 
-| Starting point                                                                  | Procedure                                                           |
-| ------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Starting point                                                                  | Procedure                                                                                             |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | Factory-fresh board, never flashed                                              | [Initial Setup or Recovery](#initial-setup-or-recovery-full-system-flash) — skip the erase step       |
 | Board in unknown or corrupted state (DIR fails, settings lost, files missing)   | [Initial Setup or Recovery](#initial-setup-or-recovery-full-system-flash) — **with** erase step |
 | Already flashed with VentCon2, updating firmware only                           | [Firmware Update Only](#firmware-update-only-everyday-upload)                                          |
@@ -230,17 +230,17 @@ pio run --target upload
 
 ## Troubleshooting
 
-| Symptom                                                   | Fix                                                                                            |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| No COM port detected                                      | Try a different USB-C cable (must be data-capable). Try a different USB port.                  |
-| Upload fails with connection error                        | Enter bootloader mode (B1-GND + RESET — LED purple), then retry.                                |
-| COM port disappears after upload                          | Run`install_usb_reset_helper.bat` as Admin (one-time).                                       |
-| LED stays purple after upload                             | Power cycle the board (unplug USB, plug back in).                                              |
-| Device not creating WiFi AP                               | Power cycle; verify`monitor_rts = 0` and `monitor_dtr = 0` in `platformio.ini`.          |
-| Board stuck / unresponsive                                | Double-tap RESET quickly to enter Arduino bootloader mode, then flash with esptool.            |
-| Web interface not loading                                 | Ensure filesystem was uploaded. Check serial for`LittleFS mounted` at boot.                  |
-| Web UI shows old values after uploadfs                    | Hard-refresh browser (Ctrl+F5); clear cache.                                                   |
-| DIR fails, settings lost, or files missing after uploadfs | Partition table or filesystem corrupted. Run [Initial Setup or Recovery](#initial-setup-or-recovery-full-system-flash) with erase. |
+| Symptom                                                   | Fix                                                                                                                              |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| No COM port detected                                      | Try a different USB-C cable (must be data-capable). Try a different USB port.                                                    |
+| Upload fails with connection error                        | Enter bootloader mode (B1-GND + RESET — LED purple), then retry.                                                                |
+| COM port disappears after upload                          | Run`install_usb_reset_helper.bat` as Admin (one-time).                                                                         |
+| LED stays purple after upload                             | Power cycle the board (unplug USB, plug back in).                                                                                |
+| Device not creating WiFi AP                               | Power cycle; verify`monitor_rts = 0` and `monitor_dtr = 0` in `platformio.ini`.                                            |
+| Board stuck / unresponsive                                | Double-tap RESET quickly to enter Arduino bootloader mode, then flash with esptool.                                              |
+| Web interface not loading                                 | Ensure filesystem was uploaded. Check serial for`LittleFS mounted` at boot.                                                    |
+| Web UI shows old values after uploadfs                    | Hard-refresh browser (Ctrl+F5); clear cache.                                                                                     |
+| DIR fails, settings lost, or files missing after uploadfs | Partition table or filesystem corrupted. Run[Initial Setup or Recovery](#initial-setup-or-recovery-full-system-flash) with erase. |
 
 ---
 
