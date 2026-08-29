@@ -1,0 +1,95 @@
+% Section 2: SYSTEM OVERVIEW
+
+\section{System Overview}
+
+\subsection{Introduction}
+
+The VentCon2 Pressure Control System is an embedded control solution designed to precisely regulate pressure as an electronic pressure regulator and demonstrator. At its core, the system maintains a user-defined target pressure by controlling an electronically-operated proportional valve based on continuous feedback from a high-precision pressure sensor. This section provides an overview of the system's primary components and their interactions.
+
+\subsection{System Purpose and Application}
+
+The VentCon2 system operates within a pressurized gas delivery circuit, regulating pressure to a user-defined setpoint. The system is responsible for:
+
+    \begin{itemize}
+        \item Maintaining stable pressure at a user-configured setpoint (0-10 bar range)
+        \item Responding rapidly to pressure disturbances and demand changes
+        \item Preventing overshoot and oscillation through advanced control algorithms
+        \item Providing real-time monitoring and diagnostics via web interface and serial console
+        \item Ensuring safe operation with hardware and software redundancy
+    \end{itemize}
+
+The system processes pressure feedback hundreds of times per second, adjusting valve opening in real-time to maintain the target pressure with high accuracy and responsiveness.
+
+\subsection{Closed-Loop Control Architecture}
+
+The VentCon2 system operates as a closed-loop feedback control system:
+
+    \begin{enumerate}
+        \item \textbf{Measurement:} Pressure sensor continuously measures system pressure
+        \item \textbf{Calculation:} PID algorithm computes error (setpoint - measured pressure)
+        \item \textbf{Control:} Algorithm determines required valve opening (PWM duty cycle)
+        \item \textbf{Actuation:} Proportional valve adjusts position based on PWM signal
+        \item \textbf{Response:} Pressure change results from valve adjustment
+        \item \textbf{Feedback:} New pressure measurement begins next control cycle
+    \end{enumerate}
+
+The control loop runs at up to 1000 Hz (user-configurable), while the PID computation updates at 100 Hz (10 ms sample time). This creates a real-time feedback loop that maintains pressure at the setpoint.
+
+\subsection{System Overview Illustration}
+
+Figure~\ref{fig:system-overall} illustrates the closed-loop signal flow between the sensor, controller, and proportional valve.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2.2cm, auto, >=latex]
+    \tikzstyle{block} = [draw, rectangle, rounded corners, minimum height=1cm, minimum width=3.2cm, align=center]
+    \tikzstyle{arrow} = [->, thick]
+
+    \node[block] (sensor) {Pressure Sensor\\(0.5--4.5V)};
+    \node[block, right=of sensor] (adc) {ADC + Filtering};
+    \node[block, right=of adc] (pid) {PID Controller};
+    \node[block, right=of pid] (pwm) {PWM Output};
+    \node[block, right=of pwm] (valve) {Proportional Valve};
+    \node[block, below=1.4cm of pid] (plant) {Pressure System\\(Gas Circuit)};
+
+    \draw[arrow] (sensor) -- (adc);
+    \draw[arrow] (adc) -- (pid);
+    \draw[arrow] (pid) -- (pwm);
+    \draw[arrow] (pwm) -- (valve);
+    \draw[arrow] (valve) -- (plant);
+    \draw[arrow] (plant) -| (sensor);
+\end{tikzpicture}
+\caption{VentCon2 closed-loop control overview}
+\label{fig:system-overall}
+\end{figure}
+
+\subsection{Signal Conditioning and Processing Chain}
+
+From sensor to control output, the signal undergoes several processing stages:
+
+    \begin{equation}
+    \text{Voltage} \rightarrow \text{ADC} \rightarrow \text{Digital} \rightarrow \text{Filter} \rightarrow \text{PID} \rightarrow \text{PWM}
+    \end{equation}
+
+    \begin{itemize}
+        \item \textbf{Analog Voltage (0.5-4.5V):} Output from pressure transducer
+        \item \textbf{ADC Conversion:} 12-bit analog-to-digital conversion (0-4095 counts)
+        \item \textbf{Pressure Conversion:} Digital counts converted to pressure units (bar)
+        \item \textbf{Low-Pass Filter:} Software filter reduces high-frequency sensor noise
+        \item \textbf{PID Calculation:} Controller computes error and optimal output
+        \item \textbf{PWM Generation:} Digital output converted to PWM signal (0-100\% duty cycle)
+        \item \textbf{Valve Actuation:} PWM controls valve opening position
+    \end{itemize}
+
+Each processing stage is tunable via serial commands or the web interface, allowing the system to be optimized for different valve characteristics and installation conditions.
+
+\subsection{External Interfaces}
+
+The VentCon2 system provides multiple interfaces for monitoring and control:
+
+    \begin{itemize}
+        \item \textbf{Web Interface:} Browser-based real-time monitoring and parameter adjustment (WiFi)
+        \item \textbf{Serial Console:} Command-line interface for advanced control and diagnostics (USB/UART at 115200 baud)
+        \item \textbf{Analog Output:} Optional analog output for pressure telemetry to external equipment
+        \item \textbf{GPIO Pins:} General-purpose I/O for integration with external systems
+    \end{itemize}

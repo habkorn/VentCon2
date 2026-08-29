@@ -4,14 +4,15 @@
 
 const char* SettingsHandler::SETTINGS_FILE_PATH = "/settings.json";
 
-SettingsHandler::SettingsHandler() 
+SettingsHandler::SettingsHandler()
+    : _mutex(xSemaphoreCreateMutex())
 {
     resetToDefaults();
 }
 
-SettingsHandler::~SettingsHandler() 
+SettingsHandler::~SettingsHandler()
 {
-    // Destructor - no specific cleanup needed
+    if (_mutex) { vSemaphoreDelete(_mutex); _mutex = nullptr; }
 }
 
 void SettingsHandler::resetToDefaults() 
@@ -49,7 +50,32 @@ void SettingsHandler::resetToDefaults()
     };
 }
 
-bool SettingsHandler::load() 
+void SettingsHandler::snapshotTo(SettingsSnapshot& out)
+{
+    xSemaphoreTake(_mutex, portMAX_DELAY);
+    out.Kp = Kp; out.Ki = Ki; out.Kd = Kd;
+    out.filter_strength  = filter_strength;
+    out.setpoint         = setpoint;
+    out.pwm_freq         = pwm_freq;
+    out.pwm_res          = pwm_res;
+    out.pid_sample_time  = pid_sample_time;
+    out.control_freq_hz  = control_freq_hz;
+    out.antiWindup       = antiWindup;
+    out.hysteresis       = hysteresis;
+    out.hystAmount       = hystAmount;
+    out.sp_limits        = sp_limits;
+    out.kp_limits        = kp_limits;
+    out.ki_limits        = ki_limits;
+    out.kd_limits        = kd_limits;
+    out.sensor_min_pressure = sensor_min_pressure;
+    out.sensor_max_pressure = sensor_max_pressure;
+    out.sensor_min_voltage  = sensor_min_voltage;
+    out.sensor_max_voltage  = sensor_max_voltage;
+    out.chart_settings   = chart_settings;
+    xSemaphoreGive(_mutex);
+}
+
+bool SettingsHandler::load()
 {
     if (!LittleFS.exists(SETTINGS_FILE_PATH))
     {
@@ -74,7 +100,8 @@ bool SettingsHandler::load()
         return false;
     }
     
-    // Load values with defaults as fallback
+    // Assign all fields under lock so ControlTask never sees a partial state.
+    xSemaphoreTake(_mutex, portMAX_DELAY);
     Kp = doc["Kp"] | SettingsDefaults::KP;
     Ki = doc["Ki"] | SettingsDefaults::KI;
     Kd = doc["Kd"] | SettingsDefaults::KD;
@@ -124,20 +151,18 @@ bool SettingsHandler::load()
     chart_settings.pwm_max    = chart["pwm_max"]     | ChartDefaults::PWM_MAX;
     chart_settings.time_window = chart["time_window"] | ChartDefaults::TIME_WINDOW;
     chart_settings.time_grid    = chart["time_grid"]    | ChartDefaults::TIME_GRID;
-    
+    xSemaphoreGive(_mutex);
+
     LOG_I(CAT_SYSTEM, "Settings loaded successfully from LittleFS");
     return true;
 }
 
-bool SettingsHandler::save() 
+bool SettingsHandler::save()
 {
-    File file = LittleFS.open(SETTINGS_FILE_PATH, "w");
-    if (!file)
-    {
-        LOG_E(CAT_SYSTEM, "Failed to open settings file for writing");
-        return false;
-    }
-    
+    // Serialize under lock so no field is modified mid-snapshot;
+    // write the buffer outside to avoid holding the mutex during flash I/O.
+    String jsonBuffer;
+    xSemaphoreTake(_mutex, portMAX_DELAY);
     JsonDocument doc;
     doc["Kp"] = Kp;
     doc["Ki"] = Ki;
@@ -189,13 +214,29 @@ bool SettingsHandler::save()
     chart["time_window"] = chart_settings.time_window;
     chart["time_grid"]    = chart_settings.time_grid;
     
-    if (serializeJson(doc, file) == 0)
+    size_t len = serializeJson(doc, jsonBuffer);
+    xSemaphoreGive(_mutex);
+
+    if (len == 0)
+    {
+        LOG_E(CAT_SYSTEM, "Failed to serialize settings");
+        return false;
+    }
+
+    File file = LittleFS.open(SETTINGS_FILE_PATH, "w");
+    if (!file)
+    {
+        LOG_E(CAT_SYSTEM, "Failed to open settings file for writing");
+        return false;
+    }
+
+    if (file.print(jsonBuffer) == 0)
     {
         LOG_E(CAT_SYSTEM, "Failed to write settings to file");
         file.close();
         return false;
     }
-    
+
     file.close();
     LOG_I(CAT_SYSTEM, "Settings saved to LittleFS");
     return true;

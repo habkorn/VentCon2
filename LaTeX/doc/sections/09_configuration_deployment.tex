@@ -1,0 +1,83 @@
+% Section 9: CONFIGURATION AND DEPLOYMENT
+
+\section{Configuration and Deployment}
+
+\subsection{Default Parameters}
+\begin{lstlisting}[caption=System Default Configuration]
+// PID Parameters (from SettingsHandler.h)
+DEFAULT_SETPOINT = 3.0 bar
+DEFAULT_KP = 0.0
+DEFAULT_KI = 0.0  
+DEFAULT_KD = 0.0
+
+// PWM Configuration
+DEFAULT_PWM_FREQ = 2000 Hz
+DEFAULT_PWM_RES = 14 bits
+DEFAULT_PID_SAMPLE_TIME = 10 ms
+
+// Control System
+DEFAULT_CONTROL_FREQ_HZ = 1000 Hz
+DEFAULT_FILTER_STRENGTH = 0.0
+
+// Advanced Features
+DEFAULT_ANTI_WINDUP = false
+DEFAULT_HYSTERESIS = false
+DEFAULT_HYST_AMOUNT = 5.0%
+
+// Valve Limits (from Constants.h)
+VALVE_MIN_DUTY = 20.0%
+VALVE_MAX_DUTY = 90.0%
+
+// Sensor Calibration (from Constants.h)
+SENSOR_MIN_VOLTAGE = 0.5 V
+SENSOR_MAX_VOLTAGE = 4.5 V
+SENSOR_MIN_BAR = 0.0
+SENSOR_MAX_BAR = 10.0
+
+// Slider Limits (from Constants.h)
+SP_MIN/MAX/STEP = 0.0 / 10.0 / 0.25
+KP_MIN/MAX = 0.0 / 20000.0
+KI_MIN/MAX = 0.0 / 20000.0
+KD_MIN/MAX = 0.0 / 500.0
+
+// Chart Axis Defaults (from Constants.h)
+Y_MIN = 0.0 bar, Y_MAX = 10.0 bar
+TIME_WINDOW = 8 s
+\end{lstlisting}
+
+\subsection{Persistent Storage}
+Configuration data is automatically saved to LittleFS flash storage in JSON format, ensuring settings survive power cycles and system resets.
+
+\subsection{Build Configuration}
+\begin{lstlisting}[caption=PlatformIO Configuration]
+[env:arduino_nano_esp32]
+platform = espressif32
+board = arduino_nano_esp32
+framework = arduino
+lib_deps = 
+    bblanchon/ArduinoJson@^7.4.1
+    adafruit/Adafruit ADS1X15@^2.5.0
+    https://github.com/imax9000/Arduino-PID-Library.git
+    littlefs
+upload_protocol = esptool
+upload_speed = 921600
+board_upload.before_reset = usb_reset
+extra_scripts =
+    pre:inject_version.py
+    usb_reset_pre_upload.py
+monitor_rts = 0
+monitor_dtr = 0
+build_flags =
+    -DCORE_DEBUG_LEVEL=0
+board_build.filesystem = littlefs
+board_build.partitions = default_16MB.csv
+\end{lstlisting}
+
+\subsection{Testing Strategy}
+\begin{itemize}
+    \item \textbf{Unit Testing:} Individual class functionality
+    \item \textbf{Integration Testing:} Inter-class communication
+    \item \textbf{Hardware-in-Loop:} Real sensor and valve testing
+    \item \textbf{Performance Testing:} Timing and memory analysis
+    \item \textbf{Safety Testing:} Emergency response validation
+\end{itemize}

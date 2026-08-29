@@ -1,0 +1,70 @@
+% Section 3: HARDWARE PLATFORM
+
+\section{Hardware Platform}
+
+\subsection{Proportional Valve}
+
+The proportional valve is the primary actuator in the VentCon2 system, responsible for controlling the flow of pressurized gas. Key characteristics:
+
+    \begin{itemize}
+        \item \textbf{Type:} Electronically-controlled proportional valve
+        \item \textbf{Control Signal:} PWM (Pulse Width Modulation) at configurable frequency (100-10000 Hz)
+        \item \textbf{Operating Principle:} Varying the PWM duty cycle (0-100\%) proportionally adjusts the valve's opening position
+        \item \textbf{Response Time:} Fast response enables real-time pressure control in the up to 1000 Hz control loop
+        \item \textbf{Deadband:} Physical deadband in the valve mechanism creates hysteresis (see Section~\ref{sec:hysteresis})
+    \end{itemize}
+
+The proportional valve converts electrical PWM signals from the microcontroller into precise mechanical valve positioning. The proportional relationship between PWM duty cycle and valve opening allows the system to achieve smooth, linear pressure control across the full operating range. The valve's physical limitations (deadband, response lag) are compensated by control algorithms described in Section~\ref{sec:control-theory}.
+
+\subsection{Pressure Sensor}
+
+The pressure sensor continuously monitors the system pressure, providing real-time feedback to the control algorithm. Specifications:
+
+    \begin{itemize}
+        \item \textbf{Sensor Type:} Ratiometric pressure transducer (BOSCH MPS1-TF-CNG) with 0.5-4.5V output signal
+        \item \textbf{Pressure Range:} 0-10 bar (0-145 PSI)
+        \item \textbf{Measurement Accuracy:} ±1.5 %FSS at 25 °C
+        \item \textbf{Response Speed:} Suitable for real-time feedback in control loop (< 10 ms delay)
+        \item \textbf{Signal Conditioning:} Converted to digital values via 12-bit analog-to-digital converter
+        \item \textbf{Filtering:} Software low-pass filter reduces sensor noise (configurable, 0.0-1.0 strength)
+    \end{itemize}
+
+The sensor output is continuously digitized and read by the microcontroller's ADC (Analog-to-Digital Converter). The digital pressure values are then passed to the PID control algorithm, which calculates the error between the measured pressure and the target setpoint. This feedback loop operates at up to 1000 Hz (configurable via the CONTROL FREQ command), allowing the system to respond rapidly to pressure changes.
+
+\subsection{Microcontroller and Processing Unit}
+
+The brain of the VentCon2 system is the ESP32-S3 Arduino Nano microcontroller. Key capabilities:
+
+    \begin{itemize}
+        \item \textbf{Processor:} Dual-core Xtensa processor running at 240 MHz
+        \item \textbf{Memory:} 512 KB SRAM for real-time operations, 16 MB flash storage
+        \item \textbf{Analog Input:} 12-bit internal ADC with multiple input channels for sensor reading
+        \item \textbf{Digital Output:} PWM-capable GPIO pins for proportional valve control
+        \item \textbf{Communication:} WiFi (802.11 b/g/n) for web interface and diagnostics
+        \item \textbf{Serial Port:} UART at 115200 baud for command interface and debugging
+        \item \textbf{Real-Time Operating System:} FreeRTOS for multi-tasking and task scheduling
+    \end{itemize}
+
+The microcontroller runs the complete VentCon2 software stack including:
+
+    \begin{itemize}
+        \item Real-time PID control loop (up to 1000 Hz, core 1)
+        \item Sensor reading and signal processing
+        \item WiFi access point and web server (core 0)
+        \item Serial command processor for advanced control
+        \item Auto-tuning algorithm for parameter optimization
+        \item Persistent settings storage in LittleFS flash filesystem
+    \end{itemize}
+
+The dual-core architecture allows separation of critical real-time control (core 1) from network operations (core 0), ensuring that web interface activity does not interfere with pressure control stability.
+
+\subsection{Hardware Summary}
+\begin{itemize}
+    \item \textbf{Microcontroller:} ESP32-S3 Arduino Nano (Dual-core, 240MHz, 512KB SRAM)
+    \item \textbf{Flash:} 16MB with default partition table (\texttt{default\_16MB.csv})
+    \item \textbf{ADC:} ADS1015 12-bit external ADC with ESP32 internal ADC fallback
+    \item \textbf{Pressure Sensor:} 0.5-4.5V analog output, 0-10 bar range
+    \item \textbf{Valve Control:} PWM-controlled proportional valve
+    \item \textbf{Connectivity:} WiFi Access Point mode (WPA2-PSK)
+    \item \textbf{Storage:} LittleFS for persistent configuration and web assets
+\end{itemize}

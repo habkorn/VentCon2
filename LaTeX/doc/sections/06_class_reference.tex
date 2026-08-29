@@ -1,0 +1,613 @@
+% Section 6: CLASS REFERENCE
+
+\section{Class Reference}
+
+This section provides the API reference for each class in the VentCon2 system, including class structures, key attributes, and method signatures.
+
+\subsection{Class Summary Tables}
+The following tables document each class with its attributes and methods.
+
+\begin{table}[H]
+\centering
+\caption{SettingsHandler Class}
+\label{tab:settings-handler}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+double & Kp, Ki, Kd & PID controller gains \\
+double & setpoint & Target pressure (bar) \\
+int & pwm\_freq, pwm\_res & PWM configuration \\
+int & pid\_sample\_time, control\_freq\_hz & PID sample time and control loop rate \\
+float & filter\_strength & Low-pass filter coefficient \\
+bool & antiWindup, hysteresis & Control enhancements \\
+float & hystAmount & Hysteresis compensation (\%) \\
+SliderLimits & sp\_, kp\_, ki\_, kd\_limits & UI slider limits \\
+float & sensor\_min/max\_pressure, voltage & Sensor calibration \\
+ChartSettings & chart\_settings & Live chart axes \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+bool & load() & Load settings from LittleFS \\
+bool & save() & Save settings to LittleFS \\
+void & resetToDefaults() & Restore factory defaults \\
+void & update(fn) & Run fn under the mutex \\
+void & withLock(fn) & Run fn under the mutex \\
+void & snapshotTo(SettingsSnapshot\&) & Atomic multi-field read \\
+void & printStoredSettings() & Debug output to Serial \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{SensorManager Class}
+\label{tab:sensor-manager}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+Adafruit\_ADS1015 & ads & External ADC instance \\
+bool & ads\_found & ADC detection flag \\
+int16\_t & adc\_value & Raw ADC reading \\
+float & voltage, raw\_pressure & Converted values \\
+float & filtered\_pressure & After low-pass filter \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+bool & initialize() & Setup I2C and ADC \\
+void & readSensor() & Read and convert ADC \\
+float & getPressure() & Get filtered pressure \\
+float & getRawPressure() & Get unfiltered pressure \\
+float & getVoltage() & Get sensor voltage \\
+int16\_t & getADCValue() & Raw ADC reading \\
+bool & isADSFound() & ADS1015 detected? \\
+float* & getLastFilteredPressurePtr() & Pointer for web interface \\
+bool & isPressureSafe() & Over-pressure safety check \\
+void & resetFilterState() & Reset filter state \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{WebHandler Class}
+\label{tab:web-handler}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+WebServer & webServer & ESP32 HTTP server (port 80) \\
+bool & webServerEnabled & Server state flag \\
+int & connectedClients & Active client counter \\
+String[2] & connectedMACs & Connected client MAC addresses \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+void & handleRoot() & Stream HTML from PROGMEM \\
+void & handleValues() & JSON API for live data \\
+void & handleSet() & Process parameter changes \\
+void & handleResetPID() & Reset PID state \\
+void & handleSliderLimits() & GET/POST slider limits \\
+void & handleChartSettings() & GET/POST chart axes \\
+void & initializeWiFiAP() & Start AP with WIFI\_AP mode \\
+void & scanWiFiNetworks() & Return JSON network list \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{ControlSystem Class}
+\label{tab:control-system}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+PID* & pid & PID controller instance \\
+double* & pressureInput & Pointer to sensor reading \\
+double* & pwmPIDoutput & Pointer to valve output \\
+uint32\_t* & actualPwm & Mapped valve PWM value \\
+bool* & manualPWMMode & Manual override flag \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+void & initializeControlSystem() & Setup PID with settings \\
+void & processControlLoop() & Execute one control cycle \\
+uint32\_t & mapPIDoutputToPwmValve() & Map PID output to valve duty \\
+void & applyHysteresisCompensation() & Hysteresis offset \\
+void & handleEmergencyShutdown() & Safe state on error \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{AutoTuner Class}
+\label{tab:auto-tuner}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+bool & autoTuneRunning & Tuning active flag \\
+float & autoTuneSetpoint & Target for oscillation \\
+int & currentCycle & Oscillation counter \\
+ulong[] & cycleTimes & Period measurements \\
+float[] & cycleAmplitudes & Amplitude measurements \\
+enum & currentTuningRule & Algorithm selection \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+void & start() & Begin relay tuning \\
+void & stop() & Abort and restore PID \\
+void & process() & Execute tuning step \\
+float & getProgress() & 0.0--1.0 completion \\
+void & setTuningRule() & Select calculation method \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{CommandProcessor Class}
+\label{tab:command-processor}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+String & commandBuffer & Incoming serial data \\
+Pointers & settings, sensor, etc. & References to all subsystems \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+void & handleSerialInput() & Read and buffer chars \\
+bool & executeCommand() & Parse and dispatch \\
+void & showHelp() & Print command list \\
+void & showStatus() & Print system state \\
+void & handlePIDCmd() & PID parameter commands \\
+void & handlePWMCmd() & Manual PWM commands \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{TaskManager Class}
+\label{tab:task-manager}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Type} & \textbf{Member} & \textbf{Description} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Attributes}} \\
+\hline
+TaskHandle\_t & controlTaskHandle & FreeRTOS control task \\
+TaskHandle\_t & networkTaskHandle & FreeRTOS network task \\
+bool & taskRunning & Tasks active flag \\
+\hline
+\multicolumn{3}{|c|}{\textit{Methods}} \\
+\hline
+bool & createTasks() & Spawn FreeRTOS tasks \\
+void & startTasks() & Resume suspended tasks \\
+void & stopTasks() & Suspend running tasks \\
+bool & getTaskStatus() & Query task states \\
+void & monitorTasks() & Watchdog and recovery \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Constants.h Namespaces}
+\label{tab:constants}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Namespace} & \textbf{Constant} & \textbf{Value / Description} \\
+\hline
+NetworkConfig & AP\_SSID & "VENTCON\_AP" \\
+NetworkConfig & AP\_PASSWORD & "ventcon12!" (WPA2-PSK) \\
+HardwareConfig & SOLENOID\_PIN & GPIO for valve PWM \\
+HardwareConfig & ANALOG\_PRESS\_PIN & ADC input pin \\
+SensorConfig & SENSOR\_MIN\_BAR & 0.0 (minimum range) \\
+SensorConfig & SENSOR\_MAX\_BAR & 10.0 (maximum range) \\
+ValveConfig & VALVE\_MIN\_DUTY & 20.0\% (minimum effective duty cycle) \\
+ValveConfig & VALVE\_MAX\_DUTY & 90.0\% (maximum safe duty cycle) \\
+OperatingDefaults & HARD\_SP\_MAX\_BAR & 10.0 (firmware setpoint ceiling) \\
+SensorConfigDefaults & SENSOR\_MIN/MAX\_VOLTAGE & 0.5 / 4.5 V \\
+SettingsDefaults & PID\_SAMPLE\_TIME & 10 ms \\
+SettingsDefaults & CONTROL\_FREQ\_HZ & 1000 Hz \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{SettingsHandler Class}
+
+\subsubsection{Purpose}
+The SettingsHandler class encapsulates all system configuration parameters and provides persistent storage capabilities using LittleFS. It serves as the central configuration repository for all system components.
+
+\subsubsection{Key Responsibilities}
+\begin{itemize}
+    \item Manage PID controller parameters (Kp, Ki, Kd, setpoint)
+    \item Store PWM configuration (frequency, resolution)
+    \item Handle sensor filtering parameters
+    \item Provide JSON serialization/deserialization
+    \item Automatic load/save to flash storage
+    \item Parameter validation and constraints
+\end{itemize}
+
+\subsubsection{Key Attributes}
+\begin{lstlisting}[caption=SettingsHandler Class Key Members - Actual Implementation]
+// SliderLimits structure for UI customization
+struct SliderLimits {
+    float min;                    // Minimum slider value
+    float max;                    // Maximum slider value
+    float step;                   // Slider step increment
+};
+
+class SettingsHandler {
+public:
+    // PID Parameters
+    double Kp;                    // Proportional gain
+    double Ki;                    // Integral gain  
+    double Kd;                    // Derivative gain
+    
+    // System Parameters
+    float filter_strength;        // Low-pass filter coefficient
+    double setpoint;              // Target pressure in bar
+    int pwm_freq;                 // PWM frequency in Hz
+    int pwm_res;                  // PWM resolution in bits
+    int pid_sample_time;          // PID sample time in ms
+    int control_freq_hz;          // Control loop frequency
+    
+    // Advanced Features
+    bool antiWindup;              // Anti-windup enable flag
+    bool hysteresis;              // Hysteresis compensation
+    float hystAmount;             // Hysteresis amount (percentage)
+    
+    // Slider Limits (user-configurable via web UI)
+    SliderLimits sp_limits;       // Setpoint slider limits
+    SliderLimits kp_limits;       // Kp slider limits
+    SliderLimits ki_limits;       // Ki slider limits
+    SliderLimits kd_limits;       // Kd slider limits
+    
+    // Sensor Calibration (user-configurable pressure/voltage mapping)
+    float sensor_min_pressure;    // Minimum pressure (bar)
+    float sensor_max_pressure;    // Maximum pressure (bar)
+    float sensor_min_voltage;     // Sensor voltage at min pressure (V)
+    float sensor_max_voltage;     // Sensor voltage at max pressure (V)
+    
+    // Chart Axis Settings
+    ChartSettings chart_settings; // Live chart axes and time window
+    
+    // Constructor with default values
+    SettingsHandler();
+    
+    // Methods
+    bool load();                  // Load from LittleFS
+    bool save();                  // Save to LittleFS
+    void resetToDefaults();       // Reset to default values
+    void printStoredSettings();   // Display stored settings
+    
+    // Mutex-protected access
+    template<typename Fn> void update(Fn fn);   // Run fn(*this) under mutex
+    template<typename Fn> void withLock(Fn fn); // Run fn() under mutex
+    void snapshotTo(SettingsSnapshot& out);     // Atomic multi-field read
+};
+\end{lstlisting}
+
+\subsection{SensorManager Class}
+
+\subsubsection{Purpose}
+The SensorManager class handles all sensor-related operations, providing a unified interface for pressure sensing with automatic fallback mechanisms and signal processing.
+
+\subsubsection{Key Responsibilities}
+\begin{itemize}
+    \item ADS1015 external ADC initialization and communication
+    \item ESP32 internal ADC fallback when external ADC fails
+    \item Voltage to pressure conversion calculations
+    \item Low-pass filtering for noise reduction
+    \item Sensor health monitoring and diagnostics
+\end{itemize}
+
+\subsubsection{Key Attributes}
+\begin{lstlisting}[caption=SensorManager Class Structure]
+class SensorManager {
+private:
+    Adafruit_ADS1015 ads;         // External ADC instance
+    bool ads_found;               // ADC availability flag
+    int16_t adc_value;           // Raw ADC reading
+    float voltage;               // Converted voltage
+    float raw_pressure;          // Unfiltered pressure
+    float filtered_pressure;     // Filtered pressure
+    SettingsHandler* settings;          // Configuration reference
+    
+public:
+    SensorManager(SettingsHandler* settings);
+    bool initialize();           // Hardware initialization
+    void readSensor();          // Main sensor reading function
+    float getPressure();        // Get filtered pressure
+    bool isADSFound();         // Check ADC status
+    float* getLastFilteredPressurePtr(); // For web interface
+    bool isPressureSafe();     // Over-pressure safety check
+    void resetFilterState();   // Reset filter state
+};
+\end{lstlisting}
+
+\subsubsection{Sensor Specifications}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Voltage Range & 0.5V - 4.5V \\
+Pressure Range & 0 - 10 bar \\
+ADC Resolution & 12-bit (ADS1015) \\
+Sample Rate & Up to 1600 SPS \\
+I2C Address & 0x48 \\
+Fallback Pin & A0 (ESP32 internal) \\
+\bottomrule
+\end{tabular}
+\caption{Sensor Configuration Parameters}
+\end{table}
+
+\subsection{AutoTuner Class}
+
+\subsubsection{Purpose}
+The AutoTuner class implements relay-based auto-tuning for PID controller parameters using the Ziegler-Nichols frequency response method and other tuning algorithms. The tuning algorithm and rules are described in Section~\ref{sec:auto-tuning}.
+
+\subsubsection{Class Structure}
+\begin{lstlisting}[caption=AutoTuner Class Key Members - Actual Implementation]
+class AutoTuner {
+private:
+    // Auto-tuning state variables
+    bool autoTuneRunning;
+    unsigned long autoTuneStartTime;
+    unsigned long lastTransitionTime;
+    float autoTuneOutputValue;
+    float autoTuneSetpoint;
+    bool autoTuneState;
+    int currentCycle;
+    
+    // Cycle data collection
+    static constexpr int MAX_CYCLES = 20;
+    unsigned long cycleTimes[MAX_CYCLES];
+    float cycleAmplitudes[MAX_CYCLES];
+    
+    // Amplitude tracking
+    float maxPressure;
+    float minPressure;
+    bool firstCycleComplete;
+    
+    // Configuration parameters
+    float testSetpoint;
+    float minPwmValue;
+    float maxPwmValue;
+    unsigned long minCycleTime;
+    TuningRule currentTuningRule;
+    float tuningAggressiveness;
+    
+    // System references
+    SettingsHandler* settings;
+    PID* pid;
+    double* pressureInput;
+    int* pwmMaxValue;
+    
+public:
+    AutoTuner(SettingsHandler* settings, PID* pid, double* pressureInput, int* pwmMaxValue);
+    void start();
+    void stop(bool calculateParameters = false);
+    void process();
+    bool isRunning() const;
+    float getOutputValue() const;
+    void acceptParameters();
+    void rejectParameters();
+    void setTestSetpoint(float setpoint);
+    void setTuningRule(TuningRule rule);
+    void setAggressiveness(float aggr);
+    void setMinMaxPWM(float minPwm, float maxPwm);
+    void setMinCycleTime(unsigned long cycleTime);
+    float getTestSetpoint() const;
+    TuningRule getTuningRule() const;
+    float getAggressiveness() const;
+    float getMinPWM() const;
+    float getMaxPWM() const;
+    float getEffectiveAmplitude() const;
+    unsigned long getMinCycleTime() const;
+    void printTuningRules() const;
+    void printConfiguration() const;
+};
+\end{lstlisting}
+
+\subsection{ControlSystem Class}
+
+\subsubsection{Purpose}
+The ControlSystem class implements the main control loop, integrating PID control, sensor reading, valve control, and safety mechanisms in a real-time task. The control algorithms (valve mapping, anti-windup, hysteresis) are described in Section~\ref{sec:control-theory}.
+
+\subsubsection{Control Loop Structure}
+\begin{lstlisting}[caption=Control Loop Implementation - Actual Code from ControlSystem.cpp]
+void ControlSystem::processControlLoop() {
+    TickType_t lastWakeTime = xTaskGetTickCount();
+    
+    // Use configurable frequency
+    TickType_t frequency = pdMS_TO_TICKS(1000 / settings->control_freq_hz);
+    
+    static unsigned long lastCycleEnd = 0;
+    
+    while(true) {
+        // Update frequency if settings changed
+        frequency = pdMS_TO_TICKS(1000 / settings->control_freq_hz);
+        unsigned long taskStartTime = micros();
+        
+        // ====== Sensor Reading using SensorManager ======
+        sensorManager->readSensor();
+        
+        // Save last pressure before updating, used for hysteresis compensation
+        lastPressure = *pressureInput;
+        
+        // Update Input value for PID before computation
+        *pressureInput = sensorManager->getPressure();
+        
+        // ====== Analog Pressure Signal Output =====
+        handleAnalogPressureOutput();
+        
+        // Process auto-tuning if active
+        if (autoTuner && autoTuner->isRunning()) {
+            autoTuner->process();
+        }
+        // PID calculation and PWM output (only if not in auto-tune mode)
+        else if (!*manualPWMMode) {
+            // Store previous output for anti-windup check
+            double previousOutput = *pwmPIDoutput;
+            
+            // Constrain output to valid range
+            *pwmPIDoutput = constrain(*pwmPIDoutput, 0, *pwmFullScaleRaw); 
+
+            // Compute PID output
+            pid->Compute();
+            
+            // Anti-windup for deadband and saturation
+            if (settings->antiWindup) {
+                float pidPercent = (*pwmPIDoutput / *pwmFullScaleRaw) * 100.0;
+                
+                if ((pidPercent < ValveConfig::VALVE_MIN_DUTY && *pwmPIDoutput < previousOutput) ||
+                    (pidPercent > ValveConfig::VALVE_MAX_DUTY && *pwmPIDoutput > previousOutput)) {
+                    // Reset the PID to prevent integral accumulation
+                    pid->SetMode(PID::Manual);
+                    pid->SetMode(PID::Automatic);
+                }
+            }
+            
+            // Update PWM output
+            updatePWMOutput();
+        }
+        
+        // ====== Continuous Data Output (Serial) ======
+        handleContinuousDataOutput();
+        
+        // ====== Task Timing Management ======
+        unsigned long taskEndTime = micros();
+        lastCycleTime = taskEndTime - taskStartTime;
+        
+        vTaskDelayUntil(&lastWakeTime, frequency);
+    }
+}
+\end{lstlisting}
+
+\subsection{WebHandler Class}
+
+\subsubsection{Purpose}
+The WebHandler class provides a comprehensive web interface for system monitoring and control, implementing a WiFi Access Point with mDNS and HTTP endpoints. It serves as the primary user interface for remote monitoring and real-time parameter adjustment of the pressure control system. The web interface architecture is described in Section~\ref{sec:web-interface}.
+
+\subsubsection{Network Configuration}
+\begin{itemize}
+    \item \textbf{SSID:} VENTCON\_AP
+    \item \textbf{Password:} ventcon12!
+    \item \textbf{IP Address:} 192.168.4.1
+    \item \textbf{DNS:} mDNS (http://ventcon.local)
+    \item \textbf{Max Clients:} 2 simultaneous connections
+    \item \textbf{Channel:} Configurable (use WIFI CHANNEL command)
+    \item \textbf{Security:} WPA2-PSK encryption
+\end{itemize}
+
+\subsubsection{Class Structure}
+\begin{lstlisting}[caption=WebHandler Class - Actual Implementation]
+class WebHandler {
+private:
+    static WebHandler* instance;  // For WiFi event callbacks
+    
+    // Owned network components
+    WebServer webServer;
+    
+    // References to system components (dependency injection)
+    SettingsHandler* settings;
+    PID* pid;
+    double* pressureInput;
+    double* pwmPIDoutput;
+    bool* ads_found;
+    int* pwmFullScaleRaw;
+    float* last_filtered_pressure;
+    
+    // WiFi connection management
+    int connectedClients;
+    String connectedMACs[NetworkConfig::MAX_CLIENTS];
+    bool webServerEnabled;
+    
+    // WiFi AP configuration
+    const char* ap_ssid;
+    const char* ap_password;
+    IPAddress ap_ip;       // 192.168.4.1
+    IPAddress ap_gateway;  // 192.168.4.1
+    IPAddress ap_subnet;   // 255.255.255.0
+    
+    // Private helper methods
+    String getContentType(String filename);
+    bool handleFileRead(String path);  // Chunked file serving
+    
+    // Route handlers
+    void handleRoot();      // Memory-efficient streaming
+    void handleSet();
+    void handleValues();
+    void handleResetPID();
+    void handleSliderLimits();  // GET/POST slider limits API
+    void handleChartSettings(); // GET/POST chart axis settings API
+    
+public:
+    WebHandler(SettingsHandler* settings, PID* pid, ...);
+    ~WebHandler();
+    
+    void setupRoutes();
+    void updatePWM();
+    void scanWiFiNetworks();
+    void changeWiFiChannel(int channel);
+    void setupWiFiEvents();
+    void initializeWiFiAP();
+    
+    // Getters
+    int getConnectedClients() const;
+    bool isWebServerEnabled() const;
+    int getWiFiChannel() const;
+};
+\end{lstlisting}
+
+\subsection{CommandProcessor Class}
+
+\subsubsection{Purpose}
+The CommandProcessor class provides a comprehensive serial command interface for advanced system control, debugging, and configuration. All commands are case-insensitive and accessible through the serial console at 115200 baud. The full command reference is provided in Section~\ref{sec:serial-commands}.
+
+\subsection{TaskManager Class}
+
+\subsubsection{Purpose}
+The TaskManager class orchestrates FreeRTOS tasks for optimal real-time performance, separating control operations from network operations across ESP32 cores. Task distribution details are described in Section~\ref{sec:software-arch}.
+
+\subsection{Logger Class}
+
+\subsubsection{Purpose}
+The Logger class provides centralized, rate-limited serial logging with per-category rate limiting and compile-time level filtering. It is initialized once in \texttt{main.cpp} via \texttt{Logger::init()} and used across all components.
+
+\subsubsection{Key Members}
+\begin{lstlisting}[caption=Logger Class - Key Members]
+class Logger {
+public:
+    static void init();                       // Initialize the logger
+    static void setEnabled(bool en);          // Enable/disable output
+    static bool isEnabled();                  // Check if enabled
+    static void setRateLimit(unsigned long ms); // Per-category rate limit
+    static bool shouldLog(LogCategory cat);   // Rate-limit check
+    static const char* getCategoryName(LogCategory cat);
+};
+
+enum LogLevel { LOG_NONE = 0, LOG_ERROR = 1, LOG_WARN = 2, LOG_INFO = 3, LOG_DEBUG = 4 };
+enum LogCategory { CAT_CONTROL, CAT_NETWORK, CAT_SENSOR, CAT_AUTOTUNE, CAT_SYSTEM, CAT_COUNT };
+\end{lstlisting}

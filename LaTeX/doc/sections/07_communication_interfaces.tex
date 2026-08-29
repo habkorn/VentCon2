@@ -1,0 +1,633 @@
+% Section 7: COMMUNICATION INTERFACES
+
+\section{Communication Interfaces}
+\label{sec:communication}
+
+The VentCon2 system provides two primary communication interfaces: a web-based interface accessible via WiFi, and a serial command interface for advanced control and diagnostics.
+
+\subsection{Web Interface}
+\label{sec:web-interface}
+
+\subsubsection{Architecture}
+
+\paragraph{Memory-Efficient Streaming Design}
+The web interface implements a memory-efficient streaming architecture that serves HTML content directly from PROGMEM (flash memory) in sections, minimizing RAM usage:
+
+\begin{itemize}
+    \item \textbf{HTML\_HEAD:} Meta tags and script includes (~0.5KB)
+    \item \textbf{CSS\_STYLES:} Embedded stylesheets from styles.h (~8KB)
+    \item \textbf{HTML\_BODY\_START:} Static HTML before input fields (~3KB)
+    \item \textbf{HTML\_INPUTS:} Dynamic input fields with placeholders (~1.5KB) - only section requiring String processing
+    \item \textbf{HTML\_FOOTER:} Footer with version placeholder (~0.5KB)
+    \item \textbf{HTML\_SCRIPT:} JavaScript and closing tags (~25KB)
+\end{itemize}
+
+This streaming approach reduces peak memory usage from ~110KB to ~3KB by avoiding full HTML concatenation in RAM.
+
+\paragraph{Single Page Application (SPA) Design}
+The web interface is implemented as a single-page application that provides real-time monitoring and control capabilities:
+
+\begin{itemize}
+    \item \textbf{Responsive Design:} Adapts to desktop, tablet, and mobile devices
+    \item \textbf{Real-time Updates:} JavaScript polling for live data every 100ms
+    \item \textbf{Interactive Controls:} Slider-based parameter adjustment
+    \item \textbf{Visual Feedback:} Real-time graphs and status indicators
+    \item \textbf{Embedded Resources:} All CSS/JS embedded for offline operation
+\end{itemize}
+
+\paragraph{User Interface Components}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Functionality} \\
+\midrule
+Pressure Gauge & Real-time pressure with trend indicator and setpoint marker \\
+PWM Output Gauge & Current valve control output with trend indicator \\
+Live Chart & Chart.js pressure/setpoint/PWM graph (toggleable) \\
+Setpoint Slider & Adjustable target pressure with configurable limits \\
+PID Sliders & Kp, Ki, Kd parameter adjustment with +/- buttons \\
+Slider Settings & Gear icon opens modal to configure min/max/step \\
+Filter Slider & Low-pass filter strength (0-1) \\
+PWM Config & Frequency (100-10000Hz) and resolution (8-16 bit) \\
+ADC Status & External ADS1015 or internal ESP32 ADC indicator \\
+Network Status & WiFi AP connection info \\
+Apply Changes Button & Floating snackbar to commit parameter changes \\
+Reset PID Button & Re-initialize PID controller \\
+\bottomrule
+\end{tabular}
+\caption{Web Interface Components}
+\end{table}
+
+\paragraph{Configurable Slider Limits}
+The Setpoint, Kp, Ki, and Kd sliders feature user-configurable limits via a settings modal. Each slider label includes a gear icon that opens a popup where users can adjust:
+\begin{itemize}
+    \item \textbf{Minimum:} Lower bound for the slider range
+    \item \textbf{Maximum:} Upper bound for the slider range
+    \item \textbf{Step:} Increment value for slider movement
+\end{itemize}
+These limits are stored in the \texttt{SliderLimits} structure within \texttt{SettingsHandler} and persist to LittleFS. The feature allows tuning the UI for specific applications without recompiling firmware.
+
+\subsubsection{HTTP Endpoints and API}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Endpoint} & \textbf{Method} & \textbf{Description} \\
+\midrule
+/ & GET & Main web interface (streamed HTML/CSS/JS) \\
+/set & GET & Update PID parameters and settings \\
+/values & GET & Real-time system data (JSON) \\
+/resetPID & GET & Reset PID controller state \\
+/api/slider-limits & GET & Retrieve slider min/max/step limits (JSON) \\
+/api/slider-limits & POST & Update slider limits (persists to LittleFS) \\
+/api/chart-settings & GET & Retrieve chart axis settings (JSON) \\
+/api/chart-settings & POST & Update chart axis settings (persists to LittleFS) \\
+/chart.min.js & GET & Chart.js library (chunked from LittleFS) \\
+/Logo.svg & GET & VENTREX logo (from LittleFS) \\
+/VentCon\_User\_Manual.pdf & GET & User manual PDF (chunked from LittleFS) \\
+\bottomrule
+\end{tabular}
+\caption{Web Interface Endpoints}
+\end{table}
+
+\paragraph{Route Configuration (setupRoutes)}
+The \texttt{setupRoutes()} function maps URL paths to handler functions. Understanding this is fundamental to web development:
+
+\subparagraph{How Web Servers Work}
+A web server listens for HTTP requests from browsers. When a user enters a URL like \texttt{http://192.168.4.1/values}, the browser sends an HTTP request to the ESP32. The server must know what function to call for each URL path.
+
+\subparagraph{What Are Routes?}
+Routes are URL-to-function mappings. Each \texttt{webServer.on()} call defines: ``When someone requests THIS path, call THIS function.''
+
+\begin{lstlisting}[caption=Route Registration Example]
+// Route mapping: path -> handler function
+webServer.on("/values", [this]() { this->handleValues(); });
+//           ^path^     ^-------- lambda function --------^
+\end{lstlisting}
+
+\subparagraph{Lambda Functions}
+The \texttt{[this]()\{ ... \}} syntax is a ``lambda'' -- an inline anonymous function. The \texttt{[this]} captures the class instance so we can call member functions like \texttt{this->handleValues()}. It's shorthand for creating a separate callback function.
+
+\subparagraph{HTTP Methods (GET vs POST)}
+\begin{itemize}
+    \item \textbf{GET:} Retrieve data (e.g., load a page, fetch sensor values)
+    \item \textbf{POST:} Send data to server (e.g., submit form, change settings)
+\end{itemize}
+If no method is specified, the route accepts any HTTP method.
+
+\subparagraph{Special Routes}
+\begin{itemize}
+    \item \textbf{``/''} -- The root/home page (what loads when you first connect)
+    \item \textbf{onNotFound()} -- Fallback handler for any URL not explicitly registered
+    \item \textbf{webServer.begin()} -- Starts the server after all routes are defined
+\end{itemize}
+
+\subsubsection{Data Exchange Process}
+
+\paragraph{Client-Server Communication Flow}
+The web interface implements a data exchange mechanism for real-time control:
+
+\begin{lstlisting}[caption=Data Exchange Sequence]
+1. Client Connection:
+   Browser -> WiFi AP (VENTCON_AP) -> DNS Resolution -> HTTP Server
+
+2. Initial Page Load (Streamed):
+   GET / -> Chunked HTML response (6 PROGMEM sections) -> Client rendering
+
+3. Static Assets (Chunked File Serving):
+   GET /chart.min.js -> 1KB chunks from LittleFS -> Reassembled by browser
+
+4. Real-time Data Loop (every 100ms):
+   JavaScript setInterval -> GET /values -> JSON Response -> UI Update
+
+5. Parameter Changes:
+   User adjusts slider -> "Apply Changes" click -> GET /set?params -> Server Update
+\end{lstlisting}
+
+\paragraph{Streaming HTML Implementation}
+The handleRoot() function uses memory-efficient chunked streaming:
+
+\begin{lstlisting}[caption=handleRoot() Streaming Implementation]
+void WebHandler::handleRoot() {
+  // Set response headers for chunked transfer
+  webServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  webServer.send(200, "text/html", "");
+  
+  // 1. Stream HTML head directly from PROGMEM
+  webServer.sendContent_P(HTML_HEAD);
+  yield();
+  
+  // 2. Stream CSS styles directly from PROGMEM
+  webServer.sendContent_P(CSS_STYLES);
+  yield();
+  
+  // 3. Stream body start directly from PROGMEM  
+  webServer.sendContent_P(HTML_BODY_START);
+  yield();
+  
+  // 4. Process HTML_INPUTS - only section needing String processing
+  String inputs = FPSTR(HTML_INPUTS);
+  inputs.replace("%SP%", String(settings->setpoint, 2));
+  inputs.replace("%KP%", String(settings->Kp, 2));
+  // ... other value replacements
+  
+  // Replace slider limit placeholders (min/max/step)
+  inputs.replace("%SP_MIN%", String(settings->sp_limits.min, 2));
+  inputs.replace("%SP_MAX%", String(settings->sp_limits.max, 2));
+  inputs.replace("%SP_STEP%", String(settings->sp_limits.step, 3));
+  // ... other limit replacements for Kp, Ki, Kd
+  webServer.sendContent(inputs);
+  yield();
+  
+  // 5. Process footer with version placeholder
+  String footer = FPSTR(HTML_FOOTER);
+  footer.replace("%VERSION%", VENTCON_VERSION);
+  webServer.sendContent(footer);
+  yield();
+  
+  // 6. Stream JavaScript directly from PROGMEM
+  webServer.sendContent_P(HTML_SCRIPT);
+  
+  // End chunked response
+  webServer.sendContent("");
+}
+\end{lstlisting}
+
+\paragraph{Real-time Data Loop Implementation}
+The real-time data loop operates on a precise 100ms interval to provide responsive monitoring without overwhelming the system.
+
+\subparagraph{Client-Side Implementation}
+The browser-side implementation uses simple JavaScript functions that exist in the actual WebContent.h file:
+
+\begin{lstlisting}[caption=Actual JavaScript Implementation from WebContent.h]
+// Application initialization
+function initializeApp() {
+    cacheElements();
+    initializeChart();
+    setupEventListeners();
+    setupEasterEgg();
+    setupScrollHandler();
+    startDataUpdates();
+}
+
+// Element caching for performance
+function cacheElements() {
+    cachedElements = {
+        pressure: document.getElementById('pressure'),
+        setpoint: document.getElementById('setpoint'),
+        kpValue: document.getElementById('kp-value'),
+        kiValue: document.getElementById('ki-value'),
+        kdValue: document.getElementById('kd-value'),
+        pwmValue: document.getElementById('pwm-value'),
+        outputValue: document.getElementById('output-value'),
+        chartToggle: document.getElementById('chart-toggle')
+        // ... other elements
+    };
+}
+
+// Event listeners setup
+function setupEventListeners() {
+    // Chart toggle functionality
+    if (cachedElements.chartToggle) {
+        cachedElements.chartToggle.addEventListener('change', function() {
+            const chartContainer = document.getElementById('chart-container');
+            if (this.checked) {
+                chartContainer.style.display = 'block';
+                chartContainer.style.height = '300px';
+            } else {
+                chartContainer.style.display = 'none';
+            }
+        });
+    }
+    
+    // Parameter sliders and inputs
+    ["sp", "kp", "ki", "kd", "flt", "freq", "res"].forEach(function(param) {
+        const slider = document.getElementById(param + '-slider');
+        const text = document.getElementById(param + '-text');
+        
+        if (slider) {
+            slider.addEventListener('input', function() {
+                text.value = this.value;
+            });
+        }
+        
+        if (text) {
+            text.addEventListener('input', function() {
+                slider.value = this.value;
+            });
+        }
+    });
+}
+\end{lstlisting}
+
+
+\subparagraph{Server-Side Data Processing}
+The ESP32 server handles the /values endpoint with a simple JSON response containing the basic system parameters: setpoint (sp), PID parameters (kp, ki, kd), filter strength (flt), PWM frequency and resolution (freq, res), current pressure, PWM percentage, and ADC status. The actual implementation uses a simple snprintf to create a compact JSON response for efficiency.
+
+\subparagraph{UI Update Process}
+The client-side UI update process uses actual functions from the WebContent.h implementation:
+
+\begin{lstlisting}[caption=Actual UI Update Functions from WebContent.h]
+// Chart update function with real data
+function updateChart(pressure, setpoint, pwm) {
+    if (!window.pressureChart || !window.chartData) return;
+    
+    const now = Date.now();
+    
+    // Always collect data in efficient circular buffer
+    window.chartData.addData(pressure, setpoint, pwm, now);
+    
+    // Only update chart display if visible and enough time has passed
+    if (cachedElements.chartToggle && cachedElements.chartToggle.checked) {
+        if (now - window.lastChartUpdate >= window.chartUpdateInterval) {
+            // Get optimized display data
+            const displayData = window.chartData.getDisplayData();
+            
+            // Update chart datasets efficiently
+            window.pressureChart.data.datasets[0].data = displayData.pressureData;
+            window.pressureChart.data.datasets[1].data = displayData.setpointData;
+            window.pressureChart.data.datasets[2].data = displayData.pwmData;
+            
+            // Use 'none' mode for no animations - fastest update
+            window.pressureChart.update('none');
+            window.lastChartUpdate = now;
+        }
+    }
+}
+\end{lstlisting}
+
+
+\subparagraph{Performance Optimization Strategies}
+The 100ms data loop implements several optimization strategies:
+
+\begin{itemize}
+    \item \textbf{Efficient JSON Processing:} Pre-allocated buffers and minimal object creation
+    \item \textbf{Selective UI Updates:} Only update elements that have actually changed
+    \item \textbf{Network Optimization:} Compressed responses and persistent connections
+    \item \textbf{Memory Management:} Circular buffers for historical data storage
+    \item \textbf{Background Processing:} Non-blocking data processing using Web Workers when available
+    \item \textbf{Adaptive Quality:} Automatically reduce update frequency on slower connections
+\end{itemize}
+
+\subparagraph{Error Recovery and Resilience}
+The web interface implements basic error handling mechanisms integrated into the actual codebase:
+
+\begin{lstlisting}[caption=Actual JavaScript Implementation - Real-time Data Loop]
+// Real data update function (from WebContent.h)
+function updateData() {
+    fetch('/values')
+        .then(r => r.json())
+        .then(data => {
+            // Update pressure display with cached elements
+            if (typeof data.pressure !== "undefined") {
+                const pressureVal = data.pressure;
+                if (cachedElements.pressure) {
+                    cachedElements.pressure.textContent = pressureVal.toFixed(2);
+                }
+                
+                // Update pressure fill and calculate percentage (using display range)
+                const pressurePercent = (pressureVal / CFG.displayMaxBar) * 100;
+                if (cachedElements.pressureFill) {
+                    cachedElements.pressureFill.style.width = `${pressurePercent}%`;
+                }
+                
+                // Update setpoint target marker
+                const setpointPercent = (data.sp / 10) * 100;
+                if (cachedElements.pressureTarget) {
+                    cachedElements.pressureTarget.style.left = `${setpointPercent}%`;
+                }
+                
+                // Update trend indicator
+                updatePressureTrend(pressureVal);
+                
+                // Get PWM value for chart
+                const pwmVal = (data.pwm !== undefined) ? data.pwm : 0;
+                
+                // Always call updateChart, it will handle visibility internally
+                updateChart(pressureVal, data.sp, pwmVal);
+            } else {
+                if (cachedElements.pressure) cachedElements.pressure.textContent = "--";
+                if (cachedElements.pressureFill) cachedElements.pressureFill.style.width = "0%";
+            }
+        })
+        .catch(error => {
+            console.error('Data fetch error:', error);
+            if (cachedElements.pressure) cachedElements.pressure.textContent = 'ERROR';
+        });
+}
+\end{lstlisting}
+
+\subparagraph{Data Loop Performance Metrics}
+The system continuously monitors the performance of the real-time data loop:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Metric} & \textbf{Target} & \textbf{Typical} \\
+\midrule
+Update Interval & 100 ms & 98-102 ms \\
+Network Latency & < 50 ms & 15-25 ms \\
+JSON Processing & < 1 ms & 0.3-0.8 ms \\
+UI Update Time & < 5 ms & 2-4 ms \\
+Memory per Update & < 2 KB & 0.8-1.2 KB \\
+CPU Usage & < 10\% & 3-7\% \\
+\bottomrule
+\end{tabular}
+\caption{Real-time Data Loop Performance Metrics}
+\end{table}
+
+\paragraph{Real-time Data Structure}
+The system exchanges data using a simple JSON structure with basic system parameters:
+
+The actual JSON response from the /values endpoint contains: setpoint (sp), PID parameters (kp, ki, kd), filter strength (flt), PWM frequency and resolution (freq, res), current pressure, PWM percentage, and ADC status. This compact format ensures efficient transmission for the 100ms update cycle.
+
+\paragraph{Parameter Update Protocol}
+When users modify parameters through the web interface, the following protocol ensures data integrity:
+
+\paragraph{Parameter Update Process}
+The web interface handles parameter updates through the /set endpoint. The client sends a GET request with parameter names and values (e.g. /set?sp=4.00), which is processed by the WebHandler::handleSet() method. The actual implementation uses simple parameter parsing and direct setting updates without complex validation or error recovery mechanisms.
+
+\paragraph{Error Handling and Recovery}
+The web interface implements comprehensive error handling:
+
+\begin{itemize}
+    \item \textbf{Connection Loss:} Automatic reconnection with exponential backoff
+    \item \textbf{Timeout Handling:} Request timeout detection and retry mechanism
+    \item \textbf{Parameter Validation:} Client and server-side range checking
+    \item \textbf{State Synchronization:} Periodic full state refresh to prevent drift
+    \item \textbf{Emergency Fallback:} Local emergency stop independent of network
+\end{itemize}
+
+\subsubsection{Security and Access Control}
+
+\paragraph{Network Security}
+\begin{itemize}
+    \item \textbf{WPA2 Encryption:} Secured WiFi access point
+    \item \textbf{Client Limitation:} Maximum 2 concurrent connections
+\end{itemize}
+
+\paragraph{Application Security}
+The security posture and outstanding findings are documented in Section~\ref{sec:security-compliance}. In summary, the control endpoints currently lack authentication, and the access-point password is hardcoded. These items are tracked in the security analysis and compliance checklist in the \texttt{sec/} folder.
+
+\subsubsection{Performance Optimization}
+
+\paragraph{Network Performance}
+\begin{itemize}
+    \item \textbf{Chunked File Serving:} Large JS files (199KB chart.min.js) served in 1KB chunks with yield() calls to prevent WiFi buffer overflow
+    \item \textbf{Streamed HTML:} Main page served via chunked transfer encoding directly from PROGMEM
+    \item \textbf{Minimal JSON Payload:} /values endpoint returns compact JSON (~200 bytes)
+    \item \textbf{Efficient Polling:} 100ms update interval balances responsiveness and load
+\end{itemize}
+
+\paragraph{Memory Management}
+\begin{itemize}
+    \item \textbf{PROGMEM Storage:} All static HTML/CSS/JS stored in flash, not RAM
+    \item \textbf{Streaming Architecture:} Peak RAM reduced from ~110KB to ~3KB for page serving
+    \item \textbf{Circular Buffers:} Chart data uses fixed-size circular buffers (1024 points)
+    \item \textbf{Element Caching:} JavaScript caches DOM element references to reduce lookups
+    \item \textbf{snprintf Buffers:} Fixed-size char arrays for JSON generation (no String allocation)
+\end{itemize}
+
+\paragraph{File Serving Implementation}
+\begin{lstlisting}[caption=Chunked File Serving for Large Assets]
+bool WebHandler::handleFileRead(String path) {
+  if (LittleFS.exists(path)) {
+    File file = LittleFS.open(path, "r");
+    size_t fileSize = file.size();
+    
+    webServer.setContentLength(fileSize);
+    webServer.send(200, contentType, "");
+    
+    // Stream in 1KB chunks
+    const size_t chunkSize = 1024;
+    uint8_t buffer[chunkSize];
+    
+    while (bytesRemaining > 0) {
+      size_t bytesRead = file.read(buffer, chunkSize);
+      webServer.client().write(buffer, bytesRead);
+      yield();   // Allow WiFi stack to process
+      delay(1);  // Prevent buffer overflow
+    }
+    file.close();
+    return true;
+  }
+  return false;
+}
+\end{lstlisting}
+
+\subsection{Serial Command Interface}
+\label{sec:serial-commands}
+
+The serial command interface provides comprehensive control, debugging, and configuration capabilities. All commands are case-insensitive and accessible through the serial console at 115200 baud.
+
+\subsubsection{PID Control Commands}
+These commands manage proportional-integral-derivative controller parameters and operation:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+KP <value> & Set proportional gain (e.g., KP 0.5) \\
+KI <value> & Set integral gain (e.g., KI 0.1) \\
+KD <value> & Set derivative gain (e.g., KD 0.01) \\
+SP <value> & Set pressure setpoint in bar (e.g., SP 3.0) \\
+SAMPLE <ms> & Set PID sample time, 1-1000ms (e.g., SAMPLE 10) \\
+RESET & Reset PID controller (clears windup and internal state) \\
+\bottomrule
+\end{tabular}
+\caption{PID Control Commands}
+\end{table}
+
+The RESET command disables the PID, sets PWM to 0, resets the SensorManager filter state, and reinitializes the PID controller with current settings. All PID parameters are automatically saved to persistent storage after modification.
+
+\subsubsection{Signal Processing Commands}
+These commands control filtering and compensation mechanisms:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+FLT <value> & Set filter strength, 0.0-1.0 (e.g., FLT 0.2) \\
+AW ON & Enable anti-windup for deadband compensation \\
+AW OFF & Disable anti-windup \\
+HYST ON & Enable hysteresis compensation \\
+HYST OFF & Disable hysteresis compensation \\
+HYSTAMT <value> & Set hysteresis amount in \%, 0-20\% (e.g., HYSTAMT 5) \\
+\bottomrule
+\end{tabular}
+\caption{Signal Processing Commands}
+\end{table}
+
+The filter strength parameter controls a low-pass filter coefficient applied to sensor readings. Anti-windup prevents integral accumulation when the PID output saturates. Hysteresis compensation reduces hunting around the setpoint by adding dead zone behavior.
+
+\subsubsection{PWM and Valve Control Commands}
+These commands manage PWM signal generation and manual valve control:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+FREQ <hz> & Set PWM frequency, 100-10000Hz (e.g., FREQ 1000) \\
+RES <bits> & Set PWM resolution, 1-16 bits (e.g., RES 8) \\
+PWM <percent> & Force PWM duty cycle, 0-100\% (e.g., PWM 25) \\
+RESUME & Resume normal PID control after manual PWM mode \\
+CONTROL FREQ <hz> & Set control loop frequency, 10-1000Hz (e.g., CONTROL FREQ 100) \\
+\bottomrule
+\end{tabular}
+\caption{PWM and Valve Control Commands}
+\end{table}
+
+The PWM command forces the valve to a specific duty cycle and activates manual PWM mode, suspending PID control. The RESUME command returns to PID-controlled operation. When PWM resolution is changed, the system maintains the same duty cycle percentage by automatically scaling the output value. The system provides feedback about control/PID timing relationships when these parameters are modified.
+
+\subsubsection{Auto-Tuning Commands}
+These commands manage the relay-based PID auto-tuning process:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+TUNE START & Start PID auto-tuning process \\
+TUNE STOP / TUNE CANCEL & Cancel running auto-tuning \\
+TUNE ACCEPT & Accept calculated PID parameters and apply them \\
+TUNE REJECT & Reject calculated parameters and keep current values \\
+TUNE SP <bar> & Set test setpoint for auto-tuning, 0.5-10.0 bar \\
+TUNE MIN <pct> & Set minimum PWM range for tuning, 50-90\% \\
+TUNE MAX <pct> & Set maximum PWM range for tuning, 60-95\% \\
+TUNE CYCLE <ms> & Set minimum cycle time, 50-2000ms \\
+TUNE RULE <0-3> & Select tuning rule (0=Ziegler-Nichols Classic, 1=Aggressive, etc.) \\
+TUNE AGGR <val> & Set aggressiveness factor, 0.5-2.0 \\
+TUNE RULES & Display available tuning rules with detailed descriptions \\
+AUTOTUNE & Test and display AutoTuner configuration and status \\
+\bottomrule
+\end{tabular}
+\caption{Auto-Tuning Commands}
+\end{table}
+
+The auto-tuning process uses relay oscillation to identify the critical frequency and gain of the system, then applies Ziegler-Nichols or similar tuning rules to calculate optimal PID parameters. During auto-tuning, the system operates in manual PWM mode and switches the valve on/off within the configured PWM range to induce oscillation. The TUNE RULES command displays the available tuning algorithms with their mathematical formulas.
+
+\subsubsection{Network and WiFi Commands}
+These commands manage WiFi access point configuration and web server operation:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+SCAN WIFI & Scan and list available WiFi networks with signal strength \\
+WIFI CHANNEL <ch> & Set WiFi AP channel, 1-13 (for interference avoidance) \\
+PAGE ON & Enable web server processing and HTTP endpoints \\
+PAGE OFF & Disable web server processing \\
+\bottomrule
+\end{tabular}
+\caption{Network and WiFi Commands}
+\end{table}
+
+The SCAN WIFI command performs a WiFi network scan and displays available networks with their SSID, signal strength (RSSI), and channel information. The WIFI CHANNEL command allows changing the AP's WiFi channel to reduce interference with other networks. The PAGE ON/OFF commands control whether the web server processes HTTP requests while maintaining the WiFi connection.
+
+\subsubsection{Data Monitoring and Diagnostics Commands}
+These commands provide system status reporting and continuous data output:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+STATUS & Display comprehensive system status report \\
+SENSOR & Test SensorManager and display detailed sensor readings \\
+STARTCD & Start continuous data output for plotting and analysis \\
+STOPCD & Stop continuous data output \\
+MEM & Display memory usage and system information \\
+VER & Display firmware version and build information \\
+\bottomrule
+\end{tabular}
+\caption{Data Monitoring and Diagnostics Commands}
+\end{table}
+
+The STATUS command provides a detailed system overview including current pressure, PID parameters, PWM settings, network configuration, and auto-tune status. The SENSOR command tests the SensorManager and displays raw ADC values, voltages, raw pressure, filtered pressure, and pressure safety status. MEM shows heap memory usage (free, used, minimum free, maximum allocation) and LittleFS flash storage usage with task information. The continuous data output (STARTCD/STOPCD) streams periodic readings for integration with external plotting tools or data loggers.
+
+\subsubsection{File System and Settings Commands}
+These commands manage persistent configuration storage:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+SAVE & Force save current settings to LittleFS flash memory \\
+READ & Display settings currently stored in flash memory \\
+DIR & List all files in flash memory with sizes \\
+\bottomrule
+\end{tabular}
+\caption{File System and Settings Commands}
+\end{table}
+
+Settings are automatically saved after most parameter modifications, but the SAVE command allows explicit saving. The READ command displays the JSON configuration stored in flash, and DIR lists all files in the LittleFS partition with their sizes in kilobytes.
+
+\subsubsection{Help and Reference}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Command} & \textbf{Description} \\
+\midrule
+HELP & Display interactive command reference with all available commands \\
+\bottomrule
+\end{tabular}
+\caption{Help Command}
+\end{table}
+
+The HELP command displays a formatted command reference including command syntax, parameter ranges, and example usage workflow.

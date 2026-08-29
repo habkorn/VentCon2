@@ -161,8 +161,8 @@ void ControlSystem::processControlLoop()
             // Store previous output for anti-windup check
             double previousOutput = *pwmPIDoutput;
 
-            // Compute PID output
-            pid->Compute();
+            // Protect the double setpoint pointer read against concurrent NetworkTask writes.
+            settings->withLock([&]{ pid->Compute(); });
 
             
             

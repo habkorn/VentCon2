@@ -42,11 +42,8 @@ void AutoTuner::start()
         return;
     }
     
-    // Save current settings
-    autoTuneSetpoint = settings->setpoint;
-    
-    // Set auto-tune setpoint and prepare system
-    settings->setpoint = testSetpoint;
+    // Save current setpoint and install test setpoint atomically.
+    settings->update([this](SettingsHandler& s){ autoTuneSetpoint = s.setpoint; s.setpoint = testSetpoint; });
     
     // Initialize auto-tune variables
     autoTuneRunning = true;
@@ -67,7 +64,7 @@ void AutoTuner::start()
     applyPWMOutput(autoTuneOutputValue);
     
     Serial.println("\n=== PID Auto-Tuning Started ===");
-    Serial.printf("Target Setpoint: %.2f bar\n", settings->setpoint);
+    Serial.printf("Target Setpoint: %.2f bar\n", testSetpoint);
     Serial.printf("Relay Output: %.1f%% - %.1f%% (valve effective range)\n", minPwmValue, maxPwmValue);
     Serial.printf("Valve operating range: %.1f%% - %.1f%%\n", ValveConfig::VALVE_MIN_DUTY, ValveConfig::VALVE_MAX_DUTY);
     Serial.printf("Effective relay amplitude: %.1f%%\n", getEffectiveAmplitude());
@@ -96,20 +93,15 @@ void AutoTuner::stop(bool calculateParameters)
             Serial.printf("Aggressiveness Factor: %.1f\n", tuningAggressiveness);
             
             Serial.println("\nCalculated PID Parameters:");
-            Serial.printf("Kp: %.2f (previously %.2f)\n", newKp, settings->Kp);
-            Serial.printf("Ki: %.2f (previously %.2f)\n", newKi, settings->Ki);
-            Serial.printf("Kd: %.2f (previously %.2f)\n", newKd, settings->Kd);
-            
-            // Prompt user to accept or reject values
-            Serial.println("\nTo accept these values, type 'TUNE ACCEPT'");
-            Serial.println("To reject and keep current values, type 'TUNE REJECT'");
-            Serial.println("For faster response, try 'TUNE RULE 1' before starting auto-tune");
-            Serial.println("For even faster response, try 'TUNE AGGR 1.5' to increase aggressiveness");
-            
-            // Store calculated values for later acceptance
-            settings->Kp = newKp;
-            settings->Ki = newKi;
-            settings->Kd = newKd;
+            // Read old values then write new ones in one atomic update.
+            double oldKp, oldKi, oldKd;
+            settings->update([&](SettingsHandler& s) {
+                oldKp = s.Kp; oldKi = s.Ki; oldKd = s.Kd;
+                s.Kp = newKp;  s.Ki = newKi;  s.Kd = newKd;
+            });
+            Serial.printf("Kp: %.2f (previously %.2f)\n", newKp, oldKp);
+            Serial.printf("Ki: %.2f (previously %.2f)\n", newKi, oldKi);
+            Serial.printf("Kd: %.2f (previously %.2f)\n", newKd, oldKd);
         } 
         else 
         {
@@ -123,16 +115,18 @@ void AutoTuner::stop(bool calculateParameters)
         Serial.println("Not enough cycles collected for reliable tuning.");
     }
     
-    // Restore previous settings
-    settings->setpoint = autoTuneSetpoint;
+    // Restore previous setpoint.
+    settings->update([this](SettingsHandler& s){ s.setpoint = autoTuneSetpoint; });
     
     // Reset state
     autoTuneRunning = false;
     
     // Reset PID controller — force Manual→Automatic transition so
     // Initialize() runs and clears stale outputSum from tuning.
+    double kp, ki, kd;
+    settings->update([&](SettingsHandler& s){ kp = s.Kp; ki = s.Ki; kd = s.Kd; });
     pid->SetMode(PID::Manual);
-    pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+    pid->SetTunings(kp, ki, kd);
     pid->SetMode(PID::Automatic);
 }
 
@@ -159,8 +153,12 @@ void AutoTuner::process()
         return;
     }
     
+    // setpoint is a double (64-bit); read it atomically before comparing.
+    double sp;
+    settings->withLock([&]{ sp = settings->setpoint; });
+
     // Relay oscillation logic
-    if (!autoTuneState && *pressureInput > settings->setpoint) 
+    if (!autoTuneState && *pressureInput > sp) 
     {
         // Transition from high to low
         unsigned long now = millis();
@@ -191,7 +189,7 @@ void AutoTuner::process()
             applyPWMOutput(autoTuneOutputValue);
         }
     } 
-    else if (autoTuneState && *pressureInput < settings->setpoint - AUTOTUNE_NOISE_BAND) 
+    else if (autoTuneState && *pressureInput < sp - AUTOTUNE_NOISE_BAND) 
     {
         // Transition from low to high
         unsigned long now = millis();
@@ -215,15 +213,19 @@ void AutoTuner::process()
 void AutoTuner::acceptParameters() 
 {
     Serial.println("New PID parameters accepted!");
+    double kp, ki, kd;
+    settings->update([&](SettingsHandler& s){ kp = s.Kp; ki = s.Ki; kd = s.Kd; });
     settings->save();
-    pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+    pid->SetTunings(kp, ki, kd);
 }
 
 void AutoTuner::rejectParameters() 
 {
     Serial.println("New PID parameters rejected. Reverting to previous values.");
-    settings->load(); // Reload previous settings
-    pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+    settings->load();
+    double kp, ki, kd;
+    settings->update([&](SettingsHandler& s){ kp = s.Kp; ki = s.Ki; kd = s.Kd; });
+    pid->SetTunings(kp, ki, kd);
 }
 
 void AutoTuner::setTestSetpoint(float setpoint) 

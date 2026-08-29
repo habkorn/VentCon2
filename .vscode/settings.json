@@ -1,8 +1,14 @@
 {
     "files.associations": {
+        "*.h": "cpp",
+        "*.hpp": "cpp",
+        "*.ino": "cpp",
         "fstream": "cpp",
         "typeinfo": "cpp"
     },
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/compile_commands.json",
+    "C_Cpp.default.cppStandard": "gnu++11",
+    "C_Cpp.default.cStandard": "gnu11",
     "chat.tools.terminal.autoApprove": {
         "/^C:\\\\Users\\\\thomas\\.haberkorn\\\\\\.platformio\\\\penv\\\\Scripts\\\\platformio\\.exe run 2>&1$/": {
             "approve": true,

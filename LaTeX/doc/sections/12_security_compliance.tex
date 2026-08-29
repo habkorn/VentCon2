@@ -1,0 +1,78 @@
+% Section 12: Security and Compliance
+
+\section{Security and Compliance}
+\label{sec:security-compliance}
+
+This section summarises the device's security posture and its status under the
+European Union Cyber Resilience Act (CRA), Regulation (EU) 2024/2847. Detailed
+findings live in the \texttt{sec/} folder of the repository and are referenced below.
+
+\subsection{Security Analysis}
+
+A web interface security analysis was performed on 2026-08-27 and is documented in
+\texttt{sec/2026-08-27\_Webinterface\_Sicherheitsanalyse.md}. The browser interface
+is the primary control surface for a valve regulating pressures up to approximately
+10\,bar. The critical findings are:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Finding} & \textbf{Location} & \textbf{CRA Annex I clause} \\
+\midrule
+No authentication on control endpoints & \texttt{WebHandlers.cpp} & 1.2 (authentication, access control) \\
+Hardcoded, public AP password & \texttt{Constants.h} & 1.1 (no default passwords) \\
+Calibration writable via HTTP, defeats shutdown & \texttt{handleSet()} / \texttt{isPressureSafe()} & 1.7 (integrity, safety) \\
+State changes via HTTP GET (CSRF) & \texttt{/set}, \texttt{/resetPID} & 1.10 (secure defaults) \\
+Arbitrary file read (path traversal) & \texttt{onNotFound()} & 1.4 (attack surface) \\
+Unbounded PID gain ranges & \texttt{/api/slider-limits} & 1.7 (input validation) \\
+Flash wear via repeated \texttt{save()} & \texttt{/set} handler & 1.3 (availability) \\
+\bottomrule
+\end{tabular}
+\caption{Security findings mapped to CRA essential requirements.}
+\end{table}
+
+Two robustness items were fixed in v2.7.3: the settings access mutex (P3.1) and the
+client-connect denial-of-service behaviour (P3.2). The remaining items are tracked as
+an implementation plan with priorities P1 (critical) through P3 (robustness).
+
+\subsection{EU Cyber Resilience Act (CRA)}
+
+VentCon2 is a product with digital elements and therefore falls under Regulation
+(EU) 2024/2847 once it is placed on the EU market in a commercial activity. It is a
+default-category product, so conformity is demonstrated by self-assessment under
+Module A, with no notified body required. The applicable obligations are:
+
+\begin{itemize}
+    \item Security by design and by default (Annex I, Part I).
+    \item A documented cybersecurity risk assessment.
+    \item A software bill of materials (SBOM) of all components.
+    \item A signed over-the-air update mechanism.
+    \item A declared support period of at least 5 years, with its end date published.
+    \item A vulnerability disclosure policy and a security contact.
+    \item CE marking, technical documentation (Annex VII), and an EU declaration of
+          conformity (Annex V).
+    \item Incident reporting to the national CSIRT and ENISA from 2026-09-11, with
+          full application of all obligations from 2027-12-11.
+\end{itemize}
+
+Because the device contains Wi-Fi, the Radio Equipment Directive (RED) and Delegated
+Regulation (EU) 2022/30 may apply instead of the CRA for the cybersecurity
+requirements. This classification must be confirmed before conformity assessment.
+
+\subsection{Compliance Status}
+
+The complete compliance checklist is maintained in
+\texttt{sec/2026-08-29\_CRA\_Compliance\_Checklist.md}. In summary, the
+security-critical code fixes (Phase 1 and Phase 2 of the security analysis) are open,
+and the documentation package (risk assessment, SBOM, support period, technical
+documentation, declaration of conformity) has not yet been produced.
+
+\subsection{Related Documents}
+
+\begin{itemize}
+    \item \texttt{sec/2026-08-27\_Webinterface\_Sicherheitsanalyse.md} - web interface security analysis.
+    \item \texttt{sec/2026-08-29\_CRA\_Compliance\_Checklist.md} - CRA compliance checklist.
+    \item \texttt{sec/2026-08-27\_Mutex\_Settings\_Zugriff\_Plan.md} - settings mutex plan (P3.1).
+    \item \texttt{sec/2026-08-28\_Mutex\_How\_It\_Works.md} - settings mutex primer.
+\end{itemize}

@@ -82,9 +82,10 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         float val = cmd.substring(3).toFloat();
         if (val >= settings->kp_limits.min && val <= settings->kp_limits.max)
         {
-            settings->Kp = val;
-            pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-            Serial.printf("Proportional gain set to: %.2f\n", settings->Kp);
+            double kp, ki, kd;
+            settings->update([&](SettingsHandler& s){ s.Kp = val; kp = s.Kp; ki = s.Ki; kd = s.Kd; });
+            pid->SetTunings(kp, ki, kd);
+            Serial.printf("Proportional gain set to: %.2f\n", kp);
             settings->save();
         }
         else { Serial.printf("KP out of range (%.2f - %.2f)\n", settings->kp_limits.min, settings->kp_limits.max); }
@@ -94,9 +95,10 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         float val = cmd.substring(3).toFloat();
         if (val >= settings->ki_limits.min && val <= settings->ki_limits.max)
         {
-            settings->Ki = val;
-            pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-            Serial.printf("Integral gain set to: %.2f\n", settings->Ki);
+            double kp, ki, kd;
+            settings->update([&](SettingsHandler& s){ s.Ki = val; kp = s.Kp; ki = s.Ki; kd = s.Kd; });
+            pid->SetTunings(kp, ki, kd);
+            Serial.printf("Integral gain set to: %.2f\n", ki);
             settings->save();
         }
         else { Serial.printf("KI out of range (%.2f - %.2f)\n", settings->ki_limits.min, settings->ki_limits.max); }
@@ -106,9 +108,10 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         float val = cmd.substring(3).toFloat();
         if (val >= settings->kd_limits.min && val <= settings->kd_limits.max)
         {
-            settings->Kd = val;
-            pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
-            Serial.printf("Derivative gain set to: %.2f\n", settings->Kd);
+            double kp, ki, kd;
+            settings->update([&](SettingsHandler& s){ s.Kd = val; kp = s.Kp; ki = s.Ki; kd = s.Kd; });
+            pid->SetTunings(kp, ki, kd);
+            Serial.printf("Derivative gain set to: %.2f\n", kd);
             settings->save();
         }
         else { Serial.printf("KD out of range (%.2f - %.2f)\n", settings->kd_limits.min, settings->kd_limits.max); }
@@ -119,8 +122,8 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         float spMax = min(settings->sensor_max_pressure, OperatingDefaults::HARD_SP_MAX_BAR);
         if (val >= settings->sp_limits.min && val <= spMax)
         {
-            settings->setpoint = val;
-            Serial.printf("Setpoint updated to: %.2f bar\n", settings->setpoint);
+            settings->update([val](SettingsHandler& s){ s.setpoint = val; });
+            Serial.printf("Setpoint updated to: %.2f bar\n", val);
             settings->save();
         }
         else
@@ -130,12 +133,12 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
     }
     else if (cmd.startsWith("SAMPLE ")) 
     {
-        int newSampleTime = cmd.substring(7).toInt();
-        newSampleTime = constrain(newSampleTime, ControlConfig::MIN_SAMPLE_TIME_MS, ControlConfig::MAX_SAMPLE_TIME_MS);
-        settings->pid_sample_time = newSampleTime;
-        pid->SetSampleTime(settings->pid_sample_time);
-        Serial.printf("PID sample time set to: %d ms (%.1f Hz)\n", 
-                     settings->pid_sample_time, 1000.0/settings->pid_sample_time);
+        int newSampleTime = constrain(cmd.substring(7).toInt(),
+                                      ControlConfig::MIN_SAMPLE_TIME_MS, ControlConfig::MAX_SAMPLE_TIME_MS);
+        settings->update([newSampleTime](SettingsHandler& s){ s.pid_sample_time = newSampleTime; });
+        pid->SetSampleTime(newSampleTime);
+        Serial.printf("PID sample time set to: %d ms (%.1f Hz)\n",
+                     newSampleTime, 1000.0 / newSampleTime);
         
         // Check timing relationship and provide feedback
         float controlPeriod = 1000.0 / settings->control_freq_hz;
@@ -159,6 +162,9 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
     {
         // Reset PID controller
         Serial.println("Resetting PID controller...");
+
+        double kp, ki, kd;
+        settings->update([&](SettingsHandler& s){ kp = s.Kp; ki = s.Ki; kd = s.Kd; });
         
         pid->SetMode(PID::Manual);
         *pwmPIDoutput = 0;
@@ -171,7 +177,7 @@ void CommandProcessor::handlePIDCommands(const String& cmd)
         }
         
         // Re-initialize PID with current settings
-        pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+        pid->SetTunings(kp, ki, kd);
         pid->SetOutputLimits(0, *pwmFullScaleRaw);
         pid->SetMode(PID::Automatic);
         
@@ -186,40 +192,40 @@ void CommandProcessor::handleSignalProcessingCommands(const String& cmd)
 {
     if (cmd.startsWith("FLT ")) 
     {
-        float new_flt = cmd.substring(4).toFloat();
-        settings->filter_strength = constrain(new_flt, FilterConfig::MIN_STRENGTH, FilterConfig::MAX_STRENGTH);
-        Serial.printf("Filter strength set to: %.2f\n", settings->filter_strength);
+        float v = constrain(cmd.substring(4).toFloat(), FilterConfig::MIN_STRENGTH, FilterConfig::MAX_STRENGTH);
+        settings->update([v](SettingsHandler& s){ s.filter_strength = v; });
+        Serial.printf("Filter strength set to: %.2f\n", v);
         settings->save();
     }
     else if (cmd == "AW ON") 
     {
-        settings->antiWindup = true;
+        settings->update([](SettingsHandler& s){ s.antiWindup = true; });
         Serial.println("Anti-windup for deadband enabled");
         settings->save();
     }
     else if (cmd == "AW OFF") 
     {
-        settings->antiWindup = false;
+        settings->update([](SettingsHandler& s){ s.antiWindup = false; });
         Serial.println("Anti-windup for deadband disabled");
         settings->save();
     }
     else if (cmd == "HYST ON") 
     {
-        settings->hysteresis = true;
+        settings->update([](SettingsHandler& s){ s.hysteresis = true; });
         Serial.println("Hysteresis compensation enabled");
         settings->save();
     }
     else if (cmd == "HYST OFF") 
     {
-        settings->hysteresis = false;
+        settings->update([](SettingsHandler& s){ s.hysteresis = false; });
         Serial.println("Hysteresis compensation disabled");
         settings->save();
     }
     else if (cmd.startsWith("HYSTAMT ")) 
     {
-        settings->hystAmount = cmd.substring(8).toFloat();
-        settings->hystAmount = constrain(settings->hystAmount, ValveConfig::HYST_MIN, ValveConfig::HYST_MAX);
-        Serial.printf("Hysteresis compensation amount set to: %.1f%%\n", settings->hystAmount);
+        float v = constrain(cmd.substring(8).toFloat(), ValveConfig::HYST_MIN, ValveConfig::HYST_MAX);
+        settings->update([v](SettingsHandler& s){ s.hystAmount = v; });
+        Serial.printf("Hysteresis compensation amount set to: %.1f%%\n", v);
         settings->save();
     }
 }
@@ -228,31 +234,23 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
 {
     if (cmd.startsWith("FREQ ")) 
     {
-        int new_freq = cmd.substring(5).toInt();
-        settings->pwm_freq = constrain(new_freq, PwmConfig::MIN_FREQ_HZ, PwmConfig::MAX_FREQ_HZ);
+        int v = constrain(cmd.substring(5).toInt(), PwmConfig::MIN_FREQ_HZ, PwmConfig::MAX_FREQ_HZ);
+        settings->update([v](SettingsHandler& s){ s.pwm_freq = v; });
         updatePWM();
-        Serial.printf("PWM frequency updated to: %d Hz\n", settings->pwm_freq);
+        Serial.printf("PWM frequency updated to: %d Hz\n", v);
         settings->save();
     }
     else if (cmd.startsWith("RES ")) 
     {
-        int new_res = cmd.substring(4).toInt();
-        // Store current duty cycle percentage before changing resolution
+        int new_res = constrain(cmd.substring(4).toInt(), PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS);
         float current_duty_percent = (*pwmPIDoutput / (float)*pwmFullScaleRaw) * 100.0;
-        
-        // Update resolution and max value
-        settings->pwm_res = constrain(new_res, PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS);
-        int new_max_value = (1 << settings->pwm_res) - 1;
-        
-        // Scale pwmPIDoutput to maintain the same duty cycle
+        settings->update([new_res](SettingsHandler& s){ s.pwm_res = new_res; });
+        int new_max_value = (1 << new_res) - 1;
         *pwmPIDoutput = (current_duty_percent / 100.0) * new_max_value;
-        
-        // Update max value and PID limits
         *pwmFullScaleRaw = new_max_value;
         pid->SetOutputLimits(0, *pwmFullScaleRaw);
         updatePWM();
-        
-        Serial.printf("PWM resolution updated to: %d bits (max: %d)\n", settings->pwm_res, *pwmFullScaleRaw);
+        Serial.printf("PWM resolution updated to: %d bits (max: %d)\n", new_res, new_max_value);
         Serial.printf("Duty cycle maintained at: %.1f%%\n", current_duty_percent);
         settings->save();
     }
@@ -282,18 +280,18 @@ void CommandProcessor::handlePWMCommands(const String& cmd)
     }
     else if (cmd.startsWith("CONTROL FREQ ")) 
     {
-        int new_freq = cmd.substring(13).toInt();
-        settings->control_freq_hz = constrain(new_freq, ControlConfig::MIN_FREQ_HZ, ControlConfig::MAX_FREQ_HZ);
-        Serial.printf("Control loop frequency updated to: %d Hz (period: %.1f ms)\n", 
-                     settings->control_freq_hz, 1000.0/settings->control_freq_hz);
+        int v = constrain(cmd.substring(13).toInt(), ControlConfig::MIN_FREQ_HZ, ControlConfig::MAX_FREQ_HZ);
+        settings->update([v](SettingsHandler& s){ s.control_freq_hz = v; });
+        Serial.printf("Control loop frequency updated to: %d Hz (period: %.1f ms)\n",
+                     v, 1000.0 / v);
         
         // Check timing relationship and provide feedback
-        float controlPeriod = 1000.0 / settings->control_freq_hz;
+        float controlPeriod = 1000.0 / v;
         float pidPeriod = settings->pid_sample_time;
         if (controlPeriod > pidPeriod) 
         {
             Serial.printf("WARNING: Control period (%.1f ms) > PID period (%.1f ms) - PID limited to %.0f Hz\n", 
-                         controlPeriod, pidPeriod, settings->control_freq_hz);
+                         controlPeriod, pidPeriod, v);
         } 
         else if (controlPeriod < pidPeriod / 2) 
         {
@@ -576,7 +574,7 @@ void CommandProcessor::handleDiagnosticCommands(const String& cmd)
             if (val >= settings->sensor_max_pressure) {
                 Serial.printf("ERROR: Min pressure (%.2f) must be less than max pressure (%.2f)\n", val, settings->sensor_max_pressure);
             } else {
-                settings->sensor_min_pressure = val;
+                settings->update([val](SettingsHandler& s){ s.sensor_min_pressure = val; });
                 Serial.printf("Sensor min pressure set to: %.2f bar\n", val);
                 settings->save();
             }
@@ -584,7 +582,7 @@ void CommandProcessor::handleDiagnosticCommands(const String& cmd)
             if (val <= settings->sensor_min_pressure) {
                 Serial.printf("ERROR: Max pressure (%.2f) must be greater than min pressure (%.2f)\n", val, settings->sensor_min_pressure);
             } else {
-                settings->sensor_max_pressure = val;
+                settings->update([val](SettingsHandler& s){ s.sensor_max_pressure = val; });
                 Serial.printf("Sensor max pressure set to: %.2f bar\n", val);
                 settings->save();
             }
@@ -592,7 +590,7 @@ void CommandProcessor::handleDiagnosticCommands(const String& cmd)
             if (val < 0 || val >= settings->sensor_max_voltage) {
                 Serial.printf("ERROR: Min voltage (%.3f) must be >= 0 and less than max voltage (%.3f)\n", val, settings->sensor_max_voltage);
             } else {
-                settings->sensor_min_voltage = val;
+                settings->update([val](SettingsHandler& s){ s.sensor_min_voltage = val; });
                 Serial.printf("Sensor min voltage set to: %.3f V\n", val);
                 settings->save();
             }
@@ -600,7 +598,7 @@ void CommandProcessor::handleDiagnosticCommands(const String& cmd)
             if (val <= settings->sensor_min_voltage || val > SensorConfigDefaults::SENSOR_MAX_VOLTAGE_LIMIT) {
                 Serial.printf("ERROR: Max voltage (%.3f) must be > min voltage (%.3f) and <= %.1fV\n", val, settings->sensor_min_voltage, SensorConfigDefaults::SENSOR_MAX_VOLTAGE_LIMIT);
             } else {
-                settings->sensor_max_voltage = val;
+                settings->update([val](SettingsHandler& s){ s.sensor_max_voltage = val; });
                 Serial.printf("Sensor max voltage set to: %.3f V\n", val);
                 settings->save();
             }

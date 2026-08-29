@@ -1,0 +1,290 @@
+% Section 8: SYSTEM INTEGRATION AND DATA FLOW
+
+\section{System Integration and Data Flow}
+
+\subsection{Initialization Sequence}
+\begin{enumerate}
+    \item Serial communication setup (115200 baud)
+    \item Logger initialization (rate-limited logging)
+    \item LittleFS file system initialization
+    \item Settings loading from persistent storage
+    \item SensorManager initialization with ADC detection
+    \item AutoTuner initialization with PID references
+    \item CommandProcessor initialization with all dependencies
+    \item PWM channel configuration for valve and analog output
+    \item WebHandler initialization with WiFi AP setup
+    \item ControlSystem initialization and task creation
+    \item TaskManager initialization and FreeRTOS task creation
+    \item PID controller configuration and startup
+\end{enumerate}
+
+\subsection{Real-time Operation}
+The system operates with strict timing requirements:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Operation} & \textbf{Frequency} & \textbf{Timing Constraint} \\
+\midrule
+Control Loop & Configurable (default 1000 Hz) & Variable (default 1 ms) \\
+Sensor Reading & Configurable (default 1000 Hz) & < 0.5 ms \\
+PID Computation & Configurable (default 100 Hz) & 10 ms period \\
+Web Data Update & 10 Hz & 100 ms period \\
+Serial Commands & On demand & < 10 ms response \\
+\bottomrule
+\end{tabular}
+\caption{System Timing Requirements}
+\end{table}
+
+\subsection{Safety Mechanisms}
+\begin{itemize}
+    \item \textbf{Pressure Limits:} Emergency shutdown on over-pressure via \texttt{isPressureSafe()}
+    \item \textbf{Sensor Fallback:} Automatic ADC switching on failure
+    \item \textbf{Settings Mutex:} FreeRTOS mutex protects shared settings access (v2.7.3)
+    \item \textbf{Watchdog:} FreeRTOS task monitoring
+    \item \textbf{PWM Limits:} Valve duty cycle constraints
+    \item \textbf{Manual Override:} Emergency manual PWM control
+    \item \textbf{Configuration Validation:} Parameter range checking
+\end{itemize}
+
+Note: the over-pressure shutdown can currently be defeated by modifying the sensor calibration via the web interface; see Section~\ref{sec:security-compliance}.
+
+\subsection{Settings Mutex and Concurrency}
+\label{sec:settings-mutex}
+
+The global \texttt{SettingsHandler settings} object is shared by three execution
+contexts: the ControlTask (core 1, high priority, 1000 Hz), the NetworkTask (core 0,
+web server), and the Arduino \texttt{loop()} (core 1, serial commands). All three read
+and write tunable values such as the setpoint, PID gains, and sensor calibration. To
+prevent data races between these tasks, the settings object is protected by a FreeRTOS
+mutex. This subsection explains why the mutex is needed and how it is used.
+
+\subsubsection{The Problem: Shared Data and Torn Reads}
+
+On the 32-bit Xtensa LX7 (ESP32-S3), reads and writes of 32-bit values are atomic: they
+complete in a single instruction and cannot be interrupted halfway. 64-bit values such
+as \texttt{double setpoint} are different. A \texttt{double} occupies 64 bits, so writing
+it takes two 32-bit instructions. If the NetworkTask writes the upper 32 bits of a new
+setpoint and the ControlTask reads the value before the lower 32 bits are written, the
+reader gets half of the old value and half of the new one. This is called a torn read
+and produces a value that is neither old nor new, just garbage.
+
+\begin{verbatim}
+Core 0 (NetworkTask, writing setpoint = 5.0)   Core 1 (ControlTask, reading setpoint)
+---------------------------------------------- --------------------------------------
+write upper 32 bits of 5.0 --------------------------------------------------------->
+                                                  <-- read upper 32 bits of 5.0 (new)
+write lower 32 bits of 5.0                        <-- read lower 32 bits of ??? (old)
+\end{verbatim}
+
+For a pressure control system this is dangerous: a torn setpoint or a torn PID gain can
+produce a control output that is wildly wrong while still looking valid.
+
+\subsubsection{FreeRTOS Mutex on the ESP32}
+
+The ESP32 Arduino framework uses FreeRTOS. A mutex is a binary semaphore with one extra
+property: it records which task owns it, which lets the OS prevent priority inversion
+(a low-priority task blocking a high-priority task indefinitely). FreeRTOS provides the
+following API:
+
+\begin{lstlisting}[caption=FreeRTOS Mutex API]
+SemaphoreHandle_t xSemaphoreCreateMutex();   // Create a mutex
+xSemaphoreTake(handle, portMAX_DELAY);       // Lock (block until available)
+xSemaphoreGive(handle);                      // Unlock
+vSemaphoreDelete(handle);                    // Destroy
+\end{lstlisting}
+
+Taking and giving an uncontended mutex takes roughly 1--2\,$\mu$s on the ESP32-S3.
+
+\subsubsection{The Three Access Patterns}
+
+The mutex is a private member of \texttt{SettingsHandler}
+(\texttt{SemaphoreHandle\_t \_mutex}), created in the constructor and deleted in the
+destructor. Call sites never see the handle. Instead, three methods wrap the lock in
+safe, intention-revealing patterns.
+
+\paragraph{Pattern 1: update(fn), writing fields}
+
+\begin{lstlisting}[caption=SettingsHandler::update - Locked Write]
+template<typename Fn>
+void update(Fn fn) {
+    xSemaphoreTake(_mutex, portMAX_DELAY);
+    fn(*this);
+    xSemaphoreGive(_mutex);
+}
+\end{lstlisting}
+
+\texttt{update} locks the mutex, calls a lambda with a reference to the settings object,
+then unlocks. Callers write one or more fields through the reference:
+
+\begin{lstlisting}[caption=Using update()]
+// Single field: filter strength
+settings->update([v](SettingsHandler& s){ s.filter_strength = v; });
+
+// Multiple fields atomically: all three PID gains change together
+settings->update([&](SettingsHandler& s){
+    s.Kp = newKp; s.Ki = newKi; s.Kd = newKd;
+});
+\end{lstlisting}
+
+The capture clause \texttt{[v]} copies the outer local into the lambda at creation time,
+before the mutex is taken. This guarantees the lambda uses the value that was validated
+in the outer function, even if another task modifies the original in the tiny gap before
+\texttt{update} acquires the lock. \texttt{[\&]} captures by reference and is used when
+values must be written back out of the lambda after it runs.
+
+\paragraph{Pattern 2: withLock(fn), protected reads of 64-bit fields}
+
+\begin{lstlisting}[caption=SettingsHandler::withLock - Locked Read]
+template<typename Fn>
+void withLock(Fn fn) {
+    xSemaphoreTake(_mutex, portMAX_DELAY);
+    fn();
+    xSemaphoreGive(_mutex);
+}
+\end{lstlisting}
+
+\texttt{withLock} locks the mutex and calls a void lambda. It is used in two places:
+
+\begin{itemize}
+    \item \textbf{pid->Compute() in ControlSystem:} the PID library holds a raw pointer
+          \texttt{double* mySetpoint} that points directly into \texttt{settings.setpoint}.
+          \texttt{Compute()} reads that 64-bit value, so the read must be atomic with
+          respect to writes from the NetworkTask:
+\begin{lstlisting}[caption=Locked PID Computation]
+settings->withLock([&]{ pid->Compute(); });
+\end{lstlisting}
+    \item \textbf{AutoTuner::process():} the tuner reads the setpoint once per cycle to
+          compare it against the measured pressure. The same torn-read risk applies:
+\begin{lstlisting}[caption=Locked Setpoint Read]
+double sp;
+settings->withLock([&]{ sp = settings->setpoint; });
+\end{lstlisting}
+\end{itemize}
+
+\paragraph{Pattern 3: snapshotTo(out), bulk consistent reads}
+
+\begin{lstlisting}[caption=SettingsHandler::snapshotTo - Atomic Multi-field Read]
+void SettingsHandler::snapshotTo(SettingsSnapshot& out) {
+    xSemaphoreTake(_mutex, portMAX_DELAY);
+    out.Kp = Kp; out.Ki = Ki; out.Kd = Kd;
+    out.setpoint = setpoint;
+    // ... all other fields ...
+    xSemaphoreGive(_mutex);
+}
+\end{lstlisting}
+
+\texttt{SettingsSnapshot} is a plain struct that mirrors every field of
+\texttt{SettingsHandler}. \texttt{snapshotTo} copies all fields in one locked operation,
+producing a consistent point-in-time copy. All HTTP GET handlers that render data use it:
+
+\begin{lstlisting}[caption=Using snapshotTo()]
+SettingsSnapshot cfg;
+settings->snapshotTo(cfg);
+// Render the page using cfg.Kp, cfg.setpoint, etc.
+// The mutex is released; no lock is held during the slow page send.
+\end{lstlisting}
+
+The lock is deliberately not held during the page render: sending an HTTP response can
+take milliseconds, and holding the mutex that long would stall the ControlTask every time
+a browser loads the page.
+
+\subsubsection{Serialization and Persistence: save() and load()}
+
+\texttt{save()} must read all fields to build a JSON string and then write that string to
+flash. Flash I/O is slow (typically 5--20\,ms). If the mutex were held for the whole
+operation, the ControlTask would stall for up to 20\,ms on every web-interface change.
+The solution is to serialize under the lock and write outside it:
+
+\begin{lstlisting}[caption={SettingsHandler::save - Serialize Under Lock, Write Outside}]
+bool SettingsHandler::save() {
+    String jsonBuffer;
+    xSemaphoreTake(_mutex, portMAX_DELAY);
+    JsonDocument doc;
+    doc["Kp"] = Kp;
+    // ... populate all fields ...
+    serializeJson(doc, jsonBuffer);   // fast in-memory operation
+    xSemaphoreGive(_mutex);           // release BEFORE the flash write
+
+    File file = LittleFS.open(SETTINGS_FILE_PATH, "w");
+    file.print(jsonBuffer);           // slow flash write, no mutex held
+    file.close();
+    return true;
+}
+\end{lstlisting}
+
+\texttt{load()} is the mirror image: the file read and JSON parse happen outside the lock,
+and only the final field assignments happen under it:
+
+\begin{lstlisting}[caption=SettingsHandler::load - Assign Under Lock]
+bool SettingsHandler::load() {
+    File file = LittleFS.open(SETTINGS_FILE_PATH, "r");
+    JsonDocument doc;
+    deserializeJson(doc, file);       // slow I/O and parse, no lock
+    file.close();
+
+    xSemaphoreTake(_mutex, portMAX_DELAY);
+    Kp = doc["Kp"] | SettingsDefaults::KP;
+    Ki = doc["Ki"] | SettingsDefaults::KI;
+    // ... all other fields ...
+    xSemaphoreGive(_mutex);
+    return true;
+}
+\end{lstlisting}
+
+\subsubsection{Which Fields Need Protection}
+
+Not every field needs the same care. On the ESP32-S3, 32-bit reads and writes are atomic
+and can never be torn. Only 64-bit values are at risk.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Field type} & \textbf{Width} & \textbf{Atomic?} & \textbf{Protection} \\
+\midrule
+bool, int8\_t & 8 bit & Yes & None \\
+float, int, uint32\_t & 32 bit & Yes & None \\
+double, int64\_t & 64 bit & No & Must be under lock \\
+\bottomrule
+\end{tabular}
+\caption{Atomicity of Field Types on the ESP32-S3}
+\end{table}
+
+In \texttt{SettingsHandler} the only 64-bit fields are \texttt{Kp}, \texttt{Ki},
+\texttt{Kd}, and \texttt{setpoint} (all \texttt{double}). All writes go through
+\texttt{update()}. The two critical read paths (\texttt{pid->Compute()} and the AutoTuner
+setpoint comparison) go through \texttt{withLock()}. Multi-field reads for rendering go
+through \texttt{snapshotTo()}. 32-bit fields such as \texttt{filter\_strength} (float),
+\texttt{antiWindup} (bool), and \texttt{control\_freq\_hz} (int) are read directly without
+locking, because a single-instruction atomic read cannot be torn.
+
+\subsubsection{Summary Diagram}
+
+\begin{verbatim}
+NetworkTask (Core 0)              ControlTask (Core 1)
+--------------------------        ------------------------------------
+Browser sends /set?kp=1.2         pid->Compute() runs at 1000 Hz
+  |                                 |
+  v                                 v
+settings->update([&](s){          settings->withLock([&]{
+    s.Kp = 1.2;                       pid->Compute();   // reads setpoint
+});                               });
+  |                                 |
+  Mutex taken for ~2 us             Mutex taken for ~5 us
+  (field write only)                (PID arithmetic only)
+  |                                 |
+settings->save()                  applyHysteresisCompensation()
+  |                                 | (reads hysteresis, hystAmount - floats, no lock)
+  Mutex taken for ~10 us
+  (JSON serialization only)
+  |
+  Flash write (~10 ms, NO mutex)
+\end{verbatim}
+
+The two tasks run at full speed. The only time one waits for the other is during the
+brief moments when a field is being written or \texttt{Compute()} is reading the setpoint.
+
+A standalone explanation of the same material is available in
+\texttt{sec/2026-08-28\_Mutex\_How\_It\_Works.md}.

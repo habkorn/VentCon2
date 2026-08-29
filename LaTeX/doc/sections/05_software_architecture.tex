@@ -1,0 +1,69 @@
+% Section 5: SOFTWARE ARCHITECTURE
+
+\section{Software Architecture}
+\label{sec:software-arch}
+
+The VentCon2 software architecture employs modern object-oriented design patterns to create a robust, maintainable, and scalable embedded system. Built around the principle of separation of concerns, the architecture divides system functionality into eight specialized classes, each responsible for distinct aspects of the pressure control system. The design leverages dependency injection to promote loose coupling between components, enabling comprehensive unit testing and facilitating future system enhancements. This modular approach ensures that critical real-time control operations remain isolated from network communications and user interface management, optimizing both performance and reliability.
+
+\subsection{System Architecture Diagram}
+Figure~\ref{fig:system-overview} shows the high-level architecture with class relationships and data flow between components.
+
+\begin{figure}[H]
+\centering
+\begin{verbatim}
+                    +----------------+
+                    |   main.cpp     |
+                    | (Application)  |
+                    +-------+--------+
+                            |
+          +-----------------+------------------+
+          |                 |                  |
+          v                 v                  v
+  +---------------+  +-------------+  +-----------------+
+  | TaskManager   |  | Constants.h |  | SettingsHandler |
+  | (Scheduling)  |  | (Config)    |  | (Persistence)   |
+  +-------+-------+  +-------------+  +--------+--------+
+          |                                    |
+    +-----+-----+                   +----------+----------+
+    |           |                   |          |          |
+    v           v                   v          v          v
++----------+ +----------+   +----------+ +----------+ +----------+
+| Control  | |   Web    |   | Sensor   | |  Auto    | | Command  |
+| System   | | Handler  |   | Manager  | | Tuner    | | Processor|
+| (PID)    | | (HTTP)   |   | (ADC)    | | (PID-Cal)| | (Serial) |
++----------+ +----------+   +----------+ +----------+ +----------+
+\end{verbatim}
+\caption{VentCon2 System Architecture Overview}
+\label{fig:system-overview}
+\end{figure}
+
+In addition to the classes shown, a cross-cutting \texttt{Logger} utility class, initialized in \texttt{main.cpp}, provides serial logging for all components.
+
+\subsection{Design Patterns}
+\begin{itemize}
+    \item \textbf{Dependency Injection}: main.cpp creates and injects all dependencies
+    \item \textbf{Callback Pattern}: WiFi event callbacks (\texttt{onWiFiEvent}) for connection management
+    \item \textbf{Strategy Pattern}: Pluggable auto-tuning algorithms (Ziegler-Nichols, etc.)
+    \item \textbf{Singleton Pattern}: Constants namespaces provide global configuration
+    \item \textbf{Factory Pattern}: TaskManager handles FreeRTOS task creation
+\end{itemize}
+
+\subsection{FreeRTOS Task Distribution}
+
+The TaskManager class orchestrates FreeRTOS tasks for optimal real-time performance, separating control operations from network operations across ESP32 cores.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Task} & \textbf{Core} & \textbf{Priority} & \textbf{Function} \\
+\midrule
+Control Task & Core 1 & High (2) & PID control, sensor reading \\
+Network Task & Core 0 & Low (1) & Web server, WiFi management \\
+Main Loop & Core 1 & Low & Serial commands, monitoring \\
+\bottomrule
+\end{tabular}
+\caption{FreeRTOS Task Assignment}
+\end{table}
+
+The TaskManager creates two FreeRTOS tasks: a NetworkTask on Core 0 (priority 1) for handling web server operations, and a ControlTask on Core 1 (priority 2) for real-time pressure control. Both tasks use 4096 bytes of stack space and include proper error checking during creation. The ControlTask runs at up to 1000 Hz (configurable via the \texttt{CONTROL FREQ} command), while the PID computation updates at 100 Hz (10 ms sample time).

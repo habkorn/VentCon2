@@ -122,16 +122,10 @@ void WebHandler::onWiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
                               connectedClients, NetworkConfig::MAX_CLIENTS);
                 LOG_D(CAT_NETWORK, "MAC address: %s", macStr);
             } else {
-                // Too many clients, disconnect this one
-                LOG_W(CAT_NETWORK, "Maximum client limit reached - disconnecting new client");
+                // AP max_connection already rejects the newcomer at association level;
+                // ignore it so existing clients stay connected.
+                LOG_W(CAT_NETWORK, "Maximum client limit reached - rejecting new client");
                 LOG_D(CAT_NETWORK, "MAC address: %s", macStr);
-                  // Force disconnection - this requires a brief reset of the AP
-                WiFi.softAPdisconnect(false);  // Disconnect all clients but keep AP running
-                delay(10); // Brief delay
-                
-                // Reconfigure AP using class member variables
-                WiFi.softAPConfig(ap_ip, ap_gateway, ap_subnet); // Reconfigure AP
-                WiFi.softAP(ap_ssid, ap_password);  // Restart AP with same settings
             }
             break;
             
@@ -366,29 +360,33 @@ void WebHandler::handleRoot()
   // 3. Stream body start directly from PROGMEM  
   webServer.sendContent_P(HTML_BODY_START);
   yield();
-  
+
+  // Snapshot all fields once so the page is rendered from a consistent state.
+  SettingsSnapshot cfg;
+  settings->snapshotTo(cfg);
+
   // 4. Process HTML_INPUTS section - this is the only section with placeholders (~1.5KB)
   String inputs = FPSTR(HTML_INPUTS);
   
   // Replace value placeholders using a data-driven approach
   struct { const char* placeholder; String value; } valueReplacements[] = {
-    {"%SP%",   String(settings->setpoint, decimalsFromStep(settings->sp_limits.step))},
-    {"%KP%",   String(settings->Kp, decimalsFromStep(settings->kp_limits.step))},
-    {"%KI%",   String(settings->Ki, decimalsFromStep(settings->ki_limits.step))},
-    {"%KD%",   String(settings->Kd, decimalsFromStep(settings->kd_limits.step))},
-    {"%FLT%",  String(settings->filter_strength, 2)},
-    {"%FREQ%", String(settings->pwm_freq)},
-    {"%RES%",  String(settings->pwm_res)},
-    {"%PST%",  String(settings->pid_sample_time)}
+    {"%SP%",   String(cfg.setpoint,       decimalsFromStep(cfg.sp_limits.step))},
+    {"%KP%",   String(cfg.Kp,            decimalsFromStep(cfg.kp_limits.step))},
+    {"%KI%",   String(cfg.Ki,            decimalsFromStep(cfg.ki_limits.step))},
+    {"%KD%",   String(cfg.Kd,            decimalsFromStep(cfg.kd_limits.step))},
+    {"%FLT%",  String(cfg.filter_strength, 2)},
+    {"%FREQ%", String(cfg.pwm_freq)},
+    {"%RES%",  String(cfg.pwm_res)},
+    {"%PST%",  String(cfg.pid_sample_time)}
   };
   for (auto& r : valueReplacements) inputs.replace(r.placeholder, r.value);
   
   // Replace slider limit placeholders using a data-driven approach
-  struct { const char* prefix; SliderLimits& limits; } sliderReplacements[] = {
-    {"SP", settings->sp_limits},
-    {"KP", settings->kp_limits},
-    {"KI", settings->ki_limits},
-    {"KD", settings->kd_limits}
+  struct { const char* prefix; SliderLimits limits; } sliderReplacements[] = {
+    {"SP", cfg.sp_limits},
+    {"KP", cfg.kp_limits},
+    {"KI", cfg.ki_limits},
+    {"KD", cfg.kd_limits}
   };
   for (auto& s : sliderReplacements)
   {
@@ -412,10 +410,10 @@ void WebHandler::handleRoot()
   inputs.replace("%PST_MAX%",  String(ControlConfig::MAX_SAMPLE_TIME_MS));
   
   // Replace sensor calibration placeholders
-  inputs.replace("%SENSOR_MINP%", String(settings->sensor_min_pressure, 1));
-  inputs.replace("%SENSOR_MAXP%", String(settings->sensor_max_pressure, 1));
-  inputs.replace("%SENSOR_MINV%", String(settings->sensor_min_voltage, 2));
-  inputs.replace("%SENSOR_MAXV%", String(settings->sensor_max_voltage, 2));
+  inputs.replace("%SENSOR_MINP%", String(cfg.sensor_min_pressure, 1));
+  inputs.replace("%SENSOR_MAXP%", String(cfg.sensor_max_pressure, 1));
+  inputs.replace("%SENSOR_MINV%", String(cfg.sensor_min_voltage,  2));
+  inputs.replace("%SENSOR_MAXV%", String(cfg.sensor_max_voltage,  2));
   
   // Cache-busting version tag for PDF download link
   inputs.replace("%VERSION_NUMBER%", VENTCON_VERSION_NUMBER);
@@ -446,7 +444,7 @@ void WebHandler::handleRoot()
     "chart:{y_min:%.2f,y_max:%.2f,pwm_min:%.2f,pwm_max:%.2f,time_window:%d,time_grid:%d}"
     "};"
     "</script>",
-    settings->sensor_max_pressure,
+    cfg.sensor_max_pressure,
     NetworkConfig::AP_SSID,
     NetworkConfig::AP_IP[0], NetworkConfig::AP_IP[1],
     NetworkConfig::AP_IP[2], NetworkConfig::AP_IP[3],
@@ -454,9 +452,9 @@ void WebHandler::handleRoot()
     PwmConfig::MIN_FREQ_HZ, PwmConfig::MAX_FREQ_HZ, PwmConfig::FREQ_STEP_HZ,
     PwmConfig::MIN_RES_BITS, PwmConfig::MAX_RES_BITS, PwmConfig::RES_STEP_BITS,
     ControlConfig::MIN_SAMPLE_TIME_MS, ControlConfig::MAX_SAMPLE_TIME_MS,
-    settings->chart_settings.y_min, settings->chart_settings.y_max,
-    settings->chart_settings.pwm_min, settings->chart_settings.pwm_max,
-    settings->chart_settings.time_window, settings->chart_settings.time_grid
+    cfg.chart_settings.y_min, cfg.chart_settings.y_max,
+    cfg.chart_settings.pwm_min, cfg.chart_settings.pwm_max,
+    cfg.chart_settings.time_window, cfg.chart_settings.time_grid
   );
   webServer.sendContent(configScript);
   
@@ -470,138 +468,134 @@ void WebHandler::handleRoot()
 /*
  * handleSet() - Parameter Update Handler
  */
-void WebHandler::handleSet() 
+void WebHandler::handleSet()
 {
-  bool changed = false;
-  bool pidChanged = false;  // Track if PID gains specifically changed
-  bool requested = false;   // Track if any known param was present
+  bool changed     = false;
+  bool pidChanged  = false;
+  bool requested   = false;
+  bool freqChanged = false;
+  bool resChanged  = false;
+  bool pstChanged  = false;
+  double kp = 0, ki = 0, kd = 0;
+  int   pst = 0;
+  float currentDutyPct = 0.0f;
+  int   newMaxValue    = 0;
 
-  // Process parameter updates with validation
-  if (webServer.hasArg("sp"))
+  // All field mutations run under one lock; hardware side-effects follow outside.
+  settings->update([&](SettingsHandler& s) 
   {
-    requested = true;
-    float val = webServer.arg("sp").toFloat();
-    float spMax = min({settings->sp_limits.max, settings->sensor_max_pressure, OperatingDefaults::HARD_SP_MAX_BAR});
-    if (val >= settings->sp_limits.min && val <= spMax)
-    { settings->setpoint = val; changed = true; }
-  }
-  
-  if (webServer.hasArg("kp"))
-  {
-    requested = true;
-    float val = webServer.arg("kp").toFloat();
-    if (val >= settings->kp_limits.min && val <= settings->kp_limits.max)
-    { settings->Kp = val; changed = true; pidChanged = true; }
-  }
-  
-  if (webServer.hasArg("ki"))
-  {
-    requested = true;
-    float val = webServer.arg("ki").toFloat();
-    if (val >= settings->ki_limits.min && val <= settings->ki_limits.max)
-    { settings->Ki = val; changed = true; pidChanged = true; }
-  }
-  
-  if (webServer.hasArg("kd"))
-  {
-    requested = true;
-    float val = webServer.arg("kd").toFloat();
-    if (val >= settings->kd_limits.min && val <= settings->kd_limits.max)
-    { settings->Kd = val; changed = true; pidChanged = true; }
-  }
-  
-  if (webServer.hasArg("flt"))
-  {
-    requested = true;
-    float val = webServer.arg("flt").toFloat();
-    if (val >= FilterConfig::MIN_STRENGTH && val <= FilterConfig::MAX_STRENGTH)
-    { settings->filter_strength = val; changed = true; }
-  }
-  
-  if (webServer.hasArg("freq"))
-  {
-    requested = true;
-    int val = webServer.arg("freq").toInt();
-    if (val >= PwmConfig::MIN_FREQ_HZ && val <= PwmConfig::MAX_FREQ_HZ)
+
+
+    if (webServer.hasArg("sp"))
     {
-      settings->pwm_freq = val;
-      updatePWM();
-      changed = true;
+      requested = true;
+      float val = webServer.arg("sp").toFloat();
+      float spMax = min({s.sp_limits.max, s.sensor_max_pressure, OperatingDefaults::HARD_SP_MAX_BAR});
+      if (val >= s.sp_limits.min && val <= spMax)
+      { s.setpoint = val; changed = true; }
     }
-  }
-  
-  if (webServer.hasArg("res"))
-  {
-    requested = true;
-    int new_res = webServer.arg("res").toInt();
-    if (new_res >= PwmConfig::MIN_RES_BITS && new_res <= PwmConfig::MAX_RES_BITS)
+
+    if (webServer.hasArg("kp"))
     {
-      int old_res = settings->pwm_res;
-      
-      // Only process if resolution actually changed
-      if (old_res != new_res)
+      requested = true;
+      float val = webServer.arg("kp").toFloat();
+      if (val >= s.kp_limits.min && val <= s.kp_limits.max)
+      { s.Kp = val; changed = true; pidChanged = true; }
+    }
+
+    if (webServer.hasArg("ki"))
+    {
+      requested = true;
+      float val = webServer.arg("ki").toFloat();
+      if (val >= s.ki_limits.min && val <= s.ki_limits.max)
+      { s.Ki = val; changed = true; pidChanged = true; }
+    }
+
+    if (webServer.hasArg("kd"))
+    {
+      requested = true;
+      float val = webServer.arg("kd").toFloat();
+      if (val >= s.kd_limits.min && val <= s.kd_limits.max)
+      { s.Kd = val; changed = true; pidChanged = true; }
+    }
+
+    if (webServer.hasArg("flt"))
+    {
+      requested = true;
+      float val = webServer.arg("flt").toFloat();
+      if (val >= FilterConfig::MIN_STRENGTH && val <= FilterConfig::MAX_STRENGTH)
+      { s.filter_strength = val; changed = true; }
+    }
+
+    if (webServer.hasArg("freq"))
+    {
+      requested = true;
+      int val = webServer.arg("freq").toInt();
+      if (val >= PwmConfig::MIN_FREQ_HZ && val <= PwmConfig::MAX_FREQ_HZ)
+      { s.pwm_freq = val; freqChanged = true; changed = true; }
+    }
+
+    if (webServer.hasArg("res"))
+    {
+      requested = true;
+      int new_res = webServer.arg("res").toInt();
+      if (new_res >= PwmConfig::MIN_RES_BITS && new_res <= PwmConfig::MAX_RES_BITS)
       {
-        // Store current duty cycle percentage before changing resolution
-        float current_duty_percent = (*pwmPIDoutput / (float)*pwmFullScaleRaw) * 100.0;
-        
-        // Update resolution
-        settings->pwm_res = new_res;
-        int new_max_value = (1 << settings->pwm_res) - 1;
-        
-        // Scale pwmPIDoutput to maintain the same duty cycle
-        *pwmPIDoutput = (current_duty_percent / 100.0) * new_max_value;
-        
-        // Update max value and PID limits
-        *pwmFullScaleRaw = new_max_value;
-        pid->SetOutputLimits(0, *pwmFullScaleRaw);
-        updatePWM();
+        if (s.pwm_res != new_res)
+        {
+          currentDutyPct = (*pwmPIDoutput / (float)*pwmFullScaleRaw) * 100.0f;
+          s.pwm_res   = new_res;
+          newMaxValue = (1 << new_res) - 1;
+          resChanged  = true;
+          changed     = true;
+        }
+      }
+    }
+
+    if (webServer.hasArg("sensor_minP") || webServer.hasArg("sensor_maxP") ||
+        webServer.hasArg("sensor_minV") || webServer.hasArg("sensor_maxV"))
+    {
+      requested = true;
+      float newMinP = webServer.hasArg("sensor_minP") ? webServer.arg("sensor_minP").toFloat() : s.sensor_min_pressure;
+      float newMaxP = webServer.hasArg("sensor_maxP") ? webServer.arg("sensor_maxP").toFloat() : s.sensor_max_pressure;
+      float newMinV = webServer.hasArg("sensor_minV") ? webServer.arg("sensor_minV").toFloat() : s.sensor_min_voltage;
+      float newMaxV = webServer.hasArg("sensor_maxV") ? webServer.arg("sensor_maxV").toFloat() : s.sensor_max_voltage;
+      if (newMinP < newMaxP && newMinV >= 0.0f && newMinV < newMaxV && newMaxV <= 5.0f)
+      {
+        s.sensor_min_pressure = newMinP;
+        s.sensor_max_pressure = newMaxP;
+        s.sensor_min_voltage  = newMinV;
+        s.sensor_max_voltage  = newMaxV;
         changed = true;
       }
     }
-  }
-  
-  // Process sensor calibration parameters
-  // Read all incoming values first, falling back to current settings
-  if (webServer.hasArg("sensor_minP") || webServer.hasArg("sensor_maxP") ||
-      webServer.hasArg("sensor_minV") || webServer.hasArg("sensor_maxV"))
-  {
-    requested = true;
-    float newMinP = webServer.hasArg("sensor_minP") ? webServer.arg("sensor_minP").toFloat() : settings->sensor_min_pressure;
-    float newMaxP = webServer.hasArg("sensor_maxP") ? webServer.arg("sensor_maxP").toFloat() : settings->sensor_max_pressure;
-    float newMinV = webServer.hasArg("sensor_minV") ? webServer.arg("sensor_minV").toFloat() : settings->sensor_min_voltage;
-    float newMaxV = webServer.hasArg("sensor_maxV") ? webServer.arg("sensor_maxV").toFloat() : settings->sensor_max_voltage;
 
-    // Validate: minP < maxP, minV >= 0, minV < maxV, maxV <= 5.0V (ADC limit)
-    if (newMinP < newMaxP && newMinV >= 0.0f && newMinV < newMaxV && newMaxV <= 5.0f)
+    if (webServer.hasArg("pst"))
     {
-      settings->sensor_min_pressure = newMinP;
-      settings->sensor_max_pressure = newMaxP;
-      settings->sensor_min_voltage  = newMinV;
-      settings->sensor_max_voltage  = newMaxV;
-      changed = true;
+      requested = true;
+      int val = webServer.arg("pst").toInt();
+      if (val >= ControlConfig::MIN_SAMPLE_TIME_MS && val <= ControlConfig::MAX_SAMPLE_TIME_MS)
+      { s.pid_sample_time = val; pst = val; pstChanged = true; changed = true; }
     }
-  }
-  
-  if (webServer.hasArg("pst"))
-  {
-    requested = true;
-    int val = webServer.arg("pst").toInt();
-    if (val >= ControlConfig::MIN_SAMPLE_TIME_MS && val <= ControlConfig::MAX_SAMPLE_TIME_MS)
-    {
-      settings->pid_sample_time = val;
-      pid->SetSampleTime(settings->pid_sample_time);
-      changed = true;
-    }
-  }
 
-  // Update PID tunings only if gains changed; save settings if anything changed
+    kp = s.Kp; ki = s.Ki; kd = s.Kd;
+  });
+
+  // Apply hardware side-effects now that the lock is released.
+  if (resChanged)
+  {
+    *pwmPIDoutput    = (currentDutyPct / 100.0f) * newMaxValue;
+    *pwmFullScaleRaw = newMaxValue;
+    pid->SetOutputLimits(0, *pwmFullScaleRaw);
+  }
+  if (freqChanged || resChanged) updatePWM();
+  if (pstChanged)                pid->SetSampleTime(pst);
   if (changed)
   {
-    if (pidChanged) pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+    if (pidChanged) pid->SetTunings(kp, ki, kd);
     settings->save();
   }
 
-  // Return 400 if params were sent but all failed validation
   if (requested && !changed)
     webServer.send(400, "text/plain", "Validation failed");
   else
@@ -611,12 +605,12 @@ void WebHandler::handleSet()
 /*
  * handleValues() - Real-time System Data API
  */
-void WebHandler::handleValues() // Send current values as JSON  
+void WebHandler::handleValues()
 {
-  // Calculate maximum PWM value based on resolution (e.g., 16383 for 14-bit: 2^14 - 1)
-  const int max_output_pwm = (1 << settings->pwm_res) - 1; 
+  SettingsSnapshot cfg;
+  settings->snapshotTo(cfg);
 
-  // Calculate actual valve duty cycle percentage from the mapped PWM value
+  const int   max_output_pwm    = (1 << cfg.pwm_res) - 1;
   const float pwm_actual_percent = max_output_pwm > 0 ? (*actualPwm / (float)max_output_pwm) * 100.0 : 0;
   
   char json[576];
@@ -625,27 +619,22 @@ void WebHandler::handleValues() // Send current values as JSON
     "\"freq\":%d,\"res\":%d,\"pst\":%d,"
     "\"pressure\":%.2f,\"pwm\":%.3f,"
     "\"sensor_minP\":%.4f,\"sensor_maxP\":%.4f,\"sensor_minV\":%.4f,\"sensor_maxV\":%.4f}",
-    settings->setpoint,
-    settings->Kp,
-    settings->Ki,
-    settings->Kd,
-    settings->filter_strength,
-    settings->pwm_freq,
-    settings->pwm_res,
-    settings->pid_sample_time,
-    *pressureInput,
-    pwm_actual_percent,
-    settings->sensor_min_pressure,
-    settings->sensor_max_pressure,
-    settings->sensor_min_voltage,
-    settings->sensor_max_voltage
+    cfg.setpoint, cfg.Kp, cfg.Ki, cfg.Kd, cfg.filter_strength,
+    cfg.pwm_freq, cfg.pwm_res, cfg.pid_sample_time,
+    *pressureInput, pwm_actual_percent,
+    cfg.sensor_min_pressure, cfg.sensor_max_pressure,
+    cfg.sensor_min_voltage,  cfg.sensor_max_voltage
   );
-  webServer.send(200, "application/json", json); // why 200? Because this is a successful response
+  webServer.send(200, "application/json", json);
 }
 
 // Handler for PID controller reset
 void WebHandler::handleResetPID()
 {
+  // Read gains atomically before re-tuning.
+  double kp, ki, kd;
+  settings->update([&](SettingsHandler& s){ kp = s.Kp; ki = s.Ki; kd = s.Kd; });
+
   // Temporarily set to manual mode
   pid->SetMode(PID::Manual);
   *pwmPIDoutput = 0;
@@ -655,7 +644,7 @@ void WebHandler::handleResetPID()
   *last_filtered_pressure = *pressureInput;
   
   // Reset internal state (by re-initializing the PID controller)
-  pid->SetTunings(settings->Kp, settings->Ki, settings->Kd);
+  pid->SetTunings(kp, ki, kd);
   pid->SetOutputLimits(0, *pwmFullScaleRaw);
   
   // Set back to automatic mode
@@ -670,6 +659,8 @@ void WebHandler::handleSliderLimits()
 {
   if (webServer.method() == HTTP_GET)
   {
+    SettingsSnapshot cfg;
+    settings->snapshotTo(cfg);
     // Return current slider limits as JSON
     char json[512];
     snprintf(json, sizeof(json),
@@ -677,10 +668,10 @@ void WebHandler::handleSliderLimits()
       "\"kp\":{\"min\":%.4f,\"max\":%.4f,\"step\":%.4f},"
       "\"ki\":{\"min\":%.4f,\"max\":%.4f,\"step\":%.4f},"
       "\"kd\":{\"min\":%.4f,\"max\":%.4f,\"step\":%.4f}}",
-      settings->sp_limits.min, settings->sp_limits.max, settings->sp_limits.step,
-      settings->kp_limits.min, settings->kp_limits.max, settings->kp_limits.step,
-      settings->ki_limits.min, settings->ki_limits.max, settings->ki_limits.step,
-      settings->kd_limits.min, settings->kd_limits.max, settings->kd_limits.step
+      cfg.sp_limits.min, cfg.sp_limits.max, cfg.sp_limits.step,
+      cfg.kp_limits.min, cfg.kp_limits.max, cfg.kp_limits.step,
+      cfg.ki_limits.min, cfg.ki_limits.max, cfg.ki_limits.step,
+      cfg.kd_limits.min, cfg.kd_limits.max, cfg.kd_limits.step
     );
     webServer.send(200, "application/json", json);
   }
@@ -702,7 +693,7 @@ void WebHandler::handleSliderLimits()
       return;
     }
     
-    // Read new values, falling back to current values if not provided
+    // float fields: 32-bit reads are atomic on Xtensa; safe as fallback values without the lock.
     float newMin  = webServer.hasArg("min")  ? webServer.arg("min").toFloat()  : target->min;
     float newMax  = webServer.hasArg("max")  ? webServer.arg("max").toFloat()  : target->max;
     float newStep = webServer.hasArg("step") ? webServer.arg("step").toFloat() : target->step;
@@ -714,9 +705,14 @@ void WebHandler::handleSliderLimits()
       return;
     }
 
-    target->min  = newMin;
-    target->max  = newMax;
-    target->step = newStep;
+    settings->update([&](SettingsHandler& s) {
+      SliderLimits* t = nullptr;
+      if      (param == "sp") t = &s.sp_limits;
+      else if (param == "kp") t = &s.kp_limits;
+      else if (param == "ki") t = &s.ki_limits;
+      else if (param == "kd") t = &s.kd_limits;
+      if (t) { t->min = newMin; t->max = newMax; t->step = newStep; }
+    });
     
     // Save to LittleFS
     settings->save();
@@ -729,24 +725,27 @@ void WebHandler::handleChartSettings()
 {
   if (webServer.method() == HTTP_GET)
   {
+    SettingsSnapshot cfg;
+    settings->snapshotTo(cfg);
     // Return current chart axis settings as JSON
     char json[128];
     snprintf(json, sizeof(json),
       "{\"y_min\":%.2f,\"y_max\":%.2f,\"pwm_min\":%.2f,\"pwm_max\":%.2f,\"time_window\":%d,\"time_grid\":%d}",
-      settings->chart_settings.y_min, settings->chart_settings.y_max,
-      settings->chart_settings.pwm_min, settings->chart_settings.pwm_max,
-      settings->chart_settings.time_window, settings->chart_settings.time_grid
+      cfg.chart_settings.y_min, cfg.chart_settings.y_max,
+      cfg.chart_settings.pwm_min, cfg.chart_settings.pwm_max,
+      cfg.chart_settings.time_window, cfg.chart_settings.time_grid
     );
     webServer.send(200, "application/json", json);
   }
   else if (webServer.method() == HTTP_POST)
   {
-    float newYMin   = webServer.hasArg("y_min")       ? webServer.arg("y_min").toFloat()       : settings->chart_settings.y_min;
-    float newYMax   = webServer.hasArg("y_max")       ? webServer.arg("y_max").toFloat()       : settings->chart_settings.y_max;
-    float newPMin   = webServer.hasArg("pwm_min")     ? webServer.arg("pwm_min").toFloat()     : settings->chart_settings.pwm_min;
-    float newPMax   = webServer.hasArg("pwm_max")     ? webServer.arg("pwm_max").toFloat()     : settings->chart_settings.pwm_max;
-    int   newTW     = webServer.hasArg("time_window") ? webServer.arg("time_window").toInt()   : settings->chart_settings.time_window;
-    int   newTG     = webServer.hasArg("time_grid")   ? webServer.arg("time_grid").toInt()     : settings->chart_settings.time_grid;
+    // float/int fields: 32-bit reads are atomic on Xtensa; safe as fallback values without the lock.
+    float newYMin = webServer.hasArg("y_min")       ? webServer.arg("y_min").toFloat()     : settings->chart_settings.y_min;
+    float newYMax = webServer.hasArg("y_max")       ? webServer.arg("y_max").toFloat()     : settings->chart_settings.y_max;
+    float newPMin = webServer.hasArg("pwm_min")     ? webServer.arg("pwm_min").toFloat()   : settings->chart_settings.pwm_min;
+    float newPMax = webServer.hasArg("pwm_max")     ? webServer.arg("pwm_max").toFloat()   : settings->chart_settings.pwm_max;
+    int   newTW   = webServer.hasArg("time_window") ? webServer.arg("time_window").toInt() : settings->chart_settings.time_window;
+    int   newTG   = webServer.hasArg("time_grid")   ? webServer.arg("time_grid").toInt()   : settings->chart_settings.time_grid;
 
     // Validate: max > min for both axes, time_window >= 1, time_grid >= 1
     if (newYMax <= newYMin || newPMax <= newPMin || newTW < 1 || newTG < 1)
@@ -755,12 +754,14 @@ void WebHandler::handleChartSettings()
       return;
     }
 
-    settings->chart_settings.y_min       = newYMin;
-    settings->chart_settings.y_max       = newYMax;
-    settings->chart_settings.pwm_min     = newPMin;
-    settings->chart_settings.pwm_max     = newPMax;
-    settings->chart_settings.time_window = newTW;
-    settings->chart_settings.time_grid   = newTG;
+    settings->update([&](SettingsHandler& s) {
+      s.chart_settings.y_min       = newYMin;
+      s.chart_settings.y_max       = newYMax;
+      s.chart_settings.pwm_min     = newPMin;
+      s.chart_settings.pwm_max     = newPMax;
+      s.chart_settings.time_window = newTW;
+      s.chart_settings.time_grid   = newTG;
+    });
 
     settings->save();
     webServer.send(200, "application/json", "{\"success\":true}");

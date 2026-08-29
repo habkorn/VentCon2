@@ -6,7 +6,10 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{longtable}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
+\usepackage{amssymb}
+\DeclareUnicodeCharacter{2713}{\checkmark}
+\DeclareUnicodeCharacter{2717}{$\times$}
 \usepackage{tikz}
 \usepackage{rotating}
 
@@ -39,10 +42,13 @@ This document provides a detailed dependency analysis of the VentCon2 system cla
 \textbf{CommandProcessor} & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & - & \cellcolor{gray!20}✗ & \cellcolor{yellow!30}Fwd & \cellcolor{green!30}✓ \\
 \textbf{ControlSystem} & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{green!30}✓ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & - & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ \\
 \textbf{TaskManager} & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ & \cellcolor{gray!20}✗ & \cellcolor{green!30}✓ & - & \cellcolor{gray!20}✗ \\
+\textbf{Logger} & \cellcolor{green!30}✓ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ & \cellcolor{gray!20}✗ \\
 \bottomrule
 \end{tabular}
 \caption{VentCon2 Class Dependency Matrix}
 \end{table}
+
+Note: \texttt{Logger} is a cross-cutting utility; every class includes \texttt{Logger.h} in its implementation, so it is not shown as a separate column.
 
 \section{Legend}
 \begin{itemize}
@@ -59,6 +65,7 @@ This document provides a detailed dependency analysis of the VentCon2 system cla
     \item \textbf{SettingsHandler}: Only depends on Constants (excellent)
     \item \textbf{SensorManager}: Only depends on SettingsHandler and Constants (good)
     \item \textbf{AutoTuner}: Minimal dependencies (SettingsHandler, Constants, PID)
+    \item \textbf{Logger}: Only depends on Constants and Arduino (excellent)
 \end{itemize}
 
 \subsection{High Coupling Classes}
@@ -81,6 +88,7 @@ Based on the dependency matrix, the following initialization order must be maint
 
 \begin{enumerate}
     \item \textbf{Constants} (Static definitions)
+    \item \textbf{Logger} (Initialize logging)
     \item \textbf{SettingsHandler} (Load configuration)
     \item \textbf{SensorManager} (Hardware initialization)
     \item \textbf{AutoTuner} (Requires SettingsHandler and PID)
@@ -102,10 +110,11 @@ Based on the dependency matrix, the following initialization order must be maint
 SettingsHandler & LittleFS, ArduinoJson \\
 SensorManager & Adafruit\_ADS1X15, SettingsHandler \\
 AutoTuner & PID\_v2, SettingsHandler \\
-WebHandler & WebServer, DNSServer, WiFi \\
+WebHandler & WebServer, ESPmDNS, WiFi \\
 CommandProcessor & All system classes \\
 ControlSystem & FreeRTOS, all control classes \\
 TaskManager & FreeRTOS, ControlSystem, WebHandler \\
+Logger & Arduino, Constants \\
 \bottomrule
 \end{tabular}
 \caption{External Library Dependencies}

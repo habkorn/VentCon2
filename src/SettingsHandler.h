@@ -3,6 +3,8 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include "Constants.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 
 /**
  * SliderLimits Structure
@@ -29,6 +31,21 @@ struct ChartSettings
     float pwm_max;      // Duty-cycle axis maximum (%)
     int time_window;    // X-axis rolling window (seconds)
     int time_grid;      // X-axis grid/tick interval (seconds)
+};
+
+// Snapshot of all settings fields for atomic multi-field reads across tasks.
+struct SettingsSnapshot
+{
+    double Kp, Ki, Kd;
+    float  filter_strength;
+    double setpoint;
+    int    pwm_freq, pwm_res, pid_sample_time, control_freq_hz;
+    bool   antiWindup, hysteresis;
+    float  hystAmount;
+    SliderLimits sp_limits, kp_limits, ki_limits, kd_limits;
+    float  sensor_min_pressure, sensor_max_pressure;
+    float  sensor_min_voltage,  sensor_max_voltage;
+    ChartSettings chart_settings;
 };
 
 /**
@@ -86,12 +103,27 @@ public:
     // Chart Axis Settings (user-configurable limits for live chart)
     ChartSettings chart_settings;
     
-    // Constructor with default values
     SettingsHandler();
-    
-    // Destructor
     ~SettingsHandler();
-    
+    SettingsHandler(const SettingsHandler&)            = delete;
+    SettingsHandler& operator=(const SettingsHandler&) = delete;
+
+    // Execute fn(*this) under the mutex; use for all field writes.
+    template<typename Fn>
+    void update(Fn fn) 
+    { 
+        xSemaphoreTake(_mutex, portMAX_DELAY); 
+        fn(*this); 
+        xSemaphoreGive(_mutex); 
+    }
+
+    // Execute fn() under the mutex without passing a reference; use for protected reads.
+    template<typename Fn>
+    void withLock(Fn fn) { xSemaphoreTake(_mutex, portMAX_DELAY); fn(); xSemaphoreGive(_mutex); }
+
+    // Copy all fields into out atomically; use for consistent multi-field reads.
+    void snapshotTo(SettingsSnapshot& out);
+
     // Load settings from LittleFS
     bool load();
     
@@ -105,5 +137,6 @@ public:
     void printStoredSettings();
 
 private:
+    SemaphoreHandle_t _mutex;
     static const char* SETTINGS_FILE_PATH;
 };

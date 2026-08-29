@@ -1,0 +1,33 @@
+% Section 10: PERFORMANCE CHARACTERISTICS
+
+\section{Performance Characteristics}
+
+\subsection{System Metrics}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Control Loop Latency & < 1 ms \\
+Sensor Resolution & 0.01 bar \\
+PWM Resolution & 14-bit (16,384 levels) \\
+RAM Usage & ~58 KB of 512 KB SRAM (11.3\%) \\
+Flash Usage & ~991 KB of 6.25 MB (15.5\%) \\
+LittleFS Partition & 3.375 MB for web assets \\
+Web Page Serving & ~3 KB peak RAM (streamed) \\
+Network Latency & < 50 ms \\
+Boot Time & < 3 seconds \\
+\bottomrule
+\end{tabular}
+\caption{System Performance Metrics}
+\end{table}
+
+\subsection{Stability Analysis}
+The PID controller is designed for stability with the following characteristics:
+\begin{itemize}
+    \item \textbf{Settling Time:} < 5 seconds for 5\% tolerance
+    \item \textbf{Overshoot:} < 10\% with properly tuned parameters
+    \item \textbf{Steady-State Error:} < 0.05 bar with integral action
+    \item \textbf{Disturbance Rejection:} Good response to load changes
+\end{itemize}
