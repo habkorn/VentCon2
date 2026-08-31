@@ -16,7 +16,7 @@ Dadurch wird sowohl die Druckmessung verfälscht als auch die Notabschaltung bei
 
 | Nr. | Befund | Datei / Stelle | Risiko |
 |---|---|---|---|
-| 1 | Keine Authentifizierung auf der Steueroberfläche | WebHandlers.cpp: setupRoutes() | Kritisch |
+"| 1 | Keine Authentifizierung auf der Steueroberfläche | WebHandlers.cpp: setupRoutes() "| Kritisch | 
 | 2 | Schwaches, fest verdrahtetes, öffentlich dokumentiertes AP-Passwort "ventcon12!" | Constants.h: NetworkConfig::AP_PASSWORD | Kritisch |
 | 3 | Sensorkalibrierung per HTTP änderbar, hebelt Notabschaltung aus | WebHandlers.cpp: handleSet(); SensorManager.cpp: calculatePressure(), isPressureSafe() | Kritisch |
 
@@ -65,7 +65,8 @@ Details:
 ## 6. Geklärte Entscheidungen
 
 - Umfang: Nur Plan, noch nichts umsetzen.
-- Authentifizierung: Login-Seite mit Passwort.
+- Authentifizierung: Login-Seite mit Passwort; Erstinbetriebnahme-Provisioning ohne universelles Standardpasswort.
 - Sensorkalibrierung: Änderung weiterhin über Web, aber mit hartem Sensorbereich-Limit.
 - AP-Passwort: Zur Laufzeit konfigurierbar, über Web oder Settings.
+- Erstinbetriebnahme: Kein universelles Standardpasswort; erzwungene Passwortvergabe (Provisioning) vor Freischaltung der Steuerung (CRA-konform, ETSI EN 303 645 5.1-1).
 - Codekommentare: Deutsch.

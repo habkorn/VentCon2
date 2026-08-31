@@ -32,7 +32,7 @@ Legende Status: `[ ]` offen, `[x]` erledigt, `[?]` zu klaeren, `n/a` nicht anwen
 
 | Nr. | Pflicht | CRA-Referenz | Befund | Status |
 |---|---|---|---|---|
-| 1 | Keine universellen Standardpasswoerter | Annex I 1.1 | Befund 2: AP-Passwort "ventcon12!" fest verdrahtet | [ ] |
+| 1 | Keine universellen Standardpasswoerter | Annex I, Part I, 2(b)/(d) | Befund 2: AP-Passwort "ventcon12!" fest verdrahtet; gilt auch fuer das Web-Login (P1.1) | [ ] |
 | 2 | Authentifizierung und Zugriffskontrolle | Annex I 1.2 | Befund 1: keine Auth auf /set, /resetPID, /api/* | [ ] |
 | 3 | Minimale Angriffsflaeche | Annex I 1.4 | Befund 5: beliebiger Dateizugriff via unnormalisiertem Pfad | [ ] |
 | 4 | Schutz vor unbefugtem Zugriff, Eingabevalidierung | Annex I 1.7 | Befund 6: unbegrenzte PID-Gains | [ ] |
@@ -41,6 +41,7 @@ Legende Status: `[ ]` offen, `[x]` erledigt, `[?]` zu klaeren, `n/a` nicht anwen
 | 7 | Sichere Update-Mechanismen (signiert) | Annex I 1.9 | OTA mit Signaturpruefung fehlt | [ ] |
 | 8 | Verfuegbarkeit / DoS-Resistenz | Annex I 1.3 | Befund 7: Flash-Verschleiss via settings.save() | [ ] |
 | 9 | Produktsicherheit (Notabschaltung) | Annex I 1.7 | Befund 3: Kalibrierung hebelt Ueberdruckabschaltung aus | [ ] |
+| 10 | Sichere Speicherung von Zugangsdaten | Annex I, Part I, 2(e); EN 303 645 5.4-1 | AP-Passwort (rekonstruierbar) und Passwort-Hash im Flash; verschluesseltes NVS noetig | [ ] |
 
 ### 3.2 Schwachstellenbehandlung (Annex I, Teil II)
 
@@ -77,7 +78,7 @@ Legende Status: `[ ]` offen, `[x]` erledigt, `[?]` zu klaeren, `n/a` nicht anwen
 
 | Befund (Sicherheitsanalyse) | CRA-Pflicht | Massnahme | Prioritaet |
 |---|---|---|---|
-| 1 Keine Auth auf Steueroberflaeche | 3.1 Nr. 2 | P1.1 Login-Seite mit Passwort | P1 |
+| 1 Keine Auth auf Steueroberflaeche | 3.1 Nr. 2 | P1.1 Login-Seite mit Passwort, Erstinbetriebnahme-Provisioning | P1 |
 | 2 Festes AP-Passwort | 3.1 Nr. 1 | P2.2 Passwort zur Laufzeit konfigurierbar | P2 |
 | 3 Kalibrierung hebelt Notabschaltung aus | 3.1 Nr. 9 | P1.3 Kalibrierung auf Sensorbereich begrenzen | P1 |
 | 4 Zustandsaenderung per GET, CSRF | 3.1 Nr. 6 | P1.2 POST + CSRF-Schutz | P1 |
@@ -92,7 +93,7 @@ Legende Status: `[ ]` offen, `[x]` erledigt, `[?]` zu klaeren, `n/a` nicht anwen
 
 ### Phase 1: Sicherheitskritisch (CRA Annex I Kernpflichten)
 
-- [ ] P1.1 Authentifizierung fuer alle mutierenden Endpunkte (Login-Seite)
+- [ ] P1.1 Authentifizierung fuer alle mutierenden Endpunkte (Login-Seite + Erstinbetriebnahme-Provisioning)
 - [ ] P1.2 POST-Umstellung + CSRF-Schutz fuer /set und /resetPID
 - [ ] P1.3 Sensorkalibrierung auf physischen Sensorbereich begrenzen (sensor_maxP <= SENSOR_MAX_BAR)
 - [ ] P1.4 Harte Obergrenzen fuer PID-Gains
