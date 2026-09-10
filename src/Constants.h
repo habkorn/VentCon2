@@ -169,7 +169,7 @@ namespace PwmConfig
     constexpr int MIN_FREQ_HZ = 100;
     
     // Maximum PWM frequency in Hz
-    constexpr int MAX_FREQ_HZ = 10000;
+    constexpr int MAX_FREQ_HZ = 4000;
     
     // PWM frequency slider step size in Hz
     constexpr int FREQ_STEP_HZ = 100;
