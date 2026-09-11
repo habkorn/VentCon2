@@ -23,7 +23,7 @@ Use the Recommended Agents table above to decide which specialist to invoke. Whe
 **Delegate when:**
 - The task spans 3+ files and you would otherwise chain multiple manual searches or reads
 - The subagent has domain knowledge you lack
-- The task involves codebase exploration across unknown files (use Explore)
+- The task involves codebase exploration across unknown files 
 
 **Skip delegation when:**
 - The change is a single line in a single file with no exploration needed
