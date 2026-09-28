@@ -8,7 +8,7 @@
    version="1.1"
    id="svg1"
    xml:space="preserve"
-   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
    sodipodi:docname="BrowserApp.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -24,12 +24,12 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.99999999"
-     inkscape:cx="447"
-     inkscape:cy="417"
+     inkscape:zoom="4"
+     inkscape:cx="606.87501"
+     inkscape:cy="635.62501"
      inkscape:window-width="1920"
      inkscape:window-height="1129"
-     inkscape:window-x="1912"
+     inkscape:window-x="3832"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
@@ -388,25 +388,25 @@
          transform="matrix(0.77747916,0,0,0.77747916,16.38721,5.6769402)"><tspan
            x="84.893974"
            y="185.45316"
-           id="tspan3"><tspan
+           id="tspan6"><tspan
              style="font-weight:900;-inkscape-font-specification:'Satoshi, Heavy';fill:#000000"
-             id="tspan1">Low Pass Filter Strength on Pressure Sensor:</tspan><tspan
+             id="tspan4">Low Pass Filter Strength on Pressure Sensor:</tspan><tspan
              style="fill:#999999"
-             id="tspan2">
+             id="tspan5">
 </tspan></tspan><tspan
            x="84.893974"
            y="189.37203"
-           id="tspan23"><tspan
+           id="tspan9"><tspan
    style="fill:#000000"
-   id="tspan19">If the sensor is noisy (i.e. </tspan>OUTLET PRESSURE<tspan
+   id="tspan7">If the sensor is noisy (i.e. </tspan>OUTLET PRESSURE<tspan
    style="fill:#000000"
-   id="tspan20">), a low pass filter can be configured here. 
+   id="tspan8">), a low pass filter can be configured here. 
 </tspan></tspan><tspan
            x="84.893974"
            y="193.2909"
-           id="tspan100"><tspan
+           id="tspan11"><tspan
              style="fill:#000000"
-             id="tspan98">Valid value range: 0 to 1.</tspan></tspan></text><text
+             id="tspan10">Valid value range: 0 to 1.</tspan></tspan></text><text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.13509px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;white-space:pre;inline-size:163.55;display:inline;fill:#0eb982;fill-opacity:1;stroke:none;stroke-width:2.02203;stroke-linejoin:round;stroke-dasharray:none"
          x="84.893974"
@@ -415,23 +415,23 @@
          transform="matrix(0.77747916,0,0,0.77747916,16.38721,16.440798)"><tspan
            x="84.893974"
            y="185.45316"
-           id="tspan104"><tspan
+           id="tspan14"><tspan
    style="font-weight:900;-inkscape-font-specification:'Satoshi, Heavy';fill:#000000"
-   id="tspan103">Actuator PWM Frequency:</tspan>
+   id="tspan12">Actuator PWM Frequency:</tspan>
 </tspan><tspan
            x="84.893974"
            y="189.37203"
-           id="tspan106"><tspan
+           id="tspan18"><tspan
              style="fill:#000000"
-             id="tspan105">This setting determines the rate at which the valve's control signal cycles on and off 
+             id="tspan17">This setting determines the rate at which the valve's control signal cycles on and off 
 </tspan></tspan><tspan
            x="84.893974"
            y="193.2909"
-           id="tspan111"><tspan
+           id="tspan23"><tspan
    style="fill:#000000"
-   id="tspan108">to achieve the desired </tspan>VALVE DUTY CYCLE<tspan
+   id="tspan19">to achieve the desired </tspan>VALVE DUTY CYCLE<tspan
    style="fill:#000000"
-   id="tspan109">. Valid value range: 100 to 10000 Hz.</tspan></tspan></text><text
+   id="tspan20">. Valid value range: 100 to 4000 Hz.</tspan></tspan></text><text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.13509px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;white-space:pre;inline-size:163.55;display:inline;fill:#0eb982;fill-opacity:1;stroke:none;stroke-width:2.02203;stroke-linejoin:round;stroke-dasharray:none"
          x="84.893974"
@@ -440,23 +440,23 @@
          transform="matrix(0.77747916,0,0,0.77747916,16.38721,27.641028)"><tspan
            x="84.893974"
            y="185.45316"
-           id="tspan113"><tspan
+           id="tspan32"><tspan
    style="font-weight:900;-inkscape-font-specification:'Satoshi, Heavy';fill:#000000"
-   id="tspan112">Actuator PWM Resolution:</tspan>
+   id="tspan29">Actuator PWM Resolution:</tspan>
 </tspan><tspan
            x="84.893974"
            y="189.37203"
-           id="tspan116"><tspan
+           id="tspan35"><tspan
    style="fill:#000000"
-   id="tspan114">This defines the precision of </tspan>VALVE DUTY CYCLE<tspan
+   id="tspan33">This defines the precision of </tspan>VALVE DUTY CYCLE<tspan
    style="fill:#000000"
-   id="tspan115">. 
+   id="tspan34">. 
 </tspan></tspan><tspan
            x="84.893974"
            y="193.2909"
-           id="tspan118"><tspan
+           id="tspan38"><tspan
              style="fill:#000000"
-             id="tspan117">Valid value range: 8 to 16 bits (e.g., 14 bits provides 16384 discrete steps). </tspan></tspan></text><text
+             id="tspan37">Valid value range: 8 to 16 bits (e.g., 14 bits provides 16384 discrete steps). </tspan></tspan></text><text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.13509px;font-family:Satoshi;-inkscape-font-specification:'Satoshi, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;writing-mode:lr-tb;direction:ltr;white-space:pre;inline-size:163.55;display:inline;fill:#4b79da;fill-opacity:1;stroke:none;stroke-width:2.02203;stroke-linejoin:round;stroke-dasharray:none"
          x="84.893974"
@@ -465,17 +465,17 @@
          transform="matrix(0.77747916,0,0,0.77747916,16.38721,38.404886)"><tspan
            x="84.893974"
            y="185.45316"
-           id="tspan127"><tspan
+           id="tspan45"><tspan
              style="font-weight:900;-inkscape-font-specification:'Satoshi, Heavy';fill:#000000"
-             id="tspan119">PID Sample Time:</tspan><tspan
+             id="tspan43">PID Sample Time:</tspan><tspan
              style="fill:#999999"
-             id="tspan126">
+             id="tspan44">
 </tspan></tspan><tspan
            x="84.893974"
            y="189.37203"
-           id="tspan129"><tspan
+           id="tspan49"><tspan
              style="fill:#000000"
-             id="tspan128">Defines the time interval between successive calculation steps of the PID algorithm. </tspan></tspan></text></g><rect
+             id="tspan46">Defines the time interval between successive calculation steps of the PID algorithm. </tspan></tspan></text></g><rect
        style="fill:none;fill-opacity:1;stroke:#999999;stroke-width:0.729103;stroke-linejoin:round;stroke-dasharray:none"
        id="rect173"
        width="125.16878"
@@ -492,17 +492,17 @@
        transform="matrix(0.77747916,0,0,0.77747916,14.944679,54.85134)"><tspan
          x="84.893974"
          y="185.45316"
-         id="tspan131"><tspan
+         id="tspan55"><tspan
    style="font-style:italic;font-weight:900;-inkscape-font-specification:'Satoshi, Heavy Italic';fill:#333333"
-   id="tspan130">Outlet Pressure Sensor Settings.</tspan>
+   id="tspan51">Outlet Pressure Sensor Settings.</tspan>
 </tspan><tspan
          x="84.893974"
          y="189.37203"
-         id="tspan134">  <tspan
+         id="tspan58">  <tspan
    style="font-weight:900;-inkscape-font-specification:'Satoshi, Heavy';fill:#000000"
-   id="tspan132">Voltage Range and Pressure Range. </tspan><tspan
+   id="tspan56">Voltage Range and Pressure Range. </tspan><tspan
    style="fill:#999999"
-   id="tspan133">
+   id="tspan57">
 </tspan></tspan></text><rect
        style="fill:none;fill-opacity:1;stroke:#999999;stroke-width:0.729103;stroke-linejoin:round;stroke-dasharray:none"
        id="rect185"
@@ -520,29 +520,29 @@
        transform="matrix(0.77747916,0,0,0.77747916,14.947254,109.16137)"><tspan
          x="84.893974"
          y="185.45316"
-         id="tspan137"><tspan
+         id="tspan65"><tspan
            style="font-style:italic;font-weight:900;-inkscape-font-specification:'Satoshi, Heavy Italic';fill:#333333"
-           id="tspan135">System Information.</tspan><tspan
+           id="tspan59">System Information.</tspan><tspan
            style="fill:#999999"
-           id="tspan136">
+           id="tspan63">
 </tspan></tspan><tspan
          x="84.893974"
          y="189.37203"
-         id="tspan142"><tspan
+         id="tspan70"><tspan
            style="fill:#999999"
-           id="tspan138">  </tspan><tspan
+           id="tspan66">  </tspan><tspan
            style="font-weight:900;-inkscape-font-specification:'Satoshi, Heavy';fill:#000000"
-           id="tspan139">Network Status:</tspan><tspan
+           id="tspan67">Network Status:</tspan><tspan
            style="fill:#999999"
-           id="tspan140"> </tspan><tspan
+           id="tspan68"> </tspan><tspan
            style="fill:#000000"
-           id="tspan141">The Indicator will be green when connected, red when disconnected.
+           id="tspan69">The Indicator will be green when connected, red when disconnected.
 </tspan></tspan><tspan
          x="84.893974"
          y="193.2909"
-         id="tspan144"><tspan
+         id="tspan72"><tspan
            style="fill:#000000"
-           id="tspan143">  Also, this user manual can be downloaded from here.
+           id="tspan71">  Also, this user manual can be downloaded from here.
 </tspan></tspan></text><rect
        style="fill:none;fill-opacity:1;stroke:#999999;stroke-width:0.729103;stroke-linejoin:round;stroke-dasharray:none"
        id="rect17"
@@ -560,25 +560,25 @@
        transform="matrix(0.77747916,0,0,0.77747916,14.947254,136.93195)"><tspan
          x="84.893974"
          y="185.45316"
-         id="tspan147"><tspan
+         id="tspan76"><tspan
            style="font-style:italic;font-weight:900;-inkscape-font-specification:'Satoshi, Heavy Italic';fill:#333333"
-           id="tspan145">Reset to Default.</tspan><tspan
+           id="tspan73">Reset to Default.</tspan><tspan
            style="fill:#999999"
-           id="tspan146">
+           id="tspan75">
 </tspan></tspan><tspan
          x="84.893974"
          y="189.37203"
-         id="tspan150"><tspan
+         id="tspan84"><tspan
            style="fill:#999999"
-           id="tspan148">  </tspan><tspan
+           id="tspan79">  </tspan><tspan
            style="fill:#000000"
-           id="tspan149">Upon confirmation, this button restores all user-adjustable settings on the 
+           id="tspan83">Upon confirmation, this button restores all user-adjustable settings on the 
 </tspan></tspan><tspan
          x="84.893974"
          y="193.2909"
-         id="tspan152"><tspan
+         id="tspan86"><tspan
            style="fill:#000000"
-           id="tspan151">  Browser App to their default values.
+           id="tspan85">  Browser App to their default values.
 </tspan></tspan></text><path
        style="fill:#000000;stroke-width:0.247;stroke-linejoin:round"
        d="M 203.7684,292.12434 V -11.982313"
@@ -773,23 +773,23 @@
        transform="matrix(0.77747916,0,0,0.77747916,16.38721,61.932663)"><tspan
          x="84.893974"
          y="185.45316"
-         id="tspan154"><tspan
+         id="tspan90"><tspan
            style="fill:#000000"
-           id="tspan153">The upper and lower limits define the operational boundaries of the sensor, as specified in the 
+           id="tspan87">The upper and lower limits define the operational boundaries of the sensor, as specified in the 
 </tspan></tspan><tspan
          x="84.893974"
          y="189.37203"
-         id="tspan157"><tspan
+         id="tspan94"><tspan
            style="fill:#000000"
-           id="tspan155">sensor </tspan><tspan
+           id="tspan91">sensor </tspan><tspan
            style="fill:#000000"
-           id="tspan156">datasheet or determined through calibration. 
+           id="tspan93">datasheet or determined through calibration. 
 </tspan></tspan><tspan
          x="84.893974"
          y="193.2909"
-         id="tspan159"><tspan
+         id="tspan96"><tspan
            style="fill:#000000"
-           id="tspan158">The sensor is assumed to behave linearly within Min/Max limits. </tspan></tspan></text><image
+           id="tspan95">The sensor is assumed to behave linearly within Min/Max limits. </tspan></tspan></text><image
        width="59.832142"
        height="3.7166784"
        preserveAspectRatio="none"

@@ -1,8 +1,12 @@
 # Plan: Protect Sensor Calibration Against Safety Bypass (P1.3)
 
-Date: 2026-08-31
-Status: Plan; implementation pending
-Reference: `sec/2026-08-27_Webinterface_Sicherheitsanalyse.md` (finding 3)
+Rolle: Umsetzungsplan (Detaildokument)
+Grundlage: `../CRA_Compliance_Checklist.md`
+Massnahme: P1.3
+CRA-Bezug: Annex I, Teil I, 1.7 (Pflicht-Nr. 9)
+Risikobezug: R3
+Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
+Datum: 2026-08-31
 Note: P1.1 (authentication) removes the unauthenticated attack path; this plan
 is defense-in-depth that limits damage even if authentication is bypassed.
 

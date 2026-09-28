@@ -1,13 +1,17 @@
 # How the Web Interface Endpoints and Authentication Work in VentCon2
 
-Date: 2026-08-29
-Status: Design report. Part 1 introduces the web basics needed to follow the rest.
+Rolle: Grundlagenerklaerung (Hintergrundwissen, kein Umsetzungsplan)
+Grundlage: `../CRA_Compliance_Checklist.md`
+Massnahme: P1.1, P1.2, P2.1
+CRA-Bezug: Annex I, Teil I, 1.2, 1.4 und 1.10 (Pflicht-Nr. 2, 3 und 6)
+Risikobezug: R1, R4, R5
+Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
+Umsetzungsplan: `../plan/2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md`
+Datum: 2026-08-29
+Inhalt: Part 1 introduces the web basics needed to follow the rest.
 Parts 2 to 4 describe the firmware as it is today (v2.7.3). Part 5 describes the
 authentication mechanism agreed on 2026-08-29, which is not yet implemented.
 Part 6 lists the boundaries.
-Reference: `sec/2026-08-27_Webinterface_Sicherheitsanalyse.md` (findings 1, 4 and 5;
-measures P1.1, P1.2 and a minimal part of P2.1)
-Companion plan: `sec/2026-08-29_Web_Auth_Plan.md`
 
 ---
 
@@ -243,7 +247,7 @@ pending changes at once (e.g. `/set?sp=6.0&kp=6200`). Inside:
    against their slider limits, PWM against the hardware limits, and so on).
 2. Valid values are written into the settings object **under the settings mutex**
    (the `settings->update(...)` block, line 475), so the control task on the other
-   core never sees a half-written value (see `sec/2026-08-28_Mutex_How_It_Works.md`).
+   core never sees a half-written value (see `2026-08-28_Mutex_How_It_Works.md`).
 3. Hardware side effects follow outside the lock: PWM resolution and frequency
    reconfiguration, PID re-tuning, and finally `settings->save()`, which writes
    `settings.json` to the flash.
@@ -490,4 +494,4 @@ Deliberately outside this measure, so expectations stay honest:
 ## Appendix - Verification in One Picture
 
 The complete verification procedure (curl commands, browser flows, stress test) is
-documented in the companion plan: `sec/2026-08-29_Web_Auth_Plan.md`, section 5.
+documented in the companion plan: `../plan/2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md`, section 5.

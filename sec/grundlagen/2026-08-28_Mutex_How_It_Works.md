@@ -1,6 +1,13 @@
 # How the Settings Mutex Works in VentCon2
 
-Date: 2026-08-28
+Rolle: Grundlagenerklaerung (Hintergrundwissen, kein Umsetzungsplan)
+Grundlage: `../CRA_Compliance_Checklist.md`
+Massnahme: P3.1
+CRA-Bezug: kein Annex-I-Punkt (Robustheit)
+Risikobezug: R9
+Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
+Umsetzungsplan: `../plan/2026-08-27_P3-1_Mutex_Settings_Zugriff_Plan.md`
+Datum: 2026-08-28
 
 ---
 

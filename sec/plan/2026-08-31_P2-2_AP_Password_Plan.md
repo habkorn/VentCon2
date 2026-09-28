@@ -1,9 +1,13 @@
 # Plan: Runtime-Configurable AP Password (P2.2)
 
-Date: 2026-08-31
-Status: Plan; implementation pending
-Reference: `sec/2026-08-27_Webinterface_Sicherheitsanalyse.md` (finding 2)
-Prerequisite: `sec/2026-08-29_Web_Auth_Plan.md` (P1.1 and P1.2 must be implemented first)
+Rolle: Umsetzungsplan (Detaildokument)
+Grundlage: `../CRA_Compliance_Checklist.md`
+Massnahme: P2.2
+CRA-Bezug: Annex I, Teil I, 2(b)/(d) und 2(e) (Pflicht-Nr. 1 und 10)
+Risikobezug: R2
+Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
+Voraussetzung: `2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md` (P1.1 und P1.2 muessen zuerst umgesetzt sein)
+Datum: 2026-08-31
 
 ## 1. Objective
 
@@ -26,7 +30,7 @@ Confirmed decisions:
   the AP password before the device becomes operational.
 - The provisioning state is shared with the web-login provisioning of P1.1: one
   setup page sets both the control password and the AP password (see
-  `sec/2026-08-29_Web_Auth_Plan.md`, section 3.6).
+  `2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md`, section 3.6).
 - Password change triggers a deferred WiFi restart (see section 3.4).
 - Endpoint is guarded by the session check from P1.1 and the CSRF header from P1.2.
 - Documents in English; code comments in German (project convention).
@@ -161,7 +165,7 @@ The MAC address is public (broadcast in every beacon), so using it for the SSID 
 safe; it must never be used to derive a password or any other secret.
 
 - The web interface serves the setup page only; all control endpoints answer 403
-  (this gate is implemented by P1.1, see `sec/2026-08-29_Web_Auth_Plan.md`,
+  (this gate is implemented by P1.1, see `2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md`,
   section 3.6). The single setup page sets the control password AND the AP
   password together.
 - The shared `/setup` handler writes the AP credentials (together with the control

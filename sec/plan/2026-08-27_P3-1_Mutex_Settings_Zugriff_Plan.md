@@ -1,8 +1,13 @@
 # Plan: Mutex für den settings-Zugriff einführen (P3.1)
 
+Rolle: Umsetzungsplan (Detaildokument)
+Grundlage: `../CRA_Compliance_Checklist.md`
+Massnahme: P3.1
+CRA-Bezug: kein Annex-I-Punkt (Robustheit)
+Risikobezug: R9
+Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
+Nachweis: umgesetzt in v2.7.3, Verifikation in Abschnitt 6 (durchgefuehrt am 2026-08-27)
 Datum: 2026-08-27
-Status: Umgesetzt und verifiziert am 2026-08-27
-Bezug: sec/2026-08-27_Webinterface_Sicherheitsanalyse.md, Punkt P3.1
 
 ## 1. Ziel
 
