@@ -19,6 +19,7 @@ Die drei Ebenen werden getrennt gefuehrt; alle weiteren Abschnitte bauen darauf 
 |---|---|---|
 | Rechtsgrundlage | Art. 3(3)(d)(e)(f) der Richtlinie 2014/53/EU, ausgestaltet durch Delegierte VO (EU) 2022/30 i.d.F. Delegierte VO (EU) 2023/2444 | Verordnung (EU) 2024/2847 |
 | Anwendungsbereich | internetfaehige Funkgeraete, hier der ESP32 mit Wi-Fi | Produkte mit digitalen Elementen, hier die Ventilsteuerung |
+| Geltungsbereich | Bereitstellung auf dem Unionsmarkt, auch unentgeltlich | derselbe Anknuepfungspunkt, die Bereitstellung auf dem Unionsmarkt |
 | Anwendbar seit | 2025-08-01 | Art. 14 seit 2026-09-11, vollstaendig ab 2027-12-11 |
 | Ende | Aufhebung der Delegierten VO (EU) 2022/30 durch Delegierte VO (EU) 2026/339, wirksam ab 2027-12-11 | unbefristet, Supportzeitraum von mindestens fuenf Jahren |
 | Inhalt der Anforderungen | Netzwerkschutz, Schutz personenbezogener Daten, Betrugsschutz | Annex I Teil I und II, Art. 13 Herstellerpflichten, Art. 14 Meldepflichten, Art. 28 CE-Kennzeichnung |
@@ -51,10 +52,21 @@ anders datiert ist. Aussagen mit CRA-Bezug gelten unbefristet und greifen gestaf
 | Ist VentCon2 ein "Produkt mit digitalen Elementen"? | Ja, ESP32-S3 Ventilsteuerung mit Webinterface und Netzwerkverbindung | Geklaert |
 | Wird es in der EU gewerblich in Verkehr gebracht? | Zu klaeren; reine Prototyp-Nutzung waere nicht betroffen | Offen |
 | Ist VentCon2 ein internetfaehiges Funkgeraet? | Ja, ESP32 mit Wi-Fi. Damit greifen die Cyber-Anforderungen des RED bis 2027-12-11, siehe Abschnitt 1 und 3 | Geklaert |
+| Vertrieb nur in Drittlaendern, zum Beispiel Indien? | Dann greifen weder CRA noch RED-Cyber. Anknuepfungspunkt ist allein der Unionsmarkt (Art. 2(1), Art. 3(21) und (22)) | Geklaert |
+| Lieferung an Kunden in der Union, auch unentgeltlich? | Das ist Bereitstellung auf dem Unionsmarkt nach Art. 3(22); CRA und RED-Cyber greifen | Zu beachten |
+| Weiterverkauf durch Importeur oder Haendler in der Union? | Deren Pflichten nach Art. 19 und Art. 20; mit eigenem Namen, eigener Marke oder wesentlicher Aenderung werden sie Hersteller nach Art. 21 | Geklaert |
+| Vertreter fuer einen Hersteller ausserhalb der Union? | Art. 18 erlaubt einen schriftlich mandatierten Vertreter fuer die Zusammenarbeit mit der Marktaufsicht; bei EU-Vertrieb einzuplanen | Offen |
 
 **Erste Entscheidung (vor allem anderen):** Feststellen, ob VentCon2 gewerblich in der EU in Verkehr
 gebracht wird. Davon haengt ab, ob CE-Weg, technische Dokumentation, Supportzeitraum und Meldepflichten
 greifen. Die Abgrenzung RED gegen CRA steht in Abschnitt 1.
+
+**Ausloeser statt Herkunft:** CRA und RED-Cyber knuepfen nicht an den Sitz des Herstellers an, sondern
+an die Bereitstellung auf dem Unionsmarkt. Ein Hersteller ausserhalb der Union ist bei EU-Vertrieb voll
+verpflichtet. Umgekehrt loest ein Vertrieb ausschliesslich nach Indien oder in andere Drittlaender keine
+Pflicht aus. In diesem Fall ruhen P4.1 bis P4.8, P5.1, P5.2 und die RED-Route P1.5. Wiedervorlage ist
+der erste Vertrieb in die Union, die erste kostenlose Demo dort oder die erste Auslieferung an einen
+Kunden in der Union.
 
 ## 3. RED-Pflichten (gilt bis 2027-12-11)
 
@@ -103,6 +115,9 @@ Standardpasswort ist das der Regelfall, siehe P2.2. Der Konformitaetsweg wird in
 | `plan/2026-09-30_RED_CRA_Abgrenzung_Plan.md` | Rahmenplan (Abgrenzung RED gegen CRA) | RED-1 bis RED-3, P1.5 | 2026-09-30 |
 | `plan/2026-09-30_VENTREX_Praesentation_Plan.md` | Praesentationsplan (Folienaufbau) | keine | 2026-09-30 |
 | `sources/EU_CRA_Regulation_2024_2847_EN.pdf` | Normquelle (CRA-Volltext) | keine | 2026-09-30 |
+| `sources/EU_CRA_Regulation_2024_2847_EN/00_Index.md` | Normquelle als Markdown, 19 Dateien, Artikel 1 bis 71 und Anhaenge I bis VIII zitierfaehig | keine | 2026-09-30 |
+| `plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md` | Strukturplan (Erschliessung der Normquelle, kein CRA-Bezug) | keine | 2026-09-30 |
+| `analyse/2026-09-30_CRA_Volltext_Verifikation.md` | Verifikationsprotokoll der Normquellen-Erschliessung, sieben Gates | keine | 2026-09-30 |
 Massnahmen ohne eigenes Detaildokument (P3.2) sind in Abschnitt 7 mit ihrem Nachweis ausgewiesen.
 Alle Detaildokumente tragen im Kopf `Grundlage: ../CRA_Compliance_Checklist.md`. Die Analyse traegt kein
 eigenes Statusfeld; Befund- und Nachweisstaende sind Evidenz, der Gesamtstatus steht nur hier.
@@ -304,4 +319,4 @@ sanktionieren die Mitgliedstaaten nach nationalem Recht zur Richtlinie 2014/53/E
 | 2026-08-29 | Erstanlage als Arbeitsliste, abgeleitet aus der Webinterface-Sicherheitsanalyse |
 | 2026-08-31 | Verweise auf die Plaene zur Authentifizierung, zum AP-Passwort und zur Kalibrierung ergaenzt |
 | 2026-09-28 | Umbau zum Master: Dokumentenregister, durchgehende Nummerierung 1 bis 26, Verknuepfungstabelle mit Risiko-IDs und Detaildokumenten, Art. 14 als in Kraft seit 2026-09-11, Rechtsstand ergaenzt (Delegierte VO (EU) 2026/339, C(2026) 5252, SRP-Betrieb, CSIRT-Liste, Art. 69(3)), Strafstufen und Quellen erweitert |
-| 2026-09-30 | RED und CRA getrennt: neuer Abschnitt 1 Regulatorischer Rahmen, Abschnitt 3 RED-Pflichten RED-1 bis RED-3 mit Gueltigkeit bis 2027-12-11, Anwendbarkeit auf VentCon2 reduziert, EN 303 645 als technischen Massstab gekennzeichnet, Massnahme P1.5 ergaenzt, Abschnitte 4 bis 12 neu nummeriert |
+| 2026-09-30 | RED und CRA getrennt: neuer Abschnitt 1 Regulatorischer Rahmen, Abschnitt 3 RED-Pflichten RED-1 bis RED-3 mit Gueltigkeit bis 2027-12-11, Anwendbarkeit auf VentCon2 reduziert, EN 303 645 als technischen Massstab gekennzeichnet, Massnahme P1.5 ergaenzt, Abschnitte 4 bis 12 neu nummeriert; Geltungsbereich um den Drittland-Fall, den Ausloeser Unionsmarkt und die Wiedervorlage ergaenzt |

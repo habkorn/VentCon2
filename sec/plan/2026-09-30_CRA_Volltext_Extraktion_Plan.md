@@ -5,7 +5,8 @@ Grundlage: `../CRA_Compliance_Checklist.md`
 Massnahme: keine (Normquelle, Erschliessung von `sources/EU_CRA_Regulation_2024_2847_EN.pdf`)
 Bezug: Regulation (EU) 2024/2847 (Cyber Resilience Act, CRA)
 Stand: 2026-09-30
-Ausfuehrungsstand: AP1 und AP2 erledigt, AP3 bis AP8 offen (2026-09-30)
+Ausfuehrungsstand: AP1 bis AP7 erledigt, AP8 in Arbeit (2026-09-30). Abnahme: sechs Gates bestanden,
+G4 mit Befundliste, kleine kosmetische Maengel offen. Protokoll: `../analyse/2026-09-30_CRA_Volltext_Verifikation.md`
 Ausfuehrende Agenten: Frankie (Textextraktion und Montage), GitHub Copilot (Integration, Verifikation)
 
 Nachtrag 2026-09-30 nach der Ausfuehrungspruefung: Der Schreibpfad von `tools/cra_extract.py` fehlte

@@ -29,6 +29,11 @@ mandatory inputs exist.
      Module A self-assessment per master, Abschnitt 5.
 - Until 2027-12-11 both strands run in parallel. Each declaration names the legal act it is issued
   under; the CE marking covers both.
+- Scope trigger: the declaration and the CE marking are needed only for units placed on the Union
+  market. A device sold in India only leaves this measure dormant. A free demo unit or a delivery to
+  a customer in the Union already counts as making available (Art. 3(22)). From that point the EU
+  importer carries its own duties (Art. 19 to Art. 21), and Art. 18 covers the representation of a
+  manufacturer established outside the Union.
 
 ## 3. Design (TODO): declaration content
 

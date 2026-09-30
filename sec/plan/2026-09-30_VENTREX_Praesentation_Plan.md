@@ -18,6 +18,12 @@ Folienzahl bleibt 20. Der Verifier prueft jetzt 21 Massnahmen-IDs und zwei zusae
 eine RED-Aussage braucht den Gueltigkeitsvermerk bis 2027-12-11, und EN 303 645 ist als technischer
 Massstab zu kennzeichnen. Die Sichtpruefung wurde fuer die geaenderten Folien wiederholt.
 
+Nachtrag 2026-09-30, Geltungsbereich: Folie 3 hat acht Zeilen, neu sind der Vertrieb nur in
+Drittlaendern (Beispiel Indien), die unentgeltliche Lieferung an EU-Kunden, der Weiterverkauf durch
+EU-Importeur oder Haendler und der Vertreter nach Art. 18. Folie 4 nennt den gemeinsamen
+Anknuepfungspunkt Unionsmarkt und fuehrt sechs Punkte, darunter der Drittland-Vertrieb und der
+EU-Importeur nach Art. 19 bis Art. 21.
+
 ## Auftrag
 
 Die Praesentation aus `sec/CRA_Compliance_Checklist.md` wird aus der Firmenvorlage
@@ -60,8 +66,8 @@ Folien ueber die Layouts der Vorlage anlegen, Platzhalter fuellen.
 |---|---|---|
 | 1 | COVER | Titel, Untertitel, Stand und Quelle |
 | 2 | SUBSECTION 1 | Divider Rahmen und Anwendbarkeit |
-| 3 | CONTENT A_V1 | Anwendbarkeit und erste Entscheidung, Tabelle mit 4 Zeilen |
-| 4 | CONTENT A_V2 | RED und CRA: zwei Regime, ein Uebergang, Vergleich in einer Spalte |
+| 3 | CONTENT A_V1 | Anwendbarkeit und erste Entscheidung, acht Zeilen inklusive Geltungsbereich im Drittland |
+| 4 | CONTENT A_V2 | RED und CRA: zwei Regime, ein Uebergang, sechs Punkte mit Anknuepfungspunkt Unionsmarkt |
 | 5 | CONTENT B_V1 | Produktklassifizierung links, Normenlage und RED-Abgrenzung rechts |
 | 6 | CONTENT A_V1 | Dokumentenregister, gruppiert |
 | 7 | SUBSECTION 2 | Divider Pflichten der CRA |

@@ -289,10 +289,22 @@ def build_anwendbarkeit(prs):
          "Geklaert"],
         ["Gewerblich in der EU in Verkehr gebracht?",
          "Zu klaeren; reine Prototyp-Nutzung waere nicht betroffen", "Offen"],
+        ["Vertrieb nur in Drittlaendern, zum Beispiel Indien?",
+         "Dann greifen weder CRA noch RED-Cyber; Anknuepfungspunkt ist der Unionsmarkt, Art. 2 und 3",
+         "Geklaert"],
+        ["Lieferung an EU-Kunden, auch unentgeltlich?",
+         "Bereitstellung auf dem Unionsmarkt nach Art. 3(22), CRA und RED-Cyber greifen",
+         "Zu beachten"],
+        ["Weiterverkauf durch EU-Importeur oder Haendler?",
+         "Pflichten nach Art. 19 und Art. 20; mit eigenem Namen Hersteller nach Art. 21",
+         "Geklaert"],
+        ["Vertreter fuer einen Hersteller ausserhalb der Union?",
+         "Art. 18 erlaubt einen schriftlich mandatierten Vertreter fuer die Marktaufsicht",
+         "Offen"],
         ["Erste Entscheidung, vor allem anderen",
          "Inverkehrbringung feststellen: davon haengen CE-Weg, technische Dokumentation, "
          "Supportzeitraum und Meldepflichten ab", "Offen"],
-    ], widths=[4.3, 6.9, 1.39], size=10.5, row_h=0.62, status_col=2)
+    ], widths=[4.3, 6.9, 1.39], size=10.5, row_h=0.55, status_col=2)
 
 
 def build_red_cra(prs):
@@ -301,8 +313,8 @@ def build_red_cra(prs):
     holders = by_type(slide, PP_PLACEHOLDER.OBJECT)
     if len(holders) >= 2:
         fill_bullets(holders[0],
-                     [("Zwei Regime laufen parallel und gehen am 2027-12-11 ineinander ueber.",
-                       None)], size=12)
+                     [("Zwei Regime, ein gemeinsamer Anknuepfungspunkt: die Bereitstellung auf dem "
+                       "Unionsmarkt. Ab 2027-12-11 gehen sie ineinander ueber.", None)], size=12)
         fill_bullets(holders[1], [
             ("RED-Cyber, gilt bis 2027-12-11",
              "Art. 3(3)(d)(e)(f) der Richtlinie 2014/53/EU und Delegierte VO (EU) 2022/30; "
@@ -317,6 +329,12 @@ def build_red_cra(prs):
             ("CRA-Nachweisweg",
              "Modul A, Selbstbewertung; keine harmonisierte Norm zitiert, Art. 27 derzeit nicht "
              "nutzbar"),
+            ("Vertrieb nur in Drittlaendern",
+             "Zum Beispiel Indien: keine Pflicht nach CRA oder RED-Cyber. Sicherheitsarbeit und "
+             "Updates bleiben freiwillig, aber ratsam"),
+            ("EU-Importeur oder Haendler",
+             "Wer die Geraete in die Union bringt, traegt die Pflichten nach Art. 19 und Art. 20; "
+             "mit eigenem Namen oder wesentlicher Aenderung wird er Hersteller nach Art. 21"),
         ], size=11)
 
 

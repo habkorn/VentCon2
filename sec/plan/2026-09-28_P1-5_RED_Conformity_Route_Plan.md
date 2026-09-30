@@ -20,6 +20,11 @@ Selbstbewertung und notifizierter Stelle, mit Nachweisliste je RED-Anforderung.
 Dieser Plan deckt nur die RED-Route ab. Die CRA-Route (Modul A, Selbstbewertung) steht im Master,
 Abschnitt 5.
 
+Geltungsbereich: dieser Plan greift nur, wenn VentCon2 auf dem Unionsmarkt bereitgestellt wird. Bei
+Vertrieb ausschliesslich in Drittlaender, zum Beispiel Indien, ruht er; Wiedervorlage ist der erste
+Vertrieb in die Union, die erste kostenlose Demo dort oder die erste Auslieferung an einen Kunden in
+der Union. Die Abgrenzung steht im Master, Abschnitt 1 und 2.
+
 ## 2. Ist-Zustand (verifiziert 2026-09-30)
 
 - VentCon2 ist ein internetfaehiges Funkgeraet: ESP32-S3 mit Wi-Fi. Die Cyber-Anforderungen nach
