@@ -28,7 +28,7 @@ and keep it maintainable rather than producing a one-off PDF.
 2. Design and development, including architecture and data flows (reference the LaTeX sections).
 3. Cybersecurity risk assessment (P4.1 as sub-document).
 4. Standards and specifications applied, and an explanation where they are not applied in full.
-   Note: no CRA harmonised standard has been cited in the Official Journal yet (master, Abschnitt 3).
+   Note: no CRA harmonised standard has been cited in the Official Journal yet (master, Abschnitt 5).
 5. Conformity assessment procedure and its result (Module A, self-assessment).
 6. Support period (P4.4) and the update mechanism (P4.3).
 7. Software bill of materials (P4.2).

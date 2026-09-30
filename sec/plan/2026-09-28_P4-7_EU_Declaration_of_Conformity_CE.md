@@ -20,6 +20,15 @@ mandatory inputs exist.
   identification (model designation, hardware revision, serial number scheme).
 - The RED route interacts with this step: under Delegated Regulation (EU) 2022/30 the product may
   be radio equipment with its own cyber requirements until 2027-12-11 (master, Abschnitt 1).
+  Two separate proof strands result.
+  1. RED strand, valid until 2027-12-11: declaration with Directive 2014/53/EU as the legal basis,
+     cyber requirements from Art. 3(3)(d)(e)(f), standards applied EN 18031-1/-2. Where the
+     password clauses 6.2.5.1 and 6.2.5.2 are touched, self-assessment is not available and a
+     notified body is required (Module B+C or Module H); the route is decided in P1.5.
+  2. CRA strand, from 2027-12-11: declaration with Regulation (EU) 2024/2847 as the legal basis,
+     Module A self-assessment per master, Abschnitt 5.
+- Until 2027-12-11 both strands run in parallel. Each declaration names the legal act it is issued
+  under; the CE marking covers both.
 
 ## 3. Design (TODO): declaration content
 
@@ -47,5 +56,5 @@ mandatory inputs exist.
 
 - Which legal entity acts as manufacturer and signs the declaration.
 - Whether the demonstration kit is placed on the market at all; if not, no declaration is needed yet
-  (master, Abschnitt 1).
+  (master, Abschnitt 2).
 - Retention obligations for the declaration and the technical documentation.

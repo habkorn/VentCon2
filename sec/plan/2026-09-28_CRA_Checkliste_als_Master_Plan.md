@@ -13,6 +13,11 @@ Vorgaenger-Stand: `sec/2026-08-29_CRA_Compliance_Checklist.md` (Arbeitsliste vom
 Die Migration wurde am 2026-09-28 durchgefuehrt. Dieses Dokument liegt daher bereits am Zielort
 `sec/plan/` und dient als Nachweis des Umbaus (Verifikation siehe Abschnitt 4, Phase D).
 
+Hinweis zum Stand: die Abschnittsnummern des Masters, die dieses Dokument nennt, beschreiben den
+Stand vom 2026-09-28. Mit der Trennung von RED und CRA wurden sie am 2026-09-30 verschoben; die
+neue Nummerierung steht im Master, Abschnitt 12. Die Abgrenzung selbst ist in
+`2026-09-30_RED_CRA_Abgrenzung_Plan.md` dokumentiert.
+
 ---
 
 ## 1. Entscheidungen (mit dem Nutzer abgestimmt am 2026-09-28)

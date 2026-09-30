@@ -38,7 +38,7 @@ connection, browser interface and PID basics. Gaps against Annex II:
 
 ## 5. Verification (TODO)
 
-- Cross-check the manual against the Annex II information list and against the master, Abschnitt 4.3.
+- Cross-check the manual against the Annex II information list and against the master, Abschnitt 6.3.
 - Read the manual as an operator: the device can be commissioned and secured without external help.
 - Confirm the manual version served by the device matches the shipped revision.
 

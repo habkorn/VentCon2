@@ -360,7 +360,10 @@ password guessing.
 There is no universal default password. A device whose `settings.json` contains no
 hash is in the provisioning state: it only serves the setup page, and no control
 endpoint answers until the operator sets a password (see 5.1). This is what makes
-the design compliant with CRA Annex I, Part I, 2(b)/(d) and ETSI EN 303 645 5.1-1.
+the design compliant with CRA Annex I, Part I, 2(b)/(d). ETSI EN 303 645 5.1-1 is
+quoted as a technical benchmark only: it is not a harmonised act and creates no
+presumption of conformity, neither under the CRA nor under the RED, which applies
+until 2027-12-11.
 
 ### 4.4 Login rate limiting
 

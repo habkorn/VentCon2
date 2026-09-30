@@ -3,10 +3,10 @@
 Rolle: Risiko- und Evidenzanalyse (Detaildokument, kein Umsetzungsplan)
 Grundlage: `../CRA_Compliance_Checklist.md`
 Risikobezug: R1 bis R9 (R1 bis R3 kritisch, R4 bis R9 weitere Befunde)
-Zuordnung: Die Risiko-IDs sind in Abschnitt 5 des Masters den Massnahmen P1.1 bis P3.3 zugeordnet
+Zuordnung: Die Risiko-IDs sind in Abschnitt 7 des Masters den Massnahmen P1.1 bis P3.3 zugeordnet
 Datum: 2026-08-27, Stand der Risikobewertung 2026-09-28
 Hinweis: Der Umsetzungsplan wird nicht mehr hier gefuehrt, sondern im Master
-(`../CRA_Compliance_Checklist.md`, Abschnitt 6). Dieses Dokument liefert die Befunde,
+(`../CRA_Compliance_Checklist.md`, Abschnitt 8). Dieses Dokument liefert die Befunde,
 die Datei- und Funktionsstellen und die Evidenz.
 
 ## 1. Zusammenfassung
@@ -52,8 +52,8 @@ Details:
 Der Implementierungsplan wird nicht mehr in diesem Dokument geführt, damit Massnahmen-IDs und
 Status nur an einer Stelle gepflegt werden. Verbindlich sind:
 
-- Massnahmen, Status und Priorisierung: `../CRA_Compliance_Checklist.md`, Abschnitt 6
-- Zuordnung Risiko, Pflicht, Massnahme und Detaildokument: `../CRA_Compliance_Checklist.md`, Abschnitt 5
+- Massnahmen, Status und Priorisierung: `../CRA_Compliance_Checklist.md`, Abschnitt 8
+- Zuordnung Risiko, Pflicht, Massnahme und Detaildokument: `../CRA_Compliance_Checklist.md`, Abschnitt 7
 
 Detaildokumente: `../plan/2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md` (P1.1, P1.2, P2.1),
 `../plan/2026-08-31_P1-3_Sensor_Calibration_Plan.md` (P1.3),
@@ -67,5 +67,5 @@ Für P1.4, P2.3 und P3.3 liegen Skelette unter `../plan/` bereit.
 - Authentifizierung: Login-Seite mit Passwort; Erstinbetriebnahme-Provisioning ohne universelles Standardpasswort.
 - Sensorkalibrierung: Änderung weiterhin über Web, aber mit hartem Sensorbereich-Limit.
 - AP-Passwort: Zur Laufzeit konfigurierbar, über Web oder Settings.
-- Erstinbetriebnahme: Kein universelles Standardpasswort; erzwungene Passwortvergabe (Provisioning) vor Freischaltung der Steuerung (CRA-konform, ETSI EN 303 645 5.1-1).
+- Erstinbetriebnahme: Kein universelles Standardpasswort; erzwungene Passwortvergabe (Provisioning) vor Freischaltung der Steuerung (CRA-konform nach Annex I, Teil I, 2(b)/(d); ETSI EN 303 645 5.1-1 dient nur als technischer Massstab).
 - Codekommentare: Deutsch.

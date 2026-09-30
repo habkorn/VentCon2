@@ -27,7 +27,7 @@ updates are delivered during that period.
 - Content: security updates, vulnerability handling (P4.5) and reporting (P5.1) for the whole period.
 - Where the end date is published: user manual (P4.8), product page, device UI, technical
   documentation (P4.6). Give month and year.
-- Record the decision in this document and reference it from the master, Abschnitt 4.3.
+- Record the decision in this document and reference it from the master, Abschnitt 6.3.
 
 ## 4. Implementation Steps (TODO)
 

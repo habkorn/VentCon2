@@ -1,0 +1,292 @@
+﻿=== page 70 (footnote band below y=674) ===
+  -- block body y=44 lines=2
+     F y=  44.3 d=  -    15.9 b=0 i=0 'EN'
+     F y=  50.7 d=  6.4   9.6 b=0 i=0 'OJ L, 20.11.2024'
+  -- block body y=77 lines=1
+       y=  76.7 d= 26.0   8.5 b=0 i=1 'ANNEX II'
+  -- block body y=99 lines=1
+       y=  98.9 d= 22.2   9.6 b=1 i=0 'INFORMATION AND INSTRUCTIONS TO THE USER'
+  -- block body y=133 lines=1
+       y= 132.8 d= 33.9   9.6 b=0 i=0 'At minimum, the product with digital elements shall be accompanied by:'
+  -- block body y=150 lines=2
+       y= 149.8 d= 17.0   9.6 b=0 i=0 '1. the name, registered trade name or registered trademark of the manufacturer, and the '
+       y= 160.2 d= 10.4   9.6 b=0 i=0 'or other digital contact as well as, where available, the website at which the manufactu'
+  -- block body y=177 lines=2
+       y= 177.2 d= 17.0   9.6 b=0 i=0 '2. the single point of contact where information about vulnerabilities of the product wi'
+       y= 187.7 d= 10.5   9.6 b=0 i=0 "and received, and where the manufacturer's policy on coordinated vulnerability disclosur"
+  -- block body y=205 lines=1
+       y= 204.6 d= 16.9   9.6 b=0 i=0 '3. name and type and any additional information enabling the unique identification of th'
+  -- block body y=222 lines=2
+       y= 221.5 d= 16.9   9.6 b=0 i=0 '4. the intended purpose of the product with digital elements, including the security env'
+       y= 232.0 d= 10.5   9.6 b=0 i=0 "manufacturer, as well as the product's essential functionalities and information about t"
+  -- block body y=249 lines=3
+       y= 249.0 d= 17.0   9.6 b=0 i=0 '5. any known or foreseeable circumstance, related to the use of the product with digital'
+       y= 259.5 d= 10.5   9.6 b=0 i=0 'intended purpose or under conditions of reasonably foreseeable misuse, which may lead to'
+       y= 269.9 d= 10.4   9.6 b=0 i=0 'risks;'
+  -- block body y=287 lines=1
+       y= 286.9 d= 17.0   9.6 b=0 i=0 '6. where applicable, the internet address at which the EU declaration of conformity can '
+  -- block body y=304 lines=2
+       y= 303.8 d= 16.9   9.6 b=0 i=0 '7. the type of technical security support offered by the manufacturer and the end-date o'
+       y= 314.3 d= 10.5   9.6 b=0 i=0 'users can expect vulnerabilities to be handled and to receive security updates;'
+  -- block body y=331 lines=1
+       y= 331.2 d= 16.9   9.6 b=0 i=0 '8. detailed instructions or an internet address referring to such detailed instructions '
+  -- block body y=348 lines=1
+       y= 348.1 d= 16.9   9.6 b=0 i=0 '(a) the necessary measures during initial commissioning and throughout the lifetime of t'
+  -- block body y=359 lines=1
+       y= 358.7 d= 10.6   9.6 b=0 i=0 'elements to ensure its secure use;'
+  -- block body y=376 lines=1
+       y= 375.6 d= 16.9   9.6 b=0 i=0 '(b) how changes to the product with digital elements can affect the security of data;'
+  -- block body y=393 lines=1
+       y= 392.5 d= 16.9   9.6 b=0 i=0 '(c) how security-relevant updates can be installed;'
+  -- block body y=409 lines=1
+       y= 409.4 d= 16.9   9.6 b=0 i=0 '(d) the secure decommissioning of the product with digital elements, including informati'
+  -- block body y=420 lines=1
+       y= 419.9 d= 10.5   9.6 b=0 i=0 'securely removed;'
+  -- block body y=437 lines=1
+       y= 436.9 d= 17.0   9.6 b=0 i=0 '(e) how the default setting enabling the automatic installation of security updates, as '
+  -- block body y=447 lines=1
+       y= 447.3 d= 10.4   9.6 b=0 i=0 'Annex I, can be turned off;'
+  -- block body y=464 lines=1
+       y= 464.3 d= 17.0   9.6 b=0 i=0 '(f) where the product with digital elements is intended for integration into other produ'
+  -- block body y=475 lines=2
+       y= 474.8 d= 10.5   9.6 b=0 i=0 'information necessary for the integrator to comply with the essential cybersecurity requ'
+       y= 485.3 d= 10.5   9.6 b=0 i=0 'Annex I and the documentation requirements set out in Annex VII.'
+  -- block body y=502 lines=2
+       y= 502.2 d= 16.9   9.6 b=0 i=0 '9. If the manufacturer decides to make available the software bill of materials to the u'
+       y= 512.7 d= 10.5   9.6 b=0 i=0 'software bill of materials can be accessed.'
+  -- block body y=813 lines=2
+     F y= 813.1 d=300.4   9.6 b=0 i=0 '70/81'
+     F y= 813.1 d=  0.0   9.6 b=0 i=0 'ELI: http://data.europa.eu/eli/reg/2024/2847/oj'
+=== page 71 (footnote band below y=674) ===
+  -- block body y=44 lines=2
+     F y=  50.7 d=  -     9.6 b=0 i=0 'OJ L, 20.11.2024'
+     F y=  44.3 d= -6.4  15.9 b=0 i=0 'EN'
+  -- block body y=77 lines=1
+       y=  76.7 d= 32.4   8.5 b=0 i=1 'ANNEX III'
+  -- block body y=99 lines=1
+       y=  98.9 d= 22.2   9.6 b=1 i=0 'IMPORTANT PRODUCTS WITH DIGITAL ELEMENTS'
+  -- block body y=133 lines=1
+       y= 132.8 d= 33.9   9.6 b=0 i=0 'Class I'
+  -- block body y=150 lines=3
+       y= 149.8 d= 17.0   9.6 b=0 i=0 '1.'
+       y= 149.8 d=  0.0   9.6 b=0 i=0 'Identity management systems and privileged access management software and hardware, incl'
+       y= 160.2 d= 10.4   9.6 b=0 i=0 'access control readers, including biometric readers'
+  -- block body y=177 lines=2
+       y= 177.2 d= 17.0   9.6 b=0 i=0 '2.'
+       y= 177.2 d=  0.0   9.6 b=0 i=0 'Standalone and embedded browsers'
+  -- block body y=194 lines=2
+       y= 194.1 d= 16.9   9.6 b=0 i=0 '3.'
+       y= 194.1 d=  0.0   9.6 b=0 i=0 'Password managers'
+  -- block body y=211 lines=2
+       y= 211.0 d= 16.9   9.6 b=0 i=0 '4.'
+       y= 211.0 d=  0.0   9.6 b=0 i=0 'Software that searches for, removes, or quarantines malicious software'
+  -- block body y=228 lines=2
+       y= 227.9 d= 16.9   9.6 b=0 i=0 '5.'
+       y= 227.9 d=  0.0   9.6 b=0 i=0 'Products with digital elements with the function of virtual private network (VPN)'
+  -- block body y=245 lines=2
+       y= 244.8 d= 16.9   9.6 b=0 i=0 '6.'
+       y= 244.8 d=  0.0   9.6 b=0 i=0 'Network management systems'
+  -- block body y=262 lines=2
+       y= 261.8 d= 17.0   9.6 b=0 i=0 '7.'
+       y= 261.8 d=  0.0   9.6 b=0 i=0 'Security information and event management (SIEM) systems'
+  -- block body y=279 lines=2
+       y= 278.7 d= 16.9   9.6 b=0 i=0 '8.'
+       y= 278.7 d=  0.0   9.6 b=0 i=0 'Boot managers'
+  -- block body y=296 lines=2
+       y= 295.6 d= 16.9   9.6 b=0 i=0 '9.'
+       y= 295.6 d=  0.0   9.6 b=0 i=0 'Public key infrastructure and digital certificate issuance software'
+  -- block body y=313 lines=1
+       y= 312.5 d= 16.9   9.6 b=0 i=0 '10. Physical and virtual network interfaces'
+  -- block body y=329 lines=1
+       y= 329.4 d= 16.9   9.6 b=0 i=0 '11. Operating systems'
+  -- block body y=346 lines=1
+       y= 346.4 d= 17.0   9.6 b=0 i=0 '12. Routers, modems intended for the connection to the internet, and switches'
+  -- block body y=363 lines=1
+       y= 363.3 d= 16.9   9.6 b=0 i=0 '13. Microprocessors with security-related functionalities'
+  -- block body y=380 lines=1
+       y= 380.2 d= 16.9   9.6 b=0 i=0 '14. Microcontrollers with security-related functionalities'
+  -- block body y=397 lines=2
+       y= 397.1 d= 16.9   9.6 b=0 i=0 '15. Application specific integrated circuits (ASIC) and field-programmable gate arrays ('
+       y= 407.6 d= 10.5   9.6 b=0 i=0 'functionalities'
+  -- block body y=425 lines=1
+       y= 424.5 d= 16.9   9.6 b=0 i=0 '16. Smart home general purpose virtual assistants'
+  -- block body y=441 lines=2
+       y= 441.4 d= 16.9   9.6 b=0 i=0 '17. Smart home products with security functionalities, including smart door locks, secur'
+       y= 451.9 d= 10.5   9.6 b=0 i=0 'systems and alarm systems'
+  -- block body y=469 lines=2
+       y= 468.7 d= 16.8   9.6 b=0 i=0 '18. Internet connected toys covered by Directive 2009/48/EC of the European Parliament a'
+       y= 479.4 d= 10.7   9.6 b=0 i=0 'social interactive features (e.g. speaking or filming) or that have location tracking fe'
+  -- block body y=496 lines=3
+       y= 496.3 d= 16.9   9.6 b=0 i=0 '19. Personal wearable products to be worn or placed on a human body that have a health m'
+       y= 506.8 d= 10.5   9.6 b=0 i=0 'purpose and to which Regulation (EU) 2017/745 or (EU) No 2017/746 do not apply, or perso'
+       y= 517.3 d= 10.5   9.6 b=0 i=0 'that are intended for the use by and for children'
+  -- block body y=541 lines=1
+       y= 540.7 d= 23.4   9.6 b=0 i=0 'Class II'
+  -- block body y=558 lines=2
+       y= 557.6 d= 16.9   9.6 b=0 i=0 '1. Hypervisors and container runtime systems that support virtualised execution of opera'
+       y= 568.1 d= 10.5   9.6 b=0 i=0 'environments'
+  -- block body y=585 lines=1
+       y= 585.0 d= 16.9   9.6 b=0 i=0 '2. Firewalls, intrusion detection and prevention systems'
+  -- block body y=602 lines=1
+       y= 601.9 d= 16.9   9.6 b=0 i=0 '3. Tamper-resistant microprocessors'
+  -- block body y=619 lines=1
+       y= 618.8 d= 16.9   9.6 b=0 i=0 '4. Tamper-resistant microcontrollers'
+  -- block note y=781 lines=3
+       y= 780.7 d=161.9   8.5 b=0 i=0 '(1)'
+       y= 780.8 d=  0.1   8.5 b=0 i=0 'Directive 2009/48/EC of the European Parliament and of the Council of 18 June 2009 on th'
+       y= 790.2 d=  9.4   8.5 b=0 i=0 'p. 1).'
+  -- block body y=813 lines=2
+     F y= 813.1 d= 22.9   9.6 b=0 i=0 'ELI: http://data.europa.eu/eli/reg/2024/2847/oj'
+     F y= 813.1 d=  0.0   9.6 b=0 i=0 '71/81'
+=== page 72 (footnote band below y=674) ===
+  -- block body y=44 lines=2
+     F y=  44.3 d=  -    15.9 b=0 i=0 'EN'
+     F y=  50.7 d=  6.4   9.6 b=0 i=0 'OJ L, 20.11.2024'
+  -- block body y=77 lines=1
+       y=  76.7 d= 26.0   8.5 b=0 i=1 'ANNEX IV'
+  -- block body y=99 lines=1
+       y=  98.9 d= 22.2   9.6 b=1 i=0 'CRITICAL PRODUCTS WITH DIGITAL ELEMENTS'
+  -- block body y=133 lines=1
+       y= 132.8 d= 33.9   9.6 b=0 i=0 '1. Hardware Devices with Security Boxes'
+  -- block body y=150 lines=3
+       y= 149.8 d= 17.0   9.6 b=0 i=0 '2. Smart meter gateways within smart metering systems as defined in Article 2, point (23'
+       y= 160.1 d= 10.3   9.6 b=0 i=0 'the European Parliament and of the Council (1) and other devices for advanced security p'
+       y= 170.8 d= 10.7   9.6 b=0 i=0 'cryptoprocessing'
+  -- block body y=188 lines=1
+       y= 187.7 d= 16.9   9.6 b=0 i=0 '3. Smartcards or similar devices, including secure elements'
+  -- block note y=781 lines=3
+       y= 780.7 d=593.0   8.5 b=0 i=0 '(1)'
+       y= 780.8 d=  0.1   8.5 b=0 i=0 'Directive (EU) 2019/944 of the European Parliament and of the Council of 5 June 2019 on '
+       y= 790.2 d=  9.4   8.5 b=0 i=0 'for electricity and amending Directive 2012/27/EU (OJ L 158, 14.6.2019, p. 125).'
+  -- block body y=813 lines=2
+     F y= 813.1 d= 22.9   9.6 b=0 i=0 '72/81'
+     F y= 813.1 d=  0.0   9.6 b=0 i=0 'ELI: http://data.europa.eu/eli/reg/2024/2847/oj'
+=== page 73 (footnote band below y=674) ===
+  -- block body y=44 lines=2
+     F y=  50.7 d=  -     9.6 b=0 i=0 'OJ L, 20.11.2024'
+     F y=  44.3 d= -6.4  15.9 b=0 i=0 'EN'
+  -- block body y=77 lines=1
+       y=  76.7 d= 32.4   8.5 b=0 i=1 'ANNEX V'
+  -- block body y=99 lines=1
+       y=  98.9 d= 22.2   9.6 b=1 i=0 'EU DECLARATION OF CONFORMITY'
+  -- block body y=133 lines=1
+       y= 132.8 d= 33.9   9.6 b=0 i=0 'The EU declaration of conformity referred to in Article 28, shall contain all of the fol'
+  -- block body y=150 lines=1
+       y= 149.8 d= 17.0   9.6 b=0 i=0 '1. Name and type and any additional information enabling the unique identification of th'
+  -- block body y=167 lines=1
+       y= 166.7 d= 16.9   9.6 b=0 i=0 '2. Name and address of the manufacturer or its authorised representative'
+  -- block body y=184 lines=1
+       y= 183.6 d= 16.9   9.6 b=0 i=0 '3. A statement that the EU declaration of conformity is issued under the sole responsibi'
+  -- block body y=200 lines=2
+       y= 200.5 d= 16.9   9.6 b=0 i=0 '4. Object of the declaration (identification of the product with digital elements allowi'
+       y= 211.0 d= 10.5   9.6 b=0 i=0 'a photograph, where appropriate)'
+  -- block body y=228 lines=2
+       y= 227.9 d= 16.9   9.6 b=0 i=0 '5. A statement that the object of the declaration described above is in conformity with '
+       y= 238.4 d= 10.5   9.6 b=0 i=0 'legislation'
+  -- block body y=255 lines=2
+       y= 255.4 d= 17.0   9.6 b=0 i=0 '6. References to any relevant harmonised standards used or any other common specificatio'
+       y= 265.9 d= 10.5   9.6 b=0 i=0 'in relation to which conformity is declared'
+  -- block body y=283 lines=2
+       y= 282.8 d= 16.9   9.6 b=0 i=0 '7. Where applicable, the name and number of the notified body, a description of the conf'
+       y= 293.3 d= 10.5   9.6 b=0 i=0 'performed and identification of the certificate issued'
+  -- block body y=310 lines=1
+       y= 310.2 d= 16.9   9.6 b=0 i=0 '8. Additional information:'
+  -- block body y=327 lines=1
+       y= 327.2 d= 17.0   9.6 b=0 i=0 'Signed for and on behalf of:'
+  -- block body y=344 lines=1
+       y= 344.0 d= 16.8   9.6 b=0 i=0 '(place and date of issue):'
+  -- block body y=361 lines=1
+       y= 360.9 d= 16.9   9.6 b=0 i=0 '(name, function) (signature):'
+  -- block body y=813 lines=2
+     F y= 813.1 d=452.2   9.6 b=0 i=0 'ELI: http://data.europa.eu/eli/reg/2024/2847/oj'
+     F y= 813.1 d=  0.0   9.6 b=0 i=0 '73/81'
+=== page 74 (footnote band below y=674) ===
+  -- block body y=44 lines=2
+     F y=  44.3 d=  -    15.9 b=0 i=0 'EN'
+     F y=  50.7 d=  6.4   9.6 b=0 i=0 'OJ L, 20.11.2024'
+  -- block body y=77 lines=1
+       y=  76.7 d= 26.0   8.5 b=0 i=1 'ANNEX VI'
+  -- block body y=99 lines=1
+       y=  98.9 d= 22.2   9.6 b=1 i=0 'SIMPLIFIED EU DECLARATION OF CONFORMITY'
+  -- block body y=133 lines=1
+       y= 132.8 d= 33.9   9.6 b=0 i=0 'The simplified EU declaration of conformity referred to in Article 13(20) shall be provi'
+  -- block body y=150 lines=2
+       y= 149.8 d= 17.0   9.6 b=0 i=0 'Hereby, ÔÇª [name of manufacturer] declares that the product with digital elements type ÔÇª '
+       y= 160.1 d= 10.3   9.6 b=0 i=0 'with digital element] is in compliance with Regulation (EU) 2024/2847 (1).'
+  -- block body y=177 lines=1
+       y= 177.2 d= 17.1   9.6 b=0 i=0 'The full text of the EU declaration of conformity is available at the following internet'
+  -- block note y=790 lines=2
+       y= 790.1 d=612.9   8.5 b=0 i=0 '(1)'
+       y= 790.2 d=  0.1   8.5 b=0 i=0 'OJ L, 2024/2847, 20.11.2024, ELI: http://data.europa.eu/eli/reg/2024/2847/oj.'
+  -- block body y=813 lines=2
+     F y= 813.1 d= 22.9   9.6 b=0 i=0 '74/81'
+     F y= 813.1 d=  0.0   9.6 b=0 i=0 'ELI: http://data.europa.eu/eli/reg/2024/2847/oj'
+=== page 75 (footnote band below y=674) ===
+  -- block body y=44 lines=2
+     F y=  50.7 d=  -     9.6 b=0 i=0 'OJ L, 20.11.2024'
+     F y=  44.3 d= -6.4  15.9 b=0 i=0 'EN'
+  -- block body y=77 lines=1
+       y=  76.7 d= 32.4   8.5 b=0 i=1 'ANNEX VII'
+  -- block body y=99 lines=1
+       y=  98.9 d= 22.2   9.6 b=1 i=0 'CONTENT OF THE TECHNICAL DOCUMENTATION'
+  -- block body y=133 lines=2
+       y= 132.8 d= 33.9   9.6 b=0 i=0 'The technical documentation referred to in Article 31 shall contain at least the followi'
+       y= 143.4 d= 10.6   9.6 b=0 i=0 'relevant product with digital elements:'
+  -- block body y=160 lines=1
+       y= 160.2 d= 16.8   9.6 b=0 i=0 '1. a general description of the product with digital elements, including:'
+  -- block body y=177 lines=1
+       y= 177.2 d= 17.0   9.6 b=0 i=0 '(a) its intended purpose;'
+  -- block body y=194 lines=1
+       y= 194.1 d= 16.9   9.6 b=0 i=0 '(b) versions of software affecting compliance with essential cybersecurity requirements;'
+  -- block body y=211 lines=1
+       y= 211.0 d= 16.9   9.6 b=0 i=0 '(c) where the product with digital elements is a hardware product, photographs or illust'
+  -- block body y=222 lines=1
+       y= 221.5 d= 10.5   9.6 b=0 i=0 'features, marking and internal layout;'
+  -- block body y=238 lines=1
+       y= 238.4 d= 16.9   9.6 b=0 i=0 '(d) user information and instructions as set out in Annex II;'
+  -- block body y=255 lines=2
+       y= 255.4 d= 17.0   9.6 b=0 i=0 '2. a description of the design, development and production of the product with digital e'
+       y= 265.9 d= 10.5   9.6 b=0 i=0 'processes, including:'
+  -- block body y=283 lines=1
+       y= 282.8 d= 16.9   9.6 b=0 i=0 '(a) necessary information on the design and development of the product with digital elem'
+  -- block body y=293 lines=2
+       y= 293.3 d= 10.5   9.6 b=0 i=0 'applicable, drawings and schemes and a description of the system architecture explaining'
+       y= 303.8 d= 10.5   9.6 b=0 i=0 'build on or feed into each other and integrate into the overall processing;'
+  -- block body y=321 lines=1
+       y= 320.7 d= 16.9   9.6 b=0 i=0 '(b) necessary information and specifications of the vulnerability handling processes put'
+  -- block body y=331 lines=3
+       y= 331.2 d= 10.5   9.6 b=0 i=0 'including the software bill of materials, the coordinated vulnerability disclosure polic'
+       y= 341.7 d= 10.5   9.6 b=0 i=0 'a contact address for the reporting of the vulnerabilities and a description of the tech'
+       y= 352.3 d= 10.6   9.6 b=0 i=0 'secure distribution of updates;'
+  -- block body y=369 lines=1
+       y= 369.2 d= 16.9   9.6 b=0 i=0 '(c) necessary information and specifications of the production and monitoring processes '
+  -- block body y=380 lines=1
+       y= 379.7 d= 10.5   9.6 b=0 i=0 'elements and the validation of those processes;'
+  -- block body y=397 lines=3
+       y= 396.6 d= 16.9   9.6 b=0 i=0 '3. an assessment of the cybersecurity risks against which the product with digital eleme'
+       y= 407.1 d= 10.5   9.6 b=0 i=0 'produced, delivered and maintained pursuant to Article 13, including how the essential c'
+       y= 417.6 d= 10.5   9.6 b=0 i=0 'out in Part I of Annex I are applicable;'
+  -- block body y=435 lines=2
+       y= 434.5 d= 16.9   9.6 b=0 i=0 '4. relevant information that was taken into account to determine the support period purs'
+       y= 445.1 d= 10.6   9.6 b=0 i=0 'product with digital elements;'
+  -- block body y=462 lines=8
+       y= 462.0 d= 16.9   9.6 b=0 i=1 '5. a list of the harmonised standards applied in full or in part the references of which'
+       y= 472.5 d= 10.5   9.6 b=0 i=1 'Journal of the European Union, common specifications as set out in Article 27 of this Re'
+       y= 483.0 d= 10.5   9.6 b=0 i=0 'cybersecurity certification schemes adopted pursuant to Regulation (EU) 2019/881 pursuan'
+       y= 493.5 d= 10.5   9.6 b=0 i=0 'Regulation, and, where those harmonised standards, common specifications or European cyb'
+       y= 504.0 d= 10.5   9.6 b=0 i=0 'schemes have not been applied, descriptions of the solutions adopted to meet the essenti'
+       y= 514.5 d= 10.5   9.6 b=0 i=0 'set out in Parts I and II of Annex I, including a list of other relevant technical speci'
+       y= 525.0 d= 10.5   9.6 b=0 i=0 'applied harmonised standards, common specifications or European cybersecurity certificat'
+       y= 535.6 d= 10.6   9.6 b=0 i=0 'documentation shall specify the parts which have been applied;'
+  -- block body y=552 lines=2
+       y= 552.4 d= 16.8   9.6 b=0 i=0 '6. reports of the tests carried out to verify the conformity of the product with digital'
+       y= 563.0 d= 10.6   9.6 b=0 i=0 'handling processes with the applicable essential cybersecurity requirements as set out i'
+  -- block body y=580 lines=1
+       y= 579.9 d= 16.9   9.6 b=0 i=0 '7. a copy of the EU declaration of conformity;'
+  -- block body y=597 lines=3
+       y= 596.8 d= 16.9   9.6 b=0 i=0 '8. where applicable, the software bill of materials, further to a reasoned request from '
+       y= 607.3 d= 10.5   9.6 b=0 i=0 'provided that it is necessary in order for that authority to be able to check compliance'
+       y= 617.8 d= 10.5   9.6 b=0 i=0 'requirements set out in Annex I.'
+  -- block body y=813 lines=2
+     F y= 813.1 d=195.3   9.6 b=0 i=0 'ELI: http://data.europa.eu/eli/reg/2024/2847/oj'
+     F y= 813.1 d=  0.0   9.6 b=0 i=0 '75/81'

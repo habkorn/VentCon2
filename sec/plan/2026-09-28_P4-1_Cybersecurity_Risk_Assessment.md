@@ -17,7 +17,7 @@ technical documentation (P4.6) builds on.
 ## 2. Current State (verified 2026-09-28)
 
 - Inputs exist: the risk and evidence analysis (R1 to R9) and the obligation mapping in
-  `../CRA_Compliance_Checklist.md`, Abschnitt 5.
+  `../CRA_Compliance_Checklist.md`, Abschnitt 7.
 - The assessment itself is not written: no threat model, no asset list, no residual risk statement.
 - Interpretation guidance available: Commission guidance C(2026) 5252 of 2026-07-27.
 
@@ -35,7 +35,7 @@ technical documentation (P4.6) builds on.
 
 ## 5. Verification (TODO)
 
-- Every obligation in Abschnitt 4 of the master has a treatment decision in the dossier.
+- Every obligation in Abschnitt 6 of the master has a treatment decision in the dossier.
 - Every risk in the register has an owner and a status.
 - The dossier is consistent with the SBOM (P4.2) regarding third party components.
 

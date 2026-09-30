@@ -25,9 +25,9 @@ deployment; it is not a fix on its own and must be combined with P1.1.
 Confirmed decisions:
 
 - AP SSID and AP password stored as plain text in `settings.json`.
-- No universal default AP password (CRA Annex I, Part I, 2(b)/(d); ETSI EN 303 645
-  5.1-1). A fresh device ships in the provisioning state and the operator must set
-  the AP password before the device becomes operational.
+- No universal default AP password (CRA Annex I, Part I, 2(b)/(d); technical
+  benchmark ETSI EN 303 645 5.1-1). A fresh device ships in the provisioning state
+  and the operator must set the AP password before the device becomes operational.
 - The provisioning state is shared with the web-login provisioning of P1.1: one
   setup page sets both the control password and the AP password (see
   `2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md`, section 3.6).
@@ -68,10 +68,12 @@ char ap_password[64];   // max 63 chars + NUL (WPA2 passphrase limit; min 8)
 
 The AP password is stored recoverably (plaintext) because the WPA2 handshake needs
 the passphrase; hashing is impossible. It is therefore a "sensitive security
-parameter" and must be stored securely (ETSI EN 303 645 5.4-1): persist the
+parameter" and must be stored securely: persist the
 credential pair in an encrypted NVS partition (NVS encryption, key in eFuse)
 instead of `settings.json`, so the stored credential is not trivially readable
-from the flash. Never hard-code the credential in source (5.4-3).
+from the flash. Technical benchmark for that property: ETSI EN 303 645 5.4-1;
+5.4-3 for the prohibition of hard-coded credentials. The norm itself has no legal
+effect.
 
 `NetworkConfig::AP_PASSWORD` is removed from `src/Constants.h`; there is no
 fallback default password. `NetworkConfig::AP_SSID` remains as the base of the
@@ -223,7 +225,8 @@ Phase B - Secure storage at rest:
 6. Store the AP credential pair in an encrypted NVS partition (NVS encryption with
    keys in eFuse, section 3.7), not in `settings.json`. Full flash encryption is
    out of scope for this measure (see section 7). The recoverable AP passphrase is
-   then not trivially readable from the flash (ETSI EN 303 645 5.4-1).
+   then not trivially readable from the flash (technical benchmark ETSI EN 303 645
+   5.4-1).
 
 Phase C - `src/WebContentScript.h`:
 7. GET on load; credential form; POST on save; restart warning banner.
@@ -270,9 +273,10 @@ Phase D - Data and version:
   the AP restarts, the browser shows a network error. The 100 ms delay mitigates
   this; increasing it to 500 ms is a safe fallback.
 - **Plain-text storage**: the AP password is stored recoverably (the WPA2 handshake
-  needs the passphrase, so hashing is impossible). Per ETSI EN 303 645 5.4-1 it is
-  a sensitive security parameter and must be stored securely: persist it in an
-  encrypted NVS partition (NVS encryption with eFuse keys). The file download block
+  needs the passphrase, so hashing is impossible). The technical benchmark
+  ETSI EN 303 645 5.4-1 treats it as a sensitive security parameter that must be
+  stored securely: persist it in an encrypted NVS partition (NVS encryption with
+  eFuse keys). The file download block
   from minimal P2.1 removes the HTTP exposure; NVS encryption removes the physical
   extraction exposure.
 - **No confirmation field**: a typo in the new password locks the operator out.
@@ -294,7 +298,8 @@ Phase D - Data and version:
 
 - Store the AP password recoverably (not hashed) because the WPA2 handshake needs
   the passphrase; protect it at rest in an encrypted NVS partition (NVS encryption
-  with eFuse keys) per ETSI EN 303 645 5.4-1, never hard-coded in source (5.4-3).
+  with eFuse keys), per the technical benchmark ETSI EN 303 645 5.4-1, and never
+  hard-coded in source (5.4-3).
   Full flash encryption is out of scope for this measure.
 - SSID included in scope (not only the password).
 - Browser-side reconnect guidance rather than an automatic redirect (impossible
