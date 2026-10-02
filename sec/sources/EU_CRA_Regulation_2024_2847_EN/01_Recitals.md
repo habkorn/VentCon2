@@ -1,12 +1,12 @@
 Datei: 01_Recitals.md
-Rolle: wortgetreuer Extrakt der CRA-Normquelle, keine Bewertung (Titel, Erwaegungsformel und Erwaegungsgruende)
+Rolle: wortgetreuer Extrakt der CRA-Normquelle, keine Bewertung (Titel, Erwägungsformel und Erwägungsgründe)
 Einheit im Amtsblatt: Front matter
 Quelle: sec/sources/EU_CRA_Regulation_2024_2847_EN.pdf
 SHA-256 der Quelle: e3ecaabddf6e321fa04097d15dfcccc7309d0fe5896240ab7625a27d74ab1b0a
 PDF-Seiten in dieser Datei: 1 bis 28
 Plan: sec/plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md
 Werkzeug: tools/cra_extract.py, PyMuPDF 1.28.2, Extraktionsdatum 2026-09-30
-Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fussnoten stehen als Blockzitat bei ihrer Seite.
+Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fußnoten stehen als Blockzitat bei ihrer Seite.
 
 <!-- NORM BEGIN -->
 
@@ -48,7 +48,7 @@ This Regulation aims to set the boundary conditions for the development of secur
 
 Relevant Union law in force comprises several sets of horizontal rules that address certain aspects linked to cybersecurity from different angles, including measures to improve the security of the digital supply chain. However, existing Union law related to cybersecurity, including Regulation (EU) 2019/881 of the European Parliament and of the Council (3) and Directive (EU) 2022/2555 of the European Parliament and of the Council (4), does not directly cover mandatory requirements for the security of products with digital elements.
 
-<!-- Fussnoten zu PDF S. 1 -->
+<!-- Fußnoten zu PDF S. 1 -->
 
 > (1) OJ C 100, 16.3.2023, p. 101.
 
@@ -84,7 +84,7 @@ To increase the overall level of cybersecurity of all products with digital elem
 
 Under certain conditions, all products with digital elements integrated in or connected to a larger electronic information system can serve as an attack vector for malicious actors. As a result, even hardware and software considered to be less critical can facilitate the initial compromise of a device or network, enabling malicious actors to gain privileged access to a system or to move laterally across systems. Manufacturers should therefore ensure that all products with digital elements are designed and developed in accordance with the essential cybersecurity requirements laid down in this Regulation. That obligation relates to both products that can be connected physically via hardware interfaces and products that are connected logically, such as via network sockets, pipes, files, application programming interfaces or any other types of software interface. As cyber threats can propagate through various products with digital elements before reaching a certain target, for example by chaining together multiple vulnerability exploits, manufacturers should also ensure the cybersecurity of products with digital elements that are only indirectly connected to other devices or networks.
 
-<!-- Fussnoten zu PDF S. 2 -->
+<!-- Fußnoten zu PDF S. 2 -->
 
 > (5) Commission Recommendation 2003/361/EC of 6 May 2003 concerning the definition of micro, small and medium-sized enterprises (OJ L 124, 20.5.2003, p. 36).
 
@@ -108,7 +108,7 @@ Cloud solutions constitute remote data processing solutions within the meaning o
 
 In line with the objective of this Regulation to remove obstacles to the free movement of products with digital elements, Member States should not impede, for the matters covered by this Regulation, the making available on the market of products with digital elements which comply with this Regulation. Therefore, for matters harmonised by this Regulation, Member States cannot impose additional cybersecurity requirements for the making available on the market of products with digital elements. Any entity, public or private, can however establish additional requirements to those laid down in this Regulation for the procurement or use of products with digital elements for its specific purposes, and can therefore choose to use products with digital elements that meet stricter or more specific cybersecurity requirements than those applicable for the making available on the market under this Regulation. Without prejudice to Directives 2014/24/EU (7) and 2014/25/EU (8) of the European Parliament and of the Council, when procuring products with digital elements, which must comply with the essential cybersecurity requirements laid down in this Regulation, including those relating to vulnerability handling, Member States should
 
-<!-- Fussnoten zu PDF S. 3 -->
+<!-- Fußnoten zu PDF S. 3 -->
 
 > (7) Directive 2014/24/EU of the European Parliament and of the Council of 26 February 2014 on public procurement and repealing Directive 2004/18/EC (OJ L 94, 28.3.2014, p. 65).
 
@@ -176,7 +176,7 @@ Regulation (EU) 2017/745 of the European Parliament and of the Council (9) lays 
 
 Products with digital elements that are developed or modified exclusively for national security or defence purposes or products that are specifically designed to process classified information fall outside the scope of this Regulation. Member States are encouraged to ensure the same or a higher level of protection for those products as for those falling within the scope of this Regulation.
 
-<!-- Fussnoten zu PDF S. 6 -->
+<!-- Fußnoten zu PDF S. 6 -->
 
 > (9) Regulation (EU) 2017/745 of the European Parliament and of the Council of 5 April 2017 on medical devices, amending Directive 2001/83/EC, Regulation (EC) No 178/2002 and Regulation (EC) No 1223/2009 and repealing Council Directives 90/385/EEC and 93/42/EEC (OJ L 117, 5.5.2017, p. 1).
 
@@ -200,7 +200,7 @@ In order to ensure that products with digital elements made available on the mar
 
 Commission Delegated Regulation (EU) 2022/30 (14) specifies that a number of essential requirements set out in Article 3(3), points (d), (e) and (f), of Directive 2014/53/EU of the European Parliament and of the Council (15), relating to network harm and misuse of network resources, personal data and privacy, and fraud, apply to certain radio equipment. Commission Implementing Decision C(2022) 5637 of 5 August 2022 on a standardisation request to the European Committee for Standardisation and the European Committee for Electrotechnical Standardisation lays down requirements for the development of specific standards further specifying how those essential requirements should be addressed. The essential cybersecurity requirements set out in this Regulation include all the elements of the essential requirements referred to in Article 3(3), points (d), (e) and (f), of Directive 2014/53/EU.
 
-<!-- Fussnoten zu PDF S. 7 -->
+<!-- Fußnoten zu PDF S. 7 -->
 
 > (11) Regulation (EU) 2019/2144 of the European Parliament and of the Council of 27 November 2019 on type-approval requirements for motor vehicles and their trailers, and systems, components and separate technical units intended for such vehicles, as regards their general safety and the protection of vehicle occupants and vulnerable road users, amending Regulation (EU) 2018/858 of the European Parliament and of the Council and repealing Regulations (EC) No 78/2009, (EC) No 79/2009 and (EC) No 661/2009 of the European Parliament and of the Council and Commission Regulations (EC) No 631/2009, (EU) No 406/2010, (EU) No 672/2010, (EU) No 1003/2010, (EU) No 1005/2010, (EU) No 1008/2010, (EU) No 1009/2010, (EU) No 19/2011, (EU) No 109/2011, (EU) No 458/2011, (EU) No 65/2012, (EU) No 130/2012, (EU) No 347/2012, (EU) No 351/2012, (EU) No 1230/2012 and (EU) 2015/166 (OJ L 325, 16.12.2019, p. 1).
 
@@ -232,7 +232,7 @@ To the extent that their products fall within the scope of this Regulation, prov
 
 When integrating components sourced from third parties in products with digital elements during the design and development phase, manufacturers should, in order to ensure that the products are designed, developed and produced in accordance with the essential cybersecurity requirements set out in this Regulation, exercise due diligence with regard to those components, including free and open-source software components that have not been
 
-<!-- Fussnoten zu PDF S. 8 -->
+<!-- Fußnoten zu PDF S. 8 -->
 
 > (16) Directive (EU) 2024/2853 of the European Parliament and of the Council of 23 October 2024 on liability for defective products and repealing Council Directive 85/374/EEC (OJ L, 2024/2853, 18.11.2024, ELI: http://data.europa.eu/eli/dir/2024/2853/oj).
 
@@ -284,7 +284,7 @@ Where a product with digital elements is subject to 'refurbishment', 'maintenanc
 
 Products with digital elements should be considered to be important if the negative impact of the exploitation of potential vulnerabilities in the product can be severe due to, inter alia, the cybersecurity-related functionality or a function carrying a significant risk of adverse effects in terms of its intensity and ability to disrupt, control or cause damage to a large number of other products with digital elements or to the health, security or safety of its users through direct manipulation, such as a central system function, including network management, configuration control, virtualisation or processing of personal data. In particular, vulnerabilities in products with digital elements that have a cybersecurity-related functionality, such as boot managers, can lead to a propagation of security issues
 
-<!-- Fussnoten zu PDF S. 10 -->
+<!-- Fußnoten zu PDF S. 10 -->
 
 > (19) Regulation (EU) 2024/1781 of the European Parliament and of the Council of 13 June 2024 establishing a framework for the setting of ecodesign requirements for sustainable products, amending Directive (EU) 2020/1828 and Regulation (EU) 2023/1542 and repealing Directive 2009/125/EC (OJ L, 2024/1781, 28.6.2024, ELI: http://data.europa.eu/eli/reg/2024/1781/oj).
 
@@ -308,7 +308,7 @@ The categories of critical products with digital elements set out in this Regula
 
 Delegated acts requiring mandatory European cybersecurity certification should determine the products with digital elements that have the core functionality of a category of critical products with digital elements set out in this Regulation that are to be subject to mandatory certification, as well as the required assurance level, which should be at least 'substantial'. The required assurance level should be proportionate to the level of cybersecurity risk associated with the product with digital elements. For instance, where the product with digital elements has the core
 
-<!-- Fussnoten zu PDF S. 11 -->
+<!-- Fußnoten zu PDF S. 11 -->
 
 > (20) Commission Implementing Regulation (EU) 2024/482 of 31 January 2024 laying down rules for the application of Regulation (EU) 2019/881 of the European Parliament and of the Council as regards the adoption of the European Common Criteria-based cybersecurity certification scheme (EUCC) (OJ L, 2024/482, 7.2.2024, ELI: http://data.europa.eu/eli/reg_impl/2024/482/oj).
 
@@ -332,7 +332,7 @@ This Regulation addresses cybersecurity risks in a targeted manner. Products wit
 
 Products with digital elements classified as high-risk AI systems pursuant to Article 6 of Regulation (EU) 2024/1689 of the European Parliament and of the Council (22) which fall within the scope of this Regulation should comply with the essential cybersecurity requirements set out in this Regulation. Where those high-risk AI systems fulfil the essential cybersecurity requirements set out in this Regulation, they should be deemed to comply with the cybersecurity requirements set out in Article 15 of Regulation (EU) 2024/1689 in so far as those requirements are covered by the EU declaration of conformity or parts thereof issued under this Regulation. For that purpose, the assessment of the cybersecurity risks associated with a product with digital elements classified as a high-risk AI system pursuant to Regulation (EU) 2024/1689 that is to be taken into account during the planning, design, development, production, delivery and maintenance phases of such product, as required under this Regulation, should take into account risks to the cyber resilience of an AI system as regards attempts by unauthorised third
 
-<!-- Fussnoten zu PDF S. 12 -->
+<!-- Fußnoten zu PDF S. 12 -->
 
 > (21) Regulation (EU) 2023/988 of the European Parliament and of the Council of 10 May 2023 on general product safety, amending Regulation (EU) No 1025/2012 of the European Parliament and of the Council and Directive (EU) 2020/1828 of the European Parliament and the Council, and repealing Directive 2001/95/EC of the European Parliament and of the Council and Council Directive 87/357/EEC (OJ L 135, 23.5.2023, p. 1).
 
@@ -354,7 +354,7 @@ Manufacturers of products falling within the scope of Regulation (EU) 2023/1230 
 
 In order to ensure that products with digital elements are secure both at the time of their placing on the market as well as during the time the product with digital elements is expected to be in use, it is necessary to lay down essential cybersecurity requirements for vulnerability handling and essential cybersecurity requirements relating to the properties of products with digital elements. While manufacturers should comply with all essential cybersecurity
 
-<!-- Fussnoten zu PDF S. 13 -->
+<!-- Fußnoten zu PDF S. 13 -->
 
 > (23) Commission Recommendation (EU) 2019/534 of 26 March 2019 Cybersecurity of 5G networks (OJ L 88, 29.3.2019, p. 42).
 
@@ -454,7 +454,7 @@ When establishing the single reporting platform referred to in this Regulation a
 
 Manufacturers and other natural and legal persons should be able to notify to a CSIRT designated as coordinator or ENISA, on a voluntary basis, any vulnerability contained in a product with digital elements, cyber threats that could
 
-<!-- Fussnoten zu PDF S. 17 -->
+<!-- Fußnoten zu PDF S. 17 -->
 
 > (25) Regulation (EU) 2022/2554 of the European Parliament and of the Council of 14 December 2022 on digital operational resilience for the financial sector and amending Regulations (EC) No 1060/2009, (EU) No 648/2012, (EU) No 600/2014, (EU) No 909/2014 and (EU) 2016/1011 (OJ L 333, 27.12.2022, p. 1).
 
@@ -484,7 +484,7 @@ Under the new complex business models linked to online sales, a business operati
 
 In order to facilitate assessment of conformity with the requirements laid down in this Regulation, there should be a presumption of conformity for products with digital elements which are in conformity with harmonised standards, which translate the essential cybersecurity requirements set out in this Regulation into detailed technical
 
-<!-- Fussnoten zu PDF S. 18 -->
+<!-- Fußnoten zu PDF S. 18 -->
 
 > (27) Regulation (EU) 2019/1020 of the European Parliament and of the Council of 20 June 2019 on market surveillance and compliance of products and amending Directive 2004/42/EC and Regulations (EC) No 765/2008 and (EU) No 305/2011 (OJ L 169, 25.6.2019, p. 1).
 
@@ -508,7 +508,7 @@ Upon entry into force of Implementing Regulation (EU) 2024/482 which concerns pr
 
 The current European standardisation framework, which is based on the New Approach principles set out in Council Resolution of 7 May 1985 on a new approach to technical harmonization and standards and on Regulation (EU) No 1025/2012, represents the framework by default to elaborate standards that provide for a presumption of conformity with the relevant essential cybersecurity requirements set out in this Regulation. European standards should be market-driven, take into account the public interest, as well as the policy objectives clearly stated in the Commission's request to one or more European standardisation organisations to draft harmonised standards, within a set deadline, and be based on consensus. However, in the absence of relevant references to harmonised standards,
 
-<!-- Fussnoten zu PDF S. 19 -->
+<!-- Fußnoten zu PDF S. 19 -->
 
 > (28) Regulation (EU) No 1025/2012 of the European Parliament and of the Council of 25 October 2012 on European standardisation, amending Council Directives 89/686/EEC and 93/15/EEC and Directives 94/9/EC, 94/25/EC, 95/16/EC, 97/23/EC, 98/34/EC, 2004/22/EC, 2007/23/EC, 2009/23/EC and 2009/105/EC of the European Parliament and of the Council and repealing Council Decision 87/95/EEC and Decision No 1673/2006/EC of the European Parliament and of the Council (OJ L 316, 14.11.2012, p. 12).
 
@@ -544,7 +544,7 @@ The CE marking, indicating the conformity of a product, is the visible consequen
 
 In order to allow economic operators to demonstrate conformity with the essential cybersecurity requirements set out in this Regulation and to allow market surveillance authorities to ensure that products with digital elements made available on the market comply with those requirements, it is necessary to provide for conformity assessment
 
-<!-- Fussnoten zu PDF S. 20 -->
+<!-- Fußnoten zu PDF S. 20 -->
 
 > (29) Regulation (EC) No 765/2008 of the European Parliament and of the Council of 9 July 2008 setting out the requirements for accreditation and repealing Regulation (EEC) No 339/93 (OJ L 218, 13.8.2008, p. 30).
 
@@ -564,7 +564,7 @@ While the creation of tangible products with digital elements usually requires m
 
 In relation to microenterprises and small enterprises, in order to ensure proportionality, it is appropriate to alleviate administrative costs without affecting the level of cybersecurity protection of products with digital elements that fall within the scope of this Regulation or the level playing field among manufacturers. It is therefore appropriate for the Commission to establish a simplified technical documentation form targeted at the needs of microenterprises and small enterprises. The simplified technical documentation form adopted by the Commission should cover all the applicable elements related to technical documentation set out in this Regulation and specify how a microenterprise or a small enterprise can provide the requested elements in a concise way, such as the description of the design, development and production of the product with digital elements. In doing so, the form would contribute to alleviating the administrative compliance burden by providing the enterprises concerned with legal certainty about the extent and detail of information to be provided. Microenterprises and small enterprises should be able to choose to provide the applicable elements related to technical documentation in extensive form and not take advantage of the simplified technical form available to them.
 
-<!-- Fussnoten zu PDF S. 21 -->
+<!-- Fußnoten zu PDF S. 21 -->
 
 > (30) Decision No 768/2008/EC of the European Parliament and of the Council of 9 July 2008 on a common framework for the marketing of products, and repealing Council Decision 93/465/EEC (OJ L 218, 13.8.2008, p. 82).
 
@@ -676,7 +676,7 @@ In order to ensure that the regulatory framework can be adapted where necessary,
 
 In order to ensure uniform conditions for the implementation of this Regulation, implementing powers should be conferred on the Commission to specify the technical description of the categories of important products with digital elements set out in an annex to this Regulation, specify the format and elements of the SBOM, specify further the format and procedure of the notifications of actively exploited vulnerabilities and severe incidents having an impact on the security of products with digital elements submitted by manufacturers, establish common specifications covering technical requirements that provide a means to comply with the essential cybersecurity requirements set out in an annex to this Regulation, lay down technical specifications for labels, pictograms or any other marks related to the security of the products with digital elements, their support period and mechanisms to promote their use and to increase public awareness about the security of products with digital elements, specify the simplified documentation form targeted at the needs of microenterprises and small enterprises, and decide on
 
-<!-- Fussnoten zu PDF S. 25 -->
+<!-- Fußnoten zu PDF S. 25 -->
 
 > (31) OJ L 123, 12.5.2016, p. 1.
 
@@ -704,7 +704,7 @@ Member States should examine, taking into account national circumstances, the po
 
 In its relationships with third countries, the Union endeavours to promote international trade in regulated products. A broad variety of measures can be applied in order to facilitate trade, including several legal instruments such as bilateral (inter-governmental) Mutual Recognition Agreements (MRAs) for conformity assessment and marking of regulated products. MRAs are established between the Union and third countries which are on a comparable level of technical development and have a compatible approach concerning conformity assessment. Those agreements are based on the mutual acceptance of certificates, marks of conformity and test reports issued by the conformity assessment bodies of either party in conformity with the legislation of the other party. Currently, MRAs are in place with several third countries. Those MRAs are concluded in a number of specific sectors, which might vary from one third country to another. In order to further facilitate trade, and recognising that supply chains of products with digital elements are global, MRAs concerning conformity assessment can be concluded for products regulated under this Regulation by the Union in accordance with Article 218 TFEU. Cooperation with partner third countries is also important, in order to strengthen cyber resilience globally, as in the long term this will contribute to a strengthened cybersecurity framework both within and outside of the Union.
 
-<!-- Fussnoten zu PDF S. 26 -->
+<!-- Fußnoten zu PDF S. 26 -->
 
 > (32) Regulation (EU) No 182/2011 of the European Parliament and of the Council of 16 February 2011 laying down the rules and general principles concerning mechanisms for control by the Member States of the Commission's exercise of implementing powers (OJ L 55, 28.2.2011, p. 13, ELI: http://data.europa.eu/eli/reg/2011/182/oj).
 
@@ -738,7 +738,7 @@ Since the objective of this Regulation cannot be sufficiently achieved by the Me
 
 The European Data Protection Supervisor was consulted in accordance with Article 42(1) of Regulation (EU) 2018/1725 of the European Parliament and of the Council (34) and delivered an opinion on 9 November 2022 (35),
 
-<!-- Fussnoten zu PDF S. 27 -->
+<!-- Fußnoten zu PDF S. 27 -->
 
 > (33) Directive (EU) 2020/1828 of the European Parliament and of the Council of 25 November 2020 on representative actions for the protection of the collective interests of consumers and repealing Directive 2009/22/EC (OJ L 409, 4.12.2020, p. 1).
 

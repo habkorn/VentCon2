@@ -6,7 +6,7 @@ SHA-256 der Quelle: e3ecaabddf6e321fa04097d15dfcccc7309d0fe5896240ab7625a27d74ab
 PDF-Seiten in dieser Datei: 72 bis 72
 Plan: sec/plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md
 Werkzeug: tools/cra_extract.py, PyMuPDF 1.28.2, Extraktionsdatum 2026-09-30
-Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fussnoten stehen als Blockzitat bei ihrer Seite.
+Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fußnoten stehen als Blockzitat bei ihrer Seite.
 
 <!-- NORM BEGIN -->
 
@@ -28,7 +28,7 @@ Smart meter gateways within smart metering systems as defined in Article 2, poin
 
 Smartcards or similar devices, including secure elements
 
-<!-- Fussnoten zu PDF S. 72 -->
+<!-- Fußnoten zu PDF S. 72 -->
 
 > (1) Directive (EU) 2019/944 of the European Parliament and of the Council of 5 June 2019 on common rules for the internal market for electricity and amending Directive 2012/27/EU (OJ L 158, 14.6.2019, p. 125).
 

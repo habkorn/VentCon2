@@ -2,11 +2,11 @@
 
 Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P4.6
+Maßnahme: P4.6
 CRA-Bezug: Annex VII (Pflicht-Nr. 17)
-Abhaengigkeiten: P4.1 (Risikobewertung), P4.2 (SBOM), P4.4 (Supportzeitraum), P4.7 (Konformitaetserklaerung)
+Abhängigkeiten: P4.1 (Risikobewertung), P4.2 (SBOM), P4.4 (Supportzeitraum), P4.7 (Konformitätserklärung)
 Datum: 2026-09-28
-Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu fuellen.
+Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu füllen.
 
 ## 1. Objective
 

@@ -2,11 +2,11 @@
 
 Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P4.8
+Maßnahme: P4.8
 CRA-Bezug: Annex II (Pflicht-Nr. 21)
-Abhaengigkeiten: P1.1 und P2.2 (Provisioning statt festem Passwort), P4.3 (Update-Anleitung), P4.4 (Enddatum)
+Abhängigkeiten: P1.1 und P2.2 (Provisioning statt festem Passwort), P4.3 (Update-Anleitung), P4.4 (Enddatum)
 Datum: 2026-09-28
-Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu fuellen.
+Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu füllen.
 
 ## 1. Objective
 

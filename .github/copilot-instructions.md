@@ -1,4 +1,4 @@
-# Project Instructions — VentCon2
+# Project Instructions: VentCon2
 
 ## Purpose
 
@@ -34,12 +34,12 @@ Use the Recommended Agents table above to decide which specialist to invoke. Whe
 
 ### Bulk Deletion Protocol
 
-**CRITICAL — Applies to ALL file-destructive operations regardless of mechanism: terminal commands, Python scripts invoked by agents, subagent actions, and tool calls. Before delegating any task that may involve file deletion, include this protocol in the subagent's instructions.**
+**CRITICAL: Applies to ALL file-destructive operations regardless of mechanism: terminal commands, Python scripts invoked by agents, subagent actions, and tool calls. Before delegating any task that may involve file deletion, include this protocol in the subagent's instructions.**
 
 1. **Dry-run first**: Always use `-WhatIf` (PowerShell) or `--dry-run` first. Show the complete list of what WOULD be deleted. Never skip this step.
 2. **Get explicit approval**: State the count of files/dirs. Wait for user confirmation before executing. Never proceed without approval.
-3. **Check git tracking**: For git-tracked files being deleted, warn the user and require explicit `--force` acknowledgment. Consider `git stash --include-untracked` first — instant recovery via `git stash pop` if needed. Untracked and gitignored files (build artifacts, caches, generated files) may proceed normally with dry-run + approval. If unsure, ask.
-4. **Quote all paths**: Use `Remove-Item "literal path with spaces"` — never dynamically construct paths from directory listings without quoting.
+3. **Check git tracking**: For git-tracked files being deleted, warn the user and require explicit `--force` acknowledgment. Consider `git stash --include-untracked` first, instant recovery via `git stash pop` if needed. Untracked and gitignored files (build artifacts, caches, generated files) may proceed normally with dry-run + approval. If unsure, ask.
+4. **Quote all paths**: Use `Remove-Item "literal path with spaces"`, never dynamically construct paths from directory listings without quoting.
 5. **One path per Remove-Item call** for anything outside gitignored cache dirs. Use explicit hardcoded paths. Do not use `Get-ChildItem | ForEach-Object { Remove-Item }`.
 6. **Never use `Remove-Item -Recurse` on dynamically constructed paths**. If the path comes from a variable or loop, validate it against the expected pattern first.
 7. **Prefer `C:\Dropbox\Tom\AITeam\scripts\safe_cleanup.py`** for cache/artifact cleanup. It automates dry-run, git-tracking checks, Dropbox warnings, and audit logging. Run without flags for a dry-run review, then re-run with `--execute` to proceed.
@@ -48,13 +48,13 @@ Use the Recommended Agents table above to decide which specialist to invoke. Whe
 
 ### File System Scope
 
-**CRITICAL — Confine all file operations to this project's directory tree.**
+**CRITICAL: Confine all file operations to this project's directory tree.**
 
 1. Create, edit, and delete files ONLY within this project's folder.
 2. Do not touch files in other projects, the AITeam workspace, or any external path.
    **Exception:** Updating your own agent memory file at `C:\Dropbox\Tom\AITeam\workspace\memory\<agent-name>.md` is the one allowed cross-project write (see Agent Memory section below). Do NOT create a local `workspace/memory/` inside this project.
 3. The AITeam workspace agent may access files across projects per its own scope rules.
-4. The user may grant explicit exceptions — confirm the target path before proceeding.
+4. The user may grant explicit exceptions: confirm the target path before proceeding.
 
 ### Pre-Implementation Checklist
 
@@ -73,6 +73,7 @@ Before starting any multi-step or multi-file implementation:
 - **File naming**: `YYYY-MM-DD_short-description.ext`.
 - **Output routing**: Write files to the currently open workspace folder.
 - **Never use the em dash character** (U+2014) in any generated text. Use a comma, colon, or rephrased sentence instead.
+- **Umlaute**: German text is written with real umlauts (`ä`, `ö`, `ü`, `ß`). Transliteration (`ae`, `oe`, `ue`, `ss`) is only allowed in file names, folder names, identifiers and code symbols, never in prose, headings, table cells or presentation text. Applies to `sec/**`, the generator and verifier scripts, `deletion_log.md` and agent reports. Reference norm text in English stays verbatim.
 
 ## Venv & Dropbox Rule
 
@@ -82,7 +83,7 @@ Before starting any multi-step or multi-file implementation:
   b. `uv` (automatic central cache via `%APPDATA%\uv\venv`)
   c. `python -m venv --copies .venv` (if local path not feasible, avoids hardlinks)
 - Add `.venv/` to `.gitignore` for every Python project.
-- Hardlinks inside Dropbox folders are prohibited — they corrupt the sync engine.
+- Hardlinks inside Dropbox folders are prohibited: they corrupt the sync engine.
 
 ## Agent Memory
 

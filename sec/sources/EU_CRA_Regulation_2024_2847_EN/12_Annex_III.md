@@ -6,7 +6,7 @@ SHA-256 der Quelle: e3ecaabddf6e321fa04097d15dfcccc7309d0fe5896240ab7625a27d74ab
 PDF-Seiten in dieser Datei: 71 bis 71
 Plan: sec/plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md
 Werkzeug: tools/cra_extract.py, PyMuPDF 1.28.2, Extraktionsdatum 2026-09-30
-Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fussnoten stehen als Blockzitat bei ihrer Seite.
+Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fußnoten stehen als Blockzitat bei ihrer Seite.
 
 <!-- NORM BEGIN -->
 
@@ -112,7 +112,7 @@ Tamper-resistant microprocessors
 
 Tamper-resistant microcontrollers
 
-<!-- Fussnoten zu PDF S. 71 -->
+<!-- Fußnoten zu PDF S. 71 -->
 
 > (1) Directive 2009/48/EC of the European Parliament and of the Council of 18 June 2009 on the safety of toys (OJ L 170, 30.6.2009, p. 1).
 

@@ -2,12 +2,12 @@
 
 Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P5.1
-CRA-Bezug: Art. 14(2) und 14(4) (Pflicht-Nr. 23, 25 und 26), Art. 69(3) fuer Bestandsprodukte
-Abhaengigkeiten: P5.2 (Plattformzugang), P4.5 (Disclosure-Prozess als Eingangskanal)
+Maßnahme: P5.1
+CRA-Bezug: Art. 14(2) und 14(4) (Pflicht-Nr. 23, 25 und 26), Art. 69(3) für Bestandsprodukte
+Abhängigkeiten: P5.2 (Plattformzugang), P4.5 (Disclosure-Prozess als Eingangskanal)
 Datum: 2026-09-28
-Prioritaet: akut, Art. 14 ist seit 2026-09-11 in Kraft
-Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu fuellen.
+Priorität: akut, Art. 14 ist seit 2026-09-11 in Kraft
+Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu füllen.
 
 ## 1. Objective
 

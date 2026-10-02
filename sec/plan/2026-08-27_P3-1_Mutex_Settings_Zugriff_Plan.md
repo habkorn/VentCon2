@@ -2,11 +2,11 @@
 
 Rolle: Umsetzungsplan (Detaildokument)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P3.1
+Maßnahme: P3.1
 CRA-Bezug: kein Annex-I-Punkt (Robustheit)
 Risikobezug: R9
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
-Nachweis: umgesetzt in v2.7.3, Verifikation in Abschnitt 6 (durchgefuehrt am 2026-08-27)
+Nachweis: umgesetzt in v2.7.3, Verifikation in Abschnitt 6 (durchgeführt am 2026-08-27)
 Datum: 2026-08-27
 
 ## 1. Ziel

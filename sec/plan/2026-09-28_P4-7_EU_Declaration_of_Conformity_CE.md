@@ -2,11 +2,11 @@
 
 Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P4.7
+Maßnahme: P4.7
 CRA-Bezug: Annex V (Pflicht-Nr. 18) und Art. 28 (Pflicht-Nr. 19)
-Abhaengigkeiten: P4.1, P4.6 (technische Dokumentation als Grundlage)
+Abhängigkeiten: P4.1, P4.6 (technische Dokumentation als Grundlage)
 Datum: 2026-09-28
-Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu fuellen.
+Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu füllen.
 
 ## 1. Objective
 

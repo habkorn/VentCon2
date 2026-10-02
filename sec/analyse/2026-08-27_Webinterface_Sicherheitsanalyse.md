@@ -3,9 +3,9 @@
 Rolle: Risiko- und Evidenzanalyse (Detaildokument, kein Umsetzungsplan)
 Grundlage: `../CRA_Compliance_Checklist.md`
 Risikobezug: R1 bis R9 (R1 bis R3 kritisch, R4 bis R9 weitere Befunde)
-Zuordnung: Die Risiko-IDs sind in Abschnitt 7 des Masters den Massnahmen P1.1 bis P3.3 zugeordnet
+Zuordnung: Die Risiko-IDs sind in Abschnitt 7 des Masters den Maßnahmen P1.1 bis P3.3 zugeordnet
 Datum: 2026-08-27, Stand der Risikobewertung 2026-09-28
-Hinweis: Der Umsetzungsplan wird nicht mehr hier gefuehrt, sondern im Master
+Hinweis: Der Umsetzungsplan wird nicht mehr hier geführt, sondern im Master
 (`../CRA_Compliance_Checklist.md`, Abschnitt 8). Dieses Dokument liefert die Befunde,
 die Datei- und Funktionsstellen und die Evidenz.
 
@@ -20,7 +20,7 @@ Dadurch wird sowohl die Druckmessung verfälscht als auch die Notabschaltung bei
 
 ## 2. Kritische Befunde (R1 bis R3)
 
-| ID | Befund | Datei / Stelle | Risiko | Massnahme |
+| ID | Befund | Datei / Stelle | Risiko | Maßnahme |
 |---|---|---|---|---|
 | R1 | Keine Authentifizierung auf der Steueroberfläche | WebHandlers.cpp: setupRoutes() | Kritisch | P1.1 |
 | R2 | Schwaches, fest verdrahtetes, öffentlich dokumentiertes AP-Passwort "ventcon12!" | Constants.h: NetworkConfig::AP_PASSWORD | Kritisch | P2.2 |
@@ -34,12 +34,12 @@ Details:
 
 ## 3. Weitere Befunde (R4 bis R9)
 
-- **R4 Zustandsänderungen per HTTP GET, dadurch CSRF-anfällig.** /set und /resetPID mutieren per GET, ohne Origin- oder Token-Prüfung. Massnahme P1.2.
-- **R5 Beliebiger Dateizugriff und Informationsabfluss.** onNotFound leitet webServer.uri() direkt an handleFileRead() weiter. /settings.json (Kalibrierung, PID-Gains) und /default.json sind direkt abrufbar, eine Pfadnormalisierung fehlt. Massnahme P2.1.
-- **R6 Unbegrenzte PID-Gains.** /api/slider-limits erlaubt beliebig hohe kp/ki/kd-Obergrenzen (nur max > min wird geprüft). Dadurch sind aggressive Regler möglich (Schwingungen, Ventilhämmern). Massnahme P1.4.
-- **R7 Flash-Abnutzung und DoS über settings.save().** Jeder /set-Aufruf schreibt synchron auf LittleFS. Unbegrenzte Schreibzugriffe verschleißen den Flash und blockieren den Server. Massnahme P2.3.
-- **R8 Client-Anzahl-Handler störte die Verfügbarkeit.** Beim dritten verbundenen Client trennte onWiFiEvent() alle Clients (softAPdisconnect) und startete den AP neu. **Behoben in v2.7.3** (passive Ablehnung des neuen Clients; der AP erzwingt das Limit über `max_connection = MAX_CLIENTS`). Massnahme P3.2, kein eigenes Detaildokument.
-- **R9 Fehlende Synchronisation der settings-Zugriffe.** settings wurde nebenläufig von Netzwerk- und Regler-Task ohne Mutex gelesen und geschrieben. **Behoben in v2.7.3** (FreeRTOS-Mutex in `SettingsHandler`). Massnahme P3.1, siehe `../plan/2026-08-27_P3-1_Mutex_Settings_Zugriff_Plan.md` und `../grundlagen/2026-08-28_Mutex_How_It_Works.md`.
+- **R4 Zustandsänderungen per HTTP GET, dadurch CSRF-anfällig.** /set und /resetPID mutieren per GET, ohne Origin- oder Token-Prüfung. Maßnahme P1.2.
+- **R5 Beliebiger Dateizugriff und Informationsabfluss.** onNotFound leitet webServer.uri() direkt an handleFileRead() weiter. /settings.json (Kalibrierung, PID-Gains) und /default.json sind direkt abrufbar, eine Pfadnormalisierung fehlt. Maßnahme P2.1.
+- **R6 Unbegrenzte PID-Gains.** /api/slider-limits erlaubt beliebig hohe kp/ki/kd-Obergrenzen (nur max > min wird geprüft). Dadurch sind aggressive Regler möglich (Schwingungen, Ventilhämmern). Maßnahme P1.4.
+- **R7 Flash-Abnutzung und DoS über settings.save().** Jeder /set-Aufruf schreibt synchron auf LittleFS. Unbegrenzte Schreibzugriffe verschleißen den Flash und blockieren den Server. Maßnahme P2.3.
+- **R8 Client-Anzahl-Handler störte die Verfügbarkeit.** Beim dritten verbundenen Client trennte onWiFiEvent() alle Clients (softAPdisconnect) und startete den AP neu. **Behoben in v2.7.3** (passive Ablehnung des neuen Clients; der AP erzwingt das Limit über `max_connection = MAX_CLIENTS`). Maßnahme P3.2, kein eigenes Detaildokument.
+- **R9 Fehlende Synchronisation der settings-Zugriffe.** settings wurde nebenläufig von Netzwerk- und Regler-Task ohne Mutex gelesen und geschrieben. **Behoben in v2.7.3** (FreeRTOS-Mutex in `SettingsHandler`). Maßnahme P3.1, siehe `../plan/2026-08-27_P3-1_Mutex_Settings_Zugriff_Plan.md` und `../grundlagen/2026-08-28_Mutex_How_It_Works.md`.
 
 ## 4. Positiv zu bewerten
 
@@ -49,11 +49,11 @@ Details:
 
 ## 5. Umsetzung
 
-Der Implementierungsplan wird nicht mehr in diesem Dokument geführt, damit Massnahmen-IDs und
+Der Implementierungsplan wird nicht mehr in diesem Dokument geführt, damit Maßnahmen-IDs und
 Status nur an einer Stelle gepflegt werden. Verbindlich sind:
 
-- Massnahmen, Status und Priorisierung: `../CRA_Compliance_Checklist.md`, Abschnitt 8
-- Zuordnung Risiko, Pflicht, Massnahme und Detaildokument: `../CRA_Compliance_Checklist.md`, Abschnitt 7
+- Maßnahmen, Status und Priorisierung: `../CRA_Compliance_Checklist.md`, Abschnitt 8
+- Zuordnung Risiko, Pflicht, Maßnahme und Detaildokument: `../CRA_Compliance_Checklist.md`, Abschnitt 7
 
 Detaildokumente: `../plan/2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md` (P1.1, P1.2, P2.1),
 `../plan/2026-08-31_P1-3_Sensor_Calibration_Plan.md` (P1.3),
@@ -67,5 +67,5 @@ Für P1.4, P2.3 und P3.3 liegen Skelette unter `../plan/` bereit.
 - Authentifizierung: Login-Seite mit Passwort; Erstinbetriebnahme-Provisioning ohne universelles Standardpasswort.
 - Sensorkalibrierung: Änderung weiterhin über Web, aber mit hartem Sensorbereich-Limit.
 - AP-Passwort: Zur Laufzeit konfigurierbar, über Web oder Settings.
-- Erstinbetriebnahme: Kein universelles Standardpasswort; erzwungene Passwortvergabe (Provisioning) vor Freischaltung der Steuerung (CRA-konform nach Annex I, Teil I, 2(b)/(d); ETSI EN 303 645 5.1-1 dient nur als technischer Massstab).
+- Erstinbetriebnahme: Kein universelles Standardpasswort; erzwungene Passwortvergabe (Provisioning) vor Freischaltung der Steuerung (CRA-konform nach Annex I, Teil I, 2(b)/(d); ETSI EN 303 645 5.1-1 dient nur als technischer Maßstab).
 - Codekommentare: Deutsch.

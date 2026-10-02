@@ -2,13 +2,13 @@
 
 Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P2.3
+Maßnahme: P2.3
 CRA-Bezug: Annex I, Teil I, 1.3 (Pflicht-Nr. 8)
 Risikobezug: R7
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
-Abhaengigkeiten: P1.1 und P1.2 (Auth und POST) reduzieren die Erreichbarkeit, ersetzen aber keine Ratenbegrenzung
+Abhängigkeiten: P1.1 und P1.2 (Auth und POST) reduzieren die Erreichbarkeit, ersetzen aber keine Ratenbegrenzung
 Datum: 2026-09-28
-Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu fuellen.
+Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu füllen.
 
 ## 1. Objective
 

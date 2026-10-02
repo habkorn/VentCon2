@@ -6,7 +6,7 @@ SHA-256 der Quelle: e3ecaabddf6e321fa04097d15dfcccc7309d0fe5896240ab7625a27d74ab
 PDF-Seiten in dieser Datei: 64 bis 65
 Plan: sec/plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md
 Werkzeug: tools/cra_extract.py, PyMuPDF 1.28.2, Extraktionsdatum 2026-09-30
-Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fussnoten stehen als Blockzitat bei ihrer Seite.
+Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fußnoten stehen als Blockzitat bei ihrer Seite.
 
 <!-- NORM BEGIN -->
 
@@ -64,7 +64,7 @@ Non-compliance with the obligations set out in Articles 18 to 23, Article 28, Ar
 
 The supply of incorrect, incomplete or misleading information to notified bodies and market surveillance authorities in reply to a request shall be subject to administrative fines of up to EUR 5 000 000 or, if the offender is an undertaking, up to 1 % of its total worldwide annual turnover for the preceding financial year, whichever is higher.
 
-<!-- Fussnoten zu PDF S. 64 -->
+<!-- Fußnoten zu PDF S. 64 -->
 
 > (37) Directive (EU) 2016/943 of the European Parliament and of the Council of 8 June 2016 on the protection of undisclosed know-how and business information (trade secrets) against their unlawful acquisition, use and disclosure (OJ L 157, 15.6.2016, p. 1).
 

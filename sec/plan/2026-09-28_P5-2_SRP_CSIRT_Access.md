@@ -2,12 +2,12 @@
 
 Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P5.2
+Maßnahme: P5.2
 CRA-Bezug: Art. 14 (Pflicht-Nr. 24), Zuordnung nach Art. 14(7)
-Abhaengigkeiten: P5.1 (Prozess und Rollen)
+Abhängigkeiten: P5.1 (Prozess und Rollen)
 Datum: 2026-09-28
-Prioritaet: akut, Art. 14 ist seit 2026-09-11 in Kraft
-Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu fuellen.
+Priorität: akut, Art. 14 ist seit 2026-09-11 in Kraft
+Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu füllen.
 
 ## 1. Objective
 

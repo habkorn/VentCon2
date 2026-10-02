@@ -1,8 +1,8 @@
 # How the Settings Mutex Works in VentCon2
 
-Rolle: Grundlagenerklaerung (Hintergrundwissen, kein Umsetzungsplan)
+Rolle: Grundlagenerklärung (Hintergrundwissen, kein Umsetzungsplan)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P3.1
+Maßnahme: P3.1
 CRA-Bezug: kein Annex-I-Punkt (Robustheit)
 Risikobezug: R9
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
@@ -11,18 +11,18 @@ Datum: 2026-08-28
 
 ---
 
-## Part 1 — What is a Mutex? (Basics)
+## Part 1: What is a Mutex? (Basics)
 
 ### The problem: shared data
 
 A modern embedded system like VentCon2 runs several pieces of code "at the same time"
 (or close enough that they appear simultaneous). These are called **tasks**. VentCon2 has:
 
-- **ControlTask** — runs on CPU core 1 at high priority (1000 Hz). Reads the pressure
+- **ControlTask**, runs on CPU core 1 at high priority (1000 Hz). Reads the pressure
   sensor, computes the PID output, and drives the valve PWM.
-- **NetworkTask** — runs on CPU core 0 at lower priority. Handles incoming HTTP requests
+- **NetworkTask**, runs on CPU core 0 at lower priority. Handles incoming HTTP requests
   from the browser (the web interface).
-- **loop()** — the Arduino main loop, also on core 1. Processes serial commands typed into
+- **loop()**, the Arduino main loop, also on core 1. Processes serial commands typed into
   a terminal.
 
 All three tasks share one object: `SettingsHandler settings`. This object holds every
@@ -78,7 +78,7 @@ mutex is always the right choice.
 
 ---
 
-## Part 2 — FreeRTOS Mutexes on the ESP32
+## Part 2: FreeRTOS Mutexes on the ESP32
 
 The ESP32 Arduino framework uses **FreeRTOS** as its real-time operating system.
 FreeRTOS provides the following mutex API:
@@ -104,7 +104,7 @@ the ESP32-S3 when there is no contention (no other task waiting).
 
 ---
 
-## Part 3 — How VentCon2 Uses the Mutex
+## Part 3: How VentCon2 Uses the Mutex
 
 ### Where the mutex lives
 
@@ -138,7 +138,7 @@ offers three clean methods. Call sites never see a mutex handle.
 
 ---
 
-#### Pattern 1 — `update(fn)` — writing one or more fields
+#### Pattern 1: `update(fn)`, writing one or more fields
 
 ```cpp
 template<typename Fn>
@@ -154,15 +154,15 @@ with a reference to the settings object, then unlocks. The caller writes fields 
 reference `s`:
 
 ```cpp
-// Single field — filter strength
+// Single field, filter strength
 settings->update([v](SettingsHandler& s){ s.filter_strength = v; });
 
-// Multiple fields atomically — all three PID gains change together
+// Multiple fields atomically, all three PID gains change together
 settings->update([&](SettingsHandler& s){
     s.Kp = newKp; s.Ki = newKi; s.Kd = newKd;
 });
 
-// Write AND read back in one lock — needed when the caller wants the new values
+// Write AND read back in one lock, needed when the caller wants the new values
 // immediately (e.g. to pass to pid->SetTunings)
 double kp, ki, kd;
 settings->update([&](SettingsHandler& s){
@@ -182,15 +182,15 @@ settings->update( [v](SettingsHandler& s){ s.filter_strength = v; } );
 //        method  one argument: a lambda (inline anonymous function)
 ```
 
-**`settings->update(...)`** — calls the `update` method, which takes the mutex, calls
+**`settings->update(...)`**, calls the `update` method, which takes the mutex, calls
 its argument, then releases the mutex. The argument is always a lambda.
 
-**`[v]` — the capture clause** answers: "which outer variables does the lambda need?"
+**`[v]`, the capture clause** answers: "which outer variables does the lambda need?"
 The lambda is defined inside the surrounding function (e.g. `handleSignalProcessingCommands`)
 but *called* inside `update`, so it has no automatic access to the outer function's local
 variables. The capture clause bridges that gap.
 
-`[v]` means: copy the current value of `v` *into* the lambda at the moment it is created —
+`[v]` means: copy the current value of `v` *into* the lambda at the moment it is created,
 before `update` even starts:
 
 ```cpp
@@ -206,20 +206,20 @@ microsecond after the lambda is created. Using `[v]` (copy) instead of `[&v]` (r
 guarantees the lambda always uses the value that was validated in the outer function, even
 if another task were to modify `v` in that tiny gap.
 
-`[&]` (seen in the multi-field examples above) captures *all* local variables by reference —
+`[&]` (seen in the multi-field examples above) captures *all* local variables by reference,
 used when multiple locals need to be written back out of the lambda after it runs
 (e.g. `kp`, `ki`, `kd` in the read-back example).
 
-**`(SettingsHandler& s)` — the parameter** — receives `*this`, passed by `update` as
+**`(SettingsHandler& s)`, the parameter**, receives `*this`, passed by `update` as
 `fn(*this)`. Writing `s.filter_strength` is identical to `settings->filter_strength`,
 but it executes while the mutex is held.
 
-**`{ s.filter_strength = v; }` — the body** — the actual work: assign the captured copy
+**`{ s.filter_strength = v; }`, the body**, the actual work: assign the captured copy
 of `v` to the field.
 
 ---
 
-#### Pattern 2 — `withLock(fn)` — protected reads of 64-bit fields
+#### Pattern 2: `withLock(fn)`, protected reads of 64-bit fields
 
 ```cpp
 template<typename Fn>
@@ -261,7 +261,7 @@ setpoint. The same torn-read risk applies, so the single 64-bit read is protecte
 
 ---
 
-#### Pattern 3 — `snapshotTo(out)` — bulk consistent reads for rendering
+#### Pattern 3: `snapshotTo(out)`, bulk consistent reads for rendering
 
 ```cpp
 void SettingsHandler::snapshotTo(SettingsSnapshot& out)
@@ -293,7 +293,7 @@ a browser loads the page.
 
 ---
 
-### `save()` — serialize under lock, write outside
+### `save()`: serialize under lock, write outside
 
 `save()` must read all fields to build a JSON string, then write that string to flash.
 Flash I/O is slow (typically 5–20 ms). If the mutex were held during the whole operation,
@@ -321,7 +321,7 @@ bool SettingsHandler::save()
 }
 ```
 
-### `load()` — read file outside lock, assign fields under lock
+### `load()`: read file outside lock, assign fields under lock
 
 `load()` reads the JSON file from flash (slow), parses it (medium), then assigns all
 fields. Only the assignment step needs the lock, because that is the only point where
@@ -348,10 +348,10 @@ bool SettingsHandler::load()
 
 ---
 
-## Part 4 — Which Fields Need Protection?
+## Part 4: Which Fields Need Protection?
 
 Not every field needs the same care. On the 32-bit Xtensa LX7 (ESP32-S3), reads and
-writes of 32-bit values are **atomic** — they complete in a single instruction, so they
+writes of 32-bit values are **atomic**, they complete in a single instruction, so they
 can never be torn. Only 64-bit values are at risk.
 
 | Field type                       | Width  | Atomic?      | Protection required |
@@ -371,7 +371,7 @@ because a single-instruction atomic read cannot be torn.
 
 ---
 
-## Part 5 — Summary Diagram
+## Part 5: Summary Diagram
 
 ```
 NetworkTask (Core 0)              ControlTask (Core 1)
@@ -387,7 +387,7 @@ settings->update([&](s){          settings->withLock([&]{
   (field write only)                (PID arithmetic only)
   │                                 │
 settings->save()                  applyHysteresisCompensation()
-  │                                 │  (reads hysteresis, hystAmount — floats, no lock)
+  │                                 │  (reads hysteresis, hystAmount, floats, no lock)
   Mutex taken for ~10 µs            │
   (JSON serialization only)
   │

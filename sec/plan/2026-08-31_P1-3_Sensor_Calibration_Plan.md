@@ -2,7 +2,7 @@
 
 Rolle: Umsetzungsplan (Detaildokument)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P1.3
+Maßnahme: P1.3
 CRA-Bezug: Annex I, Teil I, 1.7 (Pflicht-Nr. 9)
 Risikobezug: R3
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`

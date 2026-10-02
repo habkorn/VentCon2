@@ -2,13 +2,13 @@
 
 Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P1.4
+Maßnahme: P1.4
 CRA-Bezug: Annex I, Teil I, 1.7 (Pflicht-Nr. 4)
 Risikobezug: R6
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
-Abhaengigkeiten: P1.1 (Authentifizierung) verkleinert die Angriffsflaeche, ersetzt aber keine harten Grenzen
+Abhängigkeiten: P1.1 (Authentifizierung) verkleinert die Angriffsfläche, ersetzt aber keine harten Grenzen
 Datum: 2026-09-28
-Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu fuellen.
+Hinweis: Skelett. Abschnitt 2 ist verifiziert, die Abschnitte 3 bis 6 sind zu füllen.
 
 ## 1. Objective
 

@@ -338,7 +338,7 @@ def render_unit(unit: dict, footnotes: dict[int, list[dict]]) -> list[str]:
         notes = footnotes.get(page) or []
         if not notes:
             return
-        out.append(f"<!-- Fussnoten zu PDF S. {page} -->")
+        out.append(f"<!-- Fußnoten zu PDF S. {page} -->")
         out.append("")
         for note in notes:
             label = f"({note['marker']})" if note["marker"] is not None else "(ohne Nummer)"
@@ -360,7 +360,7 @@ def provenance_header(name: str, unit: dict, pages: list[int], sha: str,
                       version: str) -> list[str]:
     """Short German provenance block; it is Frankie text, not norm text."""
     span = f"{pages[0]} bis {pages[-1]}" if pages else "keine"
-    label = {"front": "Titel, Erwaegungsformel und Erwaegungsgruende",
+    label = {"front": "Titel, Erwägungsformel und Erwägungsgründe",
              "chapter": "Kapitel mit Artikeln",
              "annex": "Anhang"}[unit["kind"]]
     return [
@@ -373,7 +373,7 @@ def provenance_header(name: str, unit: dict, pages: list[int], sha: str,
         f"Plan: {PLAN_REL}",
         f"Werkzeug: tools/cra_extract.py, PyMuPDF {version}, Extraktionsdatum {EXTRACTION_DATE}",
         "Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind "
-        "HTML-Kommentare der Form PDF S. n. Fussnoten stehen als Blockzitat bei ihrer Seite.",
+        "HTML-Kommentare der Form PDF S. n. Fußnoten stehen als Blockzitat bei ihrer Seite.",
         "",
     ]
 
@@ -555,7 +555,7 @@ def dump_pages(doc: pymupdf.Document, numbers: list[int], full: bool = False) ->
         page = doc[number - 1]
         _, note_blocks, _ = split_page(page, number)
         note_tops = {round(block["bbox"][1], 1) for block in note_blocks}
-        print(f"=== page {number} ({len(note_blocks)} Fussnotenbloecke unter dem Satzspiegel) ===")
+        print(f"=== page {number} ({len(note_blocks)} Fußnotenblöcke unter dem Satzspiegel) ===")
         previous = None
         for block in page_blocks(page):
             kind = "note" if round(block["bbox"][1], 1) in note_tops else "body"
@@ -790,12 +790,12 @@ def build_quick_reference(targets: dict) -> str:
     lines = [
         "# Schnellindex VentCon2: CRA-Fundstellen im Dossier",
         "",
-        "Rolle: Nachweisliste, keine Bewertung. Jede Fundstelle ist gegen den Extrakt geprueft.",
+        "Rolle: Nachweisliste, keine Bewertung. Jede Fundstelle ist gegen den Extrakt geprüft.",
         f"Grundlage: {CHECKLIST_REL} (Abschnitte 1, 4, 5, 6, 8 und 10)",
         f"Extrakt: 01_Recitals.md bis 17_Annex_VIII.md, Extraktionsdatum {EXTRACTION_DATE}",
         "",
         "Der Anker zeigt auf die Einheit, in der die Fundstelle steht. Absatznummern innerhalb",
-        "eines Artikels sind keine eigenen Ueberschriften, der Anker zeigt daher auf den Artikel.",
+        "eines Artikels sind keine eigenen Überschriften, der Anker zeigt daher auf den Artikel.",
         "",
         "## 1. Statische Liste aus Abschnitt 1 des Plans",
         "",
@@ -813,13 +813,13 @@ def build_quick_reference(targets: dict) -> str:
                          f"{cell(opening(target['text']))} | belegt |")
 
     extra = [hit for hit in scanned if hit["label"] not in static_labels]
-    lines += ["", "## 2. Zusaetzliche Fundstellen, die die Checkliste tatsaechlich nennt", "",
+    lines += ["", "## 2. Zusätzliche Fundstellen, die die Checkliste tatsächlich nennt", "",
               "| Fundstelle | Zeile | Datei und Anker | Wortlaut (Anfang) |",
               "|---|---|---|---|"]
     for hit in extra:
         target = resolve(targets, hit["spec"])
         if target is None:
-            reason = hit["note"] or "im Extrakt nicht aufloesbar"
+            reason = hit["note"] or "im Extrakt nicht auflösbar"
             lines.append(f"| {cell(hit['label'])} | {hit['line']} | (kein Anker) | "
                          f"{cell(reason)} |")
         else:
@@ -836,19 +836,19 @@ def build_quick_reference(targets: dict) -> str:
         "",
         f"- Die statische Liste nennt {len(static)} Fundstellen, die Checkliste verwendet "
         f"{len(scanned)} verschiedene Referenzen.",
-        f"- In der Checkliste zusaetzlich vorhanden und in der statischen Liste nicht genannt: "
+        f"- In der Checkliste zusätzlich vorhanden und in der statischen Liste nicht genannt: "
         f"{cell(', '.join(added)) if added else 'keine'}.",
-        f"- Gegen die Verordnung nicht aufloesbar: "
+        f"- Gegen die Verordnung nicht auflösbar: "
         f"{cell(', '.join(unknown)) if unknown else 'keine'}.",
-        f"- Als RED-Bezug erkannt und nicht als CRA-Fundstelle gefuehrt: "
+        f"- Als RED-Bezug erkannt und nicht als CRA-Fundstelle geführt: "
         f"{cell(', '.join(red)) if red else 'keine'}.",
-        "- Befund 1: Die statische Liste des Plans ist unvollstaendig. Die Checkliste nutzt "
-        "zusaetzlich Art. 13(2), Art. 13(8), Art. 28, Art. 14(2)(a) bis (c), Art. 14(4)(a) bis "
+        "- Befund 1: Die statische Liste des Plans ist unvollständig. Die Checkliste nutzt "
+        "zusätzlich Art. 13(2), Art. 13(8), Art. 28, Art. 14(2)(a) bis (c), Art. 14(4)(a) bis "
         "(c), Art. 14(7), Art. 14(10), Art. 15, Art. 64, Art. 69(2), Art. 69(3) und Annex V.",
         "- Befund 2: Die Nummern 1.2 bis 1.10 sind gegen Anhang I Teil I der Verordnung nicht "
-        "aufloesbar. Teil I traegt dort nur Punkt (1) und Punkt (2) mit den Buchstaben (a) bis "
+        "auflösbar. Teil I trägt dort nur Punkt (1) und Punkt (2) mit den Buchstaben (a) bis "
         "(m). Die Nummern 1.2 bis 1.10 folgen einem anderen Schema, das im Normtext nicht "
-        "vorkommt. Die Checkliste wurde nicht geaendert.",
+        "vorkommt. Die Checkliste wurde nicht geändert.",
         "- Befund 3: Der in der Checkliste mit 2(b), 2(d), 2(e) bezeichnete Punkt ist in "
         "Anhang I Teil I Punkt (2) zu finden. Diese drei Fundstellen sind belegt.",
     ]
@@ -858,9 +858,9 @@ def build_quick_reference(targets: dict) -> str:
 def build_index(records: list[dict], sizes: dict[str, int], info: dict) -> str:
     """Build the index with provenance, the file list, the coverage proof and the limits."""
     lines = [
-        "# CRA-Volltext als zitierfaehiges Markdown: Index",
+        "# CRA-Volltext als zitierfähiges Markdown: Index",
         "",
-        f"Rolle: Erschliessung der Normquelle, keine Bewertung. Erzeugt am {EXTRACTION_DATE}.",
+        f"Rolle: Erschließung der Normquelle, keine Bewertung. Erzeugt am {EXTRACTION_DATE}.",
         f"Quelle: {PDF_REL}",
         f"Plan: {PLAN_REL}",
         "Werkzeug: tools/cra_extract.py",
@@ -877,10 +877,10 @@ def build_index(records: list[dict], sizes: dict[str, int], info: dict) -> str:
         "| Format | PDF 1.7, textgeboren (PDFlib plus Arbortext), kein OCR |",
         f"| Zeilen in der Textschicht | {info['layer_lines']} |",
         f"| Textebene gesamt (Messbasis des Plans) | {info['layer']} Zeichen |",
-        f"| Laufkopf und Fusszeile entfernt | {info['removed_lines']} Zeilen, "
+        f"| Laufkopf und Fußzeile entfernt | {info['removed_lines']} Zeilen, "
         f"{info['removed_chars']} Zeichen |",
         f"| Normzeilen nach dem Entfernen | {info['norm_lines']} |",
-        f"| Zeilenumbrueche, die im Markdown zu Leerzeichen werden | {info['norm_lines'] - 1} |",
+        f"| Zeilenumbrüche, die im Markdown zu Leerzeichen werden | {info['norm_lines'] - 1} |",
         f"| Messbasis der Massenbilanz | {info['layer']} minus {info['removed_chars']} plus "
         f"{info['norm_lines'] - 1} = {info['baseline']} Zeichen |",
         f"| Extrakt Normtext | {info['extract_chars']} Zeichen |",
@@ -888,14 +888,14 @@ def build_index(records: list[dict], sizes: dict[str, int], info: dict) -> str:
         f"| Abweichung ohne Leerzeichen | {info['delta_nonspace']:+d} Zeichen |",
         f"| Extrakt direkt gegen die 349735 Zeichen | {info['plan_percent']:+.3f} Prozent |",
         "",
-        "Die Messbasis von 349735 Zeichen enthaelt den laufenden Kolumnentitel und die Seitenzahl",
-        f"des Amtsblatts, naemlich {info['removed_lines']} Zeilen mit {info['removed_chars']} "
-        "Zeichen. Diese Zeilen werden bewusst entfernt. Umgekehrt werden die Zeilenumbrueche",
-        "innerhalb eines Absatzes im Markdown zu einzelnen Leerzeichen; das erhoeht die Zeichenzahl",
+        "Die Messbasis von 349735 Zeichen enthält den laufenden Kolumnentitel und die Seitenzahl",
+        f"des Amtsblatts, nämlich {info['removed_lines']} Zeilen mit {info['removed_chars']} "
+        "Zeichen. Diese Zeilen werden bewusst entfernt. Umgekehrt werden die Zeilenumbrüche",
+        "innerhalb eines Absatzes im Markdown zu einzelnen Leerzeichen; das erhöht die Zeichenzahl",
         "wieder. Beide Seiten der Bilanz werden deshalb gleich behandelt. Der Vergleich direkt",
-        "gegen 349735 Zeichen faellt um "
+        "gegen 349735 Zeichen fällt um "
         f"{info['plan_percent']:+.3f} Prozent ab, und zwar genau um die entfernten Laufkopf- und",
-        "Fusszeilen. Ein Verlust an Normtext entsteht dabei nicht.",
+        "Fußzeilen. Ein Verlust an Normtext entsteht dabei nicht.",
         "",
         "## 2. Die 19 Dateien",
         "",
@@ -906,19 +906,19 @@ def build_index(records: list[dict], sizes: dict[str, int], info: dict) -> str:
         span = f"{record['span'][0]} bis {record['span'][1]}"
         lines.append(f"| {record['name']} | {cell(record['description'])} | {span} | "
                      f"{sizes.get(record['name'], 0)} |")
-    lines.append(f"| {QUICK_FILE} | Schnellindex der Fundstellen fuer VentCon2 | 01 bis 81 "
+    lines.append(f"| {QUICK_FILE} | Schnellindex der Fundstellen für VentCon2 | 01 bis 81 "
                  f"(Querverweis) | {sizes.get(QUICK_FILE, 0)} |")
 
     lines += [
         "",
         "## 3. Abdeckung",
         "",
-        "### 3.1 Erwaegungsgruende",
+        "### 3.1 Erwägungsgründe",
         "",
         "| Einheit | Datei | Nummern | Anzahl | Status |",
         "|---|---|---|---|---|",
-        f"| Erwaegungsgruende | {RECITAL_FILE} | 1 bis 130 | {info['recital_count']} | "
-        f"{'vollstaendig' if not info['recital_missing'] else 'Luecken: ' + str(info['recital_missing'])} |",
+        f"| Erwägungsgründe | {RECITAL_FILE} | 1 bis 130 | {info['recital_count']} | "
+        f"{'vollständig' if not info['recital_missing'] else 'Lücken: ' + str(info['recital_missing'])} |",
         "",
         "### 3.2 Kapitel und Artikel",
         "",
@@ -933,11 +933,11 @@ def build_index(records: list[dict], sizes: dict[str, int], info: dict) -> str:
         "",
         f"Artikel 1 bis 71 erscheinen genau einmal: "
         f"{'ja' if info['articles'] == list(range(1, 72)) else 'nein'}. "
-        f"Vollstaendige Liste: {', '.join(str(number) for number in info['articles'])}.",
+        f"Vollständige Liste: {', '.join(str(number) for number in info['articles'])}.",
         f"Fehlend: {info['article_missing'] or 'keine'}. "
         f"Doppelt: {info['article_duplicates'] or 'keine'}.",
         "",
-        "### 3.3 Anhaenge",
+        "### 3.3 Anhänge",
         "",
         "| Einheit | Datei | Drucktitel im Amtsblatt | Seiten |",
         "|---|---|---|---|",
@@ -949,49 +949,49 @@ def build_index(records: list[dict], sizes: dict[str, int], info: dict) -> str:
                          f"{record['span'][1]} |")
     lines += [
         "",
-        f"Anhaenge I bis VIII erscheinen genau einmal: "
+        f"Anhänge I bis VIII erscheinen genau einmal: "
         f"{'ja' if info['annexes'] == ROMAN[1:] else 'nein'}. "
         f"Gefunden: {', '.join(info['annexes']) or 'keine'}.",
         "",
-        "## 4. Fussnoten",
+        "## 4. Fußnoten",
         "",
-        f"Der Extrakt fuehrt {info['footnotes']} Fussnoten, verteilt auf "
+        f"Der Extrakt führt {info['footnotes']} Fußnoten, verteilt auf "
         f"{len(info['footnote_pages'])} Seiten: {info['footnote_pages']}.",
         "Sie stehen als Blockzitat direkt unter dem Text ihrer Seite und sind damit kein "
         "Normtext, sondern Standhinweis. Ihre Zeichen sind in der Massenbilanz enthalten.",
         "",
         "## 5. Lesekonventionen",
         "",
-        "- `#` traegt die Einheit so, wie das Amtsblatt sie druckt (`# CHAPTER I`, `# ANNEX I`).",
+        "- `#` trägt die Einheit so, wie das Amtsblatt sie druckt (`# CHAPTER I`, `# ANNEX I`).",
         "  Die gedruckte Titelzeile (etwa `GENERAL PROVISIONS`) folgt darunter als eigener Absatz.",
-        "- `##` traegt `## Article 13` und, in den Anhaengen, `## Part I`. Der gedruckte Titel der",
+        "- `##` trägt `## Article 13` und, in den Anhängen, `## Part I`. Der gedruckte Titel der",
         "  Einheit folgt jeweils als eigener Absatz, damit der Anker stabil bleibt.",
-        "- `###` traegt nummerierte Absaetze (`### 1.`) und in den Erwaegungsgruenden die Marke",
-        "  (`### (1)`). Die Nummer stammt unveraendert aus der Quelle.",
+        "- `###` trägt nummerierte Absätze (`### 1.`) und in den Erwägungsgründen die Marke",
+        "  (`### (1)`). Die Nummer stammt unverändert aus der Quelle.",
         "- `<!-- PDF S. n -->` steht an der Stelle, an der die Seite n beginnt. Jede Seite von 1",
         "  bis 81 ist mindestens einmal markiert.",
         "- Der Normtext steht zwischen `<!-- NORM BEGIN -->` und `<!-- NORM END -->`.",
-        "- Fussnoten sind Blockzitate (`>`) und mit `<!-- Fussnoten zu PDF S. n -->` eingeleitet.",
+        "- Fußnoten sind Blockzitate (`>`) und mit `<!-- Fußnoten zu PDF S. n -->` eingeleitet.",
         "",
         "## 6. Grenzen und Unsicherheiten",
         "",
-        "- Wortlaut vor Lesbarkeit: Absaetze werden nicht umformuliert, nicht gekuerzt und nicht",
-        "  umsortiert. Zeilenumbrueche der Druckfassung werden zu einem Absatz zusammengezogen.",
-        "- Ein Absatz, der ueber eine Seitengrenze laeuft, wird an der Seitenmarke getrennt. Das",
-        "  ist die Folge der geforderten Seitenmarken und keine inhaltliche Aenderung.",
-        "- Die Anhaenge III, IV, V und VII enthalten im Original keine Tabellen, sondern",
+        "- Wortlaut vor Lesbarkeit: Absätze werden nicht umformuliert, nicht gekürzt und nicht",
+        "  umsortiert. Zeilenumbrüche der Druckfassung werden zu einem Absatz zusammengezogen.",
+        "- Ein Absatz, der über eine Seitengrenze läuft, wird an der Seitenmarke getrennt. Das",
+        "  ist die Folge der geforderten Seitenmarken und keine inhaltliche Änderung.",
+        "- Die Anhänge III, IV, V und VII enthalten im Original keine Tabellen, sondern",
         "  nummerierte Listen. Es wurde daher keine Markdown-Tabelle erzeugt und keine Zelle",
         "  umgeformt. Anhang I Teil I und Teil II tragen die Marken (1), (2) und (a) bis (m) im",
-        "  Fliesstext; sie sind nicht in Ueberschriften umgesetzt, weil die Marken dort mitten in",
+        "  Fließtext; sie sind nicht in Überschriften umgesetzt, weil die Marken dort mitten in",
         "  der Zeile stehen.",
         "- Die Signaturspalte der PDF-Seite 67 (Parlament und Rat nebeneinander) ist in",
-        "  Leserichtung zeilenweise aufgeloest.",
-        "- Die Erwaegungsgruende 1 bis 130 sind vollstaendig; die Nummern der Fussnoten",
-        "  ueberschneiden sich mit ihnen, sind aber positionsbasiert getrennt.",
+        "  Leserichtung zeilenweise aufgelöst.",
+        "- Die Erwägungsgründe 1 bis 130 sind vollständig; die Nummern der Fußnoten",
+        "  überschneiden sich mit ihnen, sind aber positionsbasiert getrennt.",
         "- Der Kolumnentitel und die Seitenzahl des Amtsblatts sind entfernt. Sie werden nur",
-        "  entfernt, wenn sie das Zeilenmuster des Amtsblatts treffen und zusaetzlich im oberen",
+        "  entfernt, wenn sie das Zeilenmuster des Amtsblatts treffen und zusätzlich im oberen",
         "  oder unteren Rand der Seite stehen.",
-        "- Die Nummern 1.2 bis 1.10 der Checkliste sind gegen die Verordnung nicht aufloesbar,",
+        "- Die Nummern 1.2 bis 1.10 der Checkliste sind gegen die Verordnung nicht auflösbar,",
         f"  siehe {QUICK_FILE}, Abschnitt 3.",
     ]
     return "\n".join(lines) + "\n"
@@ -1077,7 +1077,7 @@ def write_output(doc: pymupdf.Document) -> None:
         numbers = [int(match.group(1)) for item in unit["items"]
                    if (match := RE_ARTICLE.fullmatch(item["text"]))]
         if unit["kind"] == "front":
-            description = "Titel, Erwaegungsformel und Erwaegungsgruende 1 bis 130"
+            description = "Titel, Erwägungsformel und Erwägungsgründe 1 bis 130"
         elif unit["kind"] == "chapter":
             description = (f"Kapitel {unit['title'].split()[1]}, Artikel {numbers[0]} bis "
                            f"{numbers[-1]}")
@@ -1152,10 +1152,10 @@ def write_output(doc: pymupdf.Document) -> None:
         print(f"  {sizes.get(name, 0):8d} Bytes  {name}")
     print(f"\nArtikel          : {len(found_articles)} von 71, fehlend "
           f"{info['article_missing'] or 'keine'}, doppelt {info['article_duplicates'] or 'keine'}")
-    print(f"Anhaenge         : {len(info['annexes'])} von 8 ({', '.join(info['annexes'])})")
-    print(f"Erwaegungsgruende: {info['recital_count']}, Luecken "
+    print(f"Anhänge         : {len(info['annexes'])} von 8 ({', '.join(info['annexes'])})")
+    print(f"Erwägungsgründe: {info['recital_count']}, Lücken "
           f"{info['recital_missing'] or 'keine'}")
-    print(f"Fussnoten        : {info['footnotes']} auf {len(footnote_pages)} Seiten")
+    print(f"Fußnoten        : {info['footnotes']} auf {len(footnote_pages)} Seiten")
     print(f"Textschicht      : {balance['layer_chars']} Zeichen in {balance['layer_lines']} "
           f"Zeilen, entfernt {balance['removed_lines']} Zeilen mit "
           f"{balance['removed_chars']} Zeichen")
@@ -1163,9 +1163,9 @@ def write_output(doc: pymupdf.Document) -> None:
           f"{balance['baseline']} Zeichen ({balance['percent']:+.3f} Prozent), ohne Leerzeichen "
           f"{balance['delta_nonspace']:+d} Zeichen")
     print(f"Vergleich direkt gegen die 349735 Zeichen des Plans: "
-          f"{balance['plan_percent']:+.3f} Prozent, vollstaendig erklaert durch den entfernten "
-          f"Laufkopf und die Fusszeile")
-    print("Naechster Schritt: --verify")
+          f"{balance['plan_percent']:+.3f} Prozent, vollständig erklärt durch den entfernten "
+          f"Laufkopf und die Fußzeile")
+    print("Nächster Schritt: --verify")
 
 
 def items_articles(data: dict) -> list[int]:
@@ -1211,8 +1211,8 @@ def verify_output(doc: pymupdf.Document) -> int:
                for line in texts.get(name, "").splitlines()
                if (match := re.fullmatch(r"# ANNEX ([IVXL]+)", line))]
     if annexes != ROMAN[1:]:
-        problems.append(f"Anhaenge: {annexes}")
-    reports.append(f"Anhaenge I bis VIII  : {annexes}")
+        problems.append(f"Anhänge: {annexes}")
+    reports.append(f"Anhänge I bis VIII  : {annexes}")
 
     recitals = [int(match.group(1)) for line in texts.get(RECITAL_FILE, "").splitlines()
                 if (match := re.fullmatch(r"### \((\d+)\)", line))]
@@ -1220,9 +1220,9 @@ def verify_output(doc: pymupdf.Document) -> int:
     recital_duplicates = sorted(number for number, count in Counter(recitals).items()
                                 if count > 1)
     if recital_missing or recital_duplicates:
-        problems.append(f"Erwaegungsgruende: fehlend {recital_missing}, doppelt "
+        problems.append(f"Erwägungsgründe: fehlend {recital_missing}, doppelt "
                         f"{recital_duplicates}")
-    reports.append(f"Erwaegungsgruende    : {len(recitals)} von 130, fehlend "
+    reports.append(f"Erwägungsgründe    : {len(recitals)} von 130, fehlend "
                    f"{recital_missing or 'keine'}, doppelt {recital_duplicates or 'keine'}")
 
     data = extract(doc)
@@ -1238,8 +1238,8 @@ def verify_output(doc: pymupdf.Document) -> int:
                    f"{balance['layer_lines']} Zeilen, entfernt {balance['removed_lines']} "
                    f"Zeilen mit {balance['removed_chars']} Zeichen, Messbasis "
                    f"{balance['baseline']} Zeichen")
-    reports.append(f"Direkt gegen 349735 : {balance['plan_percent']:+.3f} Prozent, erklaert "
-                   f"durch den entfernten Laufkopf und die Fusszeile")
+    reports.append(f"Direkt gegen 349735 : {balance['plan_percent']:+.3f} Prozent, erklärt "
+                   f"durch den entfernten Laufkopf und die Fußzeile")
 
     replacement = [name for name, text in texts.items() if "\ufffd" in text]
     if replacement:
@@ -1257,8 +1257,8 @@ def verify_output(doc: pymupdf.Document) -> int:
             if re.fullmatch(r"#{1,6}\s*", line):
                 empty.append(f"{name}:{number}")
     if empty:
-        problems.append(f"leere Ueberschriften: {', '.join(empty)}")
-    reports.append(f"leere Ueberschriften : {len(empty)}")
+        problems.append(f"leere Überschriften: {', '.join(empty)}")
+    reports.append(f"leere Überschriften : {len(empty)}")
 
     markers = sorted({int(match.group(1)) for name in norm_files
                       for match in re.finditer(r"<!-- PDF S\. (\d+) -->", texts.get(name, ""))})
@@ -1282,7 +1282,7 @@ def verify_output(doc: pymupdf.Document) -> int:
         problems.append(f"Kodierung: {', '.join(encoding)}")
     reports.append(f"UTF-8 ohne BOM, LF  : {len(encoding)} Abweichungen")
 
-    print("Selbstpruefung der Ausgabe")
+    print("Selbstprüfung der Ausgabe")
     for line in reports:
         print(f"  {line}")
     print()
@@ -1291,8 +1291,8 @@ def verify_output(doc: pymupdf.Document) -> int:
         for line in problems:
             print(f"  {line}")
         return 1
-    print("Alle geprueften Punkte bestanden. Die Abnahme gegen die sieben Gates des Plans")
-    print("bleibt beim Hauptagenten, dieser Lauf prueft nur die eigene Ausgabe.")
+    print("Alle geprüften Punkte bestanden. Die Abnahme gegen die sieben Gates des Plans")
+    print("bleibt beim Hauptagenten, dieser Lauf prüft nur die eigene Ausgabe.")
     return 0
 
 

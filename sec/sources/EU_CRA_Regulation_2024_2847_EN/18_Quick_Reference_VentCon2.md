@@ -1,11 +1,11 @@
 # Schnellindex VentCon2: CRA-Fundstellen im Dossier
 
-Rolle: Nachweisliste, keine Bewertung. Jede Fundstelle ist gegen den Extrakt geprueft.
+Rolle: Nachweisliste, keine Bewertung. Jede Fundstelle ist gegen den Extrakt geprüft.
 Grundlage: sec/CRA_Compliance_Checklist.md (Abschnitte 1, 4, 5, 6, 8 und 10)
 Extrakt: 01_Recitals.md bis 17_Annex_VIII.md, Extraktionsdatum 2026-09-30
 
 Der Anker zeigt auf die Einheit, in der die Fundstelle steht. Absatznummern innerhalb
-eines Artikels sind keine eigenen Ueberschriften, der Anker zeigt daher auf den Artikel.
+eines Artikels sind keine eigenen Überschriften, der Anker zeigt daher auf den Artikel.
 
 ## 1. Statische Liste aus Abschnitt 1 des Plans
 
@@ -34,7 +34,7 @@ eines Artikels sind keine eigenen Ueberschriften, der Anker zeigt daher auf den 
 | Art. 27 | [04_Chapter_III_Art_27-34.md#article-27](04_Chapter_III_Art_27-34.md#article-27) | Presumption of conformity | belegt |
 | Art. 64(10) | [08_Chapter_VII_Art_63-65.md#article-64](08_Chapter_VII_Art_63-65.md#article-64) | By way of derogation from paragraphs 3 to 9, the administrative fines referred to in those paragraphs shall ... | belegt |
 
-## 2. Zusaetzliche Fundstellen, die die Checkliste tatsaechlich nennt
+## 2. Zusätzliche Fundstellen, die die Checkliste tatsächlich nennt
 
 | Fundstelle | Zeile | Datei und Anker | Wortlaut (Anfang) |
 |---|---|---|---|
@@ -70,9 +70,9 @@ eines Artikels sind keine eigenen Ueberschriften, der Anker zeigt daher auf den 
 ## 3. Befunde (G4 und E12): nur gemeldet, nichts korrigiert
 
 - Die statische Liste nennt 22 Fundstellen, die Checkliste verwendet 50 verschiedene Referenzen.
-- In der Checkliste zusaetzlich vorhanden und in der statischen Liste nicht genannt: Annex I, Art. 13, Art. 28, Art. 64, Art. 2(1), Art. 19, Art. 20, Art. 21, Art. 18, Art. 13(2), Annex V, Art. 13(8), Art. 14(2)(a), Art. 14(4)(a), Art. 14(2)(b), Art. 14(4)(b), Art. 14(2)(c), Art. 14(4)(c), Art. 69(3), Art. 69(2), Art. 15, Art. 14(10), Art. 14(7).
-- Gegen die Verordnung nicht aufloesbar: Annex I, Teil I, 1.2, Annex I, Teil I, 1.4, Annex I, Teil I, 1.7, Annex I, Teil I, 1.8, Annex I, Teil I, 1.10, Annex I, Teil I, 1.9, Annex I, Teil I, 1.3.
-- Als RED-Bezug erkannt und nicht als CRA-Fundstelle gefuehrt: Art. 3(3)(d), Art. 3(21), Art. 3(22), Art. 3(3)(e), Art. 3(3)(f).
-- Befund 1: Die statische Liste des Plans ist unvollstaendig. Die Checkliste nutzt zusaetzlich Art. 13(2), Art. 13(8), Art. 28, Art. 14(2)(a) bis (c), Art. 14(4)(a) bis (c), Art. 14(7), Art. 14(10), Art. 15, Art. 64, Art. 69(2), Art. 69(3) und Annex V.
-- Befund 2: Die Nummern 1.2 bis 1.10 sind gegen Anhang I Teil I der Verordnung nicht aufloesbar. Teil I traegt dort nur Punkt (1) und Punkt (2) mit den Buchstaben (a) bis (m). Die Nummern 1.2 bis 1.10 folgen einem anderen Schema, das im Normtext nicht vorkommt. Die Checkliste wurde nicht geaendert.
+- In der Checkliste zusätzlich vorhanden und in der statischen Liste nicht genannt: Annex I, Art. 13, Art. 28, Art. 64, Art. 2(1), Art. 19, Art. 20, Art. 21, Art. 18, Art. 13(2), Annex V, Art. 13(8), Art. 14(2)(a), Art. 14(4)(a), Art. 14(2)(b), Art. 14(4)(b), Art. 14(2)(c), Art. 14(4)(c), Art. 69(3), Art. 69(2), Art. 15, Art. 14(10), Art. 14(7).
+- Gegen die Verordnung nicht auflösbar: Annex I, Teil I, 1.2, Annex I, Teil I, 1.4, Annex I, Teil I, 1.7, Annex I, Teil I, 1.8, Annex I, Teil I, 1.10, Annex I, Teil I, 1.9, Annex I, Teil I, 1.3.
+- Als RED-Bezug erkannt und nicht als CRA-Fundstelle geführt: Art. 3(3)(d), Art. 3(21), Art. 3(22), Art. 3(3)(e), Art. 3(3)(f).
+- Befund 1: Die statische Liste des Plans ist unvollständig. Die Checkliste nutzt zusätzlich Art. 13(2), Art. 13(8), Art. 28, Art. 14(2)(a) bis (c), Art. 14(4)(a) bis (c), Art. 14(7), Art. 14(10), Art. 15, Art. 64, Art. 69(2), Art. 69(3) und Annex V.
+- Befund 2: Die Nummern 1.2 bis 1.10 sind gegen Anhang I Teil I der Verordnung nicht auflösbar. Teil I trägt dort nur Punkt (1) und Punkt (2) mit den Buchstaben (a) bis (m). Die Nummern 1.2 bis 1.10 folgen einem anderen Schema, das im Normtext nicht vorkommt. Die Checkliste wurde nicht geändert.
 - Befund 3: Der in der Checkliste mit 2(b), 2(d), 2(e) bezeichnete Punkt ist in Anhang I Teil I Punkt (2) zu finden. Diese drei Fundstellen sind belegt.

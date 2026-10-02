@@ -1,8 +1,8 @@
 # How the Web Interface Endpoints and Authentication Work in VentCon2
 
-Rolle: Grundlagenerklaerung (Hintergrundwissen, kein Umsetzungsplan)
+Rolle: Grundlagenerklärung (Hintergrundwissen, kein Umsetzungsplan)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P1.1, P1.2, P2.1
+Maßnahme: P1.1, P1.2, P2.1
 CRA-Bezug: Annex I, Teil I, 1.2, 1.4 und 1.10 (Pflicht-Nr. 2, 3 und 6)
 Risikobezug: R1, R4, R5
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`

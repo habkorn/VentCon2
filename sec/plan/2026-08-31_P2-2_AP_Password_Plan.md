@@ -2,11 +2,11 @@
 
 Rolle: Umsetzungsplan (Detaildokument)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Massnahme: P2.2
+Maßnahme: P2.2
 CRA-Bezug: Annex I, Teil I, 2(b)/(d) und 2(e) (Pflicht-Nr. 1 und 10)
 Risikobezug: R2
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
-Voraussetzung: `2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md` (P1.1 und P1.2 muessen zuerst umgesetzt sein)
+Voraussetzung: `2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md` (P1.1 und P1.2 müssen zuerst umgesetzt sein)
 Datum: 2026-08-31
 
 ## 1. Objective
@@ -83,7 +83,7 @@ unique provisioning SSID (e.g. `VENTCON_AP-XXXX` with the last MAC octets).
 
 Handler `handleWiFiSettings()` in `src/WebHandlers.h/.cpp`:
 
-- **GET branch**: returns `{"ap_ssid":"...","ap_password_set":true}` — the
+- **GET branch**: returns `{"ap_ssid":"...","ap_password_set":true}`, the
   password value is never echoed back; only a boolean indicates whether a
   password is configured. (The password is stored recoverably in encrypted NVS;
   never returning it limits exposure from XSS or CSRF leaks.)
@@ -283,7 +283,7 @@ Phase D - Data and version:
   Mitigation: require the password to be typed twice in the form, compared in JS
   before submission. Alternatively, keep serial access as a recovery path
   (the firmware already accepts `set_wifi_password` via UART if needed; add this
-  command if it does not exist yet — confirm during implementation).
+  command if it does not exist yet, confirm during implementation).
 - **Open provisioning AP**: during provisioning the AP has no password (always on
   while unprovisioned, per the confirmed decision). The window is short (until the
   operator sets the password) and only the setup page is reachable, but an

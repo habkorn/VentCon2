@@ -6,7 +6,7 @@ SHA-256 der Quelle: e3ecaabddf6e321fa04097d15dfcccc7309d0fe5896240ab7625a27d74ab
 PDF-Seiten in dieser Datei: 74 bis 74
 Plan: sec/plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md
 Werkzeug: tools/cra_extract.py, PyMuPDF 1.28.2, Extraktionsdatum 2026-09-30
-Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fussnoten stehen als Blockzitat bei ihrer Seite.
+Hinweis: Der Normtext steht zwischen NORM BEGIN und NORM END. Seitenmarken sind HTML-Kommentare der Form PDF S. n. Fußnoten stehen als Blockzitat bei ihrer Seite.
 
 <!-- NORM BEGIN -->
 
@@ -22,7 +22,7 @@ Hereby, … [name of manufacturer] declares that the product with digital elemen
 
 The full text of the EU declaration of conformity is available at the following internet address: …
 
-<!-- Fussnoten zu PDF S. 74 -->
+<!-- Fußnoten zu PDF S. 74 -->
 
 > (1) OJ L, 2024/2847, 20.11.2024, ELI: http://data.europa.eu/eli/reg/2024/2847/oj.
 

@@ -1,23 +1,23 @@
-"""Unabhaengige Verifikation des CRA-Volltextextrakts gegen die Textebene der PDF.
+"""Unabhängige Verifikation des CRA-Volltextextrakts gegen die Textebene der PDF.
 
-Fuehrt die sieben Gates aus sec/plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md durch.
+Führt die sieben Gates aus sec/plan/2026-09-30_CRA_Volltext_Extraktion_Plan.md durch.
 
-Der Code ist bewusst unabhaengig von tools/cra_extract.py geschrieben. Alle Sollwerte
-werden direkt aus der PDF gelesen, nicht aus dem Extraktor uebernommen.
+Der Code ist bewusst unabhängig von tools/cra_extract.py geschrieben. Alle Sollwerte
+werden direkt aus der PDF gelesen, nicht aus dem Extraktor übernommen.
 
 Aufbau der Sollwerte:
-  * Zeilen, die auf gleicher Hoehe stehen, bilden eine Lesezeile. Damit landen
-    Erwaegungsgrund-Marken (8.5 pt, links neben dem Absatz) und hochgestellte
-    Fussnotenverweise (8.5 pt, mitten in der Zeile) an der richtigen Stelle.
-  * Kolumnentitel und Fusszeile des Amtsblatts werden als Satzspiegel-Rand erkannt und
-    nicht als Normtext gezaehlt.
-  * Fussnoten sind die Zeilen unterhalb der letzten Zeile des Satzspiegels. Sie sind
-    ebenfalls 8.5 pt und daher nur ueber die Lage von Marken unterscheidbar.
+  * Zeilen, die auf gleicher Höhe stehen, bilden eine Lesezeile. Damit landen
+    Erwägungsgrund-Marken (8.5 pt, links neben dem Absatz) und hochgestellte
+    Fußnotenverweise (8.5 pt, mitten in der Zeile) an der richtigen Stelle.
+  * Kolumnentitel und Fußzeile des Amtsblatts werden als Satzspiegel-Rand erkannt und
+    nicht als Normtext gezählt.
+  * Fußnoten sind die Zeilen unterhalb der letzten Zeile des Satzspiegels. Sie sind
+    ebenfalls 8.5 pt und daher nur über die Lage von Marken unterscheidbar.
 
 Aufruf:
     C:\\venvs\\VentCon2\\Scripts\\python.exe tools\\verify_cra_extract.py
 
-Rueckgabewert: 0 wenn alle Gates bestanden sind, 1 wenn ein Gate gerissen ist.
+Rückgabewert: 0 wenn alle Gates bestanden sind, 1 wenn ein Gate gerissen ist.
 """
 
 from __future__ import annotations
@@ -70,7 +70,7 @@ RE_MD_ANNEX = re.compile(r"^ANNEX ([IVXL]+)$")
 RE_MD_CHAPTER = re.compile(r"^CHAPTER ([IVXL]+)$")
 RE_MD_RECITAL = re.compile(r"^\((\d+)\)$")
 RE_PAGE_MARK = re.compile(r"^<!-- PDF S\. (\d+) -->$")
-RE_NOTE_MARK = re.compile(r"^<!-- Fussnoten zu PDF S\. (\d+) -->$")
+RE_NOTE_MARK = re.compile(r"^<!-- Fußnoten zu PDF S\. (\d+) -->$")
 RE_NORM_EDGE = re.compile(r"^<!-- NORM (BEGIN|END) -->$")
 RE_MD_LINK = re.compile(r"\]\(([A-Za-z0-9_.\-]+\.md)#([A-Za-z0-9_\-]+)\)")
 RE_FOOTNOTE_ENTRY = re.compile(r"^\((\d+)\)")
@@ -83,10 +83,10 @@ RE_CHAPTER_LINE = re.compile(r"^CHAPTER ([IVXL]+)$")
 TOP_BAND = 70.0
 BOTTOM_BAND = 70.0
 FOOTNOTE_SIZE = 9.0
-ROW_TOLERANCE = 3.0  # Zeilenhoehe, innerhalb derer Segmente eine Lesezeile bilden
+ROW_TOLERANCE = 3.0  # Zeilenhöhe, innerhalb derer Segmente eine Lesezeile bilden
 PARAGRAPH_GAP = 14.0  # Zeilenabstand, ab dem die Quelle einen neuen Absatz beginnen kann
-IN_PARAGRAPH_GAP = 13.5  # gemessene Obergrenze fuer den Zeilenabstand innerhalb eines Absatzes
-CONTEXT = 16  # Zeichen je Seite fuer den Join-Kontext
+IN_PARAGRAPH_GAP = 13.5  # gemessene Obergrenze für den Zeilenabstand innerhalb eines Absatzes
+CONTEXT = 16  # Zeichen je Seite für den Join-Kontext
 
 CANON_MAP = {
     "\u00a0": " ", "\u2009": " ", "\u202f": " ", "\u200b": "",
@@ -135,7 +135,7 @@ class Report:
 
 
 def pdf_pages(doc: pymupdf.Document) -> list[dict]:
-    """Textebene je Seite als Lesezeilen, unabhaengig vom Extraktor aufgebaut."""
+    """Textebene je Seite als Lesezeilen, unabhängig vom Extraktor aufgebaut."""
     pages: list[dict] = []
     for number, page in enumerate(doc, start=1):
         height = page.rect.height
@@ -187,7 +187,7 @@ def pdf_pages(doc: pymupdf.Document) -> list[dict]:
 
 
 def markdown_units(path: Path) -> list[tuple[str, str]]:
-    """Inhalt einer Normdatei als Folge von Marken, Ueberschriften, Absaetzen, Fussnoten."""
+    """Inhalt einer Normdatei als Folge von Marken, Überschriften, Absätzen, Fußnoten."""
     units: list[tuple[str, str]] = []
     inside = False
     for raw in read_text(path).splitlines():
@@ -223,8 +223,8 @@ def main() -> int:
     finally:
         doc.close()
 
-    # Je Seite erst der Satzspiegel, dann die Fussnoten dieser Seite. Genau so setzt der
-    # Extrakt die Fussnoten an das Ende ihrer Seite.
+    # Je Seite erst der Satzspiegel, dann die Fußnoten dieser Seite. Genau so setzt der
+    # Extrakt die Fußnoten an das Ende ihrer Seite.
     gold = "".join(
         "".join(canon(row["text"]) for row in page["rows"])
         + "".join(canon(text) for text in page["notes"])
@@ -248,9 +248,9 @@ def main() -> int:
     missing = [n for n in EXPECTED_FILES if n not in present]
     extra = [n for n in present if n not in EXPECTED_FILES]
     report.add("G1 Dateien", not missing and not extra,
-               f"{len(present)} Dateien, fehlend {len(missing)}, zusaetzlich {len(extra)}"
+               f"{len(present)} Dateien, fehlend {len(missing)}, zusätzlich {len(extra)}"
                + (f"; fehlend: {missing}" if missing else "")
-               + (f"; zusaetzlich: {extra}" if extra else ""))
+               + (f"; zusätzlich: {extra}" if extra else ""))
 
     md_articles: list[int] = []
     md_annexes: list[str] = []
@@ -316,7 +316,7 @@ def main() -> int:
         for row in page["rows"]:
             first = row["segments"][0]
             if first["size"] < FOOTNOTE_SIZE and RE_MARKER.match(first["text"]) and row["body_size"]:
-                # Marke links neben ihrem Absatz: Erwaegungsgrund im Satzspiegel.
+                # Marke links neben ihrem Absatz: Erwägungsgrund im Satzspiegel.
                 pdf_recitals.append(int(RE_MARKER.match(first["text"]).group(1)))  # type: ignore[union-attr]
                 continue
             text = row["text"]
@@ -336,7 +336,7 @@ def main() -> int:
             if match:
                 pdf_note_markers.append(int(match.group(1)))
 
-    # ----------------------------------------------------------- G1 Vollstaendigkeit
+    # ----------------------------------------------------------- G1 Vollständigkeit
     want_articles = list(range(1, max(pdf_articles) + 1)) if pdf_articles else []
     report.add("G1 Artikel",
                sorted(md_articles) == want_articles and len(md_articles) == len(set(md_articles)),
@@ -344,13 +344,13 @@ def main() -> int:
                f"{sorted(set(want_articles) - set(md_articles))}; doppelt "
                f"{[n for n, c in Counter(md_articles).items() if c > 1]}")
 
-    report.add("G1 Anhaenge",
+    report.add("G1 Anhänge",
                sorted(md_annexes) == sorted(set(md_annexes))
                and set(md_annexes) == set(pdf_annexes),
                f"PDF {pdf_annexes}, Extrakt {md_annexes}")
 
     want_recitals = list(range(1, max(pdf_recitals) + 1)) if pdf_recitals else []
-    report.add("G1 Erwaegungsgruende",
+    report.add("G1 Erwägungsgründe",
                sorted(md_recitals) == want_recitals and len(md_recitals) == len(set(md_recitals)),
                f"PDF {len(pdf_recitals)} (1 bis {max(pdf_recitals) if pdf_recitals else 0}), "
                f"Extrakt {len(md_recitals)}; im PDF fehlend "
@@ -397,7 +397,7 @@ def main() -> int:
         if want != got:
             lacking = "".join(sorted((want - got).elements()))
             surplus = "".join(sorted((got - want).elements()))
-            mismatched.append(f"S.{number} fehlt {lacking[:40]!r} ueberzaehlig {surplus[:40]!r}")
+            mismatched.append(f"S.{number} fehlt {lacking[:40]!r} überzählig {surplus[:40]!r}")
     report.add("G3 Seitengrenzen", not mismatched,
                f"{page_count - len(mismatched)} von {page_count} Seiten zeichengleich"
                + ("; " + " | ".join(mismatched[:5]) if mismatched else ""))
@@ -435,7 +435,7 @@ def main() -> int:
                 if anchor not in anchors.get(target, set()):
                     unresolved_links.append(f"{target}#{anchor}")
     report.add("G4 Anker", not unresolved_links,
-               f"{len(links)} Verweise geprueft, {len(unresolved_links)} ohne Ziel"
+               f"{len(links)} Verweise geprüft, {len(unresolved_links)} ohne Ziel"
                + (f": {sorted(set(unresolved_links))[:6]}" if unresolved_links else ""))
 
     unresolved_citations: list[str] = []
@@ -475,8 +475,8 @@ def main() -> int:
                    for line in read_text(OUT_DIR / name).splitlines()
                    if line.strip().startswith("#") and not line.strip().startswith("<!--")
                    and not line.strip().lstrip("#").strip()]
-    report.add("G5 Ueberschriften", not empty_heads,
-               "; ".join(empty_heads) if empty_heads else "keine leere Ueberschrift")
+    report.add("G5 Überschriften", not empty_heads,
+               "; ".join(empty_heads) if empty_heads else "keine leere Überschrift")
 
     gold_nonascii = Counter(ch for ch in gold if ord(ch) > 127)
     md_nonascii = Counter(ch for ch in md_canon if ord(ch) > 127)
@@ -487,8 +487,8 @@ def main() -> int:
 
     # ------------------------------------------------------------------ G6 Wortlaut
     report.add("G6 Wortlauttreue", ok_sequence and not mismatched,
-               "programmatisch ueber die vollstaendige Wortfolge; "
-               "Bildsichtpruefung fuehrt der Hauptagent separat durch")
+               "programmatisch über die vollständige Wortfolge; "
+               "Bildsichtprüfung führt der Hauptagent separat durch")
 
     # ----------------------------------------------------------------- G7 Hausregeln
     em = [f"{name}: {read_text(OUT_DIR / name).count(chr(0x2014))}x"
@@ -504,7 +504,7 @@ def main() -> int:
     report.add("G7 venv in Dropbox", not venvs,
                "; ".join(venvs) if venvs else "kein venv im Projektordner")
 
-    # --------------------------------------------------------------- Z1 Absaetze
+    # --------------------------------------------------------------- Z1 Absätze
     confirmed_count = 0
     confirmed_examples: list[str] = []
     borderline: list[str] = []
@@ -528,18 +528,18 @@ def main() -> int:
     report.add("Z1 Absatzbruch im Absatz", confirmed_count == 0,
                f"{confirmed_count} belegte Stellen, an denen die Quelle denselben Absatz "
                f"fortsetzt, der Extrakt aber trennt; Beispiele: {confirmed_examples}")
-    report.note(f"Grenzfaelle ohne Entscheidung (Abstand zwischen {IN_PARAGRAPH_GAP} und "
+    report.note(f"Grenzfälle ohne Entscheidung (Abstand zwischen {IN_PARAGRAPH_GAP} und "
                 f"{PARAGRAPH_GAP} pt): {borderline if borderline else 'keine'}")
     report.note(f"Absatzeinheiten im Extrakt: {sum(paragraph_kinds.values())} "
-                f"(Ueberschriften {paragraph_kinds['head']}, Absaetze {paragraph_kinds['text']})")
+                f"(Überschriften {paragraph_kinds['head']}, Absätze {paragraph_kinds['text']})")
 
-    # --------------------------------------------------------------- Z2 Fussnoten
-    report.add("Z2 Fussnoten", sorted(pdf_note_markers) == sorted(md_notes),
-               f"PDF {len(pdf_note_markers)} Marken, Extrakt {len(md_notes)} Eintraege; "
+    # --------------------------------------------------------------- Z2 Fußnoten
+    report.add("Z2 Fußnoten", sorted(pdf_note_markers) == sorted(md_notes),
+               f"PDF {len(pdf_note_markers)} Marken, Extrakt {len(md_notes)} Einträge; "
                f"nur im PDF {sorted(set(pdf_note_markers) - set(md_notes))[:12]}; "
                f"nur im Extrakt {sorted(set(md_notes) - set(pdf_note_markers))[:12]}")
 
-    # ----------------------------------------------------------- Z3 Indexgroessen
+    # ----------------------------------------------------------- Z3 Indexgrößen
     index = OUT_DIR / INDEX_FILE
     rows_checked = 0
     bad: list[str] = []
@@ -553,8 +553,8 @@ def main() -> int:
             actual = (OUT_DIR / name).stat().st_size if (OUT_DIR / name).exists() else -1
             if not re.fullmatch(r"\d+", cells[-1]) or int(cells[-1]) != actual:
                 bad.append(f"{name}: Index {cells[-1]} gegen Datei {actual}")
-    report.add("Z3 Indexgroessen", rows_checked > 0 and not bad,
-               f"{rows_checked} Zeilen; " + ("; ".join(bad) if bad else "alle Groessen stimmen"))
+    report.add("Z3 Indexgrößen", rows_checked > 0 and not bad,
+               f"{rows_checked} Zeilen; " + ("; ".join(bad) if bad else "alle Größen stimmen"))
 
     # ---------------------------------------------------------------------- Bericht
     print("Verifikation des CRA-Volltextextrakts gegen die PDF-Textebene")
@@ -569,9 +569,9 @@ def main() -> int:
         print(f"  Hinweis: {note}")
     print()
     if report.failed:
-        print(f"ERGEBNIS: {len(report.failed)} von {len(report.rows)} Pruefungen nicht bestanden.")
+        print(f"ERGEBNIS: {len(report.failed)} von {len(report.rows)} Prüfungen nicht bestanden.")
         return 1
-    print(f"ERGEBNIS: alle {len(report.rows)} Pruefungen bestanden.")
+    print(f"ERGEBNIS: alle {len(report.rows)} Prüfungen bestanden.")
     return 0
 
 
