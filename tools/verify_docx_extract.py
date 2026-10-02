@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Unabhängige Prüfung der Wordextrakte in `sec/AalbertsChecklists`.
+"""Unabhängige Prüfung der Wordextrakte in `sec/AalbertsChecklists/extracts`.
 
 Der Prüfer liest die Worddatei roh aus dem Paket (kein python-docx) und vergleicht sie mit der
 erzeugten Markdown-Datei. Geprüft werden Textdeckung, Tabellenform, Absatzzahlen aus dem Kopfblock,
@@ -21,7 +21,9 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DIR = ROOT / "sec" / "AalbertsChecklists"
+BASE_DIR = ROOT / "sec" / "AalbertsChecklists"
+TEMPLATE_DIR = BASE_DIR / "templates"
+EXTRACT_DIR = BASE_DIR / "extracts"
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 HEAD_START = "<!-- extract:head-start -->"
@@ -118,16 +120,30 @@ def md_table_shapes(markdown: str) -> list[int]:
     return shapes
 
 
+def blank_pattern(text: str):
+    """Muster für eine Vorlagenzeile mit Leerstellen, die im Extrakt gefüllt sein dürfen.
+
+    Die Antwortstrecke trägt Werte in die Leerzeilen der Vorlage ein (Entscheidung E76). Der
+    Extrakt enthält dann an Stelle der Unterstriche den Wert, deshalb wird hier ein Muster
+    gebildet, in dem jede Unterstrichgruppe für beliebigen Text steht.
+    """
+    normalized = normalize(text)
+    if "_" not in normalized:
+        return None
+    parts = [re.escape(part) for part in re.split(r"_+", normalized)]
+    return re.compile(".*?".join(parts))
+
+
 def main() -> int:
-    sources = sorted(p for p in SOURCE_DIR.glob("*.docx")
+    sources = sorted(p for p in TEMPLATE_DIR.glob("*.docx")
                      if not p.stem.endswith("_answered"))
-    check(bool(sources), "Keine Worddatei in %s gefunden" % SOURCE_DIR.name)
+    check(bool(sources), "Keine Worddatei in %s gefunden" % TEMPLATE_DIR.name)
     if not sources:
         return 1
     print("Prüfung der Wordextrakte gegen die Quelle")
     for path in sources:
         markdown_path = None
-        for candidate in sorted(SOURCE_DIR.glob("*.md")):
+        for candidate in sorted(EXTRACT_DIR.glob("*.md")):
             if path.name in candidate.read_text(encoding="utf-8"):
                 markdown_path = candidate
                 break
@@ -150,7 +166,9 @@ def main() -> int:
         for xml in parts:
             extra_texts.extend(part_texts(xml))
 
-        missing = [text for text in body_texts if normalize(text) not in normalized_md]
+        missing = [text for text in body_texts
+                   if normalize(text) not in normalized_md
+                   and not (blank_pattern(text) and blank_pattern(text).search(normalized_md))]
         check(not missing, "%s: %d Absätze des Körpers fehlen im Extrakt, erste: %s"
               % (path.name, len(missing), missing[:2]))
 

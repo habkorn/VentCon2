@@ -20,26 +20,52 @@ import sys
 from pathlib import Path
 
 from docx import Document
-from docx.shared import RGBColor
+from docx.oxml.ns import qn
+from docx.shared import RGBColor, Twips
 
 ANSWER_COLOR = RGBColor(0x00, 0x2F, 0x87)
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DIR = ROOT / "sec" / "AalbertsChecklists"
+BASE_DIR = ROOT / "sec" / "AalbertsChecklists"
+TEMPLATE_DIR = BASE_DIR / "templates"
+EXTRACT_DIR = BASE_DIR / "extracts"
+FILLED_DIR = BASE_DIR / "filled"
 
-CHECKLIST = SOURCE_DIR / "CRA_Product_Maturity_Checklist.md"
-CHECKLIST_DOCX = SOURCE_DIR / "CRA product maturity checklist - Sep 2026.docx"
-CHECKLIST_COPY = SOURCE_DIR / "CRA_Product_Maturity_Checklist_answered.docx"
-QUESTIONNAIRE = SOURCE_DIR / "CRA_Supplier_Due_Diligence_Questionnaire.md"
-QUESTIONNAIRE_DOCX = SOURCE_DIR / "CRA- Supplier Due Diligence Questionnaire - template Sep 2026.docx"
-QUESTIONNAIRE_COPY = SOURCE_DIR / "CRA_Supplier_Due_Diligence_Questionnaire_answered.docx"
-ADDENDUM = SOURCE_DIR / "CRA_Compliance_Addendum_Supplier_Agreement.md"
-ADDENDUM_COPY = SOURCE_DIR / "CRA_Compliance_Addendum_Supplier_Agreement_answered.docx"
+CHECKLIST = EXTRACT_DIR / "CRA_Product_Maturity_Checklist.md"
+CHECKLIST_DOCX = TEMPLATE_DIR / "CRA product maturity checklist - Sep 2026.docx"
+CHECKLIST_COPY = FILLED_DIR / "CRA_Product_Maturity_Checklist_answered.docx"
+QUESTIONNAIRE = EXTRACT_DIR / "CRA_Supplier_Due_Diligence_Questionnaire.md"
+QUESTIONNAIRE_DOCX = TEMPLATE_DIR / "CRA- Supplier Due Diligence Questionnaire - template Sep 2026.docx"
+QUESTIONNAIRE_COPY = FILLED_DIR / "CRA_Supplier_Due_Diligence_Questionnaire_answered.docx"
+ADDENDUM = EXTRACT_DIR / "CRA_Compliance_Addendum_Supplier_Agreement.md"
+ADDENDUM_COPY = FILLED_DIR / "CRA_Compliance_Addendum_Supplier_Agreement_answered.docx"
 
 EXPECTED_PART_I = 20
 EXPECTED_PART_II = 11
 EXPECTED_QUESTIONS = 36
-EXPECTED_NOTES = {CHECKLIST: 3, QUESTIONNAIRE: 3, ADDENDUM: 2}
+EXPECTED_NOTES = {CHECKLIST: 4, QUESTIONNAIRE: 2}
+
+# Werte, die in die Leerzeilen der Vorlage eingetragen werden (Entscheidung E76).
+BLANKS = ((CHECKLIST, CHECKLIST_COPY,
+           (("Product:", ("VentCon2 valve control unit, firmware 2.7.4 (prototype)",
+                           "VENTREX product owner, VentCon2 team", "2026-10-02")),)),
+          (QUESTIONNAIRE, QUESTIONNAIRE_COPY,
+           (("Completed by", ("Product owner, VENTREX (Aalberts group company)",)),
+            ("Date:", ("2026-10-02",)))))
+
+# Vorlage, Wordkopie, Spalte der Antwort und ob die Antwort mit einem Urteil beginnt.
+COPIES = ((CHECKLIST_DOCX, CHECKLIST_COPY, 0, True),
+          (QUESTIONNAIRE_DOCX, QUESTIONNAIRE_COPY, 1, False))
+
+# Urteil am Anfang einer Antwort der Checkliste.
+VERDICT = re.compile(r"^\*\*(Y|N|N/A)\*\*<br>\S")
+VERDICTS = ("Y", "N", "N/A")
+
+# Grenzen für die Aufteilung der Tabellenbreite (Entscheidung E64).
+MIN_ANSWER_SHARE = 0.40
+MAX_ANSWER_SHARE = 0.55
+MIN_OTHER_WIDTH = 0.90
+TOLERANCE = 0.005
 
 problems: list[str] = []
 checks = 0
@@ -83,11 +109,17 @@ def check_checklist() -> None:
             check(bool(cells[0]), "Checkliste Teil I, Zeile %d ohne Antwort: %s"
                   % (number, cells[2][:60]))
             check("**" in cells[0], "Checkliste Teil I, Zeile %d ohne fette Antwort" % number)
+            check(bool(VERDICT.match(cells[0])),
+                  "Checkliste Teil I, Zeile %d ohne getrenntes Urteil: %s"
+                  % (number, cells[0][:40]))
         if part == 2 and len(cells) == 2 and cells[1]:
             part_two += 1
             check(bool(cells[0]), "Checkliste Teil II, Zeile %d ohne Antwort: %s"
                   % (number, cells[1][:60]))
             check("**" in cells[0], "Checkliste Teil II, Zeile %d ohne fette Antwort" % number)
+            check(bool(VERDICT.match(cells[0])),
+                  "Checkliste Teil II, Zeile %d ohne getrenntes Urteil: %s"
+                  % (number, cells[0][:40]))
     check(part_one == EXPECTED_PART_I,
           "Checkliste Teil I: %d Zeilen mit Antwort, erwartet %d" % (part_one, EXPECTED_PART_I))
     check(part_two == EXPECTED_PART_II,
@@ -124,25 +156,43 @@ def check_questionnaire() -> None:
     check(answered == EXPECTED_QUESTIONS,
           "Fragebogen: %d beantwortete Fragen, erwartet %d" % (answered, EXPECTED_QUESTIONS))
     text = QUESTIONNAIRE.read_text(encoding="utf-8")
-    for token in ("Completed by:", "Date: 2026-10-01", "Accepted with conditions"):
+    for token in ("Accepted with conditions",
+                  "**Product owner, VENTREX (Aalberts group company)**"):
         check(token in text, "Fragebogen: Sign-off ohne %s" % token)
     print("  Fragebogen: %d Antworten" % answered)
+
+
+def source_texts_of(path: Path) -> set[str]:
+    """Normalisierte Texte einer Wordvorlage, Absätze und Tabellenzellen."""
+    document = Document(str(path))
+    texts = {normalize(paragraph.text) for paragraph in document.paragraphs}
+    for table in document.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                texts.add(normalize(cell.text))
+    return texts
+
+
+def source_of(path: Path) -> Path:
+    """Wordvorlage zu einem Extrakt, gelesen aus dem Kopfblock."""
+    head = path.read_text(encoding="utf-8").split("<!-- extract:head-end -->")[0]
+    name = re.search(r"\| Source file \| `([^`]+)` \|", head).group(1).split("/")[-1]
+    return TEMPLATE_DIR / name
+
+
+def markdown_notes(path: Path) -> list[str]:
+    """Hinweiszeilen des Extrakts, ohne die Sternchenzeilen, die schon in der Vorlage stehen."""
+    known = source_texts_of(source_of(path))
+    return [line for line in path.read_text(encoding="utf-8").split("\n")
+            if line.startswith("**") and normalize(line) not in known]
 
 
 def check_notes_and_sources() -> None:
     for path, expected in EXPECTED_NOTES.items():
         text = path.read_text(encoding="utf-8")
         head = text.split("<!-- extract:head-end -->")[0]
-        source_name = re.search(r"\| Source file \| `([^`]+)` \|", head).group(1).split("/")[-1]
-        source = SOURCE_DIR / source_name
-        source_texts = {normalize(paragraph.text)
-                        for paragraph in Document(str(source)).paragraphs}
-        for table in Document(str(source)).tables:
-            for row in table.rows:
-                for cell in row.cells:
-                    source_texts.add(normalize(cell.text))
-        notes = [line for line in text.split("\n")
-                 if line.startswith("**") and normalize(line) not in source_texts]
+        source = source_of(path)
+        notes = markdown_notes(path)
         check(len(notes) == expected, "%s: %d Hinweiszeilen, erwartet %d"
               % (path.name, len(notes), expected))
         recorded = re.search(r"\| SHA256 \| `([0-9a-f]{64})` \|", head)
@@ -154,8 +204,7 @@ def check_notes_and_sources() -> None:
 
 
 def check_docx_copies() -> None:
-    pairs = [(CHECKLIST_DOCX, CHECKLIST_COPY), (QUESTIONNAIRE_DOCX, QUESTIONNAIRE_COPY)]
-    for source, copy in pairs:
+    for source, copy, _, verdict in COPIES:
         check(copy.is_file(), "Wordkopie fehlt: %s" % copy.name)
         if not copy.is_file():
             continue
@@ -165,6 +214,9 @@ def check_docx_copies() -> None:
         filled = 0
         without_color = []
         without_bold = []
+        with_marker = []
+        without_verdict = []
+        without_separation = []
         for index, (table_before, table_after) in enumerate(zip(source_doc.tables, copy_doc.tables),
                                                          start=1):
             for row_before, row_after in zip(table_before.rows, table_after.rows):
@@ -179,25 +231,173 @@ def check_docx_copies() -> None:
                             for run in paragraph.runs if run.text.strip()]
                     if not runs:
                         continue
-                    if not all(run.bold for run in runs):
+                    if verdict:
+                        # Erste Zeile ist das Urteil, sie steht fett in eigener Zeile.
+                        if not runs[0].bold:
+                            without_bold.append("Tabelle %d: %s" % (index, cell_after.text[:40]))
+                        if runs[0].text.strip() not in VERDICTS:
+                            without_verdict.append("Tabelle %d: %s"
+                                                   % (index, runs[0].text[:20]))
+                        if len(runs) < 2 or not runs[0].text.endswith("\n"):
+                            without_separation.append("Tabelle %d: %s"
+                                                      % (index, cell_after.text[:40]))
+                    elif not all(run.bold for run in runs):
                         without_bold.append("Tabelle %d: %s" % (index, cell_after.text[:40]))
                     if not all(run.font.color and run.font.color.rgb == ANSWER_COLOR
                                for run in runs):
                         without_color.append("Tabelle %d: %s" % (index, cell_after.text[:40]))
+                    if any("**" in run.text for run in runs):
+                        with_marker.append("Tabelle %d: %s" % (index, cell_after.text[:40]))
         check(filled > 0, "%s: keine Zelle gefüllt" % copy.name)
-        check(not without_bold, "%s: %d Antworten ohne Fettung, erste: %s"
+        check(not without_bold, "%s: %d Antworten ohne Fettung im Urteil, erste: %s"
               % (copy.name, len(without_bold), without_bold[:2]))
+        check(not without_verdict, "%s: %d Zeilen ohne Urteil Y, N oder N/A, erste: %s"
+              % (copy.name, len(without_verdict), without_verdict[:2]))
+        check(not without_separation, "%s: %d Urteile ohne eigene Zeile, erste: %s"
+              % (copy.name, len(without_separation), without_separation[:2]))
+        check(not with_marker, "%s: %d Antworten mit Markdown-Marker, erste: %s"
+              % (copy.name, len(with_marker), with_marker[:2]))
         check(not without_color, "%s: %d Antworten ohne Markenblau, erste: %s"
               % (copy.name, len(without_color), without_color[:2]))
-        note_runs = [run for paragraph in copy_doc.paragraphs
-                     if paragraph.text.startswith("**")
-                     for run in paragraph.runs if run.text.strip()]
-        for run in note_runs:
-            check(bool(run.bold) and run.font.color and run.font.color.rgb == ANSWER_COLOR,
-                  "%s: Hinweiszeile ohne Fettung oder Markenblau" % copy.name)
-            break
         print("  %-58s %d Zellen gefüllt, alle fett und in Markenblau" % (copy.name, filled))
         check(empty_before >= 30, "%s: nur %d Zellen gefüllt" % (copy.name, empty_before))
+
+
+def grid_widths(table) -> list[float]:
+    """Spaltenbreiten aus dem Tabellengitter, in Zoll."""
+    return [Twips(int(column.get(qn("w:w")))).inches
+            for column in table._tbl.tblGrid.findall(qn("w:gridCol"))]
+
+
+def check_column_widths() -> None:
+    """Die Antwortspalte muss nach Textanteil breit genug sein, die Textbreite bleibt gleich."""
+    for source_path, copy_path, answer_index, _ in COPIES:
+        if not copy_path.is_file():
+            check(False, "Wordkopie fehlt: %s" % copy_path.name)
+            continue
+        source = Document(str(source_path))
+        copy = Document(str(copy_path))
+        widths = []
+        for number, (before, after) in enumerate(zip(source.tables, copy.tables), start=1):
+            new = grid_widths(after)
+            old = grid_widths(before)
+            total = sum(new)
+            widths.append(new[answer_index])
+            check(abs(total - sum(old)) < 0.01,
+                  "%s: Tabelle %d hat die Textbreite geändert (%.2f statt %.2f in)"
+                  % (copy_path.name, number, total, sum(old)))
+            share = new[answer_index] / total
+            check(MIN_ANSWER_SHARE - TOLERANCE <= share <= MAX_ANSWER_SHARE + TOLERANCE,
+                  "%s: Tabelle %d, Antwortspalte %.2f in, das sind %.0f %% statt %.0f bis %.0f %%"
+                  % (copy_path.name, number, new[answer_index], share * 100,
+                     MIN_ANSWER_SHARE * 100, MAX_ANSWER_SHARE * 100))
+            for position, width in enumerate(new):
+                if position != answer_index:
+                    check(width >= MIN_OTHER_WIDTH - TOLERANCE,
+                          "%s: Tabelle %d, Spalte %d nur %.2f in breit"
+                          % (copy_path.name, number, position + 1, width))
+        check(bool(widths) and max(widths) - min(widths) < 0.01,
+              "%s: Antwortspalten unterschiedlich breit: %s" % (copy_path.name, widths))
+        print("  %-58s Antwortspalte %.2f in, einheitlich über %d Tabellen"
+              % (copy_path.name, widths[0], len(widths)))
+
+
+def check_addendum_excluded() -> None:
+    """Das Addendum ist mit E62 aus der Antwortstrecke genommen und darf dort nicht auftauchen."""
+    check(not ADDENDUM_COPY.exists(),
+          "Addendum liegt wieder als Wordkopie in filled/: %s" % ADDENDUM_COPY.name)
+    text = ADDENDUM.read_text(encoding="utf-8")
+    check("| Answers |" not in text, "Addendum-Extrakt trägt wieder eine Antwortzeile")
+    check(not any(line.startswith("**") for line in text.split("\n")),
+          "Addendum-Extrakt enthält wieder fette Antwortzeilen")
+
+
+def check_copy_notes() -> None:
+    """Eingesetzte Hinweise dürfen keine Marker tragen und müssen fett im Markenblau stehen."""
+    for md_path, copy in ((CHECKLIST, CHECKLIST_COPY), (QUESTIONNAIRE, QUESTIONNAIRE_COPY)):
+        if not copy.is_file():
+            check(False, "Wordkopie fehlt: %s" % copy.name)
+            continue
+        document = Document(str(copy))
+        notes = [normalize(line) for line in markdown_notes(md_path)]
+        check(bool(notes), "%s: keine Hinweiszeile im Markdown gefunden" % md_path.name)
+        paragraphs = {normalize(paragraph.text): paragraph
+                      for paragraph in document.paragraphs}
+        missing = [note for note in notes if note not in paragraphs]
+        check(not missing, "%s: %d Hinweiszeilen fehlen im Worddokument, erste: %s"
+              % (copy.name, len(missing), [note[:60] for note in missing[:1]]))
+        for note in notes:
+            paragraph = paragraphs.get(note)
+            if paragraph is None:
+                continue
+            runs = [run for run in paragraph.runs if run.text.strip()]
+            check(not any("**" in run.text for run in runs),
+                  "%s: Hinweiszeile trägt Markdown-Marker" % copy.name)
+            check(bool(runs) and all(run.bold and run.font.color
+                                     and run.font.color.rgb == ANSWER_COLOR for run in runs),
+                  "%s: Hinweiszeile ohne Fettung oder Markenblau" % copy.name)
+        print("  %-58s %d Hinweiszeilen ohne Marker, fett und in Markenblau"
+              % (copy.name, len(notes)))
+
+
+def check_blank_fills() -> None:
+    """Die Leerzeilen der Vorlage müssen gefüllt und die Werte fett im Markenblau sein."""
+    for markdown_path, copy_path, entries in BLANKS:
+        if not copy_path.is_file():
+            check(False, "Wordkopie fehlt: %s" % copy_path.name)
+            continue
+        text = markdown_path.read_text(encoding="utf-8")
+        document = Document(str(copy_path))
+        for prefix, values in entries:
+            paragraph = next((item for item in document.paragraphs
+                              if item.text.strip().startswith(prefix)), None)
+            check(paragraph is not None, "%s: Zeile '%s' fehlt" % (copy_path.name, prefix))
+            if paragraph is None:
+                continue
+            check("__" not in paragraph.text,
+                  "%s: Zeile '%s' hat noch Leerstellen: %s"
+                  % (copy_path.name, prefix, paragraph.text[:60]))
+            for value in values:
+                check(value in paragraph.text, "%s: '%s' fehlt in der Zeile '%s'"
+                      % (copy_path.name, value[:38], prefix))
+                check("**%s**" % value in text, "%s: '%s' steht nicht fett im Extrakt"
+                      % (markdown_path.name, value[:38]))
+            runs = [run for run in paragraph.runs if run.text.strip() in values]
+            check(len(runs) == len(values), "%s: %d von %d Werten in '%s' gefunden"
+                  % (copy_path.name, len(runs), len(values), prefix))
+            for run in runs:
+                check(bool(run.bold) and run.font.color
+                      and run.font.color.rgb == ANSWER_COLOR,
+                      "%s: '%s' nicht fett im Markenblau" % (copy_path.name, run.text[:30]))
+            print("  %-58s %s: %d Werte eingetragen"
+                  % (copy_path.name, prefix.rstrip(":"), len(runs)))
+
+
+def check_row_split_protection() -> None:
+    """Keine Tabellenzeile darf über einen Seitenwechsel laufen (Entscheidung E77)."""
+    tag = qn("w:cantSplit")
+    for _, copy_path, _, _ in COPIES:
+        if not copy_path.is_file():
+            check(False, "Wordkopie fehlt: %s" % copy_path.name)
+            continue
+        document = Document(str(copy_path))
+        rows = [row for table in document.tables for row in table.rows]
+        without = [row for row in rows
+                   if row._tr.trPr is None or row._tr.trPr.find(tag) is None]
+        check(not without, "%s: %d von %d Tabellenzeilen ohne Umbruchschutz"
+              % (copy_path.name, len(without), len(rows)))
+        print("  %-58s %d Tabellenzeilen ohne Seitenumbruch" % (copy_path.name, len(rows)))
+
+
+def check_annex_reference() -> None:
+    """Die Anlage muss vorhanden sein und in beiden Wordkopien genannt werden."""
+    annex = FILLED_DIR / "VentCon2_Measures_Reference_2026-10-02.docx"
+    check(annex.is_file(), "Maßnahmen-Anlage fehlt: %s" % annex.name)
+    for _, copy in ((CHECKLIST, CHECKLIST_COPY), (QUESTIONNAIRE, QUESTIONNAIRE_COPY)):
+        if not copy.is_file():
+            continue
+        text = "\n".join(paragraph.text for paragraph in Document(str(copy)).paragraphs)
+        check(annex.name in text, "%s: kein Verweis auf %s" % (copy.name, annex.name))
 
 
 def check_extract_verifier() -> None:
@@ -213,6 +413,12 @@ def main() -> int:
     check_questionnaire()
     check_notes_and_sources()
     check_docx_copies()
+    check_column_widths()
+    check_copy_notes()
+    check_addendum_excluded()
+    check_blank_fills()
+    check_row_split_protection()
+    check_annex_reference()
     check_extract_verifier()
     print("\nPrüfungen: %d" % checks)
     if problems:

@@ -5,19 +5,18 @@
 
 | Field | Value |
 | --- | --- |
-| Source file | `sec/AalbertsChecklists/CRA Compliance Addendum (Supplier Agreement) - template Sep 2026 .docx` |
+| Source file | `sec/AalbertsChecklists/templates/CRA Compliance Addendum (Supplier Agreement) - template Sep 2026 .docx` |
 | SHA256 | `5e29a13d3a12dbb60b7126732dbd71c8595585689e52feb53e95650f5108a703` |
 | Author | Mattijs Planken |
 | Created | 2026-09-07 13:55:00+00:00 |
 | Modified | 2026-09-15 10:31:00+00:00 |
-| Extracted | 2026-10-01 |
+| Extracted | 2026-10-02 |
 | Tool | tools/docx_extract.py, python-docx |
 | Scope | paragraphs: 17, tables: 0, numbered paragraphs: 8, images: 1 |
 | Formatting | headings follow the source paragraph styles (Title, Heading 1, Heading 2); clause numbers are reconstructed from the numbering definition |
 | Header text | Aalberts - internal |
 | Footer text | none |
 | Not reproduced | company logo (image1.jpg), page layout, page number fields |
-| Answers | Filled in from the VENTREX dossier on 2026-10-01, marked in bold. Template text is unchanged. Regenerate the extract with tools/docx_extract.py and re-apply with tools/aalberts_fill.py if needed. |
 | Note | Extract of the source document, English as in the source. The source file remains the reference. |
 
 <!-- extract:head-end -->
@@ -29,8 +28,6 @@ Addendum to the Supply Agreement —
 Compliance with the Cyber Resilience Act (“Regulation”)
 
 This Addendum is entered into between [Aalberts Group Company] (“Company”) and [Supplier] (“Supplier”), and forms an integral part of the existing Supply Agreement between the parties. The obligations set out below are binding on both parties from the date of signature below.
-
-**Parties as prepared by VENTREX: Company = VENTREX (Aalberts group company); Supplier = [Supplier, to be completed]. No supplier is bound by this draft.**
 
 1. General compliance. Supplier represents and warrants that, to the extent applicable to it, it shall comply with all obligations under the Cyber Resilience Act (Regulation (EU) 2024/2847) , including essential cybersecurity requirements, vulnerability handling, and reporting obligations, and shall ensure that all software, firmware, or digital elements supplied to Company are designed, developed, and maintained in accordance with that Regulation.
 
@@ -49,8 +46,6 @@ This Addendum is entered into between [Aalberts Group Company] (“Company”) a
 8. Precedence. In case of conflict between this Addendum and the Agreement, this Addendum prevails on CRA-related matters.
 
 Signed:
-
-**Note for VENTREX: the commitments in clauses 2 (notification within 24 hours), 3 (SBOM on request), 5 (acknowledgement within 48 hours, remediation plan within 30 days), 6 (audit right, code replacement within one year) and 7 (material breach) have to be agreed with the supplier. None of them is agreed today. The signature block stays open.**
 
 Company Supplier
 

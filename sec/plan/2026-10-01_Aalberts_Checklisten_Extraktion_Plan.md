@@ -128,3 +128,11 @@ vergleicht sie mit der erzeugten Markdown-Datei:
 - Kein Eingriff in Deck, Master oder Normextraktion, solange Q6 nicht entschieden ist.
 - Die Markdown-Dateien sind Extrakt, nicht Quelle: bei Änderungen der Worddatei muss neu erzeugt
   und neu verifiziert werden, die Prüfsumme im Kopfblock macht das sichtbar.
+
+## Nachtrag vom 2026-10-01
+
+Der Ordner wurde nach dem Ausfüllen umstrukturiert: Vorlagen in `sec/AalbertsChecklists/templates`,
+Extrakte in `sec/AalbertsChecklists/extracts`, befüllte Wordkopien in `sec/AalbertsChecklists/filled`
+(Entscheidungen E57 bis E60 in `sec/plan/2026-10-01_Aalberts_Ordnerstruktur_Plan.md`). Die Pfade im
+Abschnitt "Ergebnis der Umsetzung" geben den Stand vor dieser Umstrukturierung wieder, die Inhalte
+sind unverändert.

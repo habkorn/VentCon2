@@ -17,6 +17,12 @@ Status: Plan, entschieden am 2026-10-01, umgesetzt und verifiziert am 2026-10-01
 | E54 | Entitäten und Personen: Rollenbezeichnungen und Platzhalter, offene Angaben als `[to be completed]` |
 | E55 | Ein Verifier für die beantworteten Dateien wird gebaut |
 | E56 | In den Wordkopien werden die Antworten und Hinweise fett und im Markenblau `#002F87` gesetzt, dem Blau der VENTREX- und Aalberts-Vorlagen. Im Markdown bleibt die Hervorhebung fett |
+| E61 | Im Worddokument entfallen die Markdown-Marker `**`. Dort trägt die fette Schrift im Markenblau die Betonung. Im Markdown bleiben die Marker, weil sie dort die Auszeichnung sind |
+| E62 | Das Addendum wird vollständig aus der Antwortstrecke genommen. Es hat keine Sachfragen, nur Vertragsangaben, die VENTREX nicht allein festlegen kann. Vorlage und Extrakt bleiben im Dossier, die Wordkopie entfällt |
+| E63 | Offene Angaben werden geschlossen: Owner als Rolle (`VENTREX product owner, VentCon2 team`), Land `Austria`, Modellnummer `no series model number yet`, Serienintegration `not scheduled`, Meldeweg `VENTREX Engineering department`, Sign-off `Product owner, VENTREX (Aalberts group company)`. Keine Zusage beim Supportzeitraum und bei den Reaktionszeiten, der Stand bleibt offen dokumentiert. Der Sicherheitskontakt wird an den Meldeweg angeglichen |
+| E75 | In der Antwortspalte der Checkliste steht das Urteil `Y`, `N` oder `N/A` in einer eigenen Zeile, fett im Markenblau. Die Begründung folgt darunter im selben Blau mit magerem Schnitt. Im Markdown trennt `<br>` beide Teile. Der Fragebogen bleibt unverändert, dort gibt es kein Urteil |
+| E76 | Die Leerzeilen der Vorlagen werden an Ort und Stelle gefüllt, nicht durch eine zusätzliche Hinweiszeile: `Product`, `Owner` und `Date` in der Checkliste, `Completed by (name, role, entity name)` und `Date` im Fragebogen. Die Werte stehen fett im Markenblau, die Beschriftungen behalten das Vorlagenformat. Die früheren Hinweiszeilen dazu entfallen |
+| E77 | Tabellenzeilen werden nicht über Seitenwechsel getrennt (`w:cantSplit`). Eine Zeile, die am Blattende nicht mehr vollständig passt, rutscht ganz auf die nächste Seite. Gilt für beide Wordkopien und die Maßnahmen-Anlage |
 
 ## Ergebnis der Umsetzung
 
@@ -26,7 +32,7 @@ Status: Plan, entschieden am 2026-10-01, umgesetzt und verifiziert am 2026-10-01
 | `CRA_Supplier_Due_Diligence_Questionnaire.md` | 36 Fragen beantwortet, Sign-off mit Ergebnis ergänzt; Wordkopie `CRA_Supplier_Due_Diligence_Questionnaire_answered.docx` |
 | `CRA_Compliance_Addendum_Supplier_Agreement.md` | Parteien und Hinweis zu den einzugehenden Verpflichtungen ergänzt, Unterschriftenblock bleibt offen; Wordkopie `CRA_Compliance_Addendum_Supplier_Agreement_answered.docx` |
 
-Werkzeuge: `tools/aalberts_fill.py` enthält alle Antworten als einzige Quelle und schreibt sie in Markdown und Wordkopien; `tools/verify_aalberts_answers.py` prüft 158 Punkte: jede Vorgabe und jede Frage beantwortet, jede Antwort fett, Hinweiszeilen vollständig, Wordkopien gefüllt, Prüfsummen der Wordvorlagen unverändert, Querprüfung über `tools/verify_docx_extract.py`.
+Werkzeuge: `tools/aalberts_fill.py` enthält alle Antworten als einzige Quelle und schreibt sie in Markdown und Wordkopien; `tools/verify_aalberts_answers.py` prüft 273 Punkte: jede Vorgabe und jede Frage beantwortet, jede Antwort fett und im Markenblau, keine Markdown-Marker in den eingesetzten Stellen, Hinweiszeilen vollständig, Wordkopien gefüllt, Prüfsummen der Wordvorlagen unverändert, Spaltenbreiten der Antwortspalten, eingetragene Werte in den Leerzeilen, Umbruchschutz der Tabellenzeilen, Ausschluss des Addendums, Querprüfung über `tools/verify_docx_extract.py`.
 
 Wichtig für spätere Läufe: Die Antworten leben im Markdown und in den Wordkopien. Wird ein Extrakt mit `tools/docx_extract.py` neu erzeugt, gehen sie verloren; danach `tools/aalberts_fill.py` erneut ausführen. Befüllte Wordkopien sind in beiden Werkzeugen von der Verarbeitung ausgenommen.
 
@@ -119,3 +125,26 @@ Die Antworten unterscheiden sich deutlich, deshalb ist das die erste Frage (Q1).
   Parteien eingesetzt.
 - Keine Zusagen zu Support, Fristen oder Zertifizierungen ohne Freigabe.
 - Kein Eingriff in Deck, Master oder Normextraktion, solange Q7 nicht entschieden ist.
+
+## Nachtrag vom 2026-10-01
+
+Die Dateien liegen nach der Umstrukturierung in `sec/AalbertsChecklists/extracts` (Markdown mit den
+Antworten) und `sec/AalbertsChecklists/filled` (befüllte Wordkopien), die Vorlagen in
+`sec/AalbertsChecklists/templates` (Entscheidungen E57 bis E60 in
+`sec/plan/2026-10-01_Aalberts_Ordnerstruktur_Plan.md`). Inhalte und Antworten sind unverändert.
+
+Nachtrag zur Antwortstrecke (E61 bis E63): Die Wordkopien tragen keine Markdown-Marker mehr, weil
+dort die fette Schrift im Markenblau die Betonung trägt. Das Addendum ist vollständig aus der
+Antwortstrecke genommen, seine Wordkopie ist entfallen, Vorlage und Extrakt bleiben im Dossier. Alle
+offenen Angaben sind mit abgestimmten Werten geschlossen. Die Zeile zum Sicherheitskontakt nennt
+jetzt den Meldeweg; der benannte Ansprechpartner nach Art. 13(17) CRA bleibt als Maßnahme P4.8 und
+P4.5 offen. Supportzeitraum und Reaktionszeiten bleiben ohne Zusage, der Stand ist dort ehrlich als
+offen vermerkt.
+
+## Nachtrag vom 2026-10-02
+
+| Nr. | Entscheidung |
+|---|---|
+| E64 | Die Antwortspalte bekommt Breite nach Textanteil, begrenzt auf 40 bis 55 Prozent der Tabellenbreite. Die Tabellenbreite bleibt unverändert, jede übrige Spalte behält mindestens 0,90 Zoll. Der Anteil wird je Dokument aus dem Textumfang aller Antworten und aller übrigen Zellen gerechnet, damit Antworten und Fragen im Verhältnis ihres Umfangs stehen |
+
+Ergebnis: In der Checkliste wächst die Antwortspalte von 0,89 auf 3,17 Zoll, im Fragebogen von 2,66 auf 3,85 Zoll. Die geschätzten Zeilenzahlen der Antwortzeilen sinken in der Checkliste um 61 Prozent und im Fragebogen um 22 Prozent. Die übrigen Spalten bleiben lesbar: Kategorie 1,02 Zoll, Sachvorgabe 2,81 Zoll in Teil I und 3,83 Zoll in Teil II, Frage 3,15 Zoll.

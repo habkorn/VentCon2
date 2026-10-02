@@ -5,19 +5,19 @@
 
 | Field | Value |
 | --- | --- |
-| Source file | `sec/AalbertsChecklists/CRA- Supplier Due Diligence Questionnaire - template Sep 2026.docx` |
+| Source file | `sec/AalbertsChecklists/templates/CRA- Supplier Due Diligence Questionnaire - template Sep 2026.docx` |
 | SHA256 | `a2e6895f515fcf26a937a4bd5b685c3d1f96582903cc8f338d457e4172fe552a` |
 | Author | Un-named |
 | Created | 2026-09-07 23:00:00+00:00 |
 | Modified | 2026-09-15 10:32:00+00:00 |
-| Extracted | 2026-10-01 |
+| Extracted | 2026-10-02 |
 | Tool | tools/docx_extract.py, python-docx |
 | Scope | paragraphs: 27, tables: 7, numbered paragraphs: 0, images: 1 |
 | Formatting | headings follow the source paragraph styles (Title, Heading 1, Heading 2); clause numbers are reconstructed from the numbering definition |
 | Header text | Aalberts - internal |
 | Footer text | Page 2 of 2 |
 | Not reproduced | company logo (image1.jpg), page layout, page number fields |
-| Answers | Filled in from the VENTREX dossier on 2026-10-01, marked in bold. Template text is unchanged. Regenerate the extract with tools/docx_extract.py and re-apply with tools/aalberts_fill.py if needed. |
+| Answers | Filled in from the VENTREX dossier on 2026-10-02, marked in bold. Template text is unchanged. Regenerate the extract with tools/docx_extract.py and re-apply with tools/aalberts_fill.py if needed. |
 | Note | Extract of the source document, English as in the source. The source file remains the reference. |
 
 <!-- extract:head-end -->
@@ -36,20 +36,22 @@ Priority: components used in products with confirmed EU market placement should 
 
 ## Section 1 — Supplier and Component Identification
 
+**The measures referenced in this document, P1.1 to P5.2, are described in the annex VentCon2_Measures_Reference_2026-10-02.docx, delivered with this package.**
+
 Establishes exactly which component, version, and product this assessment covers.
 
 | Question | Supplier response |
 | --- | --- |
 | Supplier legal name | **VENTREX, part of the Aalberts group.** |
-| Supplier country of establishment | **[to be completed]** entity details of the VENTREX company |
-| Component name and version + model number | **VentCon2 valve control unit, firmware 2.7.4 on ESP32-S3 (Arduino Nano ESP32); prototype hardware, model number [to be completed]** |
+| Supplier country of establishment | **Austria.** |
+| Component name and version + model number | **VentCon2 valve control unit, firmware 2.7.4 on ESP32-S3 (Arduino Nano ESP32); prototype hardware, no series model number yet** |
 | Component type (software, firmware, hardware with embedded software, cloud/SaaS service) | **Hardware with embedded software and a local web interface; no cloud service.** |
 | Can the component be considered to be open source? | Fully open source (specify in SBOM) / Partially open source (specify in SBOM) / Proprietary i.e. Closed source (code not openly shared under a license) <br>**No. The firmware is proprietary, it is not published under a free and open-source licence.** |
 | Intended use of the digital elements of the component, as per the manufacturer | **Regulate the outlet pressure in a fuel line, actuate the shut-off valve, monitor the pressure and close the valve on implausible readings; operation through a local WLAN access point.** |
 | Aalberts product(s) / product line(s) into which this component is integrated | **The VentCon2 pressure control system itself; prototype operation in the own test rig, series not decided.** |
 | Aalberts company responsible for this integration | **VENTREX.** |
 | Brief description of the component's function within the product | **PID control of the outlet pressure with 10 ms sampling and a 1 kHz control loop, PWM actuation of the solenoid valve at 2 kHz and 14 bit, pressure measurement 0 to 10 bar, web interface with live chart, settings in LittleFS.** |
-| Date this component was first integrated / expected integration date | **In operation in the own test rig since 2026 (firmware 2.7.4); series integration [date to be completed].** |
+| Date this component was first integrated / expected integration date | **In operation in the own test rig since 2026 (firmware 2.7.4); series integration not scheduled.** |
 | Committed Support Period (min 5 years!) | **Not committed yet. The CRA baseline is at least five years or the expected use time; measure P4.4 open, end date to be defined and published with the user information.** |
 
 ## Section 1a — CRA role classification
@@ -67,9 +69,9 @@ Confirms the supplier has a named point of contact and a defined response commit
 
 | Question | Supplier response |
 | --- | --- |
-| Does the supplier have a designated security contact or team (e.g. PSIRT)? | **Not established yet. The single point of contact required by Art. 13(17) CRA is planned with measures P4.8 and P4.5.** |
-| Contact details for reporting a suspected vulnerability or incident | **[to be completed]**; today the development contact and the serial console are the only channels |
-| Committed acknowledgement time upon receipt of a vulnerability report | **Not committed yet. The CRA reporting duties of 24 h, 72 h, 14 days and one month apply from placing the product on the EU market; the internal process is measure P5.1, resting.** |
+| Does the supplier have a designated security contact or team (e.g. PSIRT)? | **Partly: VENTREX Engineering department is the entry point; the single point of contact required by Art. 13(17) CRA is planned with measures P4.8 and P4.5.** |
+| Contact details for reporting a suspected vulnerability or incident | **VENTREX Engineering department**; today the development contact and the serial console are the only channels |
+| Committed acknowledgement time upon receipt of a vulnerability report | **Not committed yet. The CRA reporting duties of 24 h, 72 h, 14 days and one month apply from placing the product on the EU market; the internal process is measure P5.1 and the reporting access is measure P5.2, both resting.** |
 | Committed time to a substantive response or remediation plan | **Not committed yet; remediation is handled case by case. Measure P4.5 open.** |
 | Does the supplier have a published vulnerability disclosure or coordinated disclosure policy? (attach if yes) | **No, measure P4.5 open.** |
 
@@ -114,20 +116,16 @@ Gathers existing conformity evidence the supplier can hand over for use in Aalbe
 
 | Question | Supplier response |
 | --- | --- |
-| Is the component already CE marked? If so, under which regulation(s)/directive(s)? | **No. The product is not placed on the EU market (prototype in the own test rig, planned market India). CE marking is planned for the case of EU placement; the CRA route is internal control (module A), the RED route is open in measure P1.5.** |
-| Has the component been assessed against any recognised standard (e.g. IEC 62443, ETSI EN 303 645, ISO/IEC 27001)? Attach evidence. | **ETSI EN 303 645 is used as a technical benchmark in the dossier (clauses 5.1-1 for passwords and 5.4-1 for stored credentials) without certification. IEC 62443 and ISO/IEC 27001 have not been assessed. [to be completed by VENTREX management]** |
+| Is the component already CE marked? If so, under which regulation(s)/directive(s)? | **No. The product is not placed on the EU market (prototype in the own test rig, planned market India). CE marking is planned for the case of EU placement; the declaration of conformity and the CE marking are measure P4.7, the CRA route is internal control (module A), the RED route is open in measure P1.5.** |
+| Has the component been assessed against any recognised standard (e.g. IEC 62443, ETSI EN 303 645, ISO/IEC 27001)? Attach evidence. | **ETSI EN 303 645 is used as a technical benchmark in the dossier (clauses 5.1-1 for passwords and 5.4-1 for stored credentials) without certification. IEC 62443 and ISO/IEC 27001 have not been assessed.** |
 | Can the supplier provide technical documentation suitable for inclusion in Aalberts' CRA conformity file upon request? | **Partly. The dossier holds the master checklist, 21 measure plans and the risk and evidence analysis; the technical documentation in the structure of Annex VII CRA is measure P4.6 and still open.** |
 | Is the supplier aware of, and does it acknowledge, its own obligations as a manufacturer, importer, or distributor under the CRA? | **Yes. Applicability, product classification as a standard product, the 26 obligations of the project list and the deadlines are documented in sec/CRA_Compliance_Checklist.md; the market status is not placed on the EU market, so the obligations rest until the first supply into the Union.** |
 
 ### Sign-off
 
-Completed by (name, role, entity name): _______________________________________________
+Completed by (name, role, entity name): **Product owner, VENTREX (Aalberts group company)**
 
-**Completed by: [name to be completed], [role to be completed], VENTREX (Aalberts group company).**
-
-Date: _______________
-
-**Date: 2026-10-01.**
+Date: **2026-10-02**
 
 Outcome: (to be verified by legal counsel)
 

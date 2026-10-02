@@ -11,6 +11,18 @@ Die Antworten in diesem Werkzeug sind die einzige Quelle. Wird ein Extrakt mit
 `tools/docx_extract.py` neu erzeugt, gehen die Antworten verloren und müssen mit diesem Werkzeug
 erneut eingetragen werden.
 
+Ablage (Entscheidung E57): Vorlagen in `templates/`, Extrakte in `extracts/`, befüllte Wordkopien
+in `filled/`. Die Vorlagen selbst bleiben unverändert.
+
+Im Markdown tragen die Antworten die Markdown-Marker `**`, im Worddokument entfallen sie: dort
+übernimmt die fette Schrift im Markenblau die Betonung (Entscheidungen E56 und E61). In der
+Checkliste steht das Urteil Y, N oder N/A in einer eigenen Zeile fett im Markenblau, die
+Begründung folgt darunter im selben Blau mit magerem Schnitt (Entscheidung E75).
+
+Das Addendum ist mit Entscheidung E62 vollständig aus der Antwortstrecke genommen: Es hat keine
+Sachfragen, nur Vertragsangaben, die VENTREX nicht allein festlegen kann. Es bleibt als unberührte
+Vorlage und als reiner Extrakt im Dossier.
+
 Aufruf:
     "C:\\venvs\\VentCon2\\Scripts\\python.exe" tools/aalberts_fill.py
 """
@@ -22,22 +34,41 @@ import sys
 from pathlib import Path
 
 from docx import Document
-from docx.shared import RGBColor
+from docx.oxml.ns import qn
+from docx.shared import Inches, RGBColor, Twips
+
+# Aufteilung der Tabellenbreite nach Textanteil der Antwortspalte (Entscheidung E64).
+MIN_ANSWER_SHARE = 0.40
+MAX_ANSWER_SHARE = 0.55
+MIN_OTHER_WIDTH = 0.90
+
+# Urteil am Anfang einer Antwort der Checkliste, zum Beispiel `**N/A** kein Updateweg`.
+VERDICT = re.compile(r"^\*\*(Y|N|N/A)\*\*\s*")
+
+# Werte, die in die Leerzeilen der Vorlage eingetragen werden (Entscheidung E76).
+BLANKS = {
+    "checklist": (("Product:", ("VentCon2 valve control unit, firmware 2.7.4 (prototype)",
+                                 "VENTREX product owner, VentCon2 team",
+                                 "2026-10-02")),),
+    "questionnaire": (("Completed by", ("Product owner, VENTREX (Aalberts group company)",)),
+                      ("Date:", ("2026-10-02",))),
+}
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DIR = ROOT / "sec" / "AalbertsChecklists"
+BASE_DIR = ROOT / "sec" / "AalbertsChecklists"
+TEMPLATE_DIR = BASE_DIR / "templates"
+EXTRACT_DIR = BASE_DIR / "extracts"
+FILLED_DIR = BASE_DIR / "filled"
 
 # Markenblau der VENTREX- und Aalberts-Vorlagen, Antworten erscheinen fett in dieser Farbe.
 ANSWER_COLOR = RGBColor(0x00, 0x2F, 0x87)
 
-CHECKLIST_MD = SOURCE_DIR / "CRA_Product_Maturity_Checklist.md"
-CHECKLIST_DOCX = SOURCE_DIR / "CRA product maturity checklist - Sep 2026.docx"
-QUESTIONNAIRE_MD = SOURCE_DIR / "CRA_Supplier_Due_Diligence_Questionnaire.md"
-QUESTIONNAIRE_DOCX = SOURCE_DIR / "CRA- Supplier Due Diligence Questionnaire - template Sep 2026.docx"
-ADDENDUM_MD = SOURCE_DIR / "CRA_Compliance_Addendum_Supplier_Agreement.md"
-ADDENDUM_DOCX = SOURCE_DIR / "CRA Compliance Addendum (Supplier Agreement) - template Sep 2026 .docx"
+CHECKLIST_MD = EXTRACT_DIR / "CRA_Product_Maturity_Checklist.md"
+CHECKLIST_DOCX = TEMPLATE_DIR / "CRA product maturity checklist - Sep 2026.docx"
+QUESTIONNAIRE_MD = EXTRACT_DIR / "CRA_Supplier_Due_Diligence_Questionnaire.md"
+QUESTIONNAIRE_DOCX = TEMPLATE_DIR / "CRA- Supplier Due Diligence Questionnaire - template Sep 2026.docx"
 
-ANSWERS_ROW = ("| Answers | Filled in from the VENTREX dossier on 2026-10-01, marked in bold. "
+ANSWERS_ROW = ("| Answers | Filled in from the VENTREX dossier on 2026-10-02, marked in bold. "
                "Template text is unchanged. Regenerate the extract with tools/docx_extract.py "
                "and re-apply with tools/aalberts_fill.py if needed. |")
 
@@ -61,24 +92,25 @@ CHECKLIST_PART_I = {
     "Access alerts: Possible unauthorised access is detected and reported.":
         "**N** not implemented and no measure defined yet; to be added to the backlog",
     "Confidentiality: Relevant stored and transmitted data is protected, including through current encryption methods where appropriate.":
-        "**N** settings are stored as plain JSON in LittleFS and readable (R5), measure P2.1 partly done; "
-        "radio encryption open (P3.3)",
+        "**N** settings are stored as plain JSON in LittleFS and readable (R5), measure P2.1 partly "
+        "designed; radio encryption open (P3.3)",
     "Integrity: Data, commands, software and settings are protected against unauthorised changes, and corruption is detected and reported.":
         "**N** state can be changed by GET without CSRF protection (R4), measure P1.2 in progress",
     "Data minimisation: The product processes only the data needed for its intended purpose.":
         "**Y** pressure, setpoint, PID parameters and valve duty only; no personal data, no cloud, "
         "no remote maintenance",
     "Availability: Essential and basic functions remain available, or can recover, after an incident, including denial-of-service attacks.":
-        "**Y** limited, two clients maximum and client DoS handled in firmware 2.7.3 (measure P3.2 done); "
-        "rate limiting and save debouncing still open (P2.3, risk R7)",
+        "**Y** limited, two clients maximum and client DoS handled in firmware 2.7.3 (measures P3.1 "
+        "and P3.2 done); rate limiting and save debouncing still open (P2.3, risk R7)",
     "No harmful network impact: The product minimises disruption to services provided by connected devices or networks.":
         "**Y** local access point only, no outbound traffic, no cloud service",
     "Limited attack surface: External interfaces, access points and unnecessary functions are minimised.":
-        "**N** file access to LittleFS is possible (R5, P2.1 partly done) and PID gains are unlimited "
-        "(R6, P1.4 open); interfaces are web UI, WLAN, serial console and USB",
+        "**N** file access to LittleFS is possible (R5, P2.1 partly designed) and PID gains are "
+        "unlimited (R6, P1.4 open); interfaces are web UI, WLAN, serial console and USB",
     "Incident impact limited: Security controls reduce the possible impact of successful attacks.":
-        "**N** no hard upper limits for PID gains (R6, P1.4 open); the pressure safety shutdown limits "
-        "the physical impact",
+        "**N** no hard upper limits for PID gains (R6, P1.4 open) and the calibration is not yet "
+        "bound to the sensor range (R3, P1.3 active); the pressure safety shutdown limits the "
+        "physical impact",
     "Security logging and monitoring: Relevant internal activity, including access to or changes to data, services and functions, is recorded and monitored. Users can opt out.":
         "**N** only local serial output for development, no security event logging; no measure defined yet",
     "Secure data removal and transfer: Users can easily and permanently delete all data and settings. Any transfer to another product or system is secure.":
@@ -128,9 +160,12 @@ CHECKLIST_PART_II = {
 }
 
 CHECKLIST_NOTES = [
-    ("Product: __________ Owner: __________ Date: __________",
-     "**Product: VentCon2 valve control unit, firmware 2.7.4 (prototype). Owner: VENTREX product "
-     "owner, [name to be completed]. Date: 2026-10-01.**"),
+    ("Part I:",
+     "**The measures referenced in this document, P1.1 to P5.2, are described in the annex "
+     "VentCon2_Measures_Reference_2026-10-02.docx, delivered with this package.**"),
+    ("Vulnerability handling",
+     "**Note on the template: Part II lists the safeguard \"Separate security updates\" twice, so "
+     "the same answer appears in both rows.**"),
     ("Overall result:",
      "**Overall result: Gaps identified.** 20 safeguards in Part I and 10 points in Part II assessed: "
      "3 answered Yes, 22 No, 4 N/A. Key gaps: SBOM, support period, update path, disclosure policy, "
@@ -148,10 +183,10 @@ QUESTIONNAIRE = {
     "Supplier legal name":
         "**VENTREX, part of the Aalberts group.**",
     "Supplier country of establishment":
-        "**[to be completed]** entity details of the VENTREX company",
+        "**Austria.**",
     "Component name and version + model number":
         "**VentCon2 valve control unit, firmware 2.7.4 on ESP32-S3 (Arduino Nano ESP32); prototype "
-        "hardware, model number [to be completed]**",
+        "hardware, no series model number yet**",
     "Component type (software, firmware, hardware with embedded software, cloud/SaaS service)":
         "**Hardware with embedded software and a local web interface; no cloud service.**",
     "Can the component be considered to be open source?":
@@ -171,7 +206,7 @@ QUESTIONNAIRE = {
         "web interface with live chart, settings in LittleFS.**",
     "Date this component was first integrated / expected integration date":
         "**In operation in the own test rig since 2026 (firmware 2.7.4); series integration "
-        "[date to be completed].**",
+        "not scheduled.**",
     "Committed Support Period (min 5 years!)":
         "**Not committed yet. The CRA baseline is at least five years or the expected use time; "
         "measure P4.4 open, end date to be defined and published with the user information.**",
@@ -182,14 +217,15 @@ QUESTIONNAIRE = {
         "representative is involved, because VENTREX places the product under its own name and no "
         "third-party distribution is planned.**",
     "Does the supplier have a designated security contact or team (e.g. PSIRT)?":
-        "**Not established yet. The single point of contact required by Art. 13(17) CRA is planned "
-        "with measures P4.8 and P4.5.**",
+        "**Partly: VENTREX Engineering department is the entry point; the single point of contact "
+        "required by Art. 13(17) CRA is planned with measures P4.8 and P4.5.**",
     "Contact details for reporting a suspected vulnerability or incident":
-        "**[to be completed]**; today the development contact and the serial console are the only "
-        "channels",
+        "**VENTREX Engineering department**; today the development contact and the serial console "
+        "are the only channels",
     "Committed acknowledgement time upon receipt of a vulnerability report":
         "**Not committed yet. The CRA reporting duties of 24 h, 72 h, 14 days and one month apply "
-        "from placing the product on the EU market; the internal process is measure P5.1, resting.**",
+        "from placing the product on the EU market; the internal process is measure P5.1 and the "
+        "reporting access is measure P5.2, both resting.**",
     "Committed time to a substantive response or remediation plan":
         "**Not committed yet; remediation is handled case by case. Measure P4.5 open.**",
     "Does the supplier have a published vulnerability disclosure or coordinated disclosure policy? (attach if yes)":
@@ -236,12 +272,13 @@ QUESTIONNAIRE = {
         "information, measure P4.4 and P4.8.**",
     "Is the component already CE marked? If so, under which regulation(s)/directive(s)?":
         "**No. The product is not placed on the EU market (prototype in the own test rig, planned "
-        "market India). CE marking is planned for the case of EU placement; the CRA route is "
-        "internal control (module A), the RED route is open in measure P1.5.**",
+        "market India). CE marking is planned for the case of EU placement; the declaration of "
+        "conformity and the CE marking are measure P4.7, the CRA route is internal control "
+        "(module A), the RED route is open in measure P1.5.**",
     "Has the component been assessed against any recognised standard (e.g. IEC 62443, ETSI EN 303 645, ISO/IEC 27001)? Attach evidence.":
         "**ETSI EN 303 645 is used as a technical benchmark in the dossier (clauses 5.1-1 for "
         "passwords and 5.4-1 for stored credentials) without certification. IEC 62443 and "
-        "ISO/IEC 27001 have not been assessed. [to be completed by VENTREX management]**",
+        "ISO/IEC 27001 have not been assessed.**",
     "Can the supplier provide technical documentation suitable for inclusion in Aalberts' CRA conformity file upon request?":
         "**Partly. The dossier holds the master checklist, 21 measure plans and the risk and "
         "evidence analysis; the technical documentation in the structure of Annex VII CRA is "
@@ -254,35 +291,138 @@ QUESTIONNAIRE = {
 }
 
 QUESTIONNAIRE_NOTES = [
-    ("Completed by (name, role, entity name):",
-     "**Completed by: [name to be completed], [role to be completed], VENTREX (Aalberts group "
-     "company).**"),
-    ("Date: _______________",
-     "**Date: 2026-10-01.**"),
+    ("Supplier and Component Identification",
+     "**The measures referenced in this document, P1.1 to P5.2, are described in the annex "
+     "VentCon2_Measures_Reference_2026-10-02.docx, delivered with this package.**"),
     ("Outcome: (to be verified by legal counsel)",
      "**Outcome: Accepted with conditions / follow-up required.** Gaps identified and listed in the "
      "checklist; no material risk for the current status, because the product is not placed on the "
      "EU market. The formal outcome remains with legal counsel."),
 ]
 
-ADDENDUM_NOTES = [
-    ("This Addendum is entered into between",
-     "**Parties as prepared by VENTREX: Company = VENTREX (Aalberts group company); Supplier = "
-     "[Supplier, to be completed]. No supplier is bound by this draft.**"),
-    ("Signed:",
-     "**Note for VENTREX: the commitments in clauses 2 (notification within 24 hours), 3 (SBOM on "
-     "request), 5 (acknowledgement within 48 hours, remediation plan within 30 days), 6 (audit "
-     "right, code replacement within one year) and 7 (material breach) have to be agreed with the "
-     "supplier. None of them is agreed today. The signature block stays open.**"),
-]
+
+def balance_columns(filled_tables: list, answer_index: int) -> tuple[float, float]:
+    """Antwortspalte nach Textanteil breiter setzen, die Tabellenbreite bleibt gleich.
+
+    Liefert die neue Breite der Antwortspalte in Zoll und den Anteil an der Textbreite.
+    """
+    if not filled_tables:
+        return 0.0, 0.0
+    answer_total = sum(answer for _, answer, _ in filled_tables)
+    other_total = sum(other for _, _, other in filled_tables)
+    share = answer_total / (answer_total + other_total) if answer_total + other_total else 0.0
+    share = min(max(share, MIN_ANSWER_SHARE), MAX_ANSWER_SHARE)
+    result = (0.0, share)
+    for table, _, _ in filled_tables:
+        widths = grid_widths(table)
+        total = sum(widths)
+        deficit = share * total - widths[answer_index]
+        new = list(widths)
+        for index in sorted((i for i in range(len(new)) if i != answer_index),
+                            key=lambda i: new[i], reverse=True):
+            if deficit <= 0.001:
+                break
+            take = min(deficit, max(0.0, new[index] - MIN_OTHER_WIDTH))
+            new[index] = round(new[index] - take, 4)
+            deficit -= take
+        if deficit > 0.001:
+            continue
+        new[answer_index] = round(total - sum(w for i, w in enumerate(new)
+                                             if i != answer_index), 4)
+        apply_widths(table, new)
+        result = (new[answer_index], share)
+    return result
+
+
+def grid_widths(table) -> list[float]:
+    """Spaltenbreiten aus dem Tabellengitter, in Zoll."""
+    return [Twips(int(column.get(qn("w:w")))).inches
+            for column in table._tbl.tblGrid.findall(qn("w:gridCol"))]
+
+
+def apply_widths(table, widths: list[float]) -> None:
+    """Breiten im Gitter und in jeder Zelle setzen, damit Word sie übernimmt."""
+    for column, width in zip(table._tbl.tblGrid.findall(qn("w:gridCol")), widths):
+        column.set(qn("w:w"), str(int(Inches(width).twips)))
+    for row in table.rows:
+        if len(row.cells) != len(widths):
+            continue
+        for cell, width in zip(row.cells, widths):
+            cell.width = Inches(width)
+    table.autofit = False
+
+
+def fill_markdown_blanks(path: Path, entries) -> int:
+    """Unterstriche in Leerzeilen des Extrakts durch Werte ersetzen, fett markiert."""
+    lines = path.read_text(encoding="utf-8").split("\n")
+    filled = 0
+    for prefix, values in entries:
+        for index, line in enumerate(lines):
+            if not line.startswith(prefix) or "__" not in line:
+                continue
+            for value in values:
+                line = re.sub(r"__+", "**%s**" % value, line, count=1)
+                filled += 1
+            lines[index] = line
+            break
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return filled
+
+
+def fill_docx_blanks(document, entries) -> int:
+    """Unterstriche in Leerzeilen der Wordkopie durch Werte ersetzen, fett im Markenblau."""
+    filled = 0
+    for prefix, values in entries:
+        paragraph = next((item for item in document.paragraphs
+                          if item.text.strip().startswith(prefix)), None)
+        if paragraph is None:
+            continue
+        for value in values:
+            for run in paragraph.runs:
+                if "_" not in run.text:
+                    continue
+                found = re.search(r"_+", run.text)
+                head, tail = run.text[:found.start()], run.text[found.end():]
+                run.text = head
+                value_run = paragraph.add_run(value)
+                value_run.bold = True
+                value_run.font.color.rgb = ANSWER_COLOR
+                run._element.addnext(value_run._element)
+                if tail.strip():
+                    value_run._element.addnext(paragraph.add_run(tail)._element)
+                filled += 1
+                break
+    return filled
 
 
 def normalize(text: str) -> str:
     return " ".join(text.replace("<br>", " ").replace("**", "").split())
 
 
+def plain(text: str) -> str:
+    """Text für das Worddokument: ohne Markdown-Marker, die Betonung trägt dort die Schrift."""
+    return text.replace("**", "")
+
+
+def split_verdict(answer: str) -> tuple[str, str]:
+    """Antwort in Urteil und Begründung trennen, wenn sie mit Y, N oder N/A beginnt.
+
+    Das Urteil steht in der ersten Zeile der Zelle, die Begründung darunter (Entscheidung E75).
+    """
+    found = VERDICT.match(answer)
+    if not found:
+        return "", answer
+    return found.group(1), answer[found.end():]
+
+
+def rendered_markdown(answer: str) -> str:
+    """Antwort für die Markdown-Zelle, Urteil und Begründung durch `<br>` getrennt."""
+    verdict, rest = split_verdict(answer)
+    return "**%s**<br>%s" % (verdict, rest) if verdict else answer
+
+
 def fill_markdown(path: Path, table_answers: dict[str, str], cell_index: int,
-                  notes: list[tuple[str, str]]) -> tuple[int, int, list[str]]:
+                  notes: list[tuple[str, str]], blanks: tuple = ()) -> tuple[int, int, list[str]]:
     """Antworten in leere Tabellenzellen setzen und Hinweise nach Ankerzeilen einfügen.
 
     Eine Antwort kann mehrere Zeilen treffen, weil die Vorlage eine Zeile doppelt führt; alle
@@ -307,6 +447,7 @@ def fill_markdown(path: Path, table_answers: dict[str, str], cell_index: int,
                     break
             if found:
                 answer = table_answers[found]
+                rendered = rendered_markdown(answer)
                 # Beim Aufteilen einer Zeile mit "|" liegt Zelle n auf dem Index n + 1.
                 target_cell = cell_index + 1 if len(cells) > cell_index + 1 else 1
                 if answer.split(" ")[0] in cells[target_cell]:
@@ -314,9 +455,9 @@ def fill_markdown(path: Path, table_answers: dict[str, str], cell_index: int,
                     continue
                 if normalize(cells[target_cell]):
                     # Vorlagenzelle enthält schon einen Hinweis, die Antwort folgt darunter.
-                    cells[target_cell] = cells[target_cell].rstrip() + " <br>" + answer + " "
+                    cells[target_cell] = cells[target_cell].rstrip() + " <br>" + rendered + " "
                 else:
-                    cells[target_cell] = " " + answer + " "
+                    cells[target_cell] = " " + rendered + " "
                 output[-1] = "|".join(cells)
                 used.add(found)
                 filled += 1
@@ -331,16 +472,22 @@ def fill_markdown(path: Path, table_answers: dict[str, str], cell_index: int,
                 inserted += 1
                 remaining = [entry for entry in remaining if entry[0] != anchor]
     path.write_text("\n".join(output), encoding="utf-8")
+    if blanks:
+        fill_markdown_blanks(path, blanks)
     return filled, inserted, sorted(set(table_answers) - used), [a for a, _ in remaining]
 
 
 def fill_docx(source: Path, target: Path, table_answers: dict[str, str], cell_index: int,
-              notes: list[tuple[str, str]]) -> tuple[int, int, list[str]]:
+              notes: list[tuple[str, str]], blanks: tuple = ()) \
+        -> tuple[int, int, list[str], tuple[float, float]]:
     """Antworten in Wordkopien setzen, das Original bleibt unberührt."""
     doc = Document(str(source))
     used: set[str] = set()
     filled = 0
+    filled_tables: list[tuple[object, int, int]] = []
     for table in doc.tables:
+        answer_chars = 0
+        other_chars = 0
         for row in table.rows:
             cells = row.cells
             found = None
@@ -353,35 +500,79 @@ def fill_docx(source: Path, target: Path, table_answers: dict[str, str], cell_in
                 continue
             answer = table_answers[found]
             target_cell = cells[cell_index] if len(cells) > cell_index else cells[0]
-            if answer.split(" ")[0] in target_cell.text:
+            if normalize(answer) in normalize(target_cell.text):
                 used.add(found)
                 continue
             paragraph = target_cell.paragraphs[0]
             if normalize(target_cell.text):
                 paragraph.add_run().add_break()
-            run = paragraph.add_run(answer)
-            run.bold = True
-            run.font.color.rgb = ANSWER_COLOR
+            verdict, rest = split_verdict(answer)
+            if verdict:
+                head = paragraph.add_run(verdict)
+                head.bold = True
+                head.font.color.rgb = ANSWER_COLOR
+                head.add_break()
+                tail = paragraph.add_run(rest)
+                tail.bold = False
+                tail.font.color.rgb = ANSWER_COLOR
+            else:
+                run = paragraph.add_run(plain(answer))
+                run.bold = True
+                run.font.color.rgb = ANSWER_COLOR
             used.add(found)
             filled += 1
+            answer_chars += len(answer)
+            for position, cell in enumerate(cells):
+                if position != cell_index:
+                    other_chars += len(cell.text.strip())
+        if answer_chars:
+            filled_tables.append((table, answer_chars, other_chars))
+    widths = balance_columns(filled_tables, cell_index)
     remaining = list(notes)
     inserted = 0
     for paragraph in doc.paragraphs:
         text = normalize(paragraph.text)
         for anchor, note in list(remaining):
             if normalize(anchor) in text:
-                created = paragraph.insert_paragraph_before(note)
+                created = paragraph.insert_paragraph_before(plain(note))
                 for run in created.runs:
                     run.bold = True
                     run.font.color.rgb = ANSWER_COLOR
                 inserted += 1
                 remaining = [entry for entry in remaining if entry[0] != anchor]
+    if blanks:
+        fill_docx_blanks(doc, blanks)
+    keep_rows_together(doc)
     doc.save(str(target))
-    return filled, inserted, [anchor for anchor, _ in remaining]
+    return filled, inserted, [anchor for anchor, _ in remaining], widths
+
+
+def keep_rows_together(document) -> int:
+    """Tabellenzeilen nicht über Seiten umbrechen, Word schiebt sonst die halbe Zeile weiter.
+
+    `w:cantSplit` steht im Schema vor `w:trHeight` und `w:tblHeader`, deshalb wird es vor dem
+    ersten dieser Elemente eingefügt (Entscheidung E77).
+    """
+    tag = qn("w:cantSplit")
+    count = 0
+    for table in document.tables:
+        for row in table.rows:
+            properties = row._tr.get_or_add_trPr()
+            if properties.find(tag) is not None:
+                continue
+            element = properties.makeelement(tag, {})
+            for successor in ("w:trHeight", "w:tblHeader"):
+                anchor = properties.find(qn(successor))
+                if anchor is not None:
+                    anchor.addprevious(element)
+                    break
+            else:
+                properties.append(element)
+            count += 1
+    return count
 
 
 def insert_head_row(path: Path) -> None:
-    """Vermerk in den Kopfblock, damit der Extrakt nicht für quellentreu gehalten wird."""
     lines = path.read_text(encoding="utf-8").split("\n")
     if any(line.startswith("| Answers |") for line in lines):
         return
@@ -400,21 +591,22 @@ def main() -> int:
         ("questionnaire", QUESTIONNAIRE_MD, QUESTIONNAIRE_DOCX,
          "CRA_Supplier_Due_Diligence_Questionnaire_answered.docx", QUESTIONNAIRE, {}, 1,
          QUESTIONNAIRE_NOTES),
-        ("addendum", ADDENDUM_MD, ADDENDUM_DOCX,
-         "CRA_Compliance_Addendum_Supplier_Agreement_answered.docx", {}, {}, 0, ADDENDUM_NOTES),
     ]
     for name, md_path, docx_path, docx_name, first, second, cell_index, notes in jobs:
         answers = dict(first)
         answers.update(second)
+        blanks = BLANKS.get(name, ())
         insert_head_row(md_path)
         filled_md, notes_md, missing, missing_notes = fill_markdown(md_path, dict(answers),
-                                                                   cell_index, list(notes))
-        filled_docx, notes_docx, missing_docx = fill_docx(docx_path,
-                                                          docx_path.with_name(docx_name),
-                                                          dict(answers), cell_index,
-                                                          list(notes))
-        print("%-14s Markdown: %2d Antworten, %d Hinweise | Word: %2d Antworten, %d Hinweise -> %s"
-              % (name, filled_md, notes_md, filled_docx, notes_docx, docx_name))
+                                                                   cell_index, list(notes), blanks)
+        filled_docx, notes_docx, missing_docx, (answer_width, width_share) = fill_docx(
+            docx_path, FILLED_DIR / docx_name, dict(answers), cell_index, list(notes), blanks)
+        print("%-14s Markdown: %2d Antworten, %d Hinweise, %d Leerzeilenfelder | "
+              "Word: %2d Antworten, %d Hinweise -> %s"
+              % (name, filled_md, notes_md, sum(len(values) for _, values in blanks),
+                 filled_docx, notes_docx, docx_name))
+        print("   Antwortspalte %.2f in, %.0f %% der Tabellenbreite"
+              % (answer_width, width_share * 100))
         for label, items in (("Markdown", missing + missing_notes), ("Word", missing_docx)):
             if items:
                 print("   %s nicht zugeordnet: %d, erste: %s" % (label, len(items), items[:2]))

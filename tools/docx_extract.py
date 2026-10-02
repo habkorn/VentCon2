@@ -13,7 +13,7 @@ Bildbestandsaufnahme. Nicht übernommen werden Layout, Logo und Seitenzahlenfeld
 
 Aufruf:
     "C:\\venvs\\VentCon2\\Scripts\\python.exe" tools/docx_extract.py
-    "C:\\venvs\\VentCon2\\Scripts\\python.exe" tools/docx_extract.py sec/AalbertsChecklists/<Datei>.docx
+    "C:\\venvs\\VentCon2\\Scripts\\python.exe" tools/docx_extract.py sec/AalbertsChecklists/templates/<Datei>.docx
 """
 
 from __future__ import annotations
@@ -31,10 +31,12 @@ from docx.table import Table
 from docx.text.paragraph import Paragraph
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DIR = ROOT / "sec" / "AalbertsChecklists"
+BASE_DIR = ROOT / "sec" / "AalbertsChecklists"
+TEMPLATE_DIR = BASE_DIR / "templates"
+EXTRACT_DIR = BASE_DIR / "extracts"
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
-# Ablage neben der Quelle, Name aus dem Dokumenttitel (Entscheidung E43).
+# Name aus dem Dokumenttitel (Entscheidung E43), Ablage in `extracts/` (Entscheidung E57).
 OUTPUT_NAMES = {
     "CRA Compliance Addendum (Supplier Agreement) - template Sep 2026 .docx":
         "CRA_Compliance_Addendum_Supplier_Agreement.md",
@@ -309,19 +311,19 @@ def main() -> int:
         targets = [Path(a) for a in arguments]
     else:
         # Befüllte Wordkopien bleiben außen vor, sonst entstehen Extrakte der Extrakte.
-        targets = sorted(p for p in SOURCE_DIR.glob("*.docx")
+        targets = sorted(p for p in TEMPLATE_DIR.glob("*.docx")
                          if not p.stem.endswith("_answered"))
     if not targets:
-        print("Keine Worddatei gefunden in", rel(SOURCE_DIR))
+        print("Keine Worddatei gefunden in", rel(TEMPLATE_DIR))
         return 1
     for path in targets:
         if not path.is_file():
             print("Datei fehlt:", path)
             return 1
-        target = path.with_name(output_name(path))
+        target = EXTRACT_DIR / output_name(path)
         content = extract(path)
         target.write_text(content, encoding="utf-8")
-        print("%-62s -> %s (%d Zeilen)" % (path.name, target.name,
+        print("%-62s -> %s (%d Zeilen)" % (path.name, rel(target),
                                            content.count("\n") + 1))
     return 0
 
