@@ -6,3 +6,8 @@
 
 # Python venv — never inside Dropbox
 .venv/
+
+# aiteam generated files (managed by scripts/untrack_generated.py)
+/.github/agents/
+/.github/agent-instructions.md
+# end aiteam generated files
