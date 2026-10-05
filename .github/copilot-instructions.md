@@ -14,7 +14,7 @@ Valve control and ventilation simulation.
 
 ---
 
-<!-- AITEAM:BEGIN v1 (generated from AITeam .github/templates/project-instructions.block.md; do not edit inside) -->
+<!-- AITEAM:BEGIN v2 (generated from AITeam .github/templates/project-instructions.block.md; do not edit inside) -->
 ## Implementation Protocol
 
 ### Delegation Judgment
@@ -95,6 +95,10 @@ Update it at session end.
 
 The memory protocol (update in place, size limits, pruning order, report every removed entry) is in
 `.github/agent-instructions.md`; the central copy is `C:\Dropbox\Tom\AITeam\.github\agent-instructions.md`.
+
+Lasting project-specific knowledge (conventions, pitfalls, verified numbers) belongs in
+`docs/AGENT_NOTES.md` of this project. Agent memory keeps cross-project technique and short dated
+Ledgers; a finished Ledger is promoted into that file (Ledger rule in `.github/agent-instructions.md`).
 <!-- AITEAM:END -->
 
 ## Project-Specific Rules
