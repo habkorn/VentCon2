@@ -14,6 +14,7 @@ Valve control and ventilation simulation.
 
 ---
 
+<!-- AITEAM:BEGIN v1 (generated from AITeam .github/templates/project-instructions.block.md; do not edit inside) -->
 ## Implementation Protocol
 
 ### Delegation Judgment
@@ -23,7 +24,7 @@ Use the Recommended Agents table above to decide which specialist to invoke. Whe
 **Delegate when:**
 - The task spans 3+ files and you would otherwise chain multiple manual searches or reads
 - The subagent has domain knowledge you lack
-- The task involves codebase exploration across unknown files 
+- The task involves codebase exploration across unknown files
 
 **Skip delegation when:**
 - The change is a single line in a single file with no exploration needed
@@ -73,7 +74,6 @@ Before starting any multi-step or multi-file implementation:
 - **File naming**: `YYYY-MM-DD_short-description.ext`.
 - **Output routing**: Write files to the currently open workspace folder.
 - **Never use the em dash character** (U+2014) in any generated text. Use a comma, colon, or rephrased sentence instead.
-- **Umlaute**: German text is written with real umlauts (`ä`, `ö`, `ü`, `ß`). Transliteration (`ae`, `oe`, `ue`, `ss`) is only allowed in file names, folder names, identifiers and code symbols, never in prose, headings, table cells or presentation text. Applies to `sec/**`, the generator and verifier scripts, `deletion_log.md` and agent reports. Reference norm text in English stays verbatim.
 
 ## Venv & Dropbox Rule
 
@@ -93,3 +93,11 @@ Agent memory files are stored at:
 At the start of every session, read your memory file from that path.
 Update it at session end.
 
+The memory protocol (update in place, size limits, pruning order, report every removed entry) is in
+`.github/agent-instructions.md`; the central copy is `C:\Dropbox\Tom\AITeam\.github\agent-instructions.md`.
+<!-- AITEAM:END -->
+
+## Project-Specific Rules
+
+<!-- moved here from the standard sections when the managed block was adopted -->
+- **Umlaute**: German text is written with real umlauts (`ä`, `ö`, `ü`, `ß`). Transliteration (`ae`, `oe`, `ue`, `ss`) is only allowed in file names, folder names, identifiers and code symbols, never in prose, headings, table cells or presentation text. Applies to `sec/**`, the generator and verifier scripts, `deletion_log.md` and agent reports. Reference norm text in English stays verbatim.
