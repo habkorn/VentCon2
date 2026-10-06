@@ -11,3 +11,11 @@
 /.github/agents/
 /.github/agent-instructions.md
 # end aiteam generated files
+
+# aiteam cache artifacts (managed by scripts/untrack_caches.py)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+Thumbs.db
+# end aiteam cache artifacts
