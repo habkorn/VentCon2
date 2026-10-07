@@ -149,7 +149,7 @@ Standardpasswort ist das der Regelfall, siehe P2.2. Der Konformitätsweg wird in
 | Datei | Rolle | Maßnahmen | Letzte Prüfung |
 |---|---|---|---|
 | `CRA_Compliance_Checklist.md` | Master (Grundlage), einzige Statusquelle | alle, P1.1 bis P5.2 | 2026-10-01 |
-| `analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md` | Risiko- und Evidenzanalyse | R1 bis R9 | 2026-09-30 |
+| `analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md` | Risiko- und Evidenzanalyse | R1 bis R10 | 2026-10-06 |
 | `plan/2026-08-29_P1-1_P1-2_P2-1_Web_Auth_Plan.md` | Umsetzungsplan | P1.1, P1.2, P2.1 | 2026-09-30 |
 | `plan/2026-08-31_P1-3_Sensor_Calibration_Plan.md` | Umsetzungsplan | P1.3 | 2026-08-31 |
 | `plan/2026-09-28_P1-4_PID_Gain_Limits_Plan.md` | Umsetzungsplan (Skelett) | P1.4 | 2026-09-28 |
@@ -222,7 +222,7 @@ Rückruf (Art. 13(21)), Zusammenarbeit mit der Marktüberwachung (Art. 13(22)), 
 | 2 | Authentifizierung und Zugriffskontrolle | Annex I, Teil I, (2)(d) | R1 / P1.1 | [ ] |
 | 3 | Minimale Angriffsfläche | Annex I, Teil I, (2)(j) | R5 / P2.1 | [ ] |
 | 4 | Schutz vor unbefugtem Zugriff, Eingabevalidierung | Annex I, Teil I, (2)(d); Eingabevalidierung ist Projektauslegung | R6 / P1.4 | [ ] |
-| 5 | Sichere Kommunikation | Annex I, Teil I, (2)(e) und (f) | Funkebene / P3.3 | [ ] |
+| 5 | Sichere Kommunikation | Annex I, Teil I, (2)(e) und (f) | R10 / P3.3 | [ ] |
 | 6 | Sichere Standardkonfiguration | Annex I, Teil I, (2)(b) | R4 / P1.2 | [ ] |
 | 7 | Sichere Update-Mechanismen (signiert) | Annex I, Teil I, (2)(c); signierte Verteilung nach Teil II Nr. 7 | P4.3 | [ ] |
 | 8 | Verfügbarkeit / DoS-Resistenz | Annex I, Teil I, (2)(h) und (i) | R7, R8 / P2.3, P3.2 | [ ] |
@@ -285,7 +285,7 @@ Kenntnisnahme; der eigene Zeitstempel ab Kenntnis ist daher separat zu führen.
 ## 7. Verknüpfung: Risiko, Pflicht, Maßnahme, Detaildokument
 
 Jede Maßnahme P1.1 bis P5.2 hat genau eine Zeile. Diese Tabelle ist die Brücke zwischen der
-Risiko- und Evidenzanalyse (Risiko-IDs R1 bis R9), den CRA-Pflichten aus Abschnitt 6, den
+Risiko- und Evidenzanalyse (Risiko-IDs R1 bis R10), den CRA-Pflichten aus Abschnitt 6, den
 RED-Pflichten aus Abschnitt 3 und den Detaildokumenten aus Abschnitt 4.
 
 | Risiko (Analyse) | Pflicht-Nr. | Maßnahme | Detaildokument | Stand |
@@ -300,7 +300,7 @@ RED-Pflichten aus Abschnitt 3 und den Detaildokumenten aus Abschnitt 4.
 | R7 Flash-Verschleiß und DoS über settings.save() | 8 | P2.3 Ratenbegrenzung und Save-Debouncing | `plan/2026-09-28_P2-3_Rate_Limiting_Save_Debouncing_Plan.md` | offen |
 | R9 Fehlende Synchronisation der settings-Zugriffe | kein Annex-I-Punkt (Robustheit) | P3.1 Mutex für den settings-Zugriff | `plan/2026-08-27_P3-1_Mutex_Settings_Zugriff_Plan.md` | erledigt in v2.7.3 |
 | R8 Client-Connect-DoS | 8 | P3.2 Passive Ablehnung neuer Clients statt Trennung aller | kein Detaildokument, Nachweis in `analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md` | erledigt in v2.7.3 |
-| Funkebene ohne eigene Authentifizierung | 5 | P3.3 Verschlüsselung oder Authentifizierung auf Funkebene | `plan/2026-09-28_P3-3_Radio_Encryption_Plan.md` | offen |
+| R10 Funkebene ohne eigene Authentifizierung | 5 | P3.3 Verschlüsselung oder Authentifizierung auf Funkebene | `plan/2026-09-28_P3-3_Radio_Encryption_Plan.md` | offen |
 | kein Risikobezug (Normpflicht) | 16 | P4.1 Cybersicherheits-Risikobewertung | `plan/2026-09-28_P4-1_Cybersecurity_Risk_Assessment.md` | offen |
 | kein Risikobezug (Normpflicht) | 11, 22 | P4.2 SBOM und Sorgfaltspflicht bei Drittkomponenten | `plan/2026-09-28_P4-2_SBOM.md` | offen |
 | kein Risikobezug (Normpflicht) | 7, 13, 15 | P4.3 Signierte OTA-Updates und Update-Tests | `plan/2026-09-28_P4-3_Signed_OTA.md` | offen |
@@ -420,3 +420,4 @@ sanktionieren die Mitgliedstaaten nach nationalem Recht zur Richtlinie 2014/53/E
 | 2026-10-01 | Schreibweise des gesamten Dossiers vereinheitlicht: deutsche Texte mit echten Umlauten statt Transliteration (1.177 Stellen in 49 Dateien), Regel dazu in `.github/copilot-instructions.md` festgehalten. Der englische Normtext der Extraktion bleibt wortgetreu, geändert wurden dort nur die Extraktionskommentare. Em-Dashes nach der Projektregel ersetzt, davon 29 im englischen Grundlagenpapier zum Mutex, zwei im AP-Passwort-Plan und sieben in den Projektanweisungen. Dazu die Prüfwerkzeuge `tools/cra_extract.py` und `tools/verify_cra_extract.py` konsistent nachgezogen, damit Kommentarform und Prüfmuster weiter zusammenpassen |
 | 2026-10-01 | Konsistenz der Präsentation gegen den CRA-Volltext geprüft, Protokoll in `sec/analyse/2026-10-01_Praesentation_CRA_Konsistenz.md`, Plan in `sec/plan/2026-10-01_CRA_Konsistenz_Korrektur_Plan.md`. Im Master nachgezogen: Anknüpfung der Meldefristen an die Kenntnis in Abschnitt 6.4 ergänzt, Pflicht 16 auf Art. 13(2) und (3) mit Aufnahme nach Art. 13(4) präzisiert, Pflicht 20 um Art. 13(19) und Annex II Nr. 7 ergänzt, Pflicht 1 um den Hinweis, dass die Verordnung kein wörtliches Passwortverbot enthält, Abschnitt 6 um den Vollständigkeitsvorbehalt mit den Pflichten nach Art. 13(6) bis (23) und Art. 14(6) und (8) erweitert. Der Vorbehalt nach Art. 4(4) in Abschnitt 2.1 bleibt unverändert, er steht dort bereits |
 | 2026-10-01 | Abschnitt 8 um den Auslöser der Maßnahmen ergänzt: Die Pflichtmaßnahmen greifen mit der Bereitstellung auf dem Unionsmarkt (Art. 2(1), Art. 3(21) und (22), Recital 15); bei Vertrieb ausschließlich in Drittstaaten entstehen keine Pflichten und die Umsetzung ist freiwillig. Auch unentgeltliche Lieferungen in die Union sowie die Bereitstellung durch Importeur oder Händler lösen die Pflichten aus. Der Satz steht so auch im Deck auf den Maßnahmenfolgen und in der Anwendbarkeitsfolge, Verifier-Regel V7 prüft ihn |
+| 2026-10-06 | Befund R10 aufgenommen: Die Funkebene ohne eigene Authentifizierung (P3.3) lief bisher ohne Kennung als Freitext in Abschnitt 7 und war damit der einzige Eintrag, der weder Befund noch ausdrückliche Verneinung war. Sie trägt jetzt die Kennung R10. Nachgezogen: Abschnitt 4 Dokumentenregister (R1 bis R10 mit Prüfdatum 2026-10-06), Abschnitt 6 Pflicht 5 (R10 statt Funkebene), Abschnitt 7 Einleitung und Zeile P3.3, die Risikoanalyse (Kopf und Nachtrag in Abschnitt 7), die Pläne P3.3, P4.1 und P4.5 sowie Deck und Maßnahmen-Anlage |

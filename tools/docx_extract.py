@@ -11,6 +11,10 @@ Abgedeckt werden: Absätze mit Titel- und Überschriftenformaten, nummerierte Kl
 rekonstruierten Zählern, Tabellen, Textboxen der Kopf- und Fußzeile, Kommentare und die
 Bildbestandsaufnahme. Nicht übernommen werden Layout, Logo und Seitenzahlenfelder.
 
+Der Extrakt trägt nur Vorlagentext. Die eingetragenen Antworten und Hinweise stehen in den
+Markdown-Quellen unter `filled/src`, aus denen `tools/aalberts_fill.py` die Wordkopien setzt.
+Damit ein Lauf nichts überschreibt, lehnt das Werkzeug Quellen unter `filled` ab.
+
 Aufruf:
     "C:\\venvs\\VentCon2\\Scripts\\python.exe" tools/docx_extract.py
     "C:\\venvs\\VentCon2\\Scripts\\python.exe" tools/docx_extract.py sec/AalbertsChecklists/templates/<Datei>.docx
@@ -34,6 +38,7 @@ ROOT = Path(__file__).resolve().parent.parent
 BASE_DIR = ROOT / "sec" / "AalbertsChecklists"
 TEMPLATE_DIR = BASE_DIR / "templates"
 EXTRACT_DIR = BASE_DIR / "extracts"
+FILLED_DIR = BASE_DIR / "filled"
 W = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 # Name aus dem Dokumenttitel (Entscheidung E43), Ablage in `extracts/` (Entscheidung E57).
@@ -319,6 +324,12 @@ def main() -> int:
     for path in targets:
         if not path.is_file():
             print("Datei fehlt:", path)
+            return 1
+        # Der Ordner `filled` enthält Abgabedateien und ihre Markdown-Quellen. Beide sind keine
+        # Vorlagen; ein Extrakt daraus würde die Eintragungen eine Ebene tiefer kopieren.
+        if path.resolve().is_relative_to(FILLED_DIR.resolve()):
+            print("Abgelehnt: %s liegt in %s, hier liegt keine Wordvorlage"
+                  % (path, rel(FILLED_DIR)))
             return 1
         target = EXTRACT_DIR / output_name(path)
         content = extract(path)

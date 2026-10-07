@@ -4,7 +4,7 @@ Rolle: Umsetzungsplan (Detaildokument, Skelett)
 Grundlage: `../CRA_Compliance_Checklist.md`
 Maßnahme: P3.3
 CRA-Bezug: Annex I, Teil I, 1.8 (Pflicht-Nr. 5)
-Risikobezug: Funkebene ohne eigene Authentifizierung auf Anwendungsebene
+Risikobezug: R10 Funkebene ohne eigene Authentifizierung auf Anwendungsebene
 Risikoanalyse: `../analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md`
 Abhängigkeiten: P2.2 (AP-Passwort), P1.1 (Sitzungsauthentifizierung)
 Datum: 2026-09-28

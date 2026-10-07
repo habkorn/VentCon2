@@ -36,6 +36,10 @@ Werkzeuge: `tools/aalberts_fill.py` enthält alle Antworten als einzige Quelle u
 
 Wichtig für spätere Läufe: Die Antworten leben im Markdown und in den Wordkopien. Wird ein Extrakt mit `tools/docx_extract.py` neu erzeugt, gehen sie verloren; danach `tools/aalberts_fill.py` erneut ausführen. Befüllte Wordkopien sind in beiden Werkzeugen von der Verarbeitung ausgenommen.
 
+Überholt am 2026-10-06: Die Antworten stehen jetzt zusätzlich in den Markdown-Quellen unter
+`filled/src`, und die Wordkopien werden aus diesen Quellen gesetzt. Siehe den Nachtrag am Ende
+dieses Plans.
+
 ## Auftrag
 
 Die Fragen und Leerstellen der drei Vorlagen aus dem Projekt heraus beantworten und ausfüllen,
@@ -148,3 +152,23 @@ offen vermerkt.
 | E64 | Die Antwortspalte bekommt Breite nach Textanteil, begrenzt auf 40 bis 55 Prozent der Tabellenbreite. Die Tabellenbreite bleibt unverändert, jede übrige Spalte behält mindestens 0,90 Zoll. Der Anteil wird je Dokument aus dem Textumfang aller Antworten und aller übrigen Zellen gerechnet, damit Antworten und Fragen im Verhältnis ihres Umfangs stehen |
 
 Ergebnis: In der Checkliste wächst die Antwortspalte von 0,89 auf 3,17 Zoll, im Fragebogen von 2,66 auf 3,85 Zoll. Die geschätzten Zeilenzahlen der Antwortzeilen sinken in der Checkliste um 61 Prozent und im Fragebogen um 22 Prozent. Die übrigen Spalten bleiben lesbar: Kategorie 1,02 Zoll, Sachvorgabe 2,81 Zoll in Teil I und 3,83 Zoll in Teil II, Frage 3,15 Zoll.
+
+## Nachtrag 2026-10-06: Markdown als Quelle der befüllten Worddateien
+
+Der Hinweis unter "Ergebnis der Umsetzung" vom 2026-10-01 ist überholt: "Wird ein Extrakt mit
+`tools/docx_extract.py` neu erzeugt, gehen die Antworten verloren" gilt nicht mehr. Seit dem
+2026-10-06 schreibt `tools/aalberts_fill.py` je Worddatei eine Markdown-Quelle nach
+`filled/src/<Name>_answered.md` und setzt die Wordkopie allein aus dieser Quelle. Die Extrakte
+unter `extracts/` tragen wieder nur Vorlagentext, und `tools/docx_extract.py` lehnt Quellen unter
+`filled` ab. Ein Extraktlauf ist damit verlustfrei.
+
+Die Antworttexte selbst bleiben im Werkzeug (`CHECKLIST_PART_I`, `CHECKLIST_PART_II`,
+`QUESTIONNAIRE`, `CHECKLIST_NOTES`, `QUESTIONNAIRE_NOTES`, `BLANKS`), wie in E79 entschieden. Der
+Ablauf ist Werkzeug -> Markdown-Quelle -> Worddatei. Hinweiszeilen tragen in der Quelle die Marke
+`<!-- note: <Anker> --> <Hinweistext>`, damit die Worddatei ohne die Hinweisliste des Werkzeugs
+gesetzt werden kann (E85). Die Antworten und Hinweise wurden auf den Stand 2026-10-06 gezogen: die
+Bereiche heißen jetzt `R1 to R10`, und beide Wordkopien nennen die Risikoliste der Anlage.
+
+Plan und Verifikation: `sec/plan/2026-10-06_Risikoliste_und_Markdown_Quellen_Plan.md`.
+`tools/verify_aalberts_answers.py` prüft jetzt 323 Punkte, darunter Quelle gegen Wordkopie, die
+Kennungsauflösung und ausdrücklich, dass kein Extrakt Eintragungen trägt.

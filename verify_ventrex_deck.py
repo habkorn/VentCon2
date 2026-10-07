@@ -20,11 +20,11 @@ from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.util import Emu
 
 TEMPLATE = "sec/VENTREX PPT Vorlage 2026.pptx"
-DECK = sys.argv[1] if len(sys.argv) > 1 else "sec/2026-10-01_CRA_Compliance_Praesentation.pptx"
+DECK = sys.argv[1] if len(sys.argv) > 1 else "sec/2026-10-06_CRA_Compliance_Praesentation.pptx"
 MASTER = sys.argv[2] if len(sys.argv) > 2 else "sec/CRA_Compliance_Checklist.md"
 
 FOOTER_NAME = "VentCon2 - EU CRA Compliance"
-FOOTER_DATE = "01.10.2026"
+FOOTER_DATE = "06.10.2026"
 
 EXPECTED_MEASURES = (
     ["P1.%d" % i for i in range(1, 6)]
@@ -261,9 +261,9 @@ for si, slide in enumerate(slides, start=1):
 
 # 7c Datums-Whitelist, Statusabgleich und Quellenabgleich mit dem Master
 ALLOWED_DATES = {
-    "01.10.2026", "27.07.2026", "11.09.2026", "30.09.2026",
+    "01.10.2026", "06.10.2026", "27.07.2026", "11.09.2026", "30.09.2026",
     "2024-12-10", "2025-01-30", "2025-08-01", "2026-06-11", "2026-08-29", "2026-09-04",
-    "2026-09-11", "2026-09-28", "2026-09-30", "2026-10-01", "2027-12-11",
+    "2026-09-11", "2026-09-28", "2026-09-30", "2026-10-01", "2026-10-06", "2027-12-11",
 }
 found_dates = set(re.findall(r"\b\d{2}\.\d{2}\.\d{4}\b", joined))
 found_dates |= set(re.findall(r"\b\d{4}-\d{2}-\d{2}\b", joined))

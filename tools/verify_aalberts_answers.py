@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """Prüft die ausgefüllten Aalberts-Vorlagen in `sec/AalbertsChecklists`.
 
-Geprüft wird, dass jede Frage und jede Sicherheitsvorgabe eine fette Antwort trägt, dass keine
-Antwortzelle leer bleibt, dass die Hinweiszeilen vorhanden sind, dass die Wordkopien dieselben
-Antworten enthalten und dass die Wordvorlagen selbst unverändert sind. Zusätzlich läuft der
+Geprüft wird, dass jede Frage und jede Sicherheitsvorgabe in der Markdown-Quelle unter
+`filled/src` eine fette Antwort trägt, dass keine Antwortzelle leer bleibt, dass die Hinweiszeilen
+vorhanden sind, dass die Wordkopien aus dieser Quelle dieselben Antworten, Hinweise und
+Leerzeilenwerte enthalten, dass jede in den Abgabedateien genannte Risiko-ID in der Anlage
+aufgelöst wird und dass die Wordvorlagen selbst unverändert sind. Die Extrakte unter `extracts`
+tragen nur Vorlagentext; das prüft dieses Werkzeug ausdrücklich mit. Zusätzlich läuft der
 Extraktprüfer `tools/verify_docx_extract.py` als Querprüfung, damit die Quellentreue der
 Markdown-Dateien erhalten bleibt.
 
@@ -40,16 +43,28 @@ QUESTIONNAIRE_COPY = FILLED_DIR / "CRA_Supplier_Due_Diligence_Questionnaire_answ
 ADDENDUM = EXTRACT_DIR / "CRA_Compliance_Addendum_Supplier_Agreement.md"
 ADDENDUM_COPY = FILLED_DIR / "CRA_Compliance_Addendum_Supplier_Agreement_answered.docx"
 
+# Quellen der Eintragungen: je Worddatei in `filled` eine Markdown-Datei in `filled/src`. Aus ihr
+# wird die Worddatei gesetzt, die Extrakte bleiben Vorlagentext.
+SOURCE_DIR = FILLED_DIR / "src"
+CHECKLIST_SOURCE = SOURCE_DIR / "CRA_Product_Maturity_Checklist_answered.md"
+QUESTIONNAIRE_SOURCE = SOURCE_DIR / "CRA_Supplier_Due_Diligence_Questionnaire_answered.md"
+ANNEX = FILLED_DIR / "VentCon2_Measures_Reference_2026-10-02.docx"
+ANNEX_SOURCE = SOURCE_DIR / "VentCon2_Measures_Reference_2026-10-02.md"
+
+# Marke für Hinweiszeilen in der Markdown-Quelle: `<!-- note: <Anker> --> <Hinweistext>`.
+NOTE_MARKER = "<!-- note:"
+
 EXPECTED_PART_I = 20
 EXPECTED_PART_II = 11
 EXPECTED_QUESTIONS = 36
-EXPECTED_NOTES = {CHECKLIST: 4, QUESTIONNAIRE: 2}
+EXPECTED_NOTES = {CHECKLIST_SOURCE: 4, QUESTIONNAIRE_SOURCE: 2}
+EXPECTED_FINDINGS = ["R%d" % number for number in range(1, 11)]
 
 # Werte, die in die Leerzeilen der Vorlage eingetragen werden (Entscheidung E76).
-BLANKS = ((CHECKLIST, CHECKLIST_COPY,
+BLANKS = ((CHECKLIST_SOURCE, CHECKLIST_COPY,
            (("Product:", ("VentCon2 valve control unit, firmware 2.7.4 (prototype)",
                            "VENTREX product owner, VentCon2 team", "2026-10-02")),)),
-          (QUESTIONNAIRE, QUESTIONNAIRE_COPY,
+          (QUESTIONNAIRE_SOURCE, QUESTIONNAIRE_COPY,
            (("Completed by", ("Product owner, VENTREX (Aalberts group company)",)),
             ("Date:", ("2026-10-02",)))))
 
@@ -96,7 +111,7 @@ def rows(path: Path):
 def check_checklist() -> None:
     part = None
     part_one = part_two = 0
-    for number, cells in rows(CHECKLIST):
+    for number, cells in rows(CHECKLIST_SOURCE):
         joined = " ".join(cells)
         if "Compliance assessment" in joined:
             part = 1
@@ -124,7 +139,7 @@ def check_checklist() -> None:
           "Checkliste Teil I: %d Zeilen mit Antwort, erwartet %d" % (part_one, EXPECTED_PART_I))
     check(part_two == EXPECTED_PART_II,
           "Checkliste Teil II: %d Zeilen mit Antwort, erwartet %d" % (part_two, EXPECTED_PART_II))
-    text = CHECKLIST.read_text(encoding="utf-8")
+    text = CHECKLIST_SOURCE.read_text(encoding="utf-8")
     check("Overall result: Gaps identified" in text,
           "Checkliste: Ergebniszeile fehlt")
     check("Key gaps / evidence" in text and "**Evidence:" in text,
@@ -135,7 +150,7 @@ def check_checklist() -> None:
 def check_questionnaire() -> None:
     inside = False
     answered = 0
-    for number, cells in rows(QUESTIONNAIRE):
+    for number, cells in rows(QUESTIONNAIRE_SOURCE):
         if cells[:2] == ["Question", "Supplier response"]:
             inside = True
             continue
@@ -155,7 +170,7 @@ def check_questionnaire() -> None:
             inside = False
     check(answered == EXPECTED_QUESTIONS,
           "Fragebogen: %d beantwortete Fragen, erwartet %d" % (answered, EXPECTED_QUESTIONS))
-    text = QUESTIONNAIRE.read_text(encoding="utf-8")
+    text = QUESTIONNAIRE_SOURCE.read_text(encoding="utf-8")
     for token in ("Accepted with conditions",
                   "**Product owner, VENTREX (Aalberts group company)**"):
         check(token in text, "Fragebogen: Sign-off ohne %s" % token)
@@ -173,6 +188,20 @@ def source_texts_of(path: Path) -> set[str]:
     return texts
 
 
+def all_text(path: Path) -> str:
+    """Gesamter Text einer Worddatei, Absätze und Tabellenzellen."""
+    document = Document(str(path))
+    parts = [paragraph.text for paragraph in document.paragraphs]
+    parts += [cell.text for table in document.tables for row in table.rows for cell in row.cells]
+    return "\n".join(parts)
+
+
+# HTML-Reste, die aus dem Markdown in die Worddatei geraten können. `<br>` ist die Trennung
+# innerhalb einer Zelle der Quelle und muss dort bleiben.
+HTML_ARTIFACTS = ("<br>", "<br/>", "<br />", "&nbsp;", "&amp;", "&lt;", "&gt;", "<p>", "</p>",
+                  "<b>", "</b>", "<div", "<!--")
+
+
 def source_of(path: Path) -> Path:
     """Wordvorlage zu einem Extrakt, gelesen aus dem Kopfblock."""
     head = path.read_text(encoding="utf-8").split("<!-- extract:head-end -->")[0]
@@ -181,20 +210,32 @@ def source_of(path: Path) -> Path:
 
 
 def markdown_notes(path: Path) -> list[str]:
-    """Hinweiszeilen des Extrakts, ohne die Sternchenzeilen, die schon in der Vorlage stehen."""
-    known = source_texts_of(source_of(path))
-    return [line for line in path.read_text(encoding="utf-8").split("\n")
-            if line.startswith("**") and normalize(line) not in known]
+    """Hinweistexte der Markdown-Quelle, gelesen aus den Zeilen mit der Hinweismarke."""
+    notes = []
+    for line in path.read_text(encoding="utf-8").split("\n"):
+        stripped = line.strip()
+        if not stripped.startswith(NOTE_MARKER):
+            continue
+        anchor, _, note = stripped[len(NOTE_MARKER):].partition("-->")
+        check(bool(anchor.strip()), "%s: Hinweiszeile ohne Anker" % path.name)
+        check(bool(note.strip()), "%s: Hinweiszeile ohne Text" % path.name)
+        notes.append(note.strip())
+    return notes
 
 
 def check_notes_and_sources() -> None:
+    """Hinweiszeilen in den Quellen, Prüfsummen der Wordvorlagen in den Extrakten."""
     for path, expected in EXPECTED_NOTES.items():
-        text = path.read_text(encoding="utf-8")
-        head = text.split("<!-- extract:head-end -->")[0]
-        source = source_of(path)
+        check(path.is_file(), "Quelle fehlt: %s" % path.name)
+        if not path.is_file():
+            continue
         notes = markdown_notes(path)
         check(len(notes) == expected, "%s: %d Hinweiszeilen, erwartet %d"
               % (path.name, len(notes), expected))
+        print("  %-58s %d Hinweiszeilen" % (path.name, len(notes)))
+    for path in (CHECKLIST, QUESTIONNAIRE, ADDENDUM):
+        head = path.read_text(encoding="utf-8").split("<!-- extract:head-end -->")[0]
+        source = source_of(path)
         recorded = re.search(r"\| SHA256 \| `([0-9a-f]{64})` \|", head)
         check(recorded is not None, "%s: SHA256 im Kopfblock fehlt" % path.name)
         if recorded:
@@ -314,7 +355,8 @@ def check_addendum_excluded() -> None:
 
 def check_copy_notes() -> None:
     """Eingesetzte Hinweise dürfen keine Marker tragen und müssen fett im Markenblau stehen."""
-    for md_path, copy in ((CHECKLIST, CHECKLIST_COPY), (QUESTIONNAIRE, QUESTIONNAIRE_COPY)):
+    for md_path, copy in ((CHECKLIST_SOURCE, CHECKLIST_COPY),
+                          (QUESTIONNAIRE_SOURCE, QUESTIONNAIRE_COPY)):
         if not copy.is_file():
             check(False, "Wordkopie fehlt: %s" % copy.name)
             continue
@@ -360,7 +402,7 @@ def check_blank_fills() -> None:
             for value in values:
                 check(value in paragraph.text, "%s: '%s' fehlt in der Zeile '%s'"
                       % (copy_path.name, value[:38], prefix))
-                check("**%s**" % value in text, "%s: '%s' steht nicht fett im Extrakt"
+                check("**%s**" % value in text, "%s: '%s' steht nicht fett in der Quelle"
                       % (markdown_path.name, value[:38]))
             runs = [run for run in paragraph.runs if run.text.strip() in values]
             check(len(runs) == len(values), "%s: %d von %d Werten in '%s' gefunden"
@@ -389,15 +431,99 @@ def check_row_split_protection() -> None:
         print("  %-58s %d Tabellenzeilen ohne Seitenumbruch" % (copy_path.name, len(rows)))
 
 
+def check_extracts_are_template_only() -> None:
+    """Die Extrakte tragen nur Vorlagentext; die Eintragungen stehen in `filled/src`."""
+    for path in (CHECKLIST, QUESTIONNAIRE, ADDENDUM):
+        text = path.read_text(encoding="utf-8")
+        check("| Answers |" not in text, "%s: Antwortzeile im Extrakt" % path.name)
+        check(NOTE_MARKER not in text, "%s: Hinweiszeile im Extrakt" % path.name)
+        check(re.search(r"\*\*(Y|N|N/A)\*\*<br>", text) is None,
+              "%s: Urteil im Extrakt" % path.name)
+        print("  %-58s nur Vorlagentext" % path.name)
+
+
+def check_source_files_exist() -> None:
+    """Je Worddatei in `filled` muss eine Markdown-Quelle in `filled/src` liegen."""
+    for name in ("CRA_Product_Maturity_Checklist_answered", "CRA_Supplier_Due_Diligence_"
+                 "Questionnaire_answered", "VentCon2_Measures_Reference_2026-10-02"):
+        check((FILLED_DIR / (name + ".docx")).is_file(),
+              "Abgabedatei fehlt: %s.docx" % name)
+        check((SOURCE_DIR / (name + ".md")).is_file(),
+              "Quelle fehlt: filled/src/%s.md" % name)
+    print("  %-58s %d Abgabedateien mit Quelle" % ("filled und filled/src", 3))
+
+
+def check_no_html_artifacts() -> None:
+    """Keine HTML- oder Markdown-Reste in den Abgabedateien.
+
+    Die Quellen sind Markdown, die Abgabedateien sind Word. Was in der Quelle Auszeichnung ist,
+    muss beim Setzen der Worddatei verschwinden: `<br>` wird zur Zeilenschaltung, `**` zur fetten
+    Schrift. Bleibt eines davon als Text stehen, sieht die Leserin bei Aalberts Markup.
+    """
+    for path in (CHECKLIST_COPY, QUESTIONNAIRE_COPY, ANNEX):
+        if not path.is_file():
+            check(False, "Abgabedatei fehlt: %s" % path.name)
+            continue
+        text = all_text(path)
+        for token in HTML_ARTIFACTS:
+            check(token not in text, "%s: HTML-Rest %r in der Worddatei" % (path.name, token))
+        print("  %-58s keine HTML-Reste" % path.name)
+
+
+def check_marker_counts() -> None:
+    """Markdown-Marker dürfen nur dort stehen, wo die Vorlage sie schon führt.
+
+    Die Aalberts-Checkliste trägt im Anhang eigener Text mit `**`; die Eintragungen dürfen keinen
+    weiteren Marker hinzufügen.
+    """
+    for template, copy in ((CHECKLIST_DOCX, CHECKLIST_COPY),
+                           (QUESTIONNAIRE_DOCX, QUESTIONNAIRE_COPY)):
+        if not copy.is_file():
+            check(False, "Wordkopie fehlt: %s" % copy.name)
+            continue
+        expected = all_text(template).count("**")
+        found = all_text(copy).count("**")
+        check(found == expected, "%s: %d Marker '**' in der Worddatei, in der Vorlage %d"
+              % (copy.name, found, expected))
+        print("  %-58s %d Marker '**' wie in der Vorlage" % (copy.name, found))
+
+
 def check_annex_reference() -> None:
-    """Die Anlage muss vorhanden sein und in beiden Wordkopien genannt werden."""
-    annex = FILLED_DIR / "VentCon2_Measures_Reference_2026-10-02.docx"
-    check(annex.is_file(), "Maßnahmen-Anlage fehlt: %s" % annex.name)
-    for _, copy in ((CHECKLIST, CHECKLIST_COPY), (QUESTIONNAIRE, QUESTIONNAIRE_COPY)):
+    """Die Anlage muss vorhanden sein, in beiden Wordkopien genannt werden und jede dort genannte
+    Risiko-ID auflösen."""
+    check(ANNEX.is_file(), "Maßnahmen-Anlage fehlt: %s" % ANNEX.name)
+    check(ANNEX_SOURCE.is_file(), "Anlage-Quelle fehlt: %s" % ANNEX_SOURCE.name)
+    if not ANNEX.is_file():
+        return
+    defined: set[str] = set()
+    annex = Document(str(ANNEX))
+    finding_tables = 0
+    for table in annex.tables:
+        header = [cell.text.strip() for cell in table.rows[0].cells]
+        if header != ["ID", "Finding", "Measure", "Status"]:
+            continue
+        finding_tables += 1
+        for row in table.rows[1:]:
+            identifier = row.cells[0].text.strip()
+            if re.fullmatch(r"R\d+", identifier):
+                defined.add(identifier)
+    check(finding_tables == 1, "Anlage führt %d Befundtabellen, erwartet 1" % finding_tables)
+    check(defined == set(EXPECTED_FINDINGS),
+          "Anlage löst nicht alle Befunde auf: %s"
+          % sorted(set(EXPECTED_FINDINGS) - defined, key=lambda name: int(name[1:])))
+    for _, copy in ((CHECKLIST_SOURCE, CHECKLIST_COPY),
+                    (QUESTIONNAIRE_SOURCE, QUESTIONNAIRE_COPY)):
         if not copy.is_file():
             continue
-        text = "\n".join(paragraph.text for paragraph in Document(str(copy)).paragraphs)
-        check(annex.name in text, "%s: kein Verweis auf %s" % (copy.name, annex.name))
+        document = Document(str(copy))
+        text = all_text(copy)
+        check(ANNEX.name in text, "%s: kein Verweis auf %s" % (copy.name, ANNEX.name))
+        check("findings R1 to R10" in text, "%s: Hinweis auf die Risikoliste fehlt" % copy.name)
+        mentioned = set(re.findall(r"\bR\d+\b", text))
+        unresolved = sorted(mentioned - defined, key=lambda name: int(name[1:]))
+        check(not unresolved, "%s: genannte Befunde ohne Auflösung in der Anlage: %s"
+              % (copy.name, unresolved))
+        print("  %-58s %d Befunde genannt, alle aufgelöst" % (copy.name, len(mentioned)))
 
 
 def check_extract_verifier() -> None:
@@ -418,6 +544,10 @@ def main() -> int:
     check_addendum_excluded()
     check_blank_fills()
     check_row_split_protection()
+    check_no_html_artifacts()
+    check_marker_counts()
+    check_source_files_exist()
+    check_extracts_are_template_only()
     check_annex_reference()
     check_extract_verifier()
     print("\nPrüfungen: %d" % checks)

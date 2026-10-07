@@ -125,7 +125,7 @@ Folien über die Layouts der Vorlage anlegen, Platzhalter füllen.
 | 11 | CONTENT A_V1 | 3.2 Anwendbarkeit, zehn Fragen mit Entscheidungsspalte |
 | 12 | CONTENT A_V1 | 3.3 Prototypen und Vorserien, sechs Fälle und Hinweistext in zwei Sprachen |
 | 13 | SUBSECTION 3 | Divider 4 Risiken und Maßnahmen |
-| 14 | CONTENT A_V1 | 4.1 Risikobild: kritische Befunde R1 bis R9 mit Gegenmaßnahme im Klartext und Stand |
+| 14 | CONTENT A_V1 | 4.1 Risikobild: Befunde R1 bis R10 mit Gegenmaßnahme im Klartext und Stand |
 | 15 | CONTENT A_V1 | 4.2 Maßnahmen und Status, Phase 1 bis 3 |
 | 16 | CONTENT A_V1 | 4.3 Maßnahmen und Status, Phase 4 und 5 |
 | 17 | CONTENT A_V1 | 4.4 Aktiver Strang: was jetzt umgesetzt wird |
@@ -207,3 +207,23 @@ Nachtrag 2026-10-01, Details auf Folie 10: 3.1 Produkt und Vorhaben trägt jetzt
   Gemessener Wert siehe Bericht; Pruning nur auf Zuruf.
 - Der Vorgänger-Generator `build_cra_presentation.py` und der Vorgänger-Verifier
   `verify_cra_presentation.py` erzeugen das alte Design und sind damit abgelöst.
+
+## Nachtrag 2026-10-06: Befund R10
+
+Der Master führt die Funkebene ohne eigene Authentifizierung seit dem 2026-10-06 unter der Kennung
+R10 (siehe `sec/CRA_Compliance_Checklist.md`, Abschnitt 7 und Revisionshistorie). Das Deck wird
+nachgezogen, damit es dieselbe Kennungsfamilie zeigt wie der Master und die Maßnahmen-Anlage:
+
+| Stelle | Änderung |
+|---|---|
+| Zielbild Zeile 14 | Titel jetzt `4.1 Risikobild: Befunde R1 bis R10`. Das Wort `kritische` entfällt, weil die Folie nicht nur kritische Befunde zeigt (R1 bis R3 kritisch, R4 bis R6 weitere Befunde) |
+| Folie 14, Hinweiskasten | neue Zeile `Offen: R10 Funkebene ohne eigene Authentifizierung, der Steuerverkehr läuft als Klartext über HTTP.` Die Maßnahmekennung P3.3 steht dort bewusst nicht: Kennungen der Maßnahmen erscheinen erst ab Folie 15 |
+| Folie 14, Tabelle | unverändert sechs Zeilen R1 bis R6, damit die Folie mit der neuen Hinweiszeile nicht überläuft |
+| Folie 23, Dokumentenregister | Maßnahmen-Spalte der Risikoanalyse jetzt `R1 bis R10` |
+| Folie 25, Status und Revision | Revisionszeile um `Befund R10 aufgenommen am 2026-10-06` ergänzt |
+| Dateiname und Fußzeile | Stand im Dateinamen: `sec/2026-10-06_CRA_Compliance_Praesentation.pptx`, Fußzeilendatum `06.10.2026`. Die Vorgängerdatei vom 2026-10-01 wurde nach Dry-Run und Freigabe entfernt, Eintrag im `deletion_log.md` |
+| Werkzeuge | `build_ventrex_deck.py`, `verify_ventrex_deck.py`, `tools/audit_plan_umsetzung.py`, `tools/cra_rule_control.py` und `tools/forward_ref_control.py` zeigen auf den neuen Dateinamen. `tools/audit_plan_umsetzung.py` erkennt die Kennung R10 in seiner Reihenfolgeregel, `verify_ventrex_deck.py` erlaubt das Datum `06.10.2026` |
+
+Der Vorgänger `verify_cra_presentation.py` prüft weiterhin die am 2026-09-30 gelöschte Datei
+`sec/2026-09-29_CRA_Compliance_Praesentation.pptx` und läuft daher ins Leere. Das ist ein
+Altbestand außerhalb dieses Nachtrags.

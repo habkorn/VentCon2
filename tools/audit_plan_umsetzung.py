@@ -4,7 +4,7 @@
 Der Prüfer arbeitet unabhängig von `verify_ventrex_deck.py`: er liest die Zielbild-Tabelle
 aus `sec/plan/2026-09-30_VENTREX_Praesentation_Plan.md` als Sollvorgabe und vergleicht sie
 mit dem erzeugten Deck. Geprüft werden Reihenfolge, Layout und Nummer jeder Folie, die
-Unterzeile auf jedem Divider, die entfernten Vorwärtsverweise, die Kennungen R1 bis R9 und
+Unterzeile auf jedem Divider, die entfernten Vorwärtsverweise, die Kennungen R1 bis R10 und
 P1.1 bis P5.2 vor ihrer Erklärungsfolie und die Vollständigkeit des Inhaltsverzeichnisses.
 
 Aufruf:
@@ -18,12 +18,12 @@ from pptx import Presentation
 from pptx.enum.shapes import PP_PLACEHOLDER
 
 PLAN = "sec/plan/2026-09-30_VENTREX_Praesentation_Plan.md"
-DECK = "sec/2026-10-01_CRA_Compliance_Praesentation.pptx"
+DECK = "sec/2026-10-06_CRA_Compliance_Praesentation.pptx"
 HEADING = "## Zielbild: 28 Folien in sieben Abschnitten"
 
 # Kennungen erst ab der Folie, die sie erklärt (Zielreihenfolge der Umsortierung)
 ID_FIRST = (
-    ("R1 bis R9", re.compile(r"(?<![A-Za-z0-9])R[1-9](?![0-9])"), 14),
+    ("R1 bis R10", re.compile(r"(?<![A-Za-z0-9])R(?:10|[1-9])(?![0-9])"), 14),
     ("P1.1 bis P3.3", re.compile(r"(?<![A-Za-z0-9])P[1-3]\.[1-9](?![0-9])"), 15),
     ("P4.1 bis P5.2", re.compile(r"(?<![A-Za-z0-9])P[4-5]\.[1-9](?![0-9])"), 16),
 )

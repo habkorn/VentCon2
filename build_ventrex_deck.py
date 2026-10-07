@@ -4,7 +4,7 @@ Erzeugt die CRA-Präsentation aus der Firmenvorlage.
 
 Vorlage:  sec/VENTREX PPT Vorlage 2026.pptx
 Quelle:   sec/CRA_Compliance_Checklist.md (Master, Stand 2026-10-01)
-Ziel:     sec/2026-10-01_CRA_Compliance_Praesentation.pptx
+Ziel:     sec/2026-10-06_CRA_Compliance_Praesentation.pptx
 
 Aufruf:
     "C:\\venvs\\VentCon2\\Scripts\\python.exe" build_ventrex_deck.py
@@ -24,10 +24,10 @@ from pptx.oxml.ns import qn
 from pptx.util import Inches, Pt
 
 TEMPLATE = "sec/VENTREX PPT Vorlage 2026.pptx"
-OUT = sys.argv[1] if len(sys.argv) > 1 else "sec/2026-10-01_CRA_Compliance_Praesentation.pptx"
+OUT = sys.argv[1] if len(sys.argv) > 1 else "sec/2026-10-06_CRA_Compliance_Praesentation.pptx"
 
 FOOTER_NAME = "VentCon2 - EU CRA Compliance"
-FOOTER_DATE = "01.10.2026"
+FOOTER_DATE = "06.10.2026"
 
 # Markenschriften, damit auch Master mit Calibri-Theme markenkonform rendern
 HEAD_FONT = "Clash Display"
@@ -374,7 +374,7 @@ def build_inhaltsverzeichnis(prs):
         ["11", "3.2 Anwendbarkeit", "25", "6.3 Status und Revision"],
         ["12", "3.3 Prototypen und Vorserien", "26", "7 Fazit und nächste Schritte"],
         ["13", "4 Risiken und Maßnahmen", "27", "7.1 Was folgt daraus für VENTREX"],
-        ["14", "4.1 Risikobild: kritische Befunde R1 bis R9", "28", "Abschluss"],
+        ["14", "4.1 Risikobild: Befunde R1 bis R10", "28", "Abschluss"],
     ], widths=[0.7, 4.7, 0.7, 6.49], size=9.5, row_h=0.29,
         highlight_prefix=r"^\d+ [A-Za-z]")
 
@@ -814,7 +814,7 @@ def build_register(prs):
     set_title(slide, "6.1 Dokumentenregister", size=26)
     add_table(slide, CONTENT_TOP, ["Dokument oder Gruppe", "Rolle", "Maßnahmen"], [
         ["CRA_Compliance_Checklist.md", "Master (Grundlage), einzige Statusquelle", "P1.1 bis P5.2"],
-        ["analyse/...Sicherheitsanalyse.md", "Risiko- und Evidenzanalyse", "R1 bis R9"],
+        ["analyse/...Sicherheitsanalyse.md", "Risiko- und Evidenzanalyse", "R1 bis R10"],
         ["plan/ 4 vorhandene Pläne", "Web_Auth, Kalibrierung, AP-Passwort, Mutex",
          "P1.1, P1.2, P1.3, P2.1, P2.2, P3.1"],
         ["plan/ 14 Skelette und Pläne", "Abschnitte 3 bis 6 der Skelette noch offen",
@@ -976,7 +976,7 @@ def build_status_phase_4_5(prs):
 
 def build_risiken(prs):
     slide = new_slide(prs, "CONTENT A_V1")
-    set_title(slide, "4.1 Risikobild: kritische Befunde R1 bis R9", size=24)
+    set_title(slide, "4.1 Risikobild: Befunde R1 bis R10", size=24)
     # Die Spalte Maßnahme nennt die Gegenmaßnahme im Klartext. Kennungen wie P1.1
     # stehen erst dort, wo die Maßnahmen erklärt werden (4.2 und 4.3), damit das
     # Deck keine Verweise auf später Gezeigtes enthält.
@@ -1003,6 +1003,8 @@ def build_risiken(prs):
     lines = [
         ("R7 bis R9 sind bearbeitet: Flash-Verschleiß und Client-Connect-DoS in v2.7.3, "
          "Synchronisation der settings erledigt.", 11, False, GRAY),
+        ("Offen: R10 Funkebene ohne eigene Authentifizierung, der Steuerverkehr läuft als "
+         "Klartext über HTTP.", 11, False, GRAY),
         ("Vollständige Liste mit Evidenz: analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md",
          11, False, GRAY),
     ]
@@ -1086,7 +1088,8 @@ def build_revision(prs):
              "P1.3 umsetzen, danach P1.1 und P1.2 gemeinsam, P2.2 im Anschluss"),
             ("Revision des Masters",
              "Arbeitsliste vom 2026-08-29, Umbau zum Master am 2026-09-28, Trennung der Regime "
-             "am 2026-09-30, Prototypenregel und Status zurückgestellt am 2026-10-01."),
+             "am 2026-09-30, Prototypenregel und Status zurückgestellt am 2026-10-01, Befund "
+             "R10 aufgenommen am 2026-10-06."),
         ], size=12)
 
 

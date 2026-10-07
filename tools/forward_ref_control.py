@@ -15,7 +15,7 @@ import sys
 
 from pptx import Presentation
 
-DECK = sys.argv[1] if len(sys.argv) > 1 else "sec/2026-10-01_CRA_Compliance_Praesentation.pptx"
+DECK = sys.argv[1] if len(sys.argv) > 1 else "sec/2026-10-06_CRA_Compliance_Praesentation.pptx"
 CONTROL = "sec/_control_forward_ref.pptx"
 
 shutil.copyfile(DECK, CONTROL)

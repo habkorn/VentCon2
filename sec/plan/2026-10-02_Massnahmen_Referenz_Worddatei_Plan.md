@@ -77,3 +77,25 @@ Die beiden Wordkopien tragen jetzt eine vierte Hinweiszeile mit dem Verweis auf 
 - Keine Bewertung, keine Zusage zu Terminen, keine neuen Angaben.
 - Vorlagen und bestehende Antworten bleiben unverändert, außer der Nutzer wünscht einen Verweis
   nach Q8.
+
+## Nachtrag 2026-10-06: Risikoliste und Markdown-Quelle
+
+Der Befund vom 2026-10-06: Die Anlage nannte in der Spalte `Risk / CRA duty` die Risiko-IDs `R1`
+bis `R9`, erklärte sie aber nirgends, obwohl die beantwortete Checkliste dieselben Kennungen 19 Mal
+führt. Die Anlage verfehlte damit ihren Auftrag, jede Kennung ohne Öffnen des internen Dossiers
+aufzulösen.
+
+Umgesetzt nach `sec/plan/2026-10-06_Risikoliste_und_Markdown_Quellen_Plan.md`:
+
+| Stelle | Änderung |
+|---|---|
+| Spalten der Anlage | `Risk / CRA duty` ist getrennt in `Finding` und `CRA duty`, Breiten 0,44 / 2,36 / 1,35 / 0,85 / 1,30 Zoll |
+| Neue Tabelle | `Findings R1 to R10` mit `ID`, `Finding`, `Measure`, `Status`, eine Zeile je Befund |
+| Kennung R10 | Der bisher kennungslose Funkbefund (P3.3) trägt jetzt die Kennung R10, siehe Master, Revisionshistorie 2026-10-06 |
+| Quelle | Die Anlage wird aus `filled/src/VentCon2_Measures_Reference_2026-10-02.md` gesetzt, Werkzeug -> Markdown -> Worddatei |
+| Werkzeug | `tools/measure_reference.py` liest Abschnitt 7 und 8 des Masters und bricht ab, wenn ein Befund im Master fehlt oder eine Befundzelle keine Kennung und keine vereinbarte Verneinung trägt |
+| Verifier | `tools/verify_measure_reference.py` prüft zusätzlich Befundliste, Kennungsauflösung und die Übereinstimmung von Quelle und Worddatei: 503 Prüfungen |
+
+Die Anlage behält ihren Dateinamen und ihr Bezugsdatum 2026-10-02 (E84); der Stand im Text und die
+Revisionszeile nennen den 2026-10-06. Die früheren Entscheidungen E65 bis E74 gelten weiter, E68 und
+E73 sind durch die getrennten Spalten überholt.

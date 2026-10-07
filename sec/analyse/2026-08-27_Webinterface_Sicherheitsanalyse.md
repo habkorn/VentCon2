@@ -2,7 +2,7 @@
 
 Rolle: Risiko- und Evidenzanalyse (Detaildokument, kein Umsetzungsplan)
 Grundlage: `../CRA_Compliance_Checklist.md`
-Risikobezug: R1 bis R9 (R1 bis R3 kritisch, R4 bis R9 weitere Befunde)
+Risikobezug: R1 bis R10 (R1 bis R3 kritisch, R4 bis R9 weitere Befunde, R10 Funkebene ohne eigene Authentifizierung, siehe Nachtrag in Abschnitt 7)
 Zuordnung: Die Risiko-IDs sind in Abschnitt 7 des Masters den Maßnahmen P1.1 bis P3.3 zugeordnet
 Datum: 2026-08-27, Stand der Risikobewertung 2026-09-28
 Hinweis: Der Umsetzungsplan wird nicht mehr hier geführt, sondern im Master
@@ -69,3 +69,19 @@ Für P1.4, P2.3 und P3.3 liegen Skelette unter `../plan/` bereit.
 - AP-Passwort: Zur Laufzeit konfigurierbar, über Web oder Settings.
 - Erstinbetriebnahme: Kein universelles Standardpasswort; erzwungene Passwortvergabe (Provisioning) vor Freischaltung der Steuerung (CRA-konform nach Annex I, Teil I, 2(b)/(d); ETSI EN 303 645 5.1-1 dient nur als technischer Maßstab).
 - Codekommentare: Deutsch.
+
+## 7. Nachtrag 2026-10-06: R10 Funkebene
+
+Die Funkebene ohne eigene Authentifizierung, Gegenstand der Maßnahme P3.3, war bisher nur als
+Freitext in Abschnitt 7 des Masters geführt. Sie erhält die Kennung R10, damit jeder Eintrag der
+Verknüpfungstabelle entweder einen Befund oder ausdrücklich keinen Risikobezug trägt.
+
+| ID | Befund | Risiko | Maßnahme |
+|---|---|---|---|
+| R10 | Funkebene ohne eigene Authentifizierung auf der Anwendungsebene: Der Zugangspunkt schützt sich nur mit dem geteilten WPA2-Passwort, der Steuerverkehr läuft als Klartext über HTTP | offen, Bewertung folgt mit P4.1 | P3.3 |
+
+Der Befund liegt außerhalb des Gegenstands dieses Dokuments, das die Weboberfläche untersucht. Er
+ist hier trotzdem mitgeführt, weil er dieselbe Angriffsfläche betrifft und in derselben
+Kennungsfamilie zitiert wird. Nachweis: `../plan/2026-09-28_P3-3_Radio_Encryption_Plan.md`,
+Abschnitt 2 (verifiziert am 2026-09-28). Die Bewertung der Befunde R4 bis R10 führt die
+Risikobewertung nach P4.1 zusammen.

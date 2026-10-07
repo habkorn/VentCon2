@@ -10,7 +10,7 @@
 | Author | Mattijs Planken |
 | Created | 2026-09-07 13:55:00+00:00 |
 | Modified | 2026-09-15 10:31:00+00:00 |
-| Extracted | 2026-10-02 |
+| Extracted | 2026-10-06 |
 | Tool | tools/docx_extract.py, python-docx |
 | Scope | paragraphs: 17, tables: 0, numbered paragraphs: 8, images: 1 |
 | Formatting | headings follow the source paragraph styles (Title, Heading 1, Heading 2); clause numbers are reconstructed from the numbering definition |

@@ -59,6 +59,7 @@ BASE_DIR = ROOT / "sec" / "AalbertsChecklists"
 TEMPLATE_DIR = BASE_DIR / "templates"
 EXTRACT_DIR = BASE_DIR / "extracts"
 FILLED_DIR = BASE_DIR / "filled"
+SOURCE_DIR = FILLED_DIR / "src"
 
 # Markenblau der VENTREX- und Aalberts-Vorlagen, Antworten erscheinen fett in dieser Farbe.
 ANSWER_COLOR = RGBColor(0x00, 0x2F, 0x87)
@@ -69,13 +70,19 @@ QUESTIONNAIRE_MD = EXTRACT_DIR / "CRA_Supplier_Due_Diligence_Questionnaire.md"
 QUESTIONNAIRE_DOCX = TEMPLATE_DIR / "CRA- Supplier Due Diligence Questionnaire - template Sep 2026.docx"
 
 ANSWERS_ROW = ("| Answers | Filled in from the VENTREX dossier on 2026-10-02, marked in bold. "
-               "Template text is unchanged. Regenerate the extract with tools/docx_extract.py "
-               "and re-apply with tools/aalberts_fill.py if needed. |")
+               "Template text is unchanged. This file holds the filled entries of `%s`; the Word "
+               "copy is composed from this file by `tools/aalberts_fill.py`. |")
+
+# Marke für Hinweiszeilen in der Markdown-Quelle: Ankerzeile im Worddokument und Hinweistext.
+NOTE_MARKER = "<!-- note:"
+
+# Urteil allein in einem Zellteil der Quelle, etwa `**N**` vor dem `<br>`.
+VERDICT_CELL = re.compile(r"^\*\*(Y|N|N/A)\*\*$")
 
 # Antwort zu jeder Sicherheitsvorgabe in Teil I der Checkliste, Schlüssel ist der Vorgabentext.
 CHECKLIST_PART_I = {
     "Risk-based design: The product’s security measures match its identified cybersecurity risks (see Appendix 1 below).":
-        "**N** no documented product risk assessment yet; the risks R1 to R9 from the security "
+        "**N** no documented product risk assessment yet; the risks R1 to R10 from the security "
         "analysis are the interim basis, measure P4.1 open",
     "No known exploitable vulnerabilities: None are known when the product is released or placed on the market.":
         "**N** the security analysis lists open, exploitable findings, above all R1 (no authentication) "
@@ -132,7 +139,7 @@ CHECKLIST_PART_I = {
 # Antwort zu jedem Punkt in Teil II der Checkliste.
 CHECKLIST_PART_II = {
     "Vulnerability and component records: Vulnerabilities and product components are identified and documented.":
-        "**N** vulnerabilities are documented as risks R1 to R9 in the security analysis, a component "
+        "**N** vulnerabilities are documented as risks R1 to R10 in the security analysis, a component "
         "inventory is missing; measure P4.2 open",
     "Software Bill of Materials: An SBOM is maintained in a commonly used, machine-readable format and includes at least top-level dependencies.":
         "**N** no SBOM yet, measure P4.2 open; the dependency list in platformio.ini and the vendored "
@@ -161,8 +168,9 @@ CHECKLIST_PART_II = {
 
 CHECKLIST_NOTES = [
     ("Part I:",
-     "**The measures referenced in this document, P1.1 to P5.2, are described in the annex "
-     "VentCon2_Measures_Reference_2026-10-02.docx, delivered with this package.**"),
+     "**The measures referenced in this document, P1.1 to P5.2, and the findings R1 to R10 are "
+     "described in the annex VentCon2_Measures_Reference_2026-10-02.docx, delivered with this "
+     "package.**"),
     ("Vulnerability handling",
      "**Note on the template: Part II lists the safeguard \"Separate security updates\" twice, so "
      "the same answer appears in both rows.**"),
@@ -174,7 +182,7 @@ CHECKLIST_NOTES = [
      "obligations rest; the assessment shows the maturity level today."),
     ("Key gaps / evidence:",
      "**Evidence: sec/CRA_Compliance_Checklist.md (obligations 1 to 26, measures P1.1 to P5.2, risks "
-     "R1 to R9), sec/analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md, 21 measure plans under "
+     "R1 to R10), sec/analyse/2026-08-27_Webinterface_Sicherheitsanalyse.md, 21 measure plans under "
      "sec/plan/.**"),
 ]
 
@@ -232,10 +240,10 @@ QUESTIONNAIRE = {
         "**No, measure P4.5 open.**",
     "Does the supplier conduct regular security testing of the component (e.g. static/dynamic analysis, penetration testing)? Describe.":
         "**No regular security testing. One manual security analysis of the web interface exists "
-        "(2026-08-27, findings R1 to R9) and the code is reviewed during development; update tests "
+        "(2026-08-27, findings R1 to R10) and the code is reviewed during development; update tests "
         "are part of measure P4.3.**",
     "Has the component had any publicly disclosed or CVE-registered vulnerabilities in the past 24 months? List, if any.":
-        "**None registered. All findings so far are internal and documented as risks R1 to R9.**",
+        "**None registered. All findings so far are internal and documented as risks R1 to R10.**",
     "How and how quickly will the supplier notify Aalberts if a new vulnerability affecting this component is identified?":
         "**No committed process yet. Notification through the development contact; the formal "
         "process is measure P5.1, resting until the market decision.**",
@@ -292,8 +300,9 @@ QUESTIONNAIRE = {
 
 QUESTIONNAIRE_NOTES = [
     ("Supplier and Component Identification",
-     "**The measures referenced in this document, P1.1 to P5.2, are described in the annex "
-     "VentCon2_Measures_Reference_2026-10-02.docx, delivered with this package.**"),
+     "**The measures referenced in this document, P1.1 to P5.2, and the findings R1 to R10 are "
+     "described in the annex VentCon2_Measures_Reference_2026-10-02.docx, delivered with this "
+     "package.**"),
     ("Outcome: (to be verified by legal counsel)",
      "**Outcome: Accepted with conditions / follow-up required.** Gaps identified and listed in the "
      "checklist; no material risk for the current status, because the product is not placed on the "
@@ -352,9 +361,9 @@ def apply_widths(table, widths: list[float]) -> None:
     table.autofit = False
 
 
-def fill_markdown_blanks(path: Path, entries) -> int:
-    """Unterstriche in Leerzeilen des Extrakts durch Werte ersetzen, fett markiert."""
-    lines = path.read_text(encoding="utf-8").split("\n")
+def markdown_blanks(text: str, entries) -> tuple[str, int]:
+    """Unterstriche in Leerzeilen durch die Werte ersetzen, fett markiert."""
+    lines = text.split("\n")
     filled = 0
     for prefix, values in entries:
         for index, line in enumerate(lines):
@@ -365,8 +374,154 @@ def fill_markdown_blanks(path: Path, entries) -> int:
                 filled += 1
             lines[index] = line
             break
-    path.write_text("\n".join(lines), encoding="utf-8")
-    return filled
+    return "\n".join(lines), filled
+
+
+def markdown_answers(text: str, table_answers: dict[str, str], cell_index: int) \
+        -> tuple[str, int, list[str]]:
+    """Antworten in die leeren Tabellenzellen der Markdown-Quelle setzen.
+
+    Eine Antwort kann mehrere Zeilen treffen, weil die Vorlage eine Zeile doppelt führt; alle
+    Treffer werden gefüllt.
+    """
+    used: set[str] = set()
+    filled = 0
+    output = []
+    for line in text.split("\n"):
+        if line.startswith("|"):
+            cells = line.split("|")
+            found = None
+            for cell in cells:
+                candidate = normalize(cell)
+                if candidate in table_answers:
+                    found = candidate
+                    break
+            if found:
+                answer = table_answers[found]
+                # Beim Aufteilen einer Zeile mit "|" liegt Zelle n auf dem Index n + 1.
+                target_cell = cell_index + 1 if len(cells) > cell_index + 1 else 1
+                if answer.split(" ")[0] not in cells[target_cell]:
+                    rendered = rendered_markdown(answer)
+                    if normalize(cells[target_cell]):
+                        # Vorlagenzelle enthält schon einen Hinweis, die Antwort folgt darunter.
+                        cells[target_cell] = cells[target_cell].rstrip() + " <br>" + rendered + " "
+                    else:
+                        cells[target_cell] = " " + rendered + " "
+                    line = "|".join(cells)
+                    filled += 1
+                used.add(found)
+        output.append(line)
+    return "\n".join(output), filled, sorted(set(table_answers) - used)
+
+
+def markdown_notes(text: str, notes: list[tuple[str, str]]) -> tuple[str, int, list[str]]:
+    """Hinweise als ausgezeichnete Zeile hinter ihre Ankerzeile setzen.
+
+    Die Marke trägt den Anker, damit die Worddatei ohne die Hinweisliste des Werkzeugs aus der
+    Quelle gesetzt werden kann.
+    """
+    remaining = list(notes)
+    inserted = 0
+    output = []
+    for line in text.split("\n"):
+        output.append(line)
+        # Mehrere Hinweise können an derselben Zeile hängen, etwa das Ergebnis und der Nachweis.
+        for anchor, note in list(remaining):
+            if normalize(anchor) not in normalize(line):
+                continue
+            output.append("%s %s --> %s" % (NOTE_MARKER, anchor, note))
+            inserted += 1
+            remaining = [entry for entry in remaining if entry[0] != anchor]
+    return "\n".join(output), inserted, [anchor for anchor, _ in remaining]
+
+
+def with_answers_row(text: str, docx_name: str) -> str:
+    """Kopfzeile der Quelle um die Herkunft der Eintragungen ergänzen."""
+    lines = text.split("\n")
+    if any(line.startswith("| Answers |") for line in lines):
+        return text
+    for index, line in enumerate(lines):
+        if line.startswith("| Note |"):
+            lines.insert(index, ANSWERS_ROW % docx_name)
+            break
+    return "\n".join(lines)
+
+
+def write_source(extract: Path, source: Path, table_answers: dict[str, str], cell_index: int,
+                 notes: list[tuple[str, str]], blanks: tuple, docx_name: str) \
+        -> tuple[int, int, int, list[str], list[str]]:
+    """Markdown-Quelle der befüllten Worddatei schreiben: Vorlagentext plus Eintragungen."""
+    text = extract.read_text(encoding="utf-8")
+    text, filled, missing = markdown_answers(text, table_answers, cell_index)
+    text, inserted, missing_notes = markdown_notes(text, notes)
+    text, blank_count = markdown_blanks(text, blanks)
+    text = with_answers_row(text, docx_name)
+    source.parent.mkdir(parents=True, exist_ok=True)
+    source.write_text(text, encoding="utf-8", newline="\n")
+    return filled, inserted, blank_count, missing, missing_notes
+
+
+def answer_from_cell(cell: str) -> str:
+    """Antwortzelle der Quelle in die Form des Antworttextes bringen.
+
+    In der Quelle trennt `<br>` die Teile einer Zelle: der Vorlagenhinweis steht davor, die Antwort
+    dahinter, und in der Checkliste trennt dasselbe `<br>` Urteil und Begründung. Die Worddatei
+    bekommt den Vorlagenhinweis aus der Vorlage und die Antwort ohne Marken, das Urteil als eigene
+    Zeile. Ohne diese Umsetzung landet `<br>` als Text in der Worddatei.
+    """
+    parts = [part.strip() for part in cell.split("<br>")]
+    for index, part in enumerate(parts):
+        if VERDICT_CELL.match(part):
+            return " ".join([part] + parts[index + 1:])
+    return parts[-1]
+
+
+def read_source(source: Path, cell_index: int) \
+        -> tuple[dict[str, str], list[tuple[str, str]], tuple]:
+    """Eintragungen aus der Markdown-Quelle lesen: Antworten, Hinweise, Leerzeilenwerte.
+
+    Das ist die Grundlage der Worddatei: Antworten stehen in den Tabellenzellen des Rumpfes,
+    Hinweise in Zeilen mit der Marke `<!-- note: <Anker> -->`, Werte für Leerzeilen fett hinter
+    ihrer Beschriftung. Der Kopfblock und der Anhang der Extraktion gehören nicht zum Dokument und
+    bleiben außen vor.
+    """
+    answers: dict[str, str] = {}
+    notes: list[tuple[str, str]] = []
+    blanks: list[tuple[str, tuple[str, ...]]] = []
+    in_head = False
+    in_appendix = False
+    for line in source.read_text(encoding="utf-8").split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("<!-- extract:head-start -->"):
+            in_head = True
+            continue
+        if stripped.startswith("<!-- extract:head-end -->"):
+            in_head = False
+            continue
+        if stripped.startswith("<!-- extract:appendix-start -->"):
+            in_appendix = True
+            continue
+        if in_head or in_appendix:
+            continue
+        if stripped.startswith(NOTE_MARKER):
+            anchor, _, note = stripped[len(NOTE_MARKER):].partition("-->")
+            notes.append((anchor.strip(), note.strip()))
+            continue
+        if stripped.startswith("|"):
+            cells = line.split("|")
+            if len(cells) <= cell_index + 1:
+                continue
+            if not cells[cell_index + 1].strip():
+                continue
+            answer = answer_from_cell(cells[cell_index + 1])
+            for position, cell in enumerate(cells):
+                if position != cell_index + 1 and normalize(cell):
+                    answers[normalize(cell)] = answer
+            continue
+        values = re.findall(r"\*\*(.+?)\*\*", stripped)
+        if values and stripped.split("**")[0].strip():
+            blanks.append((stripped.split("**")[0], tuple(values)))
+    return answers, notes, tuple(blanks)
 
 
 def fill_docx_blanks(document, entries) -> int:
@@ -419,62 +574,6 @@ def rendered_markdown(answer: str) -> str:
     """Antwort für die Markdown-Zelle, Urteil und Begründung durch `<br>` getrennt."""
     verdict, rest = split_verdict(answer)
     return "**%s**<br>%s" % (verdict, rest) if verdict else answer
-
-
-def fill_markdown(path: Path, table_answers: dict[str, str], cell_index: int,
-                  notes: list[tuple[str, str]], blanks: tuple = ()) -> tuple[int, int, list[str]]:
-    """Antworten in leere Tabellenzellen setzen und Hinweise nach Ankerzeilen einfügen.
-
-    Eine Antwort kann mehrere Zeilen treffen, weil die Vorlage eine Zeile doppelt führt; alle
-    Treffer werden gefüllt. Hinweise werden je Ankerzeile eingefügt, auch mehrere hintereinander.
-    """
-    lines = path.read_text(encoding="utf-8").split("\n")
-    existing = "\n".join(lines)
-    used: set[str] = set()
-    filled = 0
-    inserted = 0
-    remaining = list(notes)
-    output = []
-    for line in lines:
-        output.append(line)
-        if line.startswith("|"):
-            cells = line.split("|")
-            found = None
-            for cell in cells:
-                candidate = normalize(cell)
-                if candidate in table_answers:
-                    found = candidate
-                    break
-            if found:
-                answer = table_answers[found]
-                rendered = rendered_markdown(answer)
-                # Beim Aufteilen einer Zeile mit "|" liegt Zelle n auf dem Index n + 1.
-                target_cell = cell_index + 1 if len(cells) > cell_index + 1 else 1
-                if answer.split(" ")[0] in cells[target_cell]:
-                    used.add(found)
-                    continue
-                if normalize(cells[target_cell]):
-                    # Vorlagenzelle enthält schon einen Hinweis, die Antwort folgt darunter.
-                    cells[target_cell] = cells[target_cell].rstrip() + " <br>" + rendered + " "
-                else:
-                    cells[target_cell] = " " + rendered + " "
-                output[-1] = "|".join(cells)
-                used.add(found)
-                filled += 1
-                continue
-        for anchor, note in list(remaining):
-            if normalize(anchor) in normalize(line):
-                if note in existing or note in "\n".join(output):
-                    inserted += 1
-                    remaining = [entry for entry in remaining if entry[0] != anchor]
-                    continue
-                output.extend(["", note])
-                inserted += 1
-                remaining = [entry for entry in remaining if entry[0] != anchor]
-    path.write_text("\n".join(output), encoding="utf-8")
-    if blanks:
-        fill_markdown_blanks(path, blanks)
-    return filled, inserted, sorted(set(table_answers) - used), [a for a, _ in remaining]
 
 
 def fill_docx(source: Path, target: Path, table_answers: dict[str, str], cell_index: int,
@@ -572,17 +671,6 @@ def keep_rows_together(document) -> int:
     return count
 
 
-def insert_head_row(path: Path) -> None:
-    lines = path.read_text(encoding="utf-8").split("\n")
-    if any(line.startswith("| Answers |") for line in lines):
-        return
-    for index, line in enumerate(lines):
-        if line.startswith("| Note |"):
-            lines.insert(index, ANSWERS_ROW)
-            break
-    path.write_text("\n".join(lines), encoding="utf-8")
-
-
 def main() -> int:
     jobs = [
         ("checklist", CHECKLIST_MD, CHECKLIST_DOCX,
@@ -596,18 +684,21 @@ def main() -> int:
         answers = dict(first)
         answers.update(second)
         blanks = BLANKS.get(name, ())
-        insert_head_row(md_path)
-        filled_md, notes_md, missing, missing_notes = fill_markdown(md_path, dict(answers),
-                                                                   cell_index, list(notes), blanks)
+        source_path = SOURCE_DIR / (Path(docx_name).stem + ".md")
+        filled_md, notes_md, blanks_md, missing, missing_notes = write_source(
+            md_path, source_path, dict(answers), cell_index, list(notes), blanks, docx_name)
+        source_answers, source_notes, source_blanks = read_source(source_path, cell_index)
         filled_docx, notes_docx, missing_docx, (answer_width, width_share) = fill_docx(
-            docx_path, FILLED_DIR / docx_name, dict(answers), cell_index, list(notes), blanks)
-        print("%-14s Markdown: %2d Antworten, %d Hinweise, %d Leerzeilenfelder | "
-              "Word: %2d Antworten, %d Hinweise -> %s"
-              % (name, filled_md, notes_md, sum(len(values) for _, values in blanks),
-                 filled_docx, notes_docx, docx_name))
+            docx_path, FILLED_DIR / docx_name, source_answers, cell_index, source_notes,
+            source_blanks)
+        print("%-14s Quelle: %2d Antworten, %d Hinweise, %d Leerzeilenfelder -> %s"
+              % (name, filled_md, notes_md, blanks_md, source_path.name))
+        print("%-14s Word:   %2d Antworten, %d Hinweise -> %s"
+              % ("", filled_docx, notes_docx, docx_name))
         print("   Antwortspalte %.2f in, %.0f %% der Tabellenbreite"
               % (answer_width, width_share * 100))
-        for label, items in (("Markdown", missing + missing_notes), ("Word", missing_docx)):
+        for label, items in (("Quelle", missing + missing_notes),
+                             ("Word", missing_docx)):
             if items:
                 print("   %s nicht zugeordnet: %d, erste: %s" % (label, len(items), items[:2]))
     return 0

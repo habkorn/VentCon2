@@ -17,7 +17,7 @@ import sys
 
 from pptx import Presentation
 
-DECK = "sec/2026-10-01_CRA_Compliance_Praesentation.pptx"
+DECK = "sec/2026-10-06_CRA_Compliance_Praesentation.pptx"
 MASTER = "sec/CRA_Compliance_Checklist.md"
 DECK_CONTROL = "sec/_control_rule.pptx"
 MASTER_CONTROL = "sec/_control_master.md"
