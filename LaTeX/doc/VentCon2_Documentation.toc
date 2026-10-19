@@ -9,147 +9,148 @@
 \contentsline {subsection}{\numberline {2.6}External Interfaces}{6}{subsection.2.6}%
 \contentsline {section}{\numberline {3}Hardware Platform}{6}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Proportional Valve}{6}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Electrical Connection}{7}{subsubsection.3.1.1}%
 \contentsline {subsection}{\numberline {3.2}Pressure Sensor}{7}{subsection.3.2}%
 \contentsline {subsection}{\numberline {3.3}Microcontroller and Processing Unit}{7}{subsection.3.3}%
 \contentsline {subsection}{\numberline {3.4}Hardware Summary}{8}{subsection.3.4}%
 \contentsline {section}{\numberline {4}Control Theory and Algorithms}{8}{section.4}%
 \contentsline {subsection}{\numberline {4.1}PID Controller Theory}{8}{subsection.4.1}%
-\contentsline {subsubsection}{\numberline {4.1.1}The PID Control Law}{8}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}The PID Control Law}{9}{subsubsection.4.1.1}%
 \contentsline {subsubsection}{\numberline {4.1.2}Parallel (Independent) Form}{9}{subsubsection.4.1.2}%
 \contentsline {paragraph}{Advantages of the parallel form:}{9}{section*.2}%
 \contentsline {paragraph}{Disadvantage:}{9}{section*.3}%
-\contentsline {subsubsection}{\numberline {4.1.3}Standard (ISA / Dependent) Form}{9}{subsubsection.4.1.3}%
+\contentsline {subsubsection}{\numberline {4.1.3}Standard (ISA / Dependent) Form}{10}{subsubsection.4.1.3}%
 \contentsline {paragraph}{Conversion between the two forms.}{10}{section*.4}%
 \contentsline {subsubsection}{\numberline {4.1.4}Practical Meaning of the Time Constants}{10}{subsubsection.4.1.4}%
 \contentsline {paragraph}{Integral Time $T_i$ (Reset Time)}{10}{section*.5}%
 \contentsline {paragraph}{Derivative Time $T_d$ (Rate Time)}{11}{section*.6}%
 \contentsline {paragraph}{Numerical Example (VentCon2 context)}{11}{section*.7}%
-\contentsline {subsubsection}{\numberline {4.1.5}Discrete-Time Implementation in VentCon2}{11}{subsubsection.4.1.5}%
+\contentsline {subsubsection}{\numberline {4.1.5}Discrete-Time Implementation in VentCon2}{12}{subsubsection.4.1.5}%
 \contentsline {paragraph}{Gain pre-scaling.}{12}{section*.8}%
 \contentsline {paragraph}{Compute algorithm.}{12}{section*.9}%
-\contentsline {subsubsection}{\numberline {4.1.6}Initialization and Startup Behaviour}{12}{subsubsection.4.1.6}%
+\contentsline {subsubsection}{\numberline {4.1.6}Initialization and Startup Behaviour}{13}{subsubsection.4.1.6}%
 \contentsline {subsubsection}{\numberline {4.1.7}Summary: Choosing Between Forms}{13}{subsubsection.4.1.7}%
-\contentsline {subsection}{\numberline {4.2}PWM Valve Control and Output Mapping}{13}{subsection.4.2}%
-\contentsline {subsubsection}{\numberline {4.2.1}Physical Valve Characteristics}{13}{subsubsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2}PWM Valve Control and Output Mapping}{14}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Physical Valve Characteristics}{14}{subsubsection.4.2.1}%
 \contentsline {subsubsection}{\numberline {4.2.2}Output Mapping Function}{14}{subsubsection.4.2.2}%
-\contentsline {subsubsection}{\numberline {4.2.3}Mapping Table}{14}{subsubsection.4.2.3}%
+\contentsline {subsubsection}{\numberline {4.2.3}Mapping Table}{15}{subsubsection.4.2.3}%
 \contentsline {subsubsection}{\numberline {4.2.4}Dead Zone Threshold Design}{15}{subsubsection.4.2.4}%
-\contentsline {subsubsection}{\numberline {4.2.5}Interaction with Anti-Windup}{15}{subsubsection.4.2.5}%
+\contentsline {subsubsection}{\numberline {4.2.5}Interaction with Anti-Windup}{16}{subsubsection.4.2.5}%
 \contentsline {subsection}{\numberline {4.3}Anti-Windup Protection}{16}{subsection.4.3}%
 \contentsline {subsubsection}{\numberline {4.3.1}The Integral Windup Problem}{16}{subsubsection.4.3.1}%
-\contentsline {subsubsection}{\numberline {4.3.2}Anti-Windup Implementation in VentCon2}{16}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.2}Anti-Windup Implementation in VentCon2}{17}{subsubsection.4.3.2}%
 \contentsline {subsubsection}{\numberline {4.3.3}Configuration and Tuning}{17}{subsubsection.4.3.3}%
-\contentsline {subsection}{\numberline {4.4}Hysteresis Compensation}{17}{subsection.4.4}%
-\contentsline {subsubsection}{\numberline {4.4.1}The Hysteresis Problem}{17}{subsubsection.4.4.1}%
-\contentsline {subsubsection}{\numberline {4.4.2}Hysteresis Compensation Strategy}{18}{subsubsection.4.4.2}%
-\contentsline {subsubsection}{\numberline {4.4.3}Configuration and Tuning}{19}{subsubsection.4.4.3}%
-\contentsline {subsubsection}{\numberline {4.4.4}Tuning Guidelines}{19}{subsubsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.4}Hysteresis Compensation}{18}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}The Hysteresis Problem}{18}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Hysteresis Compensation Strategy}{19}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}Configuration and Tuning}{20}{subsubsection.4.4.3}%
+\contentsline {subsubsection}{\numberline {4.4.4}Tuning Guidelines}{20}{subsubsection.4.4.4}%
 \contentsline {subsubsection}{\numberline {4.4.5}Interaction with Other Control Parameters}{20}{subsubsection.4.4.5}%
-\contentsline {subsection}{\numberline {4.5}Relay-Based Auto-Tuning}{20}{subsection.4.5}%
-\contentsline {subsubsection}{\numberline {4.5.1}Tuning Algorithm}{20}{subsubsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5}Relay-Based Auto-Tuning}{21}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}Tuning Algorithm}{21}{subsubsection.4.5.1}%
 \contentsline {subsubsection}{\numberline {4.5.2}Tuning Rules}{21}{subsubsection.4.5.2}%
-\contentsline {section}{\numberline {5}Software Architecture}{21}{section.5}%
-\contentsline {subsection}{\numberline {5.1}System Architecture Diagram}{21}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Design Patterns}{22}{subsection.5.2}%
-\contentsline {subsection}{\numberline {5.3}FreeRTOS Task Distribution}{22}{subsection.5.3}%
+\contentsline {section}{\numberline {5}Software Architecture}{22}{section.5}%
+\contentsline {subsection}{\numberline {5.1}System Architecture Diagram}{22}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Design Patterns}{23}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}FreeRTOS Task Distribution}{23}{subsection.5.3}%
 \contentsline {section}{\numberline {6}Class Reference}{23}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Class Summary Tables}{23}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}SettingsHandler Class}{26}{subsection.6.2}%
-\contentsline {subsubsection}{\numberline {6.2.1}Purpose}{26}{subsubsection.6.2.1}%
-\contentsline {subsubsection}{\numberline {6.2.2}Key Responsibilities}{26}{subsubsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2}SettingsHandler Class}{27}{subsection.6.2}%
+\contentsline {subsubsection}{\numberline {6.2.1}Purpose}{27}{subsubsection.6.2.1}%
+\contentsline {subsubsection}{\numberline {6.2.2}Key Responsibilities}{27}{subsubsection.6.2.2}%
 \contentsline {subsubsection}{\numberline {6.2.3}Key Attributes}{27}{subsubsection.6.2.3}%
 \contentsline {subsection}{\numberline {6.3}SensorManager Class}{28}{subsection.6.3}%
 \contentsline {subsubsection}{\numberline {6.3.1}Purpose}{28}{subsubsection.6.3.1}%
-\contentsline {subsubsection}{\numberline {6.3.2}Key Responsibilities}{28}{subsubsection.6.3.2}%
-\contentsline {subsubsection}{\numberline {6.3.3}Key Attributes}{28}{subsubsection.6.3.3}%
+\contentsline {subsubsection}{\numberline {6.3.2}Key Responsibilities}{29}{subsubsection.6.3.2}%
+\contentsline {subsubsection}{\numberline {6.3.3}Key Attributes}{29}{subsubsection.6.3.3}%
 \contentsline {subsubsection}{\numberline {6.3.4}Sensor Specifications}{29}{subsubsection.6.3.4}%
-\contentsline {subsection}{\numberline {6.4}AutoTuner Class}{29}{subsection.6.4}%
-\contentsline {subsubsection}{\numberline {6.4.1}Purpose}{29}{subsubsection.6.4.1}%
-\contentsline {subsubsection}{\numberline {6.4.2}Class Structure}{29}{subsubsection.6.4.2}%
-\contentsline {subsection}{\numberline {6.5}ControlSystem Class}{30}{subsection.6.5}%
-\contentsline {subsubsection}{\numberline {6.5.1}Purpose}{30}{subsubsection.6.5.1}%
-\contentsline {subsubsection}{\numberline {6.5.2}Control Loop Structure}{30}{subsubsection.6.5.2}%
+\contentsline {subsection}{\numberline {6.4}AutoTuner Class}{30}{subsection.6.4}%
+\contentsline {subsubsection}{\numberline {6.4.1}Purpose}{30}{subsubsection.6.4.1}%
+\contentsline {subsubsection}{\numberline {6.4.2}Class Structure}{30}{subsubsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.5}ControlSystem Class}{31}{subsection.6.5}%
+\contentsline {subsubsection}{\numberline {6.5.1}Purpose}{31}{subsubsection.6.5.1}%
+\contentsline {subsubsection}{\numberline {6.5.2}Control Loop Structure}{31}{subsubsection.6.5.2}%
 \contentsline {subsection}{\numberline {6.6}WebHandler Class}{32}{subsection.6.6}%
 \contentsline {subsubsection}{\numberline {6.6.1}Purpose}{32}{subsubsection.6.6.1}%
-\contentsline {subsubsection}{\numberline {6.6.2}Network Configuration}{32}{subsubsection.6.6.2}%
-\contentsline {subsubsection}{\numberline {6.6.3}Class Structure}{32}{subsubsection.6.6.3}%
-\contentsline {subsection}{\numberline {6.7}CommandProcessor Class}{33}{subsection.6.7}%
-\contentsline {subsubsection}{\numberline {6.7.1}Purpose}{33}{subsubsection.6.7.1}%
-\contentsline {subsection}{\numberline {6.8}TaskManager Class}{33}{subsection.6.8}%
-\contentsline {subsubsection}{\numberline {6.8.1}Purpose}{33}{subsubsection.6.8.1}%
+\contentsline {subsubsection}{\numberline {6.6.2}Network Configuration}{33}{subsubsection.6.6.2}%
+\contentsline {subsubsection}{\numberline {6.6.3}Class Structure}{33}{subsubsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.7}CommandProcessor Class}{34}{subsection.6.7}%
+\contentsline {subsubsection}{\numberline {6.7.1}Purpose}{34}{subsubsection.6.7.1}%
+\contentsline {subsection}{\numberline {6.8}TaskManager Class}{34}{subsection.6.8}%
+\contentsline {subsubsection}{\numberline {6.8.1}Purpose}{34}{subsubsection.6.8.1}%
 \contentsline {subsection}{\numberline {6.9}Logger Class}{34}{subsection.6.9}%
 \contentsline {subsubsection}{\numberline {6.9.1}Purpose}{34}{subsubsection.6.9.1}%
 \contentsline {subsubsection}{\numberline {6.9.2}Key Members}{34}{subsubsection.6.9.2}%
-\contentsline {section}{\numberline {7}Communication Interfaces}{34}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Web Interface}{34}{subsection.7.1}%
-\contentsline {subsubsection}{\numberline {7.1.1}Architecture}{34}{subsubsection.7.1.1}%
-\contentsline {paragraph}{Memory-Efficient Streaming Design}{34}{section*.10}%
+\contentsline {section}{\numberline {7}Communication Interfaces}{35}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Web Interface}{35}{subsection.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.1}Architecture}{35}{subsubsection.7.1.1}%
+\contentsline {paragraph}{Memory-Efficient Streaming Design}{35}{section*.10}%
 \contentsline {paragraph}{Single Page Application (SPA) Design}{35}{section*.11}%
-\contentsline {paragraph}{User Interface Components}{35}{table.14}%
-\contentsline {paragraph}{Configurable Slider Limits}{35}{section*.13}%
+\contentsline {paragraph}{User Interface Components}{36}{table.14}%
+\contentsline {paragraph}{Configurable Slider Limits}{36}{section*.13}%
 \contentsline {subsubsection}{\numberline {7.1.2}HTTP Endpoints and API}{36}{subsubsection.7.1.2}%
-\contentsline {paragraph}{Route Configuration (setupRoutes)}{36}{section*.14}%
-\contentsline {subparagraph}{How Web Servers Work}{36}{section*.15}%
-\contentsline {subparagraph}{What Are Routes?}{36}{section*.16}%
-\contentsline {subparagraph}{Lambda Functions}{36}{section*.17}%
-\contentsline {subparagraph}{HTTP Methods (GET vs POST)}{36}{section*.18}%
-\contentsline {subparagraph}{Special Routes}{36}{section*.19}%
+\contentsline {paragraph}{Route Configuration (setupRoutes)}{37}{section*.14}%
+\contentsline {subparagraph}{How Web Servers Work}{37}{section*.15}%
+\contentsline {subparagraph}{What Are Routes?}{37}{section*.16}%
+\contentsline {subparagraph}{Lambda Functions}{37}{section*.17}%
+\contentsline {subparagraph}{HTTP Methods (GET vs POST)}{37}{section*.18}%
+\contentsline {subparagraph}{Special Routes}{37}{section*.19}%
 \contentsline {subsubsection}{\numberline {7.1.3}Data Exchange Process}{37}{subsubsection.7.1.3}%
 \contentsline {paragraph}{Client-Server Communication Flow}{37}{section*.20}%
-\contentsline {paragraph}{Streaming HTML Implementation}{37}{section*.21}%
-\contentsline {paragraph}{Real-time Data Loop Implementation}{38}{section*.22}%
-\contentsline {subparagraph}{Client-Side Implementation}{38}{section*.23}%
-\contentsline {subparagraph}{Server-Side Data Processing}{39}{section*.24}%
-\contentsline {subparagraph}{UI Update Process}{39}{section*.25}%
-\contentsline {subparagraph}{Performance Optimization Strategies}{40}{section*.26}%
-\contentsline {subparagraph}{Error Recovery and Resilience}{40}{section*.27}%
-\contentsline {subparagraph}{Data Loop Performance Metrics}{41}{section*.28}%
-\contentsline {paragraph}{Real-time Data Structure}{41}{section*.29}%
+\contentsline {paragraph}{Streaming HTML Implementation}{38}{section*.21}%
+\contentsline {paragraph}{Real-time Data Loop Implementation}{39}{section*.22}%
+\contentsline {subparagraph}{Client-Side Implementation}{39}{section*.23}%
+\contentsline {subparagraph}{Server-Side Data Processing}{40}{section*.24}%
+\contentsline {subparagraph}{UI Update Process}{40}{section*.25}%
+\contentsline {subparagraph}{Performance Optimization Strategies}{41}{section*.26}%
+\contentsline {subparagraph}{Error Recovery and Resilience}{41}{section*.27}%
+\contentsline {subparagraph}{Data Loop Performance Metrics}{42}{section*.28}%
+\contentsline {paragraph}{Real-time Data Structure}{42}{section*.29}%
 \contentsline {paragraph}{Parameter Update Protocol}{42}{section*.30}%
 \contentsline {paragraph}{Parameter Update Process}{42}{section*.31}%
 \contentsline {paragraph}{Error Handling and Recovery}{42}{section*.32}%
-\contentsline {subsubsection}{\numberline {7.1.4}Security and Access Control}{42}{subsubsection.7.1.4}%
-\contentsline {paragraph}{Network Security}{42}{section*.33}%
-\contentsline {paragraph}{Application Security}{42}{section*.34}%
-\contentsline {subsubsection}{\numberline {7.1.5}Performance Optimization}{42}{subsubsection.7.1.5}%
-\contentsline {paragraph}{Network Performance}{42}{section*.35}%
+\contentsline {subsubsection}{\numberline {7.1.4}Security and Access Control}{43}{subsubsection.7.1.4}%
+\contentsline {paragraph}{Network Security}{43}{section*.33}%
+\contentsline {paragraph}{Application Security}{43}{section*.34}%
+\contentsline {subsubsection}{\numberline {7.1.5}Performance Optimization}{43}{subsubsection.7.1.5}%
+\contentsline {paragraph}{Network Performance}{43}{section*.35}%
 \contentsline {paragraph}{Memory Management}{43}{section*.36}%
-\contentsline {paragraph}{File Serving Implementation}{43}{lstlisting.17}%
-\contentsline {subsection}{\numberline {7.2}Serial Command Interface}{43}{subsection.7.2}%
-\contentsline {subsubsection}{\numberline {7.2.1}PID Control Commands}{43}{subsubsection.7.2.1}%
-\contentsline {subsubsection}{\numberline {7.2.2}Signal Processing Commands}{44}{subsubsection.7.2.2}%
-\contentsline {subsubsection}{\numberline {7.2.3}PWM and Valve Control Commands}{44}{subsubsection.7.2.3}%
+\contentsline {paragraph}{File Serving Implementation}{44}{lstlisting.17}%
+\contentsline {subsection}{\numberline {7.2}Serial Command Interface}{44}{subsection.7.2}%
+\contentsline {subsubsection}{\numberline {7.2.1}PID Control Commands}{44}{subsubsection.7.2.1}%
+\contentsline {subsubsection}{\numberline {7.2.2}Signal Processing Commands}{45}{subsubsection.7.2.2}%
+\contentsline {subsubsection}{\numberline {7.2.3}PWM and Valve Control Commands}{45}{subsubsection.7.2.3}%
 \contentsline {subsubsection}{\numberline {7.2.4}Auto-Tuning Commands}{45}{subsubsection.7.2.4}%
-\contentsline {subsubsection}{\numberline {7.2.5}Network and WiFi Commands}{45}{subsubsection.7.2.5}%
+\contentsline {subsubsection}{\numberline {7.2.5}Network and WiFi Commands}{46}{subsubsection.7.2.5}%
 \contentsline {subsubsection}{\numberline {7.2.6}Data Monitoring and Diagnostics Commands}{46}{subsubsection.7.2.6}%
-\contentsline {subsubsection}{\numberline {7.2.7}File System and Settings Commands}{46}{subsubsection.7.2.7}%
-\contentsline {subsubsection}{\numberline {7.2.8}Help and Reference}{46}{subsubsection.7.2.8}%
-\contentsline {section}{\numberline {8}System Integration and Data Flow}{47}{section.8}%
-\contentsline {subsection}{\numberline {8.1}Initialization Sequence}{47}{subsection.8.1}%
-\contentsline {subsection}{\numberline {8.2}Real-time Operation}{47}{subsection.8.2}%
-\contentsline {subsection}{\numberline {8.3}Safety Mechanisms}{47}{subsection.8.3}%
-\contentsline {subsection}{\numberline {8.4}Settings Mutex and Concurrency}{48}{subsection.8.4}%
-\contentsline {subsubsection}{\numberline {8.4.1}The Problem: Shared Data and Torn Reads}{48}{subsubsection.8.4.1}%
-\contentsline {subsubsection}{\numberline {8.4.2}FreeRTOS Mutex on the ESP32}{48}{subsubsection.8.4.2}%
-\contentsline {subsubsection}{\numberline {8.4.3}The Three Access Patterns}{49}{subsubsection.8.4.3}%
-\contentsline {paragraph}{Pattern 1: update(fn), writing fields}{49}{lstlisting.19}%
-\contentsline {paragraph}{Pattern 2: withLock(fn), protected reads of 64-bit fields}{49}{lstlisting.21}%
-\contentsline {paragraph}{Pattern 3: snapshotTo(out), bulk consistent reads}{50}{lstlisting.24}%
-\contentsline {subsubsection}{\numberline {8.4.4}Serialization and Persistence: save() and load()}{50}{subsubsection.8.4.4}%
-\contentsline {subsubsection}{\numberline {8.4.5}Which Fields Need Protection}{51}{subsubsection.8.4.5}%
-\contentsline {subsubsection}{\numberline {8.4.6}Summary Diagram}{51}{subsubsection.8.4.6}%
-\contentsline {section}{\numberline {9}Configuration and Deployment}{52}{section.9}%
-\contentsline {subsection}{\numberline {9.1}Default Parameters}{52}{subsection.9.1}%
-\contentsline {subsection}{\numberline {9.2}Persistent Storage}{53}{subsection.9.2}%
-\contentsline {subsection}{\numberline {9.3}Build Configuration}{53}{subsection.9.3}%
-\contentsline {subsection}{\numberline {9.4}Testing Strategy}{53}{subsection.9.4}%
-\contentsline {section}{\numberline {10}Performance Characteristics}{54}{section.10}%
-\contentsline {subsection}{\numberline {10.1}System Metrics}{54}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}Stability Analysis}{54}{subsection.10.2}%
-\contentsline {section}{\numberline {11}Conclusion}{54}{section.11}%
-\contentsline {subsection}{\numberline {11.1}Future Enhancements}{55}{subsection.11.1}%
-\contentsline {section}{\numberline {12}Security and Compliance}{55}{section.12}%
-\contentsline {subsection}{\numberline {12.1}Security Analysis}{55}{subsection.12.1}%
-\contentsline {subsection}{\numberline {12.2}EU Cyber Resilience Act (CRA)}{55}{subsection.12.2}%
-\contentsline {subsection}{\numberline {12.3}Compliance Status}{56}{subsection.12.3}%
-\contentsline {subsection}{\numberline {12.4}Related Documents}{56}{subsection.12.4}%
+\contentsline {subsubsection}{\numberline {7.2.7}File System and Settings Commands}{47}{subsubsection.7.2.7}%
+\contentsline {subsubsection}{\numberline {7.2.8}Help and Reference}{47}{subsubsection.7.2.8}%
+\contentsline {section}{\numberline {8}System Integration and Data Flow}{48}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Initialization Sequence}{48}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Real-time Operation}{48}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Safety Mechanisms}{48}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Settings Mutex and Concurrency}{49}{subsection.8.4}%
+\contentsline {subsubsection}{\numberline {8.4.1}The Problem: Shared Data and Torn Reads}{49}{subsubsection.8.4.1}%
+\contentsline {subsubsection}{\numberline {8.4.2}FreeRTOS Mutex on the ESP32}{49}{subsubsection.8.4.2}%
+\contentsline {subsubsection}{\numberline {8.4.3}The Three Access Patterns}{50}{subsubsection.8.4.3}%
+\contentsline {paragraph}{Pattern 1: update(fn), writing fields}{50}{lstlisting.19}%
+\contentsline {paragraph}{Pattern 2: withLock(fn), protected reads of 64-bit fields}{50}{lstlisting.21}%
+\contentsline {paragraph}{Pattern 3: snapshotTo(out), bulk consistent reads}{51}{lstlisting.24}%
+\contentsline {subsubsection}{\numberline {8.4.4}Serialization and Persistence: save() and load()}{51}{subsubsection.8.4.4}%
+\contentsline {subsubsection}{\numberline {8.4.5}Which Fields Need Protection}{52}{subsubsection.8.4.5}%
+\contentsline {subsubsection}{\numberline {8.4.6}Summary Diagram}{52}{subsubsection.8.4.6}%
+\contentsline {section}{\numberline {9}Configuration and Deployment}{53}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Default Parameters}{53}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Persistent Storage}{54}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Build Configuration}{54}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Testing Strategy}{54}{subsection.9.4}%
+\contentsline {section}{\numberline {10}Performance Characteristics}{55}{section.10}%
+\contentsline {subsection}{\numberline {10.1}System Metrics}{55}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Stability Analysis}{55}{subsection.10.2}%
+\contentsline {section}{\numberline {11}Conclusion}{55}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Future Enhancements}{56}{subsection.11.1}%
+\contentsline {section}{\numberline {12}Security and Compliance}{56}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Security Analysis}{56}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}EU Cyber Resilience Act (CRA)}{56}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Compliance Status}{57}{subsection.12.3}%
+\contentsline {subsection}{\numberline {12.4}Related Documents}{57}{subsection.12.4}%

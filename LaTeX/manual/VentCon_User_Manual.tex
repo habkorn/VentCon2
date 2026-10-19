@@ -185,7 +185,7 @@ The terminal block on the front of the VENTCON device (Figure~\ref{fig:terminal}
 
 \begin{figure}[H]
     \centering
-        \includegraphics[width=0.9\linewidth]{pic/Terminal_block.pdf}
+        \includegraphics[width=0.78\linewidth]{pic/Terminal_block.pdf}
         \caption{Terminal block connections.}
         \label{fig:terminal}
 \end{figure}
@@ -239,11 +239,17 @@ The \textbf{Power Supply} (not included in the demo kit) is connected at two pos
 \end{tcolorbox}
 
 
-\vspace{1ex}
-
-The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connector (i.e. no user wiring required):
+The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connector (no user wiring required).
+Familiarise yourself with the browser interface and the control parameters first (\underline{see section~\ref{sec:connWifi}}).
 
 \begin{tcolorbox}[blanker, borderline west={1pt}{0pt}{ventrexblue}, left=1em]
+    \begin{enumerate}[leftmargin=6em]
+            \item [Pos. \textbf{7)}]\fbox{\texttt{PV+}} Connect to the positive valve terminal (permanently at supply
+            potential). On connectors marked \textbf{1}/\textbf{2}, use \textbf{pin 1}.
+            \item [Pos. \textbf{8)}]\fbox{\texttt{PV-}} Connect to the negative valve terminal (switched to ground by
+            the PWM signal). On connectors marked \textbf{1}/\textbf{2}, use \textbf{pin 2}.
+    \end{enumerate}
+
     \begin{tcolorbox}[
         colback=ventrexblue!8,
         colframe=ventrexblue,
@@ -252,15 +258,10 @@ The \textbf{Proportional Valve (PV)} is connected via the provided 2-pin connect
         boxrule=0.6pt,
         arc=2pt
     ]
-    It is recommended that users first familiarise themselves with sensor behaviour, browser interface, 
-    and control parameters before connecting the proportional valve (PV). \underline{See section~\ref{sec:connWifi}.}
+    The valve supplied with the demo kit has no integrated diode and works in either polarity. Third-party valves
+    with a freewheel diode, LED or built-in electronics are polarity sensitive: check their datasheet. Never
+    connect or disconnect the valve while the unit is powered.
     \end{tcolorbox}
-
-
-    \begin{enumerate}[leftmargin=6em]
-            \item [Pos. \textbf{7)}]\fbox{\texttt{PV+}} This is connected to the positive terminal of the proportional valve.
-            \item [Pos. \textbf{8)}]\fbox{\texttt{PV-}} This is connected to the negative terminal of the proportional valve.
-    \end{enumerate}
 \end{tcolorbox}
 
 

@@ -11,6 +11,27 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.7.5] - 2026-10-19
+
+### Added
+- `tools/shrink_manual_pdf.py` regenerates the downsampled copy of the user manual that is
+  served from LittleFS (`data/VentCon_User_Manual.pdf`).
+
+### Documentation
+- User manual, Section 2.1: `PV+` and `PV-` now describe their function (supply potential and
+  PWM-switched terminal) and give the mapping for valve connectors marked 1 and 2
+  (pin 1 to `PV+`, pin 2 to `PV-`).
+- User manual, Section 2.1: new note that the supplied VENTREX coil has no integrated diode and
+  works in either polarity, that third-party valves may be polarity sensitive, and that the valve
+  must not be connected or disconnected while the unit is powered.
+- User manual, Section 2.1: the callout about familiarising oneself with the interface first was
+  folded into the intro sentence, so the section still fits on a single page; the terminal block
+  figure is scaled to 0.78 of the text width for the same reason.
+- Technical documentation, Section 3.1: added "Electrical Connection" describing the low-side
+  switching, the default 2 kHz PWM frequency and the 1/2 terminal mapping.
+
+---
+
 ## [2.7.3] — 2026-08-28
 
 ### Added

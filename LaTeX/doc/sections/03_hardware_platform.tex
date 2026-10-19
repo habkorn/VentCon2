@@ -16,6 +16,12 @@ The proportional valve is the primary actuator in the VentCon2 system, responsib
 
 The proportional valve converts electrical PWM signals from the microcontroller into precise mechanical valve positioning. The proportional relationship between PWM duty cycle and valve opening allows the system to achieve smooth, linear pressure control across the full operating range. The valve's physical limitations (deadband, response lag) are compensated by control algorithms described in Section~\ref{sec:control-theory}.
 
+\subsubsection{Electrical Connection}
+
+The valve is switched on the low side: a single N-channel MOSFET connects the negative terminal (\texttt{PV-}) to ground with the PWM signal, while the positive terminal (\texttt{PV+}) is tied to the supply rail. The default switching frequency is 2\,kHz. Valve connectors that label the two contacts \textbf{1} and \textbf{2} instead of \texttt{+} and \texttt{-} are wired with pin~1 to \texttt{PV+} and pin~2 to \texttt{PV-}.
+
+The proportional valve supplied with the demo kit is a plain solenoid winding without an integrated diode and therefore operates in either polarity. Third-party valves may contain a freewheel diode, an indicator LED or built-in electronics; those are polarity sensitive and must be checked against their datasheet before connection. The valve must never be connected or disconnected while the power supply is switched on.
+
 \subsection{Pressure Sensor}
 
 The pressure sensor continuously monitors the system pressure, providing real-time feedback to the control algorithm. Specifications:
