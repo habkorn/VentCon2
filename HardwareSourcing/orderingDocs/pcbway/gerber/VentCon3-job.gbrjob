@@ -1,0 +1,24 @@
+{
+    "Header": {
+        "Comment": "All values are metric (mm)",
+        "CreationDate": "2026-11-11T09:05:35Z",
+        "GenerationSoftware": {
+            "Application": "Fusion Electronics",
+            "Vendor": "Autodesk",
+            "Version": "9.7.0"
+        },
+        "Part": "Single"
+    },
+    "Overall": {
+        "BoardThickness": 2.8,
+        "LayerNumber": 4,
+        "Name": {
+            "ProjectId": "VentCon3"
+        },
+        "Owner": "Thomas Haberkorn <thomas.haberkorn@ventrex.com>",
+        "Size": {
+            "X": 55.88,
+            "Y": 90.15
+        }
+    }
+}

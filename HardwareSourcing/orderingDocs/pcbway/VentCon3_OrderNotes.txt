@@ -1,0 +1,28 @@
+VentCon 3 ordering notes
+
+PCB fabrication
+- 4 layers, 55.88 x 90.15 mm, FR-4, 2.8 mm, 1 oz copper.
+- HASL lead-free, green solder mask, white silkscreen.
+- No impedance control required.
+- Non-plated holes: 14 (2 x D3.30, 4 x D2.05, 4 x D1.55, 4 x D1.651 mm),
+  all in VentCon3-NPTH.drl. The circular contours of the original outline
+  layer were removed, so no additional cut-outs or rout slots are needed.
+- Vias D0.35 mm, smallest trace 0.254 mm, smallest annular ring 0.203 mm.
+  With 2.8 mm thickness this is an 8:1 aspect ratio, please confirm it is
+  within the standard process.
+
+Assembly
+- Turnkey, both sides, 15 pcs.
+- Do not place: J1, U1, S1, S2, S3. These parts are assembled by the customer
+  and are not part of the BOM, 15 sets will be supplied separately.
+- H1 and H2 are stand-off pads, not components.
+- THT parts C4, C10, IC1, IC2, Q1: please hand-solder (13 joints).
+- No substitution for C3 (C0G), C4/C10 (105 degC, low ESR), D1/D2 (SMB,
+  not SMC), R7/R9 (0.1 %, 25 ppm/K), IC1, IC2, Q1 (Infineon only), U2.
+- F1 and F2 must be rated for at least 32 V. C12 must not be Y5V.
+- C2, C12, F1 and F2 have no MPN yet, please select to the specification in
+  the BOM and quote.
+- U2 (VSSOP-10, 0.5 mm pitch): please keep a solder mask dam of at least
+  0.10 mm between the pads.
+- Polarity: D1, D2 (cathode), C4, C10 (minus), IC1, IC2, Q1 and U2 are marked
+  on the silkscreen.
